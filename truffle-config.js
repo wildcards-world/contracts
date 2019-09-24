@@ -10,7 +10,7 @@ module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
   // to customize your Truffle configuration!
   plugins: ["truffle-security"],
-  contracts_build_directory: path.join(__dirname, "app/src/contracts"),
+  contracts_build_directory: path.join(__dirname, "artifacts/contracts"),
   networks: {
     // mainnet: {
     //   network_id: 1,

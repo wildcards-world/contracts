@@ -16,7 +16,7 @@ contract('WildcardSteward', (accounts) => {
   });
 
   it('steward: init: artwork minted', async () => {
-    const currentOwner = await artwork.ownerOf.call(1);
+    const currentOwner = await artwork.ownerOf.call(2);
     const uri = await artwork.tokenURI(1);
     assert.equal(uri, "FIX-ME");
     assert.equal(steward.address, currentOwner);
