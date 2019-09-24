@@ -1,7 +1,7 @@
-version: '2'
+version: "2"
 services:
   ganache:
-    image: trufflesuite/ganache-cli:v6.4.3
+    image: trufflesuite/ganache-cli:v6.7.0
     container_name: ganache
 
   wildcards:
