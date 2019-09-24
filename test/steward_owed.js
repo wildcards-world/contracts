@@ -1,4 +1,4 @@
-const { BN, shouldFail, ether, expectEvent, balance, time } = require('openzeppelin-test-helpers');
+const { BN, expectRevert, ether, expectEvent, balance, time } = require('openzeppelin-test-helpers');
 
 const Artwork = artifacts.require('./ERC721Full.sol');
 const ArtSteward = artifacts.require('./WildcardSteward.sol');
@@ -23,7 +23,7 @@ contract('WildcardSteward owed', (accounts) => {
 
   it('steward: owned. transfer without steward (fail)', async () => {
     await steward.buy(1, web3.utils.toWei('1', 'ether'), { from: accounts[2], value: web3.utils.toWei('1', 'ether') });
-    await shouldFail.reverting(artwork.transferFrom(accounts[2], accounts[1], 42, { from: accounts[2] }));
+    await expectRevert.unspecified(artwork.transferFrom(accounts[2], accounts[1], 42, { from: accounts[2] }));
   });
 
   it('steward: owned. check patronage owed after 1 second.', async () => {
@@ -99,7 +99,7 @@ contract('WildcardSteward owed', (accounts) => {
     const calcOrganizationFund = owed.patronageDue.add(owed2.patronageDue);
     const calcCurrentCollected = owed.patronageDue.add(owed2.patronageDue);
     const calcTotalCurrentCollected = owed.patronageDue.add(owed2.patronageDue);
-
+    console.log('diff', deposit.sub(calcDeposit).toString())
     assert.equal(deposit.toString(), calcDeposit.toString());
     assert.equal(organizationFund.toString(), calcOrganizationFund.toString());
     assert.equal(timeLastCollected.toString(), previousBlockTime.toString());
@@ -282,7 +282,7 @@ contract('WildcardSteward owed', (accounts) => {
 
   it('steward: owned. change price to zero [fail]', async () => {
     await steward.buy(1, ether('1'), { from: accounts[2], value: ether('2') });
-    await shouldFail.reverting.withMessage(steward.changePrice(testTokenId, '0', { from: accounts[2] }), "Incorrect Price");
+    await expectRevert(steward.changePrice(testTokenId, '0', { from: accounts[2] }), "Incorrect Price");
   });
 
   it('steward: owned. change price to more [success]', async () => {
@@ -302,7 +302,7 @@ contract('WildcardSteward owed', (accounts) => {
 
   it('steward: owned. change price to less with another account [fail]', async () => {
     await steward.buy(1, ether('1'), { from: accounts[2], value: ether('2') });
-    await shouldFail.reverting.withMessage(steward.changePrice(testTokenId, ether('0.5'), { from: accounts[3] }), "Not patron");
+    await expectRevert(steward.changePrice(testTokenId, ether('0.5'), { from: accounts[3] }), "Not patron");
   });
 
   it('steward: owned. withdraw whole deposit into foreclosure [succeed]', async () => {
@@ -330,12 +330,12 @@ contract('WildcardSteward owed', (accounts) => {
 
   it('steward: owned. withdraw more than exists [fail]', async () => {
     await steward.buy(1, ether('1'), { from: accounts[2], value: ether('2') });
-    await shouldFail.reverting.withMessage(steward.withdrawDeposit(testTokenId, ether('4'), { from: accounts[2] }), "Withdrawing too much");
+    await expectRevert(steward.withdrawDeposit(testTokenId, ether('4'), { from: accounts[2] }), "Withdrawing too much");
   });
 
   it('steward: owned. withdraw some deposit from another account [fails]', async () => {
     await steward.buy(1, ether('1'), { from: accounts[2], value: ether('2') });
-    await shouldFail.reverting.withMessage(steward.withdrawDeposit(testTokenId, ether('1'), { from: accounts[3] }), "Not patron");
+    await expectRevert(steward.withdrawDeposit(testTokenId, ether('1'), { from: accounts[3] }), "Not patron");
   });
 
 
@@ -420,9 +420,9 @@ contract('WildcardSteward owed', (accounts) => {
     await steward.buy(1, ether('1'), { from: accounts[2], value: totalToBuy });
     await time.increase(time.duration.minutes(20)); // into foreclosure state
 
-    await shouldFail.reverting.withMessage(steward.depositWei(testTokenId, { from: accounts[2], value: ether('1') }), "Foreclosed");
-    await shouldFail.reverting.withMessage(steward.changePrice(testTokenId, ether('2'), { from: accounts[2] }), "Foreclosed");
-    await shouldFail.reverting.withMessage(steward.withdrawDeposit(testTokenId, ether('0.5'), { from: accounts[2] }), "Withdrawing too much");
+    await expectRevert(steward.depositWei(testTokenId, { from: accounts[2], value: ether('1') }), "Foreclosed");
+    await expectRevert(steward.changePrice(testTokenId, ether('2'), { from: accounts[2] }), "Foreclosed");
+    await expectRevert(steward.withdrawDeposit(testTokenId, ether('0.5'), { from: accounts[2] }), "Withdrawing too much");
   });
 
   it('steward: owned: goes into foreclosure state & bought from another account [success]', async () => {
@@ -486,7 +486,7 @@ contract('WildcardSteward owed', (accounts) => {
   describe('the organization can assign another address to act as the stewart', () => {
 
     it('an entity that is not the current organization should NOT be able to change the organization', async () => {
-      await shouldFail.reverting.withMessage(steward.changeReceivingOrganization(accounts[2], { from: accounts[3] }), "Not organization");
+      await expectRevert(steward.changeReceivingOrganization(accounts[2], { from: accounts[3] }), "Not organization");
     })
 
     it('the current organisation should be able to change the organization', async () => {

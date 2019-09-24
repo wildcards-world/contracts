@@ -1,4 +1,4 @@
-const { BN, shouldFail, ether, expectEvent, balance, time } = require('openzeppelin-test-helpers');
+const { BN, expectRevert, ether, expectEvent, balance, time } = require('openzeppelin-test-helpers');
 
 const Artwork = artifacts.require('./ERC721Full.sol');
 const WildcardSteward = artifacts.require('./WildcardSteward.sol');
@@ -23,20 +23,20 @@ contract('WildcardSteward', (accounts) => {
   });
 
   it('steward: init: retry setup (fail)', async () => {
-    await shouldFail.reverting.withMessage(artwork.setup(8, "something", { from: accounts[0] }), "Already initialized");
+    await expectRevert(artwork.setup(8, "something", { from: accounts[0] }), "Already initialized");
   });
 
   it('steward: init: deposit wei fail [foreclosed]', async () => {
-    await shouldFail.reverting.withMessage(steward.depositWei(1, { from: accounts[2], value: web3.utils.toWei('1', 'ether') }), "Foreclosed");
+    await expectRevert(steward.depositWei(1, { from: accounts[2], value: web3.utils.toWei('1', 'ether') }), "Foreclosed");
   });
 
   it('steward: init: wait time. deposit wei fail [foreclosed]', async () => {
     await time.increase(1000); // 1000 seconds, arbitrary
-    await shouldFail.reverting.withMessage(steward.depositWei(1, { from: accounts[2], value: web3.utils.toWei('1', 'ether') }), "Foreclosed");
+    await expectRevert(steward.depositWei(1, { from: accounts[2], value: web3.utils.toWei('1', 'ether') }), "Foreclosed");
   });
 
   it('steward: init: change price fail [not patron]', async () => {
-    await shouldFail.reverting.withMessage(steward.changePrice(1, 500, { from: accounts[2] }), "Not patron");
+    await expectRevert(steward.changePrice(1, 500, { from: accounts[2] }), "Not patron");
   });
 
   it('steward: init: collect 0 patronage.', async () => {
@@ -48,15 +48,15 @@ contract('WildcardSteward', (accounts) => {
   });
 
   it('steward: init: withdraw deposit [not patron]', async () => {
-    await shouldFail.reverting.withMessage(steward.withdrawDeposit(1, 10, { from: accounts[2] }), "Not patron");
+    await expectRevert(steward.withdrawDeposit(1, 10, { from: accounts[2] }), "Not patron");
   });
 
   it('steward: init: buy with zero wei [fail payable]', async () => {
-    await shouldFail.reverting(steward.buy(1, 1000, { from: accounts[2], value: web3.utils.toWei('0', 'ether') }));
+    await expectRevert.unspecified(steward.buy(1, 1000, { from: accounts[2], value: web3.utils.toWei('0', 'ether') }));
   });
 
   it('steward: init: buy with 1 ether but 0 price [fail on price]', async () => {
-    await shouldFail.reverting.withMessage(steward.buy(1, 0, { from: accounts[2], value: web3.utils.toWei('1', 'ether') }), "Price is zero");
+    await expectRevert(steward.buy(1, 0, { from: accounts[2], value: web3.utils.toWei('1', 'ether') }), "Price is zero");
   });
 
   it('steward: init: buy with 2 ether, price of 1 success [price = 1 eth, deposit = 1 eth]', async () => {
