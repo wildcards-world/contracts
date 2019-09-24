@@ -1,13 +1,13 @@
 const { BN, shouldFail, ether, expectEvent, balance, time } = require('openzeppelin-test-helpers');
 
 const Artwork = artifacts.require('./ERC721Full.sol');
-const ArtSteward = artifacts.require('./VitalikSteward.sol');
+const ArtSteward = artifacts.require('./WildcardSteward.sol');
 
 const delay = duration => new Promise(resolve => setTimeout(resolve, duration));
 
 // todo: test over/underflows
 
-contract('VitalikSteward owed', (accounts) => {
+contract('WildcardSteward owed', (accounts) => {
 
   let artwork;
   let steward;
@@ -31,7 +31,8 @@ contract('VitalikSteward owed', (accounts) => {
     const owed = await steward.patronageOwedWithTimestamp.call(1, { from: accounts[2] });
 
     // price * (now - timeLastCollected) * patronageNumerator/ patronageDenominator / 365 days;
-    const due = ether('1').mul(owed.timestamp.sub(timeLastCollected)).mul(new BN('50000000000')).div(new BN('1000000000000')).div(new BN('31536000'));
+    // TODO: make all these values into global constants
+    const due = ether('1').mul(owed.timestamp.sub(timeLastCollected)).mul(new BN('12000000000000')).div(new BN('1000000000000')).div(new BN('31536000'));
 
     assert.equal(owed.patronageDue.toString(), due.toString());
   });

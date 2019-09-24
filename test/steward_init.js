@@ -1,18 +1,18 @@
 const { BN, shouldFail, ether, expectEvent, balance, time } = require('openzeppelin-test-helpers');
 
 const Artwork = artifacts.require('./ERC721Full.sol');
-const VitalikSteward = artifacts.require('./VitalikSteward.sol');
+const WildcardSteward = artifacts.require('./WildcardSteward.sol');
 
 const delay = duration => new Promise(resolve => setTimeout(resolve, duration));
 
-contract('VitalikSteward', (accounts) => {
+contract('WildcardSteward', (accounts) => {
 
   let artwork;
   let steward;
 
   beforeEach(async () => {
     artwork = await Artwork.new("TESTARTWORK", "TA");
-    steward = await VitalikSteward.new(accounts[1], artwork.address, { from: accounts[0] });
+    steward = await WildcardSteward.new(accounts[1], artwork.address, { from: accounts[0] });
   });
 
   it('steward: init: artwork minted', async () => {
