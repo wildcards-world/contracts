@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
-import "./interfaces/IERC721Full.sol";
-import "./utils/SafeMath.sol";
+import "./ERC721Patronage.sol";
+// import "./utils/SafeMath.sol";
 
 contract WildcardSteward {
     
@@ -15,35 +15,34 @@ contract WildcardSteward {
     - Steward maints control over ERC721.
     */
     using SafeMath for uint256;
-
-    uint8 constant numberOfTokens = 9;
     
-    uint256[numberOfTokens] public price; //in wei
-    IERC721Full public assetToken; // ERC721 NFT.
+    mapping(uint256 => uint256) public price; //in wei
+    ERC721Patronage public assetToken; // ERC721 NFT.
 
-    uint256[numberOfTokens] public totalCollected; // all patronage ever collected
-    uint256[numberOfTokens] public currentCollected; // amount currently collected for patron
-    uint256[numberOfTokens] public timeLastCollected;
-    uint256[numberOfTokens] public deposit;
+    mapping(uint256 => uint256) public totalCollected; // all patronage ever collected
+    mapping(uint256 => uint256) public currentCollected; // amount currently collected for patron
+    mapping(uint256 => uint256) public timeLastCollected;
+    mapping(uint256 => uint256) public deposit;
 
     address payable public organization; // non-profit organization
     uint256 public organizationFund;
     
-    mapping(uint8 => mapping (address => bool)) public patrons;
-    mapping(uint8 => mapping (address => uint256)) public timeHeld;
+    mapping(uint256 => mapping (address => bool)) public patrons;
+    mapping(uint256 => mapping (address => uint256)) public timeHeld;
 
-    uint256[numberOfTokens] public timeAcquired;
+    mapping(uint256 => uint256) public timeAcquired;
     
     // 1200% patronage
     uint256 patronageNumerator =  12000000000000;
     uint256 patronageDenominator = 1000000000000;
 
     enum StewardState { Foreclosed, Owned }
-    StewardState[numberOfTokens] public state;
+    mapping(uint256 => StewardState) public state;
 
     constructor(address payable _organization, address _assetToken) public {
-        assetToken = IERC721Full(_assetToken);
-        assetToken.setup(numberOfTokens, "FIX-ME");
+        uint8 numberOfTokens = 9;
+        assetToken = ERC721Patronage(_assetToken);
+        assetToken.initialize(numberOfTokens, "FIX-ME");
         organization = _organization;
         for (uint8 i = 0; i < numberOfTokens; ++i){
           state[i] = StewardState.Foreclosed;

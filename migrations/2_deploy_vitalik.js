@@ -1,6 +1,6 @@
 /* globals artifacts */
 var WildcardSteward = artifacts.require("./WildcardSteward.sol");
-var Vitalik = artifacts.require("./ERC721Full.sol");
+var Vitalik = artifacts.require("./ERC721Patronage.sol");
 
 const organization = '0x3eA1ecB8775a37fb797bb79f6C419176F15E35D4';
 

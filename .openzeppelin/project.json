@@ -1,0 +1,17 @@
+{
+  "manifestVersion": "2.2",
+  "contracts": {
+    "ERC721Full": "ERC721Full"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts-ethereum-package": "^2.2.3"
+  },
+  "name": "wildcards-contracts",
+  "version": "0.0.0",
+  "compiler": {
+    "manager": "truffle",
+    "compilerSettings": {
+      "optimizer": {}
+    }
+  }
+}

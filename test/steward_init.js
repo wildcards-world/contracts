@@ -1,6 +1,6 @@
 const { BN, expectRevert, ether, expectEvent, balance, time } = require('openzeppelin-test-helpers');
 
-const Artwork = artifacts.require('./ERC721Full.sol');
+const Artwork = artifacts.require('./ERC721Patronage.sol');
 const WildcardSteward = artifacts.require('./WildcardSteward.sol');
 
 const delay = duration => new Promise(resolve => setTimeout(resolve, duration));
@@ -23,7 +23,7 @@ contract('WildcardSteward', (accounts) => {
   });
 
   it('steward: init: retry setup (fail)', async () => {
-    await expectRevert(artwork.setup(8, "something", { from: accounts[0] }), "Already initialized");
+    await expectRevert(artwork.initialize(8, "something", { from: accounts[0] }), "Already initialized");
   });
 
   it('steward: init: deposit wei fail [foreclosed]', async () => {

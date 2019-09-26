@@ -1,6 +1,6 @@
 const { BN, expectRevert, ether, expectEvent, balance, time } = require('openzeppelin-test-helpers');
 
-const Artwork = artifacts.require('./ERC721Full.sol');
+const Artwork = artifacts.require('./ERC721Patronage.sol');
 const ArtSteward = artifacts.require('./WildcardSteward.sol');
 
 const delay = duration => new Promise(resolve => setTimeout(resolve, duration));
@@ -483,7 +483,7 @@ contract('WildcardSteward owed', (accounts) => {
     assert.equal(owner, accounts[2]);
   });
 
-  describe('the organization can assign another address to act as the stewart', () => {
+  describe('the organization can assign another address to act as the steward', () => {
 
     it('an entity that is not the current organization should NOT be able to change the organization', async () => {
       await expectRevert(steward.changeReceivingOrganization(accounts[2], { from: accounts[3] }), "Not organization");
