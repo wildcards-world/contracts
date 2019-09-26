@@ -5,6 +5,19 @@ const ArtSteward = artifacts.require('./WildcardSteward.sol');
 
 const delay = duration => new Promise(resolve => setTimeout(resolve, duration));
 
+// NOTE:: This was inspired by this question and the off by one second errors I was getting:
+//        https://ethereum.stackexchange.com/a/74558/4642
+const waitTillBeginningOfSecond = () => new Promise(resolve => {
+  const timeTilNextSecond = 1000 - new Date().getMilliseconds()
+  console.log('time till next second', timeTilNextSecond)
+  // Basically, I am assuming that the `threshold`(in miliseconds) is enough time to complete all of the tests. If tests fail due to off by 1 errors this can be increased.
+  if (timeTilNextSecond > 500) {
+    resolve()
+  }
+
+  setTimeout(resolve, (timeTilNextSecond - 500) % 1000)
+})
+
 // todo: test over/underflows
 
 contract('WildcardSteward owed', (accounts) => {
@@ -27,6 +40,7 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: owned. check patronage owed after 1 second.', async () => {
+    await waitTillBeginningOfSecond()
     await steward.buy(1, web3.utils.toWei('1', 'ether'), { from: accounts[2], value: web3.utils.toWei('1', 'ether') });
 
     const timeLastCollected = await steward.timeLastCollected.call(1);
@@ -41,6 +55,7 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: owned. check patronage owed after 1 year.', async () => {
+    await waitTillBeginningOfSecond()
     await steward.buy(1, web3.utils.toWei('1', 'ether'), { from: accounts[2], value: web3.utils.toWei('1', 'ether') });
 
     const timeLastCollected = await steward.timeLastCollected.call(1);
@@ -56,6 +71,7 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: owned. collect patronage successfully after 10 minutes.', async () => {
+    await waitTillBeginningOfSecond()
     await steward.buy(1, web3.utils.toWei('1', 'ether'), { from: accounts[2], value: web3.utils.toWei('1', 'ether') });
 
     await time.increase(time.duration.minutes(10));
@@ -79,6 +95,7 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: owned. collect patronage successfully after 10min and again after 10min.', async () => {
+    await waitTillBeginningOfSecond()
     await steward.buy(1, web3.utils.toWei('1', 'ether'), { from: accounts[2], value: web3.utils.toWei('1', 'ether') });
 
     await time.increase(time.duration.minutes(10));
@@ -99,7 +116,7 @@ contract('WildcardSteward owed', (accounts) => {
     const calcOrganizationFund = owed.patronageDue.add(owed2.patronageDue);
     const calcCurrentCollected = owed.patronageDue.add(owed2.patronageDue);
     const calcTotalCurrentCollected = owed.patronageDue.add(owed2.patronageDue);
-    console.log('diff', deposit.sub(calcDeposit).toString())
+
     assert.equal(deposit.toString(), calcDeposit.toString());
     assert.equal(organizationFund.toString(), calcOrganizationFund.toString());
     assert.equal(timeLastCollected.toString(), previousBlockTime.toString());
@@ -108,6 +125,7 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: owned. collect patronage that forecloses precisely after 10min.', async () => {
+    await waitTillBeginningOfSecond()
     // 10min of patronage
     await steward.buy(1, ether('1'), { from: accounts[2], value: tenMinPatronageAt1Eth });
     const pred = await steward.deposit.call(1);
@@ -129,7 +147,7 @@ contract('WildcardSteward owed', (accounts) => {
 
     const currentOwner = await artwork.ownerOf.call(1);
 
-    const timeHeld = await steward.timeHeld.call(1, accounts[2]);
+    const timeHeld = await steward.timeHeld.call(1, accounts[2])
 
     expectEvent.inLogs(logs, 'LogForeclosure', { prevOwner: accounts[2] });
     assert.equal(timeHeld.toString(), time.duration.minutes(10).toString());
@@ -145,6 +163,7 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: owned. Deposit zero after 10min of patronage (after 10min) [success].', async () => {
+    await waitTillBeginningOfSecond()
     // 10min of patronage
     await steward.buy(1, ether('1'), { from: accounts[2], value: tenMinPatronageAt1Eth });
 
@@ -168,6 +187,7 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: owned. buy from person that forecloses precisely after 10min.', async () => {
+    await waitTillBeginningOfSecond()
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
     await steward.buy(1, ether('1'), { from: accounts[2], value: totalToBuy });
@@ -209,6 +229,7 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: owned. collect patronage by organization after 10min.', async () => {
+    await waitTillBeginningOfSecond()
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
     await steward.buy(1, ether('1'), { from: accounts[2], value: totalToBuy });
@@ -230,6 +251,7 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: owned. collect patronage. 10min deposit. 20min Foreclose.', async () => {
+    await waitTillBeginningOfSecond()
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
     await steward.buy(1, ether('1'), { from: accounts[2], value: totalToBuy });
@@ -273,6 +295,7 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: owned. deposit wei success from many accounts', async () => {
+    await waitTillBeginningOfSecond()
     await steward.buy(1, ether('1'), { from: accounts[2], value: ether('2') });
     await steward.depositWei(testTokenId, { from: accounts[2], value: ether('1') });
     await steward.depositWei(testTokenId, { from: accounts[3], value: ether('1') });
@@ -281,11 +304,13 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: owned. change price to zero [fail]', async () => {
+    await waitTillBeginningOfSecond()
     await steward.buy(1, ether('1'), { from: accounts[2], value: ether('2') });
     await expectRevert(steward.changePrice(testTokenId, '0', { from: accounts[2] }), "Incorrect Price");
   });
 
   it('steward: owned. change price to more [success]', async () => {
+    await waitTillBeginningOfSecond()
     await steward.buy(1, ether('1'), { from: accounts[2], value: ether('2') });
     const { logs } = await steward.changePrice(testTokenId, ether('3'), { from: accounts[2] });
     expectEvent.inLogs(logs, 'LogPriceChange', { newPrice: ether('3') });
@@ -294,6 +319,7 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: owned. change price to less [success]', async () => {
+    await waitTillBeginningOfSecond()
     await steward.buy(1, ether('1'), { from: accounts[2], value: ether('2') });
     await steward.changePrice(testTokenId, ether('0.5'), { from: accounts[2] });
     const postPrice = await steward.price.call(1);
@@ -301,11 +327,13 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: owned. change price to less with another account [fail]', async () => {
+    await waitTillBeginningOfSecond()
     await steward.buy(1, ether('1'), { from: accounts[2], value: ether('2') });
     await expectRevert(steward.changePrice(testTokenId, ether('0.5'), { from: accounts[3] }), "Not patron");
   });
 
   it('steward: owned. withdraw whole deposit into foreclosure [succeed]', async () => {
+    await waitTillBeginningOfSecond()
     await steward.buy(1, ether('1'), { from: accounts[2], value: ether('2') });
     const deposit = await steward.deposit.call(1);
     await steward.withdrawDeposit(testTokenId, deposit, { from: accounts[2] });
@@ -314,6 +342,7 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: owned. withdraw whole deposit through exit into foreclosure after 10min [succeed]', async () => {
+    await waitTillBeginningOfSecond()
     await steward.buy(1, ether('1'), { from: accounts[2], value: ether('2') });
     await time.increase(time.duration.minutes(10));
     await steward.exit(testTokenId, { from: accounts[2] });
@@ -322,6 +351,7 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: owned. withdraw some deposit [succeeds]', async () => {
+    await waitTillBeginningOfSecond()
     await steward.buy(1, ether('1'), { from: accounts[2], value: ether('2') });
     await steward.withdrawDeposit(testTokenId, ether('1'), { from: accounts[2] });
     const deposit = await steward.deposit.call(1);
@@ -329,17 +359,20 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: owned. withdraw more than exists [fail]', async () => {
+    await waitTillBeginningOfSecond()
     await steward.buy(1, ether('1'), { from: accounts[2], value: ether('2') });
     await expectRevert(steward.withdrawDeposit(testTokenId, ether('4'), { from: accounts[2] }), "Withdrawing too much");
   });
 
   it('steward: owned. withdraw some deposit from another account [fails]', async () => {
+    await waitTillBeginningOfSecond()
     await steward.buy(1, ether('1'), { from: accounts[2], value: ether('2') });
     await expectRevert(steward.withdrawDeposit(testTokenId, ether('1'), { from: accounts[3] }), "Not patron");
   });
 
 
   it('steward: bought once, bought again from same account [success]', async () => {
+    await waitTillBeginningOfSecond()
     await steward.buy(1, ether('1'), { from: accounts[2], value: ether('2') });
     const deposit = await steward.deposit.call(1);
     const price = await steward.price.call(1);
@@ -361,6 +394,7 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: bought once, bought again from another account [success]', async () => {
+    await waitTillBeginningOfSecond()
     await steward.buy(1, ether('1'), { from: accounts[2], value: ether('2') });
     const deposit = await steward.deposit.call(1);
     const price = await steward.price.call(1);
@@ -382,6 +416,7 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: bought once, bought again from another account after 10min [success]', async () => {
+    await waitTillBeginningOfSecond()
     await steward.buy(1, ether('1'), { from: accounts[2], value: ether('2') });
     const deposit = await steward.deposit.call(1);
     const price = await steward.price.call(1);
@@ -415,6 +450,7 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: owned: deposit wei, change price, withdrawing deposit in foreclosure state [fail]', async () => {
+    await waitTillBeginningOfSecond()
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
     await steward.buy(1, ether('1'), { from: accounts[2], value: totalToBuy });
@@ -426,6 +462,7 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: owned: goes into foreclosure state & bought from another account [success]', async () => {
+    await waitTillBeginningOfSecond()
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
     await steward.buy(1, ether('1'), { from: accounts[2], value: totalToBuy });
@@ -457,6 +494,7 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   it('steward: owned: goes into foreclosure state & bought from same account [success]', async () => {
+    await waitTillBeginningOfSecond()
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
     await steward.buy(1, ether('1'), { from: accounts[2], value: totalToBuy });
