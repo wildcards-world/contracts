@@ -27,12 +27,12 @@ contract('WildcardSteward', (accounts) => {
   });
 
   it('steward: init: deposit wei fail [foreclosed]', async () => {
-    await expectRevert(steward.depositWei(1, { from: accounts[2], value: web3.utils.toWei('1', 'ether') }), "Foreclosed");
+    await expectRevert(steward.depositWei({ from: accounts[2], value: web3.utils.toWei('1', 'ether') }), "No tokens owned");
   });
 
   it('steward: init: wait time. deposit wei fail [foreclosed]', async () => {
     await time.increase(1000); // 1000 seconds, arbitrary
-    await expectRevert(steward.depositWei(1, { from: accounts[2], value: web3.utils.toWei('1', 'ether') }), "Foreclosed");
+    await expectRevert(steward.depositWei({ from: accounts[2], value: web3.utils.toWei('1', 'ether') }), "No tokens owned");
   });
 
   it('steward: init: change price fail [not patron]', async () => {
@@ -47,10 +47,6 @@ contract('WildcardSteward', (accounts) => {
     assert.equal(totalBefore.toString(), totalAfter.toString());
   });
 
-  it('steward: init: withdraw deposit [not patron]', async () => {
-    await expectRevert(steward.withdrawDeposit(1, 10, { from: accounts[2] }), "Not patron");
-  });
-
   it('steward: init: buy with zero wei [fail payable]', async () => {
     await expectRevert.unspecified(steward.buy(1, 1000, { from: accounts[2], value: web3.utils.toWei('0', 'ether') }));
   });
@@ -62,7 +58,7 @@ contract('WildcardSteward', (accounts) => {
   it('steward: init: buy with 2 ether, price of 1 success [price = 1 eth, deposit = 1 eth]', async () => {
     const { logs } = await steward.buy(1, web3.utils.toWei('1', 'ether'), { from: accounts[2], value: web3.utils.toWei('1', 'ether') });
     expectEvent.inLogs(logs, 'LogBuy', { owner: accounts[2], price: ether('1') });
-    const deposit = await steward.deposit.call(1);
+    const deposit = await steward.deposit.call(accounts[2]);
     const price = await steward.price.call(1);
     const state = await steward.state.call(1);
     assert.equal(deposit, web3.utils.toWei('1', 'ether'));
