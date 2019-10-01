@@ -221,6 +221,8 @@ contract WildcardSteward {
             // pay previous owner their price + deposit back.
             address payable payableCurrentOwner = address(uint160(currentOwner));
             payableCurrentOwner.transfer(totalToPayBack);
+            timeLastCollected[tokenId] = now;
+            timeLastCollectedUser[msg.sender] = now;
         } else if(state[tokenId] == StewardState.Foreclosed) {
             state[tokenId] = StewardState.Owned;
             timeLastCollected[tokenId] = now;
@@ -277,7 +279,7 @@ contract WildcardSteward {
     function transferAssetTokenTo(uint256 tokenId, address _currentOwner, address _newOwner, uint256 _newPrice) internal {
         // TODO: add the patronage rate as a multiplier here: https://github.com/wild-cards/contracts/issues/7
         totalUserOwnedTokenCost[_newOwner] += _newPrice;
-        totalUserOwnedTokenCost[_currentOwner] -= _newPrice;
+        totalUserOwnedTokenCost[_currentOwner] -= price[tokenId];
 
         // note: it would also tabulate time held in stewardship by smart contract
         timeHeld[tokenId][_currentOwner] = timeHeld[tokenId][_currentOwner].add((timeLastCollected[tokenId].sub(timeAcquired[tokenId])));
