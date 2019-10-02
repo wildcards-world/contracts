@@ -228,7 +228,7 @@ contract WildcardSteward {
             timeLastCollected[tokenId] = now;
             timeLastCollectedUser[msg.sender] = now;
         }
-        
+
         deposit[msg.sender] = msg.value.sub(price[tokenId]);
         transferAssetTokenTo(tokenId, currentOwner, msg.sender, _newPrice);
         emit LogBuy(msg.sender, _newPrice);
@@ -237,7 +237,7 @@ contract WildcardSteward {
     function changePrice(uint256 tokenId, uint256 _newPrice) public onlyPatron(tokenId) collectPatronage(tokenId) {
         require(state[tokenId] != StewardState.Foreclosed, "Foreclosed");
         require(_newPrice != 0, "Incorrect Price");
-        
+
         price[tokenId] = _newPrice;
         emit LogPriceChange(price[tokenId]);
     }
