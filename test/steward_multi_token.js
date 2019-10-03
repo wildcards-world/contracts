@@ -1,7 +1,7 @@
 const { BN, expectRevert, ether, expectEvent, balance, time } = require('openzeppelin-test-helpers');
 
-const Artwork = artifacts.require('./ERC721Patronage.sol');
-const ArtSteward = artifacts.require('./WildcardSteward.sol');
+const Artwork = artifacts.require('./ERC721Patronage_v0.sol');
+const WildcardSteward = artifacts.require('./WildcardSteward_v0.sol');
 
 const delay = duration => new Promise(resolve => setTimeout(resolve, duration));
 
@@ -20,16 +20,22 @@ contract('WildcardSteward owed', (accounts) => {
   let steward;
   const testTokenId1 = 1
   const testTokenId2 = 2
+  let testTokenURI = 'test token uri'
   // price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
   const tenMinPatronageAt1Eth = ether('1').mul(new BN('600')).mul(new BN('12')).div(new BN('1')).div(new BN('31536000'));
 
 
   beforeEach(async () => {
-    artwork = await Artwork.new("TESTARTWORK", "TA");
-    steward = await ArtSteward.new(accounts[1], artwork.address, { from: accounts[0] });
+    artwork = await Artwork.new({ from: accounts[0] });
+    steward = await WildcardSteward.new({ from: accounts[0] });
+    await artwork.setup(steward.address, "ALWAYSFORSALETestToken", "AFSTT", accounts[0], { from: accounts[0] })
+    await artwork.mintWithTokenURI(steward.address, 0, testTokenURI, { from: accounts[0] })
+    await artwork.mintWithTokenURI(steward.address, 1, testTokenURI, { from: accounts[0] })
+    await artwork.mintWithTokenURI(steward.address, 2, testTokenURI, { from: accounts[0] })
+    await steward.initialize([0, 1, 2], accounts[0], artwork.address)
   });
 
-  it('steward: owned. check patronage of two tokens owed by the same user after 10 minutes.', async () => {
+  it('steward: multi-token. check patronage of two tokens owed by the same user after 10 minutes.', async () => {
     await waitTillBeginningOfSecond()
     // buy 2 tokens, with prices of 1 ether and 2 ether.
     await steward.buy(1, web3.utils.toWei('1', 'ether'), { from: accounts[2], value: web3.utils.toWei('1', 'ether') });
@@ -47,7 +53,7 @@ contract('WildcardSteward owed', (accounts) => {
   });
 
   // buy 2 tokens, with prices of 1 ether and 2 ether.
-  it('steward: owned. check patronage of two tokens owed by the same user after 10 minutes one of the tokens gets bought.', async () => {
+  it('steward: multi-token. check patronage of two tokens owed by the same user after 10 minutes one of the tokens gets bought.', async () => {
     await waitTillBeginningOfSecond()
     await steward.buy(1, web3.utils.toWei('1', 'ether'), { from: accounts[2], value: web3.utils.toWei('1', 'ether') });
     await steward.buy(2, web3.utils.toWei('2', 'ether'), { from: accounts[2], value: web3.utils.toWei('0.1', 'ether') });
