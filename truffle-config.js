@@ -10,7 +10,7 @@ module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
   // to customize your Truffle configuration!
   plugins: ["truffle-security"],
-  contracts_build_directory: path.join(__dirname, "artifacts/contracts"),
+  // contracts_build_directory: path.join(__dirname, "artifacts/contracts"),
   networks: {
     // mainnet: {
     //   network_id: 1,
@@ -35,7 +35,6 @@ module.exports = {
     },
     development: {
       host: blockchainNodeHost,     // Localhost (default: none)
-      test: (() => console.log({ blockchainNodeHost }))(),
       port: 8545,            // Standard Ethereum port (default: none)
       network_id: "*",       // Any network (default: none)
       gasPrice: 1000000000, // 1 gwei
@@ -48,4 +47,15 @@ module.exports = {
       gasPrice: 5, //in gwei
     },
   },
+  compilers: {
+    solc: {
+      version: '0.5.4',
+      settings: {
+        optimizer: {
+          enabled: true,
+          runs: 200
+        }
+      }
+    }
+  }
 };

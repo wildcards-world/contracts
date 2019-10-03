@@ -1,7 +1,9 @@
 pragma solidity ^0.5.0;
-import "./ERC721Patronage.sol";
+import "./ERC721Patronage_v0.sol";
+import "@openzeppelin/upgrades/contracts/Initializable.sol";
+// import "../node_modules/@openzeppelin/contracts-ethereum-package/contracts/";
 
-contract WildcardSteward {
+contract WildcardSteward_v0 is Initializable {
     
     /*
     This smart contract collects patronage from current owner through a Harberger tax model and 
@@ -16,7 +18,7 @@ contract WildcardSteward {
     using SafeMath for uint256;
     
     mapping(uint256 => uint256) public price; //in wei
-    ERC721Patronage public assetToken; // ERC721 NFT.
+    ERC721Patronage_v0 public assetToken; // ERC721 NFT.
 
     mapping(uint256 => uint256) public totalCollected; // all patronage ever collected
     mapping(uint256 => uint256) public currentCollected; // amount currently collected for patron
@@ -26,7 +28,6 @@ contract WildcardSteward {
     mapping(address => uint256) public totalUserOwnedTokenCost;
 
     // mapping(uint256 => uint256) public 
-
     address payable public organization; // non-profit organization
     uint256 public organizationFund;
     
@@ -43,15 +44,27 @@ contract WildcardSteward {
     enum StewardState { Foreclosed, Owned }
     mapping(uint256 => StewardState) public state;
 
-    constructor(address payable _organization, address _assetToken) public {
-        uint8 numberOfTokens = 9;
-        assetToken = ERC721Patronage(_assetToken);
-        assetToken.initialize(numberOfTokens, "FIX-ME");
+    function initialize(uint256[] memory tokens, address payable _organization, address _assetToken) public initializer {
+        // ERC721.initialize();
+        // ERC721Enumerable.initialize();
+        // ERC721Metadata.initialize(name, symbol);
+        // uint8 numberOfTokens = 9;
+        assetToken = ERC721Patronage_v0(_assetToken);
+        // assetToken.initialize(numberOfTokens, "FIX-ME");
         organization = _organization;
-        for (uint8 i = 0; i < numberOfTokens; ++i){
-          state[i] = StewardState.Foreclosed;
+        for (uint8 i = 0; i < tokens.length; ++i){
+          state[tokens[i]] = StewardState.Foreclosed;
         }
     }
+    // constructor(address payable _organization, address _assetToken) public {
+    //     uint8 numberOfTokens = 9;
+    //     assetToken = ERC721Patronage_v0(_assetToken);
+    //     assetToken.initialize(numberOfTokens, "FIX-ME");
+    //     organization = _organization;
+    //     for (uint8 i = 0; i < numberOfTokens; ++i){
+    //       state[i] = StewardState.Foreclosed;
+    //     }
+    // }
 
     event LogBuy(address indexed owner, uint256 indexed price);
     event LogPriceChange(uint256 indexed newPrice);

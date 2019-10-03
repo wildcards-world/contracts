@@ -1,37 +1,25 @@
 {
-  "name": "wildcards-contracts",
-  "version": "1.0.0",
-  "description": "",
-  "main": "truffle-config.js",
-  "directories": {
-    "test": "test"
-  },
+  "name": "example-truffle-migrate",
+  "version": "2.5.3",
+  "description": "OpenZeppelin SDK example: using truffle migrations",
+  "main": "index.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "chain": "ganache-cli -e 10000 -m 'sustain seek diet attend ready neutral damage join food extra monkey usage'",
-    "moving_chain": "ganache-cli -e 10000 -b 3 -m 'sustain seek diet attend ready neutral damage join food extra monkey usage'"
+    "check": "truffle exec index.js --network local",
+    "test": "truffle test"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/wild-cards/contracts.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/wild-cards/contracts/issues"
-  },
-  "homepage": "https://github.com/wild-cards/contracts#readme",
+  "author": "santiago@openzeppelin.com",
+  "license": "MIT",
   "dependencies": {
     "@openzeppelin/contracts-ethereum-package": "^2.2.3",
     "@openzeppelin/upgrades": "^2.5.3",
-    "@truffle/hdwallet-provider": "^1.0.18",
-    "openzeppelin-test-helpers": "^0.4.3",
-    "truffle-security": "^1.5.5"
+    "@truffle/hdwallet-provider": "^1.0.20"
   },
   "devDependencies": {
+    "@openzeppelin/cli": "^2.5.3",
+    "openzeppelin-test-helpers": "^0.4.3",
     "chai": "^4.2.0",
-    "eth-gas-reporter": "^0.2.11",
-    "truffle": "^5.0.37"
+    "eth-gas-reporter": "^0.2.12",
+    "truffle": "^5.0.38"
   }
 }
