@@ -6,6 +6,8 @@ services:
 
   wildcards:
     build: .
+    volumes:
+      - ./build:/app/build
     container_name: wildcards
     environment:
       - BLOCKCHAIN_NODE_HOST=ganache

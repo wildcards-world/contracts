@@ -8,6 +8,9 @@ docker-compose build
 docker-compose up -d 
 
 # Run the tests
+docker-compose run wildcards sh -c "/app/node_modules/.bin/truffle compile"
+
+# Run the tests
 docker-compose run wildcards sh -c "/app/node_modules/.bin/truffle test"
 
 # Stop the container

@@ -1,7 +1,7 @@
 const { BN, expectRevert, ether, expectEvent, balance, time } = require('openzeppelin-test-helpers');
 
-const Artwork = artifacts.require('./ERC721Patronage.sol');
-const ArtSteward = artifacts.require('./WildcardSteward.sol');
+const Artwork = artifacts.require('./ERC721Patronage_v0.sol');
+const WildcardSteward = artifacts.require('./WildcardSteward_v0.sol');
 
 const delay = duration => new Promise(resolve => setTimeout(resolve, duration));
 
@@ -19,14 +19,20 @@ contract('WildcardSteward owed', (accounts) => {
 
   let artwork;
   let steward;
+  let testTokenURI = 'test token uri'
   const testTokenId = 1
   // price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
   const tenMinPatronageAt1Eth = ether('1').mul(new BN('600')).mul(new BN('12')).div(new BN('1')).div(new BN('31536000'));
 
 
   beforeEach(async () => {
-    artwork = await Artwork.new("TESTARTWORK", "TA");
-    steward = await ArtSteward.new(accounts[1], artwork.address, { from: accounts[0] });
+    artwork = await Artwork.new({ from: accounts[0] });
+    steward = await WildcardSteward.new({ from: accounts[0] });
+    await artwork.setup(steward.address, "ALWAYSFORSALETestToken", "AFSTT", accounts[0], { from: accounts[0] })
+    await artwork.mintWithTokenURI(steward.address, 0, testTokenURI, { from: accounts[0] })
+    await artwork.mintWithTokenURI(steward.address, 1, testTokenURI, { from: accounts[0] })
+    await artwork.mintWithTokenURI(steward.address, 2, testTokenURI, { from: accounts[0] })
+    await steward.initialize([0, 2, 3], accounts[1], artwork.address)
   });
 
   it('steward: owned. transfer without steward (fail)', async () => {

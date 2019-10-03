@@ -1,15 +1,14 @@
 {
   "manifestVersion": "2.2",
+  "name": "example-truffle-migrate",
+  "version": "0.1.0",
   "contracts": {
-    "ERC721Full": "ERC721Full"
+    "ERC721Patronage": "ERC721Patronage_v0"
   },
-  "dependencies": {
-    "@openzeppelin/contracts-ethereum-package": "^2.2.3"
-  },
-  "name": "wildcards-contracts",
-  "version": "0.0.0",
+  "dependencies": {},
   "compiler": {
-    "manager": "truffle",
+    "manager": "openzeppelin",
+    "solcVersion": "0.5.12",
     "compilerSettings": {
       "optimizer": {}
     }
