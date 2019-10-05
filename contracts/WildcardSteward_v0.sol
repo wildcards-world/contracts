@@ -38,19 +38,17 @@ contract WildcardSteward_v0 is Initializable {
     mapping(uint256 => uint256) public timeAcquired;
     
     // 1200% patronage
-    uint256 patronageNumerator =  12;
-    uint256 patronageDenominator = 1;
+    uint256 patronageNumerator;
+    uint256 patronageDenominator;
 
     enum StewardState { Foreclosed, Owned }
     mapping(uint256 => StewardState) public state;
 
-    function initialize(uint256[] memory tokens, address payable _organization, address _assetToken) public initializer {
-        // ERC721.initialize();
-        // ERC721Enumerable.initialize();
-        // ERC721Metadata.initialize(name, symbol);
-        // uint8 numberOfTokens = 9;
+    function initialize(uint256[] memory tokens, address payable _organization, address _assetToken, uint256 _patronageNumerator, uint256 _patronageDenominator) public initializer {
+        patronageDenominator = _patronageDenominator;
+        patronageNumerator = _patronageNumerator;
+        
         assetToken = ERC721Patronage_v0(_assetToken);
-        // assetToken.initialize(numberOfTokens, "FIX-ME");
         organization = _organization;
         for (uint8 i = 0; i < tokens.length; ++i){
           state[tokens[i]] = StewardState.Foreclosed;

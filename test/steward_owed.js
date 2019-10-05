@@ -21,6 +21,8 @@ contract('WildcardSteward owed', (accounts) => {
   let steward;
   let testTokenURI = 'test token uri'
   const testTokenId = 1
+  const patronageNumerator = 12;
+  const patronageDenominator = 1;
   // price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
   const tenMinPatronageAt1Eth = ether('1').mul(new BN('600')).mul(new BN('12')).div(new BN('1')).div(new BN('31536000'));
 
@@ -32,7 +34,7 @@ contract('WildcardSteward owed', (accounts) => {
     await artwork.mintWithTokenURI(steward.address, 0, testTokenURI, { from: accounts[0] })
     await artwork.mintWithTokenURI(steward.address, 1, testTokenURI, { from: accounts[0] })
     await artwork.mintWithTokenURI(steward.address, 2, testTokenURI, { from: accounts[0] })
-    await steward.initialize([0, 2, 3], accounts[1], artwork.address)
+    await steward.initialize([0, 1, 2], accounts[1], artwork.address, patronageNumerator, patronageDenominator)
   });
 
   it('steward: owned. transfer without steward (fail)', async () => {
