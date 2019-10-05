@@ -1,9 +1,12 @@
 const path = require("path");
 const HDWalletProvider = require('@truffle/hdwallet-provider');
-const mnemonic = 'dumb gown nose volume total father license lady empower snow body tag'; // 12 word mnemonic 
-const mainnetProviderUrl = 'https://mainnet.infura.io/v3/e811479f4c414e219e7673b6671c2aba';
-const rinkebyProviderUrl = 'https://rinkeby.infura.io/v3/e811479f4c414e219e7673b6671c2aba';
-const goerlyProviderUrl = 'https://goerli.infura.io/v3/a349f12fe9ac4fdb995f44e04648f7c5';
+const {
+  mnemonic,
+  mainnetProviderUrl,
+  rinkebyProviderUrl,
+  goerlyProviderUrl,
+} = require("./secretsManager.js")
+
 const blockchainNodeHost = process.env.BLOCKCHAIN_NODE_HOST || 'localhost'
 
 module.exports = {
@@ -12,20 +15,20 @@ module.exports = {
   plugins: ["truffle-security"],
   // contracts_build_directory: path.join(__dirname, "artifacts/contracts"),
   networks: {
-    // mainnet: {
-    //   network_id: 1,
-    //   provider: new HDWalletProvider(mnemonic, mainnetProviderUrl, 0),
-    //   gas: 4700000,
-    //   gasPrice: 5000000000, // 5 gwei
-    //   skipDryRun: true,
-    // },
-    // rinkeby: {
-    //   network_id: 4,
-    //   provider: new HDWalletProvider(mnemonic, rinkebyProviderUrl, 0),
-    //   gas: 4700000,
-    //   gasPrice: 10000000000, // 10 gwei
-    //   skipDryRun: true,
-    // },
+    mainnet: {
+      network_id: 1,
+      provider: new HDWalletProvider(mnemonic, mainnetProviderUrl, 0),
+      gas: 4700000,
+      gasPrice: 5000000000, // 5 gwei
+      skipDryRun: true,
+    },
+    rinkeby: {
+      network_id: 4,
+      provider: new HDWalletProvider(mnemonic, rinkebyProviderUrl, 0),
+      gas: 4700000,
+      gasPrice: 10000000000, // 10 gwei
+      skipDryRun: true,
+    },
     goerly: {
       network_id: 5,
       provider: new HDWalletProvider(mnemonic, goerlyProviderUrl, 0),
