@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "check": "truffle exec index.js --network local",
+    "deploy": "npx truffle exec scripts/deploy.js",
     "test": "truffle test"
   },
   "author": "santiago@openzeppelin.com",

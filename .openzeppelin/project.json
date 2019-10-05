@@ -1,6 +1,6 @@
 {
   "manifestVersion": "2.2",
-  "name": "example-truffle-migrate",
+  "name": "wildcards-contracts",
   "version": "0.1.0",
   "contracts": {
     "ERC721Patronage": "ERC721Patronage_v0"

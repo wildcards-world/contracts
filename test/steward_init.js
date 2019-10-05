@@ -9,14 +9,16 @@ contract('WildcardSteward', (accounts) => {
 
   let artwork;
   let steward;
-  let testTokenURI = 'test token uri'
+  const patronageDenominator = 1;
+  const patronageNumerator = 12;
+  const testTokenURI = 'test token uri'
 
   beforeEach(async () => {
     artwork = await Artwork.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
     await artwork.setup(steward.address, "ALWAYSFORSALETestToken", "AFSTT", accounts[0], { from: accounts[0] })
     await artwork.mintWithTokenURI(steward.address, 0, testTokenURI, { from: accounts[0] })
-    await steward.initialize([0], accounts[0], artwork.address)
+    await steward.initialize([0], accounts[0], artwork.address, patronageNumerator, patronageDenominator)
   });
 
   it('steward: init: artwork minted', async () => {

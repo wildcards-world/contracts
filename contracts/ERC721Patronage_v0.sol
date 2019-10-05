@@ -28,6 +28,6 @@ contract ERC721Patronage_v0 is Initializable, ERC721, ERC721Enumerable, ERC721Me
 
         // MODIFIED:
         // Only the steward is allowed to transfer
-        return (spender == steward); 
+        return (spender == steward);
     }
 }
