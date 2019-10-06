@@ -6,7 +6,7 @@ const WildcardSteward = artifacts.require('./WildcardSteward_v0.sol');
 const delay = duration => new Promise(resolve => setTimeout(resolve, duration));
 
 // NOTE:: This was inspired by this question and the off by one second errors I was getting:
-//        https://ethereum.stackexchange.com/a/74558/4642
+// https://ethereum.stackexchange.com/a/74558/4642
 const waitTillBeginningOfSecond = () => new Promise(resolve => {
   const timeTilNextSecond = 1000 - new Date().getMilliseconds()
   setTimeout(resolve, timeTilNextSecond - 1000)
@@ -26,7 +26,6 @@ contract('WildcardSteward owed', (accounts) => {
   // price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
   const tenMinPatronageAt1Eth = ether('1').mul(new BN('600')).mul(new BN('12')).div(new BN('1')).div(new BN('31536000'));
 
-
   beforeEach(async () => {
     artwork = await Artwork.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
@@ -34,8 +33,10 @@ contract('WildcardSteward owed', (accounts) => {
     await artwork.mintWithTokenURI(steward.address, 0, testTokenURI, { from: accounts[0] })
     await artwork.mintWithTokenURI(steward.address, 1, testTokenURI, { from: accounts[0] })
     await artwork.mintWithTokenURI(steward.address, 2, testTokenURI, { from: accounts[0] })
-    await steward.initialize([0, 1, 2], accounts[0], artwork.address, patronageNumerator, patronageDenominator)
-  });
+    // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
+    await steward.initialize(artwork.address, accounts[0], patronageDenominator)
+    await steward.listNewTokens([0, 1, 2], [accounts[0], accounts[0], accounts[0]], [patronageNumerator, patronageNumerator, patronageNumerator])
+  })
 
   it('steward: multi-token. check patronage of two tokens owed by the same user after 10 minutes.', async () => {
     await waitTillBeginningOfSecond()

@@ -1,10 +1,8 @@
 pragma solidity ^0.5.0;
 import "./ERC721Patronage_v0.sol";
-import "@openzeppelin/upgrades/contracts/Initializable.sol";
-// import "../node_modules/@openzeppelin/contracts-ethereum-package/contracts/";
 
 contract WildcardSteward_v0 is Initializable {
-    
+
     /*
     This smart contract collects patronage from current owner through a Harberger tax model and 
     takes stewardship of the asset token if the patron can't pay anymore.
@@ -16,7 +14,7 @@ contract WildcardSteward_v0 is Initializable {
     - Steward maints control over ERC721.
     */
     using SafeMath for uint256;
-    
+
     mapping(uint256 => uint256) public price; //in wei
     ERC721Patronage_v0 public assetToken; // ERC721 NFT.
 
@@ -27,42 +25,23 @@ contract WildcardSteward_v0 is Initializable {
     mapping(address => uint256) public deposit;
     mapping(address => uint256) public totalUserOwnedTokenCost;
 
-    // mapping(uint256 => uint256) public 
-    address payable public organization; // non-profit organization
-    uint256 public organizationFund;
-    
+    mapping(uint256 => address payable) public organizations; // non-profit organization
+    mapping(address => uint256) public organizationFunds;
+
     mapping(uint256 => address) public currentPatron; // This is different to the current token owner.
     mapping(uint256 => mapping (address => bool)) public patrons;
     mapping(uint256 => mapping (address => uint256)) public timeHeld;
 
     mapping(uint256 => uint256) public timeAcquired;
-    
+
     // 1200% patronage
-    uint256 patronageNumerator;
-    uint256 patronageDenominator;
+    mapping(uint256 => uint256) public patronageNumerator;
+    uint256 public patronageDenominator;
 
     enum StewardState { Foreclosed, Owned }
     mapping(uint256 => StewardState) public state;
 
-    function initialize(uint256[] memory tokens, address payable _organization, address _assetToken, uint256 _patronageNumerator, uint256 _patronageDenominator) public initializer {
-        patronageDenominator = _patronageDenominator;
-        patronageNumerator = _patronageNumerator;
-        
-        assetToken = ERC721Patronage_v0(_assetToken);
-        organization = _organization;
-        for (uint8 i = 0; i < tokens.length; ++i){
-          state[tokens[i]] = StewardState.Foreclosed;
-        }
-    }
-    // constructor(address payable _organization, address _assetToken) public {
-    //     uint8 numberOfTokens = 9;
-    //     assetToken = ERC721Patronage_v0(_assetToken);
-    //     assetToken.initialize(numberOfTokens, "FIX-ME");
-    //     organization = _organization;
-    //     for (uint8 i = 0; i < numberOfTokens; ++i){
-    //       state[i] = StewardState.Foreclosed;
-    //     }
-    // }
+    address public admin;
 
     event LogBuy(address indexed owner, uint256 indexed price);
     event LogPriceChange(uint256 indexed newPrice);
@@ -74,8 +53,12 @@ contract WildcardSteward_v0 is Initializable {
         _;
     }
 
-    modifier onlyReceivingOrganization() {
-        require(msg.sender == organization, "Not organization");
+    modifier onlyReceivingOrganization(uint256 tokenId) {
+        require(msg.sender == organizations[tokenId], "Not organization");
+        _;
+    }
+    modifier onlyAdmin() {
+        require(msg.sender == admin, "Not admin");
         _;
     }
 
@@ -83,18 +66,44 @@ contract WildcardSteward_v0 is Initializable {
        _collectPatronage(tokenId);
        _;
     }
+
     modifier collectPatronageAddress(address tokenHolder) {
        _collectPatronageUser(tokenHolder);
        _;
     }
 
-    function changeReceivingOrganization(address payable _newReceivingOrganization) public onlyReceivingOrganization {
-        organization = _newReceivingOrganization;
+    function initialize(address _assetToken, address _admin, uint256 _patronageDenominator) public initializer {
+        assetToken = ERC721Patronage_v0(_assetToken);
+        admin = _admin;
+        patronageDenominator = _patronageDenominator;
+    }
+
+    // TODO:: add validation that the token that is complient with the "PatronageToken" ERC721 interface extension somehow!
+    function listNewTokens(uint256[] memory tokens, address payable[] memory _organizations, uint256[] memory _patronageNumerator) public onlyAdmin {
+        assert(tokens.length == _organizations.length);
+        for (uint8 i = 0; i < tokens.length; ++i){
+            assert(_organizations[i]!=address(0));
+            organizations[tokens[i]] = _organizations[i];
+            state[tokens[i]] = StewardState.Foreclosed;
+            patronageNumerator[tokens[i]] = _patronageNumerator[i];
+        }
+    }
+
+    function changeReceivingOrganization(uint256 tokenId, address payable _newReceivingOrganization) public onlyReceivingOrganization(tokenId) {
+        organizations[tokenId] = _newReceivingOrganization;
+        organizationFunds[_newReceivingOrganization] = organizationFunds[msg.sender];
+        organizationFunds[msg.sender] = 0;
+    }
+
+    function changeAdmin(address _admin) public onlyAdmin {
+        admin = _admin;
     }
 
     /* public view functions */
     function patronageOwed(uint256 tokenId) public view returns (uint256 patronageDue) {
-        return price[tokenId].mul(now.sub(timeLastCollected[tokenId])).mul(patronageNumerator)
+        uint256 tokenPatronageNumerator = patronageNumerator[tokenId];
+        uint256 patronageDenominator = patronageDenominator;
+        return price[tokenId].mul(now.sub(timeLastCollected[tokenId])).mul(tokenPatronageNumerator)
           .div(patronageDenominator).div(365 days);
     }
 
@@ -105,7 +114,7 @@ contract WildcardSteward_v0 is Initializable {
     // TODO: make a version of this function that is for patronage owed by token rather than by tokenHolder like it is now.
     function patronageOwedUser(address tokenHolder) public view returns (uint256 patronageDue) {
         // NOTE/TODO: to cater to different patronage rates, we should include it in the `totalUserOwnedTokenCost` (and probably rename that variable)
-        return totalUserOwnedTokenCost[tokenHolder].mul(now.sub(timeLastCollectedUser[tokenHolder])).mul(patronageNumerator)
+        return totalUserOwnedTokenCost[tokenHolder].mul(now.sub(timeLastCollectedUser[tokenHolder]))
           .div(patronageDenominator).div(365 days);
     }
 
@@ -148,7 +157,7 @@ contract WildcardSteward_v0 is Initializable {
     */
     function foreclosureTimeUser(address tokenHolder) public view returns (uint256) {
         // patronage per second
-        uint256 pps = totalUserOwnedTokenCost[tokenHolder].mul(patronageNumerator).div(patronageDenominator).div(365 days);
+        uint256 pps = totalUserOwnedTokenCost[tokenHolder].div(patronageDenominator).div(365 days);
         return now.add(depositAbleToWithdraw(tokenHolder).div(pps)); // zero division if price is zero.
     }
     function foreclosureTime(uint256 tokenId) public view returns (uint256) {
@@ -172,20 +181,21 @@ contract WildcardSteward_v0 is Initializable {
                 uint256 newTimeLastCollected = timeLastCollectedUser[tokenHolder].add(((now.sub(timeLastCollectedUser[tokenHolder])).mul(deposit[tokenHolder]).div(patronageOwedByTokenOwner)));
                 timeLastCollected[tokenId] = newTimeLastCollected;
                 timeLastCollectedUser[tokenHolder] = newTimeLastCollected;
-                collection = price[tokenId].mul(newTimeLastCollected.sub(previousTokenCollection)).mul(patronageNumerator).div(patronageDenominator).div(365 days);
+                collection = price[tokenId].mul(newTimeLastCollected.sub(previousTokenCollection)).mul(patronageNumerator[tokenId]).div(patronageDenominator).div(365 days);
 
                 deposit[tokenHolder] = 0;
                 _foreclose(tokenId);
             } else  {
                 // just a normal collection
-                collection = price[tokenId].mul(now.sub(previousTokenCollection)).mul(patronageNumerator).div(patronageDenominator).div(365 days);
+                  collection = price[tokenId].mul(now.sub(previousTokenCollection)).mul(patronageNumerator[tokenId]).div(patronageDenominator).div(365 days);
                 timeLastCollected[tokenId] = now;
                 timeLastCollectedUser[tokenHolder] = now;
                 currentCollected[tokenId] = currentCollected[tokenId].add(collection);
                 deposit[tokenHolder] = deposit[tokenHolder].sub(patronageOwedByTokenOwner);
             }
             totalCollected[tokenId] = totalCollected[tokenId].add(collection);
-            organizationFund = organizationFund.add(collection);
+            address organization = organizations[tokenId];
+            organizationFunds[organization] = organizationFunds[organization].add(collection);
             emit LogCollection(collection);
         }
     }
@@ -258,9 +268,13 @@ contract WildcardSteward_v0 is Initializable {
     }
 
     function withdrawOrganizationFunds() public {
-        require(msg.sender == organization, "Not organization");
-        organization.transfer(organizationFund);
-        organizationFund = 0;
+        withdrawOrganizationFundsTo(msg.sender);
+    }
+
+    function withdrawOrganizationFundsTo(address payable organization) public {
+        require(organizationFunds[organization] > 0, "No funds available");
+        organization.transfer(organizationFunds[organization]);
+        organizationFunds[organization] = 0;
     }
 
     function exit() public collectPatronageAddress(msg.sender) {
@@ -268,7 +282,6 @@ contract WildcardSteward_v0 is Initializable {
     }
 
     /* internal */
-
     function _withdrawDeposit(uint256 _wei) internal {
         // note: can withdraw whole deposit, which puts it in immediate to be foreclosed state.
         require(deposit[msg.sender] >= _wei, 'Withdrawing too much');
@@ -289,8 +302,8 @@ contract WildcardSteward_v0 is Initializable {
 
     function transferAssetTokenTo(uint256 tokenId, address _currentOwner, address _newOwner, uint256 _newPrice) internal {
         // TODO: add the patronage rate as a multiplier here: https://github.com/wild-cards/contracts/issues/7
-        totalUserOwnedTokenCost[_newOwner] += _newPrice;
-        totalUserOwnedTokenCost[_currentOwner] -= price[tokenId];
+        totalUserOwnedTokenCost[_newOwner] = totalUserOwnedTokenCost[_newOwner].add(_newPrice.mul(patronageNumerator[tokenId]));
+        totalUserOwnedTokenCost[_currentOwner] = totalUserOwnedTokenCost[_currentOwner].sub(price[tokenId].mul(patronageNumerator[tokenId]));
 
         // note: it would also tabulate time held in stewardship by smart contract
         timeHeld[tokenId][_currentOwner] = timeHeld[tokenId][_currentOwner].add((timeLastCollected[tokenId].sub(timeAcquired[tokenId])));

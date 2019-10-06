@@ -39,10 +39,11 @@ async function deploy(options, accounts) {
     ]
   });
 
-  console.log(await patronageToken.methods.isMinter(accounts[0]).call(options.txParams))
-  console.log(await patronageToken.methods.mintWithTokenURI(steward.address, 0, image1MetadataString).send(options.txParams))
-  console.log(await patronageToken.methods.mintWithTokenURI(steward.address, 1, image2MetadataString).send(options.txParams))
-  await steward.methods.initialize([0, 1, 2], accounts[0], patronageToken.address, patronageNumerator, patronageDenominator)
+  await patronageToken.methods.isMinter(accounts[0]).call(options.txParams)
+  await patronageToken.methods.mintWithTokenURI(steward.address, 0, image1MetadataString).send(options.txParams)
+  await patronageToken.methods.mintWithTokenURI(steward.address, 1, image2MetadataString).send(options.txParams)
+  await steward.methods.initialize(patronageToken.address, accounts[0], patronageDenominator)
+  await steward.methods.initialize([0, 1], [accounts[0], accounts[0]], patronageNumerator)
 }
 
 module.exports = function (deployer, networkName, accounts) {
