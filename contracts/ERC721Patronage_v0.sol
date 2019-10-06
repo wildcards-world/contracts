@@ -23,11 +23,6 @@ contract ERC721Patronage_v0 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     }
 
     function _isApprovedOrOwner(address spender, uint256 tokenId) internal view returns (bool) {
-        // address owner = ownerOf(tokenId);
-        // return (spender == owner || getApproved(tokenId) == spender || isApprovedForAll(owner, spender));
-
-        // MODIFIED:
-        // Only the steward is allowed to transfer
-        return (spender == steward);
+        return (spender == steward || ERC721._isApprovedOrOwner(spender, tokenId));
     }
 }
