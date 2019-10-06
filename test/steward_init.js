@@ -18,7 +18,9 @@ contract('WildcardSteward', (accounts) => {
     steward = await WildcardSteward.new({ from: accounts[0] });
     await artwork.setup(steward.address, "ALWAYSFORSALETestToken", "AFSTT", accounts[0], { from: accounts[0] })
     await artwork.mintWithTokenURI(steward.address, 0, testTokenURI, { from: accounts[0] })
-    await steward.initialize([0], accounts[0], artwork.address, patronageNumerator, patronageDenominator)
+    // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
+    await steward.initialize(artwork.address, accounts[0], patronageDenominator)
+    await steward.listNewTokens([0], [accounts[0]], [patronageNumerator])
   });
 
   it('steward: init: artwork minted', async () => {
