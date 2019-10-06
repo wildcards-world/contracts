@@ -49,7 +49,7 @@ contract WildcardSteward_v0 is Initializable {
     event LogCollection(uint256 indexed collected);
 
     modifier onlyPatron(uint256 tokenId) {
-        require(msg.sender == assetToken.ownerOf(tokenId), "Not patron");
+        require(msg.sender == currentPatron[tokenId], "Not patron");
         _;
     }
 
@@ -229,7 +229,7 @@ contract WildcardSteward_v0 is Initializable {
     function buy(uint256 tokenId, uint256 _newPrice) public payable collectPatronage(tokenId) {
         require(_newPrice > 0, "Price is zero");
         require(msg.value > price[tokenId], "Not enough"); // >, coz need to have at least something for deposit
-        address currentOwner = assetToken.ownerOf(tokenId);
+        address currentOwner = currentPatron[tokenId];
 
         if (state[tokenId] == StewardState.Owned) {
             uint256 totalToPayBack = price[tokenId];
