@@ -26,7 +26,6 @@ contract('WildcardSteward owed', (accounts) => {
   // price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
   const tenMinPatronageAt1Eth = ether('1').mul(new BN('600')).mul(new BN('12')).div(new BN('1')).div(new BN('31536000'));
 
-
   beforeEach(async () => {
     artwork = await Artwork.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
@@ -34,8 +33,19 @@ contract('WildcardSteward owed', (accounts) => {
     await artwork.mintWithTokenURI(steward.address, 0, testTokenURI, { from: accounts[0] })
     await artwork.mintWithTokenURI(steward.address, 1, testTokenURI, { from: accounts[0] })
     await artwork.mintWithTokenURI(steward.address, 2, testTokenURI, { from: accounts[0] })
-    await steward.initialize([0, 1, 2], accounts[0], artwork.address, patronageNumerator, patronageDenominator)
-  });
+    // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
+    await steward.initialize(artwork.address, accounts[0], patronageDenominator)
+    await steward.listNewTokens([0, 1, 2], [accounts[0], accounts[0], accounts[0]], [patronageNumerator, patronageNumerator, patronageNumerator])
+  })
+  // beforeEach(async () => {
+  //   artwork = await Artwork.new({ from: accounts[0] });
+  //   steward = await WildcardSteward.new({ from: accounts[0] });
+  //   await artwork.setup(steward.address, "ALWAYSFORSALETestToken", "AFSTT", accounts[0], { from: accounts[0] })
+  //   await artwork.mintWithTokenURI(steward.address, 0, testTokenURI, { from: accounts[0] })
+  //   await artwork.mintWithTokenURI(steward.address, 1, testTokenURI, { from: accounts[0] })
+  //   await artwork.mintWithTokenURI(steward.address, 2, testTokenURI, { from: accounts[0] })
+  //   await steward.initialize([0, 1, 2], accounts[0], artwork.address, patronageNumerator, patronageDenominator)
+  // });
 
   it('steward: multi-token. check patronage of two tokens owed by the same user after 10 minutes.', async () => {
     await waitTillBeginningOfSecond()
