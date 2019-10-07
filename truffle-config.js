@@ -1,10 +1,10 @@
 const path = require("path");
-const HDWalletProvider = require('@truffle/hdwallet-provider');
+const HDWalletProvider = require('truffle-hdwallet-provider');
 const {
   mnemonic,
   mainnetProviderUrl,
   rinkebyProviderUrl,
-  goerlyProviderUrl,
+  goerliProviderUrl,
 } = require("./secretsManager.js")
 
 const blockchainNodeHost = process.env.BLOCKCHAIN_NODE_HOST || 'localhost'
@@ -29,9 +29,9 @@ module.exports = {
       gasPrice: 10000000000, // 10 gwei
       skipDryRun: true,
     },
-    goerly: {
+    goerli: {
       network_id: 5,
-      provider: new HDWalletProvider(mnemonic, goerlyProviderUrl, 0),
+      provider: new HDWalletProvider(mnemonic, goerliProviderUrl, 0),
       // gas: 47000000,
       gasPrice: 10000000000, // 10 gwei
       skipDryRun: true,

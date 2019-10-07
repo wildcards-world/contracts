@@ -1,0 +1,580 @@
+{
+  "contracts": {
+    "ERC721Patronage": {
+      "address": "0xF5A15B0F56dd93E40Dcb7B89744beE64E7058ACd",
+      "constructorCode": "6080604052611fb4806100136000396000f3fe",
+      "bodyBytecodeHash": "bba3e45bdf01b1b4e1a166c4d035c63cfbf700aaab02c62ecbe7799cf29eabec",
+      "localBytecodeHash": "b8ed74cf8a271425f75e1ba0b873939ce659c1aba1698fe493c69d6bd90e6ef0",
+      "deployedBytecodeHash": "b8ed74cf8a271425f75e1ba0b873939ce659c1aba1698fe493c69d6bd90e6ef0",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_mapping<t_bool>": {
+          "id": "t_mapping<t_bool>",
+          "valueType": "t_bool",
+          "label": "mapping(key => bool)",
+          "kind": "mapping"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_mapping<t_address>": {
+          "id": "t_mapping<t_address>",
+          "valueType": "t_address",
+          "label": "mapping(key => address)",
+          "kind": "mapping"
+        },
+        "t_struct<Counters.Counter>": {
+          "id": "t_struct<Counters.Counter>",
+          "kind": "struct",
+          "label": "Counters.Counter",
+          "members": [
+            {
+              "label": "_value",
+              "astId": 1660,
+              "type": "t_uint256",
+              "src": "1021:14:6"
+            }
+          ]
+        },
+        "t_mapping<t_struct<Counters.Counter>>": {
+          "id": "t_mapping<t_struct<Counters.Counter>>",
+          "valueType": "t_struct<Counters.Counter>",
+          "label": "mapping(key => Counters.Counter)",
+          "kind": "mapping"
+        },
+        "t_array:dyn<t_uint256>": {
+          "id": "t_array:dyn<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "dyn",
+          "kind": "array",
+          "label": "uint256[]"
+        },
+        "t_mapping<t_array:dyn<t_uint256>>": {
+          "id": "t_mapping<t_array:dyn<t_uint256>>",
+          "valueType": "t_array:dyn<t_uint256>",
+          "label": "mapping(key => uint256[])",
+          "kind": "mapping"
+        },
+        "t_mapping<t_uint256>": {
+          "id": "t_mapping<t_uint256>",
+          "valueType": "t_uint256",
+          "label": "mapping(key => uint256)",
+          "kind": "mapping"
+        },
+        "t_string": {
+          "id": "t_string",
+          "kind": "elementary",
+          "label": "string"
+        },
+        "t_mapping<t_string>": {
+          "id": "t_mapping<t_string>",
+          "valueType": "t_string",
+          "label": "mapping(key => string)",
+          "kind": "mapping"
+        },
+        "t_struct<Roles.Role>": {
+          "id": "t_struct<Roles.Role>",
+          "kind": "struct",
+          "label": "Roles.Role",
+          "members": [
+            {
+              "label": "bearer",
+              "astId": 1441,
+              "type": "t_mapping<t_bool>",
+              "src": "150:32:4"
+            }
+          ]
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 3264,
+          "type": "t_bool",
+          "src": "757:24:19"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 3266,
+          "type": "t_bool",
+          "src": "876:25:19"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 3322,
+          "type": "t_array:50<t_uint256>",
+          "src": "1951:29:19"
+        },
+        {
+          "contract": "ERC165",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/introspection/ERC165.sol",
+          "label": "_supportedInterfaces",
+          "astId": 1716,
+          "type": "t_mapping<t_bool>",
+          "src": "511:52:7"
+        },
+        {
+          "contract": "ERC165",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/introspection/ERC165.sol",
+          "label": "______gap",
+          "astId": 1760,
+          "type": "t_array:50<t_uint256>",
+          "src": "1244:29:7"
+        },
+        {
+          "contract": "ERC721",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
+          "label": "_tokenOwner",
+          "astId": 1933,
+          "type": "t_mapping<t_address>",
+          "src": "886:48:10"
+        },
+        {
+          "contract": "ERC721",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
+          "label": "_tokenApprovals",
+          "astId": 1937,
+          "type": "t_mapping<t_address>",
+          "src": "990:52:10"
+        },
+        {
+          "contract": "ERC721",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
+          "label": "_ownedTokensCount",
+          "astId": 1941,
+          "type": "t_mapping<t_struct<Counters.Counter>>",
+          "src": "1100:63:10"
+        },
+        {
+          "contract": "ERC721",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
+          "label": "_operatorApprovals",
+          "astId": 1947,
+          "type": "t_mapping<t_bool>",
+          "src": "1218:73:10"
+        },
+        {
+          "contract": "ERC721",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
+          "label": "______gap",
+          "astId": 2474,
+          "type": "t_array:50<t_uint256>",
+          "src": "11985:29:10"
+        },
+        {
+          "contract": "ERC721Enumerable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol",
+          "label": "_ownedTokens",
+          "astId": 2497,
+          "type": "t_mapping<t_array:dyn<t_uint256>>",
+          "src": "502:50:11"
+        },
+        {
+          "contract": "ERC721Enumerable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol",
+          "label": "_ownedTokensIndex",
+          "astId": 2501,
+          "type": "t_mapping<t_uint256>",
+          "src": "622:53:11"
+        },
+        {
+          "contract": "ERC721Enumerable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol",
+          "label": "_allTokens",
+          "astId": 2504,
+          "type": "t_array:dyn<t_uint256>",
+          "src": "736:28:11"
+        },
+        {
+          "contract": "ERC721Enumerable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol",
+          "label": "_allTokensIndex",
+          "astId": 2508,
+          "type": "t_mapping<t_uint256>",
+          "src": "835:51:11"
+        },
+        {
+          "contract": "ERC721Enumerable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol",
+          "label": "______gap",
+          "astId": 2837,
+          "type": "t_array:50<t_uint256>",
+          "src": "8858:29:11"
+        },
+        {
+          "contract": "ERC721Metadata",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol",
+          "label": "_name",
+          "astId": 2857,
+          "type": "t_string",
+          "src": "323:20:12"
+        },
+        {
+          "contract": "ERC721Metadata",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol",
+          "label": "_symbol",
+          "astId": 2859,
+          "type": "t_string",
+          "src": "370:22:12"
+        },
+        {
+          "contract": "ERC721Metadata",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol",
+          "label": "_tokenURIs",
+          "astId": 2863,
+          "type": "t_mapping<t_string>",
+          "src": "438:45:12"
+        },
+        {
+          "contract": "ERC721Metadata",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol",
+          "label": "______gap",
+          "astId": 2992,
+          "type": "t_array:50<t_uint256>",
+          "src": "2891:29:12"
+        },
+        {
+          "contract": "MinterRole",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/access/roles/MinterRole.sol",
+          "label": "_minters",
+          "astId": 1551,
+          "type": "t_struct<Roles.Role>",
+          "src": "327:27:5"
+        },
+        {
+          "contract": "MinterRole",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/access/roles/MinterRole.sol",
+          "label": "______gap",
+          "astId": 1651,
+          "type": "t_array:50<t_uint256>",
+          "src": "1193:29:5"
+        },
+        {
+          "contract": "ERC721MetadataMintable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721MetadataMintable.sol",
+          "label": "______gap",
+          "astId": 3062,
+          "type": "t_array:50<t_uint256>",
+          "src": "1055:29:13"
+        },
+        {
+          "contract": "ERC721Patronage_v0",
+          "path": "contracts/ERC721Patronage_v0.sol",
+          "label": "steward",
+          "astId": 17,
+          "type": "t_address",
+          "src": "847:22:0"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "WildcardSteward": {
+      "address": "0x60f57cAdd2b4918adc29CFc8C1FC3914a960984d",
+      "constructorCode": "608060405234801561001057600080fd5b5061217f806100206000396000f3fe",
+      "bodyBytecodeHash": "fc5c7865b70c6bf178d7eedb87b0552b77b814868daff39b3557bfa8d2ed8724",
+      "localBytecodeHash": "96ca535248d8cb7ea9fce45c578a3c7cf4e35141842bbd681c75380b869184b6",
+      "deployedBytecodeHash": "96ca535248d8cb7ea9fce45c578a3c7cf4e35141842bbd681c75380b869184b6",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_mapping<t_uint256>": {
+          "id": "t_mapping<t_uint256>",
+          "valueType": "t_uint256",
+          "label": "mapping(key => uint256)",
+          "kind": "mapping"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_address_payable": {
+          "id": "t_address_payable",
+          "kind": "elementary",
+          "label": "address payable"
+        },
+        "t_mapping<t_address_payable>": {
+          "id": "t_mapping<t_address_payable>",
+          "valueType": "t_address_payable",
+          "label": "mapping(key => address payable)",
+          "kind": "mapping"
+        },
+        "t_mapping<t_address>": {
+          "id": "t_mapping<t_address>",
+          "valueType": "t_address",
+          "label": "mapping(key => address)",
+          "kind": "mapping"
+        },
+        "t_mapping<t_bool>": {
+          "id": "t_mapping<t_bool>",
+          "valueType": "t_bool",
+          "label": "mapping(key => bool)",
+          "kind": "mapping"
+        },
+        "t_enum<WildcardSteward_v0.StewardState>": {
+          "id": "t_enum<WildcardSteward_v0.StewardState>",
+          "kind": "enum",
+          "label": "WildcardSteward_v0.StewardState",
+          "members": [
+            "Foreclosed",
+            "Owned"
+          ]
+        },
+        "t_mapping<t_enum<WildcardSteward_v0.StewardState>>": {
+          "id": "t_mapping<t_enum<WildcardSteward_v0.StewardState>>",
+          "valueType": "t_enum<WildcardSteward_v0.StewardState>",
+          "label": "mapping(key => WildcardSteward_v0.StewardState)",
+          "kind": "mapping"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 3264,
+          "type": "t_bool",
+          "src": "757:24:19"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 3266,
+          "type": "t_bool",
+          "src": "876:25:19"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 3322,
+          "type": "t_array:50<t_uint256>",
+          "src": "1951:29:19"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "price",
+          "astId": 161,
+          "type": "t_mapping<t_uint256>",
+          "src": "520:40:2"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "assetToken",
+          "astId": 163,
+          "type": "t_address",
+          "src": "575:36:2"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "totalCollected",
+          "astId": 167,
+          "type": "t_mapping<t_uint256>",
+          "src": "633:49:2"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "currentCollected",
+          "astId": 171,
+          "type": "t_mapping<t_uint256>",
+          "src": "720:51:2"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "timeLastCollected",
+          "astId": 175,
+          "type": "t_mapping<t_uint256>",
+          "src": "818:52:2"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "timeLastCollectedUser",
+          "astId": 179,
+          "type": "t_mapping<t_uint256>",
+          "src": "876:56:2"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "deposit",
+          "astId": 183,
+          "type": "t_mapping<t_uint256>",
+          "src": "938:42:2"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "totalUserOwnedTokenCost",
+          "astId": 187,
+          "type": "t_mapping<t_uint256>",
+          "src": "986:58:2"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "organizations",
+          "astId": 191,
+          "type": "t_mapping<t_address_payable>",
+          "src": "1051:56:2"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "organizationFunds",
+          "astId": 195,
+          "type": "t_mapping<t_uint256>",
+          "src": "1140:52:2"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "currentPatron",
+          "astId": 199,
+          "type": "t_mapping<t_address>",
+          "src": "1199:48:2"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "patrons",
+          "astId": 205,
+          "type": "t_mapping<t_bool>",
+          "src": "1302:60:2"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "timeHeld",
+          "astId": 211,
+          "type": "t_mapping<t_uint256>",
+          "src": "1368:64:2"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "timeAcquired",
+          "astId": 215,
+          "type": "t_mapping<t_uint256>",
+          "src": "1439:47:2"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "patronageNumerator",
+          "astId": 219,
+          "type": "t_mapping<t_uint256>",
+          "src": "1516:53:2"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "patronageDenominator",
+          "astId": 221,
+          "type": "t_uint256",
+          "src": "1575:35:2"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "state",
+          "astId": 228,
+          "type": "t_mapping<t_enum<WildcardSteward_v0.StewardState>>",
+          "src": "1661:45:2"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "admin",
+          "astId": 230,
+          "type": "t_address",
+          "src": "1713:20:2"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    }
+  },
+  "solidityLibs": {},
+  "proxies": {
+    "wildcards-contracts/WildcardSteward": [
+      {
+        "address": "0x27c42A13097c027295d1B6fD293B335862fE87Ff",
+        "version": "0.1.0",
+        "implementation": "0x60f57cAdd2b4918adc29CFc8C1FC3914a960984d",
+        "admin": "0xa78957F12a9CDa738947Ddf6F37d244C54a7Cf87",
+        "kind": "Upgradeable"
+      }
+    ],
+    "wildcards-contracts/ERC721Patronage": [
+      {
+        "address": "0x05F5bb294e0b83c31dbf575D7370A314e16C82F4",
+        "version": "0.1.0",
+        "implementation": "0x0000000000000000000000000000000000000000",
+        "admin": "0xa78957F12a9CDa738947Ddf6F37d244C54a7Cf87",
+        "kind": "Upgradeable"
+      }
+    ]
+  },
+  "manifestVersion": "2.2",
+  "version": "0.1.0",
+  "proxyAdmin": {
+    "address": "0xa78957F12a9CDa738947Ddf6F37d244C54a7Cf87"
+  }
+}

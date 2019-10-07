@@ -1,23 +1,6 @@
 // Load zos scripts and truffle wrapper function
 const { scripts, ConfigManager } = require('@openzeppelin/cli');
 const { add, push, create } = scripts;
-const patronageNumerator = 12
-const patronageDenominator = 1
-
-const image1MetadataJson = {
-  artist: "Matty Fraser",
-  name: "Simon",
-  // https://ipfs.infura.io/ipfs/QmZt5S8tD7L4nMBo4NTtVDpV3qpteA1DXJwKRmuF318tHd"
-  ipfs: "QmZt5S8tD7L4nMBo4NTtVDpV3qpteA1DXJwKRmuF318tHd"
-}
-const image1MetadataString = JSON.stringify(image1MetadataJson)
-const image2MetadataJson = {
-  artist: "Matty Fraser",
-  name: "Andy",
-  // https://ipfs.infura.io/ipfs/QmUjnwmYQE1QjkNpoEdpGwbj1s4cj5gVfEePNPnArbm5Tv
-  ipfs: "QmUjnwmYQE1QjkNpoEdpGwbj1s4cj5gVfEePNPnArbm5Tv"
-}
-const image2MetadataString = JSON.stringify(image2MetadataJson)
 
 async function deploy(options, accounts) {
   add({
@@ -38,12 +21,6 @@ async function deploy(options, accounts) {
       steward.address, "WildcardsTokens", "WT", accounts[0]
     ]
   });
-
-  await patronageToken.methods.isMinter(accounts[0]).call(options.txParams)
-  await patronageToken.methods.mintWithTokenURI(steward.address, 0, image1MetadataString).send(options.txParams)
-  await patronageToken.methods.mintWithTokenURI(steward.address, 1, image2MetadataString).send(options.txParams)
-  await steward.methods.initialize(patronageToken.address, accounts[0], patronageDenominator)
-  await steward.methods.initialize([0, 1], [accounts[0], accounts[0]], patronageNumerator)
 }
 
 module.exports = function (deployer, networkName, accounts) {
