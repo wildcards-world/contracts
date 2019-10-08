@@ -229,7 +229,8 @@ contract WildcardSteward_v0 is Initializable {
     function buy(uint256 tokenId, uint256 _newPrice) public payable collectPatronage(tokenId) {
         require(_newPrice > 0, "Price is zero");
         require(msg.value > price[tokenId], "Not enough"); // >, coz need to have at least something for deposit
-        address currentOwner = currentPatron[tokenId];
+        address currentOwner = assetToken.ownerOf(tokenId);
+        address currentPatron = currentPatron[tokenId];
 
         if (state[tokenId] == StewardState.Owned) {
             uint256 totalToPayBack = price[tokenId];
@@ -240,7 +241,7 @@ contract WildcardSteward_v0 is Initializable {
             // }
 
             // pay previous owner their price + deposit back.
-            address payable payableCurrentOwner = address(uint160(currentOwner));
+            address payable payableCurrentOwner = address(uint160(currentPatron));
             payableCurrentOwner.transfer(totalToPayBack);
             timeLastCollected[tokenId] = now;
             timeLastCollectedUser[msg.sender] = now;
@@ -251,7 +252,7 @@ contract WildcardSteward_v0 is Initializable {
         }
 
         deposit[msg.sender] = msg.value.sub(price[tokenId]);
-        transferAssetTokenTo(tokenId, currentOwner, msg.sender, _newPrice);
+        transferAssetTokenTo(tokenId, currentOwner, currentPatron, msg.sender, _newPrice);
         emit LogBuy(msg.sender, _newPrice);
     }
 
@@ -293,20 +294,21 @@ contract WildcardSteward_v0 is Initializable {
     function _foreclose(uint256 tokenId) internal {
         // become steward of assetToken (aka foreclose)
         address currentOwner = assetToken.ownerOf(tokenId);
-        transferAssetTokenTo(tokenId, currentOwner, address(this), 0);
+        address currentPatron = currentPatron[tokenId];
+        transferAssetTokenTo(tokenId, currentOwner, currentPatron, address(this), 0);
         state[tokenId] = StewardState.Foreclosed;
         currentCollected[tokenId] = 0;
 
         emit LogForeclosure(currentOwner);
     }
 
-    function transferAssetTokenTo(uint256 tokenId, address _currentOwner, address _newOwner, uint256 _newPrice) internal {
+    function transferAssetTokenTo(uint256 tokenId, address _currentOwner, address _currentPatron, address _newOwner, uint256 _newPrice) internal {
         // TODO: add the patronage rate as a multiplier here: https://github.com/wild-cards/contracts/issues/7
         totalUserOwnedTokenCost[_newOwner] = totalUserOwnedTokenCost[_newOwner].add(_newPrice.mul(patronageNumerator[tokenId]));
-        totalUserOwnedTokenCost[_currentOwner] = totalUserOwnedTokenCost[_currentOwner].sub(price[tokenId].mul(patronageNumerator[tokenId]));
+        totalUserOwnedTokenCost[_currentPatron] = totalUserOwnedTokenCost[_currentPatron].sub(price[tokenId].mul(patronageNumerator[tokenId]));
 
         // note: it would also tabulate time held in stewardship by smart contract
-        timeHeld[tokenId][_currentOwner] = timeHeld[tokenId][_currentOwner].add((timeLastCollected[tokenId].sub(timeAcquired[tokenId])));
+        timeHeld[tokenId][_currentPatron] = timeHeld[tokenId][_currentPatron].add((timeLastCollected[tokenId].sub(timeAcquired[tokenId])));
 
         assetToken.transferFrom(_currentOwner, _newOwner, tokenId);
 
