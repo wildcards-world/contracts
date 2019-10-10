@@ -126,7 +126,7 @@ contract WildcardSteward_v0 is Initializable {
         // returns whether it is in foreclosed state or not
         // depending on whether deposit covers patronage due
         // useful helper function when price should be zero, but contract doesn't reflect it yet.
-        if (patronageOwedUser(tokenHolder) >= deposit[tokenHolder]) { // TODO: this condition is wrong
+        if (patronageOwedUser(tokenHolder) >= deposit[tokenHolder]) {
             return true;
         } else {
             return false;
@@ -234,15 +234,15 @@ contract WildcardSteward_v0 is Initializable {
 
         if (state[tokenId] == StewardState.Owned) {
             uint256 totalToPayBack = price[tokenId];
-            // TODO: Don't pay back deposit if user has other tokens.
-            //       Think exactly what to do in this situation.
-            // if(deposit[tokenId] > 0) {
-            //     totalToPayBack = totalToPayBack.add(deposit[tokenId]);
-            // }
+            // NOTE: pay back the deposit only if it is the only token the patron owns.
+            if(totalUserOwnedTokenCost[currentPatron] == price[tokenId].mul(patronageNumerator[tokenId])) {
+                totalToPayBack = totalToPayBack.add(deposit[currentPatron]);
+                deposit[currentPatron] = 0;
+            }
 
             // pay previous owner their price + deposit back.
-            address payable payableCurrentOwner = address(uint160(currentPatron));
-            payableCurrentOwner.transfer(totalToPayBack);
+            address payable payableCurrentPatron = address(uint160(currentPatron));
+            payableCurrentPatron.transfer(totalToPayBack);
             timeLastCollected[tokenId] = now;
             timeLastCollectedUser[msg.sender] = now;
         } else if(state[tokenId] == StewardState.Foreclosed) {
@@ -259,6 +259,10 @@ contract WildcardSteward_v0 is Initializable {
     function changePrice(uint256 tokenId, uint256 _newPrice) public onlyPatron(tokenId) collectPatronage(tokenId) {
         require(state[tokenId] != StewardState.Foreclosed, "Foreclosed");
         require(_newPrice != 0, "Incorrect Price");
+
+        totalUserOwnedTokenCost[msg.sender] = totalUserOwnedTokenCost[msg.sender]
+          .sub(price[tokenId].mul(patronageNumerator[tokenId]))
+          .add(_newPrice.mul(patronageNumerator[tokenId]));
 
         price[tokenId] = _newPrice;
         emit LogPriceChange(price[tokenId]);
