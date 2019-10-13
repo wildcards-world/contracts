@@ -12,3 +12,6 @@ ADD ./package-lock.json /app/package-lock.json
 RUN npm install
 
 ADD . /app
+
+# Run an empty command by default - to keep container running
+CMD tail -f /dev/null
