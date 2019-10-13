@@ -251,7 +251,7 @@ contract WildcardSteward_v0 is Initializable {
             timeLastCollectedUser[msg.sender] = now;
         }
 
-        deposit[msg.sender] = msg.value.sub(price[tokenId]);
+        deposit[msg.sender] = deposit[msg.sender].add(msg.value.sub(price[tokenId]));
         transferAssetTokenTo(tokenId, currentOwner, currentPatron, msg.sender, _newPrice);
         emit LogBuy(msg.sender, _newPrice);
     }
