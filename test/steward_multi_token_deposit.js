@@ -20,7 +20,13 @@ const PATRONAGE_DENOMINATOR = '1'
 const multiPatronageCalculator = (timeInSeconds, tokenArray) => {
   const totalPatronage = tokenArray.reduce(
     (totalPatronage, token) =>
-      totalPatronage.add((new BN(token.price)).mul(new BN(timeInSeconds)).mul(new BN(token.patronageNumerator)).div(new BN(PATRONAGE_DENOMINATOR)).div(new BN(NUM_SECONDS_IN_YEAR)))
+      totalPatronage.add(
+        (new BN(token.price))
+          .mul(new BN(timeInSeconds))
+          .mul(new BN(token.patronageNumerator))
+          .div(new BN(PATRONAGE_DENOMINATOR))
+          .div(new BN(NUM_SECONDS_IN_YEAR))
+      )
     , new BN('0'));
   return totalPatronage
 }
@@ -52,11 +58,9 @@ contract('WildcardSteward owed', (accounts) => {
   it('steward: deposit-management. On token buy, check that the remaining deposit is sent back to patron only if it is their only token', async () => {
     await waitTillBeginningOfSecond()
 
+    //Buying 2 tokens. Setting selling price to 1 and 2 eth respectively. Sending 1 eth each for deposit. 
     await steward.buy(testTokenId1, web3.utils.toWei('1', 'ether'), { from: accounts[2], value: web3.utils.toWei('1', 'ether') });
-    await steward.deposit.call(accounts[2]);
-
     await steward.buy(testTokenId2, web3.utils.toWei('2', 'ether'), { from: accounts[2], value: web3.utils.toWei('1', 'ether') });
-    await steward.deposit.call(accounts[2]);
 
     const priceOftoken1 = await steward.price.call(testTokenId1)
     const priceOftoken2 = await steward.price.call(testTokenId2)
@@ -67,7 +71,7 @@ contract('WildcardSteward owed', (accounts) => {
     const patronDepositBeforeSale = await steward.deposit.call(accounts[2]);
     const balancePatronBeforeSale = new BN(await web3.eth.getBalance(accounts[2]));
 
-    //First token then bought. Deposit should remain.
+    // When first token is bought, deposit should remain.
     await steward.buy(testTokenId1, ether('1'), { from: accounts[3], value: ether('2') });
 
     const patronDepositAfterFirstSale = await steward.deposit.call(accounts[2]);
@@ -79,7 +83,6 @@ contract('WildcardSteward owed', (accounts) => {
     const balancePatronAfterSecondSale = new BN(await web3.eth.getBalance(accounts[2]));
     const patronDepositAfterSecondSale = await steward.deposit.call(accounts[2]);
 
-    //Patronage of multi tokens after set amount of time.
     const expectedPatronageAfter10min = multiPatronageCalculator('600', [{ patronageNumerator: '12', price: priceOftoken1.toString() }, { patronageNumerator: '12', price: priceOftoken2.toString() }])
     assert.equal(patronDepositBeforeSale.toString(), patronDepositAfterFirstSale.add(expectedPatronageAfter10min).toString());
 
