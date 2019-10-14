@@ -47,7 +47,7 @@ contract WildcardSteward_v0 is Initializable {
     event LogPriceChange(uint256 indexed newPrice);
     event LogForeclosure(address indexed prevOwner);
     event LogCollection(uint256 indexed collected);
-    event LogRemainingDepositUpdate(uint256 indexed remainingDeposit);
+    event LogRemainingDepositUpdate(address indexed tokenHolder, uint256 indexed remainingDeposit);
     event AddToken(uint256 indexed tokenId, uint256 patronageNumerator);
 
     modifier onlyPatron(uint256 tokenId) {
@@ -220,7 +220,7 @@ contract WildcardSteward_v0 is Initializable {
             deposit[tokenHolder] = deposit[tokenHolder].sub(patronageOwedByTokenOwner);
         }
 
-        emit LogRemainingDepositUpdate(deposit[tokenHolder]);
+        emit LogRemainingDepositUpdate(tokenHolder, deposit[tokenHolder]);
     }
 
     // note: anyone can deposit
@@ -249,11 +249,9 @@ contract WildcardSteward_v0 is Initializable {
             // pay previous owner their price + deposit back.
             address payable payableCurrentPatron = address(uint160(currentPatron));
             payableCurrentPatron.transfer(totalToPayBack);
-            _collectPatronageUser(msg.sender);
         } else if(state[tokenId] == StewardState.Foreclosed) {
             state[tokenId] = StewardState.Owned;
             timeLastCollected[tokenId] = now;
-            _collectPatronageUser(msg.sender);
         }
 
         deposit[msg.sender] = deposit[msg.sender].add(msg.value.sub(price[tokenId]));

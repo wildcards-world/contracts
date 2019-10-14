@@ -113,6 +113,7 @@ contract('WildcardSteward owed', (accounts) => {
     //////////////////////////////////////////////////
     //////////////////////////////////////////////////
     await time.increase(time.duration.minutes(10));
+    // This adds an extra second to the test, but is needed since this test is long off by one second errors should be avoided.
     await waitTillBeginningOfSecond()
 
     await steward._collectPatronage(testTokenId1);
@@ -135,5 +136,23 @@ contract('WildcardSteward owed', (accounts) => {
       [{ patronageNumerator: testToken1.patronageNumerator.toString(), price: priceOfToken1.toString() }])
     assert.equal(benefactorFundsT30.toString(), expectedTotalPatronageT30Token1.toString())
     assert.equal(balanceChangePatron1.toString(), expectedTotalPatronageT30Token1.toString())
+
+    /////////////////// TIME = 40 ////////////////////
+    //////////////////////////////////////////////////
+    //////////////////////////////////////////////////
+    await time.increase(time.duration.minutes(10));
+
+    await steward._collectPatronage(testTokenId2);
+
+    const benefactor2FundsT40 = await steward.benefactorFunds.call(accounts[9])
+    const balTrack2 = await balance.tracker(accounts[9]);
+    await steward.withdrawBenefactorFundsTo(accounts[9])
+    const balanceChangePatron2 = await balTrack2.delta()
+
+    const expectedTotalPatronageT40Token2 = multiPatronageCalculator('1201',
+      [{ patronageNumerator: testToken2.patronageNumerator.toString(), price: priceOfToken2.toString() }])
+    assert.equal(benefactor2FundsT40.toString(), expectedTotalPatronageT40Token2.toString())
+    assert.equal(balanceChangePatron2.toString(), expectedTotalPatronageT40Token2.toString())
+
   });
 });
