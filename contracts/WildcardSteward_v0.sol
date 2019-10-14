@@ -25,8 +25,8 @@ contract WildcardSteward_v0 is Initializable {
     mapping(address => uint256) public deposit;
     mapping(address => uint256) public totalUserOwnedTokenCost;
 
-    mapping(uint256 => address payable) public organizations; // non-profit organization
-    mapping(address => uint256) public organizationFunds;
+    mapping(uint256 => address payable) public benefactors; // non-profit benefactor
+    mapping(address => uint256) public benefactorFunds;
 
     mapping(uint256 => address) public currentPatron; // This is different to the current token owner.
     mapping(uint256 => mapping (address => bool)) public patrons;
@@ -53,8 +53,8 @@ contract WildcardSteward_v0 is Initializable {
         _;
     }
 
-    modifier onlyReceivingOrganization(uint256 tokenId) {
-        require(msg.sender == organizations[tokenId], "Not organization");
+    modifier onlyReceivingBenefactor(uint256 tokenId) {
+        require(msg.sender == benefactors[tokenId], "Not benefactor");
         _;
     }
     modifier onlyAdmin() {
@@ -79,20 +79,20 @@ contract WildcardSteward_v0 is Initializable {
     }
 
     // TODO:: add validation that the token that is complient with the "PatronageToken" ERC721 interface extension somehow!
-    function listNewTokens(uint256[] memory tokens, address payable[] memory _organizations, uint256[] memory _patronageNumerator) public onlyAdmin {
-        assert(tokens.length == _organizations.length);
+    function listNewTokens(uint256[] memory tokens, address payable[] memory _benefactors, uint256[] memory _patronageNumerator) public onlyAdmin {
+        assert(tokens.length == _benefactors.length);
         for (uint8 i = 0; i < tokens.length; ++i){
-            assert(_organizations[i]!=address(0));
-            organizations[tokens[i]] = _organizations[i];
+            assert(_benefactors[i]!=address(0));
+            benefactors[tokens[i]] = _benefactors[i];
             state[tokens[i]] = StewardState.Foreclosed;
             patronageNumerator[tokens[i]] = _patronageNumerator[i];
         }
     }
 
-    function changeReceivingOrganization(uint256 tokenId, address payable _newReceivingOrganization) public onlyReceivingOrganization(tokenId) {
-        organizations[tokenId] = _newReceivingOrganization;
-        organizationFunds[_newReceivingOrganization] = organizationFunds[msg.sender];
-        organizationFunds[msg.sender] = 0;
+    function changeReceivingBenefactor(uint256 tokenId, address payable _newReceivingBenefactor) public onlyReceivingBenefactor(tokenId) {
+        benefactors[tokenId] = _newReceivingBenefactor;
+        benefactorFunds[_newReceivingBenefactor] = benefactorFunds[msg.sender];
+        benefactorFunds[msg.sender] = 0;
     }
 
     function changeAdmin(address _admin) public onlyAdmin {
@@ -194,8 +194,8 @@ contract WildcardSteward_v0 is Initializable {
                 deposit[tokenHolder] = deposit[tokenHolder].sub(patronageOwedByTokenOwner);
             }
             totalCollected[tokenId] = totalCollected[tokenId].add(collection);
-            address organization = organizations[tokenId];
-            organizationFunds[organization] = organizationFunds[organization].add(collection);
+            address benefactor = benefactors[tokenId];
+            benefactorFunds[benefactor] = benefactorFunds[benefactor].add(collection);
             emit LogCollection(collection);
         }
     }
@@ -272,14 +272,14 @@ contract WildcardSteward_v0 is Initializable {
         _withdrawDeposit(_wei);
     }
 
-    function withdrawOrganizationFunds() public {
-        withdrawOrganizationFundsTo(msg.sender);
+    function withdrawBenefactorFunds() public {
+        withdrawBenefactorFundsTo(msg.sender);
     }
 
-    function withdrawOrganizationFundsTo(address payable organization) public {
-        require(organizationFunds[organization] > 0, "No funds available");
-        organization.transfer(organizationFunds[organization]);
-        organizationFunds[organization] = 0;
+    function withdrawBenefactorFundsTo(address payable benefactor) public {
+        require(benefactorFunds[benefactor] > 0, "No funds available");
+        benefactor.transfer(benefactorFunds[benefactor]);
+        benefactorFunds[benefactor] = 0;
     }
 
     function exit() public collectPatronageAddress(msg.sender) {
