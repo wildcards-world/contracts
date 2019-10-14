@@ -38,7 +38,7 @@ contract('WildcardSteward owed', (accounts) => {
     await steward.listNewTokens([0, 1, 2], [accounts[0], accounts[0], accounts[0]], [patronageNumerator, patronageNumerator, patronageNumerator])
   })
 
-  it('steward: multi-token. check patronage of two tokens owed by the same user after 10 minutes.', async () => {
+  it('steward: multi-token. check patronage of two tokens owed by the same patron after 10 minutes.', async () => {
     await waitTillBeginningOfSecond()
     // buy 2 tokens, with prices of 1 ether and 2 ether.
     await steward.buy(1, web3.utils.toWei('1', 'ether'), { from: accounts[2], value: web3.utils.toWei('1', 'ether') });
@@ -47,16 +47,16 @@ contract('WildcardSteward owed', (accounts) => {
     await time.increase(time.duration.minutes(10));
     const owed1 = await steward.patronageOwedWithTimestamp.call(1, { from: accounts[2] });
     const owed2 = await steward.patronageOwedWithTimestamp.call(2, { from: accounts[2] });
-    const owedUser = await steward.patronageOwedUserWithTimestamp.call(accounts[2], { from: accounts[2] });
+    const owedPatron = await steward.patronageOwedPatronWithTimestamp.call(accounts[2], { from: accounts[2] });
 
     assert.equal(owed1.patronageDue.toString(), tenMinPatronageAt1Eth.toString());
     assert.equal(owed2.patronageDue.toString(), tenMinPatronageAt1Eth.mul(new BN('2')).toString());
-    assert.equal(owedUser.patronageDue.toString(), tenMinPatronageAt1Eth.mul(new BN('3')).toString());
+    assert.equal(owedPatron.patronageDue.toString(), tenMinPatronageAt1Eth.mul(new BN('3')).toString());
     assert(true)
   });
 
   // buy 2 tokens, with prices of 1 ether and 2 ether.
-  it('steward: multi-token. check patronage of two tokens owed by the same user after 10 minutes one of the tokens gets bought.', async () => {
+  it('steward: multi-token. check patronage of two tokens owed by the same patron after 10 minutes one of the tokens gets bought.', async () => {
     await waitTillBeginningOfSecond()
     await steward.buy(1, web3.utils.toWei('1', 'ether'), { from: accounts[2], value: web3.utils.toWei('1', 'ether') });
     await steward.buy(2, web3.utils.toWei('2', 'ether'), { from: accounts[2], value: web3.utils.toWei('0.1', 'ether') });
@@ -64,24 +64,24 @@ contract('WildcardSteward owed', (accounts) => {
     await time.increase(time.duration.minutes(10));
     const owed1 = await steward.patronageOwedWithTimestamp.call(1, { from: accounts[2] });
     const owed2 = await steward.patronageOwedWithTimestamp.call(2, { from: accounts[2] });
-    const owedUser = await steward.patronageOwedUserWithTimestamp.call(accounts[2], { from: accounts[2] });
+    const owedPatron = await steward.patronageOwedPatronWithTimestamp.call(accounts[2], { from: accounts[2] });
     // await steward.buy(1, web3.utils.toWei('0.1', 'ether'), { from: accounts[3], value: ether('1.1') });
     await steward.buy(1, ether('0.1'), { from: accounts[3], value: ether('1.1') });
     // console.log((new BN('555').div(new BN('10'))).toString(), ether('1').toString(), ether('0.1').toString());
     await time.increase(time.duration.minutes(10));
     const owed1Second = await steward.patronageOwedWithTimestamp.call(1);
     const owed2Second = await steward.patronageOwedWithTimestamp.call(2, { from: accounts[2] });
-    const owedUserSecond = await steward.patronageOwedUserWithTimestamp.call(accounts[2]);
-    const owedUser2Second = await steward.patronageOwedUserWithTimestamp.call(accounts[3]);
+    const owedPatronSecond = await steward.patronageOwedPatronWithTimestamp.call(accounts[2]);
+    const owedPatron2Second = await steward.patronageOwedPatronWithTimestamp.call(accounts[3]);
 
     assert.equal(owed1.patronageDue.toString(), tenMinPatronageAt1Eth.toString());
     assert.equal(owed2.patronageDue.toString(), tenMinPatronageAt1Eth.mul(new BN('2')).toString());
-    assert.equal(owedUser.patronageDue.toString(), tenMinPatronageAt1Eth.mul(new BN('3')).toString());
+    assert.equal(owedPatron.patronageDue.toString(), tenMinPatronageAt1Eth.mul(new BN('3')).toString());
     // collected double since 20 min
     assert.equal(owed2Second.patronageDue.toString(), tenMinPatronageAt1Eth.mul(new BN('4')).toString());
     assert.equal(owed1Second.patronageDue.toString(), tenMinPatronageAt1Eth.div(new BN('10')).toString());
     // Should only count since the last clearance (when token 1 was bought)
-    assert.equal(owedUserSecond.patronageDue.toString(), tenMinPatronageAt1Eth.mul(new BN('2')).toString());
-    assert.equal(owedUser2Second.patronageDue.toString(), tenMinPatronageAt1Eth.div(new BN('10')).toString());
+    assert.equal(owedPatronSecond.patronageDue.toString(), tenMinPatronageAt1Eth.mul(new BN('2')).toString());
+    assert.equal(owedPatron2Second.patronageDue.toString(), tenMinPatronageAt1Eth.div(new BN('10')).toString());
   });
 });
