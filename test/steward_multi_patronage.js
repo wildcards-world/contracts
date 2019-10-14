@@ -1,4 +1,5 @@
 const { BN, expectRevert, ether, expectEvent, balance, time } = require('openzeppelin-test-helpers');
+const { multiPatronageCalculator } = require('./helpers')
 
 const Artwork = artifacts.require('./ERC721Patronage_v0.sol');
 const WildcardSteward = artifacts.require('./WildcardSteward_v0.sol');
@@ -15,21 +16,7 @@ const waitTillBeginningOfSecond = () => new Promise(resolve => {
 // todo: test over/underflows
 const NUM_SECONDS_IN_YEAR = '31536000'
 const PATRONAGE_DENOMINATOR = '1'
-
-//patronage per token = price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
-const multiPatronageCalculator = (timeInSeconds, tokenArray) => {
-  const totalPatronage = tokenArray.reduce(
-    (totalPatronage, token) =>
-      totalPatronage.add(
-        (new BN(token.price))
-          .mul(new BN(timeInSeconds))
-          .mul(new BN(token.patronageNumerator))
-          .div(new BN(PATRONAGE_DENOMINATOR))
-          .div(new BN(NUM_SECONDS_IN_YEAR))
-      )
-    , new BN('0'));
-  return totalPatronage
-}
+const patronageCalculator = multiPatronageCalculator(PATRONAGE_DENOMINATOR)
 
 contract('WildcardSteward owed', (accounts) => {
 
@@ -82,7 +69,7 @@ contract('WildcardSteward owed', (accounts) => {
 
     // Check patronage after 10mins is correct
     const patronDepositAfter10min = await steward.deposit.call(accounts[2]);
-    const expectedPatronageAfter10min = multiPatronageCalculator('600',
+    const expectedPatronageAfter10min = patronageCalculator('600',
       [{ patronageNumerator: testToken1.patronageNumerator.toString(), price: priceOfToken1.toString() }])
     assert.equal(patronDepositInitial.toString(), patronDepositAfter10min.add(expectedPatronageAfter10min).toString());
     assert.equal(collectPatronageT10BlockTime.toString(), lastCollectedPatronT10.toString())
@@ -103,7 +90,7 @@ contract('WildcardSteward owed', (accounts) => {
 
     const patronDepositAfter20min = await steward.deposit.call(accounts[2]);
     const patronDepositCalculatedAfter20min = await steward.depositAbleToWithdraw.call(accounts[2]);
-    const expectedPatronage10MinToken1 = multiPatronageCalculator('600',
+    const expectedPatronage10MinToken1 = patronageCalculator('600',
       [{ patronageNumerator: testToken1.patronageNumerator.toString(), price: priceOfToken1.toString() }])
 
     assert.equal(patronDepositAfter20min.toString(), patronDepositAfter10min.sub(expectedPatronage10MinToken1).add(ether('1')).toString());
@@ -120,7 +107,7 @@ contract('WildcardSteward owed', (accounts) => {
 
     const patronDepositAfter30min = await steward.deposit.call(accounts[2]);
     const patronDepositCalculatedAfter30min = await steward.depositAbleToWithdraw.call(accounts[2]);
-    const expectedPatronageMulti = multiPatronageCalculator('601',
+    const expectedPatronageMulti = patronageCalculator('601',
       [{ patronageNumerator: testToken1.patronageNumerator.toString(), price: priceOfToken1.toString() },
       { patronageNumerator: testToken2.patronageNumerator.toString(), price: priceOfToken2.toString() }])
 
@@ -132,7 +119,7 @@ contract('WildcardSteward owed', (accounts) => {
     await steward.withdrawBenefactorFundsTo(accounts[8])
     const balanceChangePatron1 = await balTrack.delta()
 
-    const expectedTotalPatronageT30Token1 = multiPatronageCalculator('1801',
+    const expectedTotalPatronageT30Token1 = patronageCalculator('1801',
       [{ patronageNumerator: testToken1.patronageNumerator.toString(), price: priceOfToken1.toString() }])
     assert.equal(benefactorFundsT30.toString(), expectedTotalPatronageT30Token1.toString())
     assert.equal(balanceChangePatron1.toString(), expectedTotalPatronageT30Token1.toString())
@@ -149,7 +136,7 @@ contract('WildcardSteward owed', (accounts) => {
     await steward.withdrawBenefactorFundsTo(accounts[9])
     const balanceChangePatron2 = await balTrack2.delta()
 
-    const expectedTotalPatronageT40Token2 = multiPatronageCalculator('1201',
+    const expectedTotalPatronageT40Token2 = patronageCalculator('1201',
       [{ patronageNumerator: testToken2.patronageNumerator.toString(), price: priceOfToken2.toString() }])
     assert.equal(benefactor2FundsT40.toString(), expectedTotalPatronageT40Token2.toString())
     assert.equal(balanceChangePatron2.toString(), expectedTotalPatronageT40Token2.toString())
