@@ -7,7 +7,7 @@
   "scripts": {
     "check": "truffle exec index.js --network local",
     "deploy": "npx truffle exec scripts/deploy.js",
-    "test": "truffle test"
+    "test": "truffle test --network test"
   },
   "author": "santiago@openzeppelin.com",
   "license": "MIT",
@@ -18,9 +18,10 @@
   },
   "devDependencies": {
     "@openzeppelin/cli": "^2.5.3",
-    "openzeppelin-test-helpers": "^0.4.3",
+    "@openzeppelin/test-helpers": "^0.5.1",
     "chai": "^4.2.0",
     "eth-gas-reporter": "^0.2.12",
+    "solidity-coverage": "^0.7.0-beta.2",
     "truffle": "^5.0.38"
   }
 }
