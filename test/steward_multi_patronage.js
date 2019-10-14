@@ -65,11 +65,11 @@ contract('WildcardSteward owed', (accounts) => {
     //Buying 1st token and setting selling price to 1 eth. With 1 eth deposit.
     const buyTx1 = await steward.buy(testTokenId1, web3.utils.toWei('1', 'ether'), { from: accounts[2], value: web3.utils.toWei('1', 'ether') });
     const buyTx1BlockTime = (await web3.eth.getBlock(buyTx1.receipt.blockNumber)).timestamp
-    const lastCollectedUserT0 = await steward.timeLastCollectedUser.call(accounts[2])
+    const lastCollectedPatronT0 = await steward.timeLastCollectedPatron.call(accounts[2])
     const priceOfToken1 = await steward.price.call(testTokenId1)
     const patronDepositInitial = await steward.deposit.call(accounts[2]);
 
-    assert.equal(buyTx1BlockTime.toString(), lastCollectedUserT0.toString())
+    assert.equal(buyTx1BlockTime.toString(), lastCollectedPatronT0.toString())
 
     /////////////////// TIME = 10 ////////////////////
     //////////////////////////////////////////////////
@@ -78,14 +78,14 @@ contract('WildcardSteward owed', (accounts) => {
     const collectPatronageT10_tx = await steward._collectPatronage(testTokenId1);
     const benefactorFundsT10 = await steward.benefactorFunds.call(accounts[8])
     const collectPatronageT10BlockTime = (await web3.eth.getBlock(collectPatronageT10_tx.receipt.blockNumber)).timestamp
-    const lastCollectedUserT10 = await steward.timeLastCollectedUser.call(accounts[2])
+    const lastCollectedPatronT10 = await steward.timeLastCollectedPatron.call(accounts[2])
 
     // Check patronage after 10mins is correct
     const patronDepositAfter10min = await steward.deposit.call(accounts[2]);
     const expectedPatronageAfter10min = multiPatronageCalculator('600',
       [{ patronageNumerator: testToken1.patronageNumerator.toString(), price: priceOfToken1.toString() }])
     assert.equal(patronDepositInitial.toString(), patronDepositAfter10min.add(expectedPatronageAfter10min).toString());
-    assert.equal(collectPatronageT10BlockTime.toString(), lastCollectedUserT10.toString())
+    assert.equal(collectPatronageT10BlockTime.toString(), lastCollectedPatronT10.toString())
     assert.equal(expectedPatronageAfter10min.toString(), benefactorFundsT10.toString())
 
     /////////////////// TIME = 20 ////////////////////
@@ -97,9 +97,9 @@ contract('WildcardSteward owed', (accounts) => {
     // Buy a 2nd token
     const buyToken2Tx = await steward.buy(testTokenId2, web3.utils.toWei('2', 'ether'), { from: accounts[2], value: web3.utils.toWei('1', 'ether') });
     const buyToken2BlockTime = (await web3.eth.getBlock(buyToken2Tx.receipt.blockNumber)).timestamp
-    const lastCollectedUserT20 = await steward.timeLastCollectedUser.call(accounts[2])
+    const lastCollectedPatronT20 = await steward.timeLastCollectedPatron.call(accounts[2])
     const priceOfToken2 = await steward.price.call(testTokenId2)
-    assert.equal(buyToken2BlockTime.toString(), lastCollectedUserT20.toString())
+    assert.equal(buyToken2BlockTime.toString(), lastCollectedPatronT20.toString())
 
     const patronDepositAfter20min = await steward.deposit.call(accounts[2]);
     const patronDepositCalculatedAfter20min = await steward.depositAbleToWithdraw.call(accounts[2]);
