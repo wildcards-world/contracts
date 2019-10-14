@@ -77,7 +77,7 @@ contract('WildcardSteward owed', (accounts) => {
     const patronDepositAfterFirstSale = await steward.deposit.call(accounts[2]);
     const balancePatronAfterFirstSale = new BN(await web3.eth.getBalance(accounts[2]));
 
-    //Second token then bought. Deposit should now be added back the users balance
+    //Second token then bought. Deposit should now be added back the patrons balance
     await steward.buy(testTokenId2, ether('1'), { from: accounts[3], value: ether('3') });
 
     const balancePatronAfterSecondSale = new BN(await web3.eth.getBalance(accounts[2]));

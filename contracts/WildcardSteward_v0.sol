@@ -21,9 +21,9 @@ contract WildcardSteward_v0 is Initializable {
     mapping(uint256 => uint256) public totalCollected; // all patronage ever collected
     mapping(uint256 => uint256) public currentCollected; // amount currently collected for patron
     mapping(uint256 => uint256) public timeLastCollected;
-    mapping(address => uint256) public timeLastCollectedUser;
+    mapping(address => uint256) public timeLastCollectedPatron;
     mapping(address => uint256) public deposit;
-    mapping(address => uint256) public totalUserOwnedTokenCost;
+    mapping(address => uint256) public totalPatronOwnedTokenCost;
 
     mapping(uint256 => address payable) public benefactors; // non-profit benefactor
     mapping(address => uint256) public benefactorFunds;
@@ -47,7 +47,7 @@ contract WildcardSteward_v0 is Initializable {
     event LogPriceChange(uint256 indexed newPrice);
     event LogForeclosure(address indexed prevOwner);
     event LogCollection(uint256 indexed collected);
-    event LogRemainingDepositUpdate(address indexed tokenHolder, uint256 indexed remainingDeposit);
+    event LogRemainingDepositUpdate(address indexed tokenPatron, uint256 indexed remainingDeposit);
     event AddToken(uint256 indexed tokenId, uint256 patronageNumerator);
 
     modifier onlyPatron(uint256 tokenId) {
@@ -69,8 +69,8 @@ contract WildcardSteward_v0 is Initializable {
        _;
     }
 
-    modifier collectPatronageAddress(address tokenHolder) {
-       _collectPatronageUser(tokenHolder);
+    modifier collectPatronageAddress(address tokenPatron) {
+       _collectPatronagePatron(tokenPatron);
        _;
     }
 
@@ -114,24 +114,24 @@ contract WildcardSteward_v0 is Initializable {
         return (patronageOwed(tokenId), now);
     }
 
-    // TODO: make a version of this function that is for patronage owed by token rather than by tokenHolder like it is now.
-    function patronageOwedUser(address tokenHolder) public view returns (uint256 patronageDue) {
-        if (timeLastCollectedUser[tokenHolder] == 0) return 0;
+    // TODO: make a version of this function that is for patronage owed by token rather than by tokenPatron like it is now.
+    function patronageOwedPatron(address tokenPatron) public view returns (uint256 patronageDue) {
+        if (timeLastCollectedPatron[tokenPatron] == 0) return 0;
 
-        // NOTE/TODO: to cater to different patronage rates, we should include it in the `totalUserOwnedTokenCost` (and probably rename that variable)
-        return totalUserOwnedTokenCost[tokenHolder].mul(now.sub(timeLastCollectedUser[tokenHolder]))
+        // NOTE/TODO: to cater to different patronage rates, we should include it in the `totalPatronOwnedTokenCost` (and probably rename that variable)
+        return totalPatronOwnedTokenCost[tokenPatron].mul(now.sub(timeLastCollectedPatron[tokenPatron]))
           .div(patronageDenominator).div(365 days);
     }
 
-    function patronageOwedUserWithTimestamp(address tokenHolder) public view returns (uint256 patronageDue, uint256 timestamp) {
-        return (patronageOwedUser(tokenHolder), now);
+    function patronageOwedPatronWithTimestamp(address tokenPatron) public view returns (uint256 patronageDue, uint256 timestamp) {
+        return (patronageOwedPatron(tokenPatron), now);
     }
 
-    function foreclosedUser(address tokenHolder) public view returns (bool) {
+    function foreclosedPatron(address tokenPatron) public view returns (bool) {
         // returns whether it is in foreclosed state or not
         // depending on whether deposit covers patronage due
         // useful helper function when price should be zero, but contract doesn't reflect it yet.
-        if (patronageOwedUser(tokenHolder) >= deposit[tokenHolder]) {
+        if (patronageOwedPatron(tokenPatron) >= deposit[tokenPatron]) {
             return true;
         } else {
             return false;
@@ -142,17 +142,17 @@ contract WildcardSteward_v0 is Initializable {
         // returns whether it is in foreclosed state or not
         // depending on whether deposit covers patronage due
         // useful helper function when price should be zero, but contract doesn't reflect it yet.
-        address tokenHolder = currentPatron[tokenId];
-        return foreclosedUser(tokenHolder);
+        address tokenPatron = currentPatron[tokenId];
+        return foreclosedPatron(tokenPatron);
     }
 
     // same function as above, basically
-    function depositAbleToWithdraw(address tokenHolder) public view returns (uint256) {
-        uint256 collection = patronageOwedUser(tokenHolder);
-        if(collection >= deposit[tokenHolder]) {
+    function depositAbleToWithdraw(address tokenPatron) public view returns (uint256) {
+        uint256 collection = patronageOwedPatron(tokenPatron);
+        if(collection >= deposit[tokenPatron]) {
             return 0;
         } else {
-            return deposit[tokenHolder].sub(collection);
+            return deposit[tokenPatron].sub(collection);
         }
     }
 
@@ -160,14 +160,14 @@ contract WildcardSteward_v0 is Initializable {
     now + deposit/patronage per second 
     now + depositAbleToWithdraw/(price*nume/denom/365).
     */
-    function foreclosureTimeUser(address tokenHolder) public view returns (uint256) {
+    function foreclosureTimePatron(address tokenPatron) public view returns (uint256) {
         // patronage per second
-        uint256 pps = totalUserOwnedTokenCost[tokenHolder].div(patronageDenominator).div(365 days);
-        return now.add(depositAbleToWithdraw(tokenHolder).div(pps)); // zero division if price is zero.
+        uint256 pps = totalPatronOwnedTokenCost[tokenPatron].div(patronageDenominator).div(365 days);
+        return now.add(depositAbleToWithdraw(tokenPatron).div(pps)); // zero division if price is zero.
     }
     function foreclosureTime(uint256 tokenId) public view returns (uint256) {
-        address tokenHolder = currentPatron[tokenId];
-        return foreclosureTimeUser(tokenHolder);
+        address tokenPatron = currentPatron[tokenId];
+        return foreclosureTimePatron(tokenPatron);
     }
 
     /* actions */
@@ -175,29 +175,29 @@ contract WildcardSteward_v0 is Initializable {
     function _collectPatronage(uint256 tokenId) public {
         // determine patronage to pay
         if (state[tokenId] == StewardState.Owned) {
-            address tokenHolder = currentPatron[tokenId];
+            address tokenPatron = currentPatron[tokenId];
             uint256 previousTokenCollection = timeLastCollected[tokenId]; 
-            uint256 patronageOwedByTokenOwner = patronageOwedUser(tokenHolder);
+            uint256 patronageOwedByTokenPatron = patronageOwedPatron(tokenPatron);
             uint256 collection;
 
             // should foreclose and stake stewardship
-            if (patronageOwedByTokenOwner >= deposit[tokenHolder]) {
+            if (patronageOwedByTokenPatron >= deposit[tokenPatron]) {
                 // up to when was it actually paid for?
-                uint256 newTimeLastCollected = timeLastCollectedUser[tokenHolder].add(((now.sub(timeLastCollectedUser[tokenHolder])).mul(deposit[tokenHolder]).div(patronageOwedByTokenOwner)));
+                uint256 newTimeLastCollected = timeLastCollectedPatron[tokenPatron].add(((now.sub(timeLastCollectedPatron[tokenPatron])).mul(deposit[tokenPatron]).div(patronageOwedByTokenPatron)));
 
                 timeLastCollected[tokenId] = newTimeLastCollected;
-                timeLastCollectedUser[tokenHolder] = newTimeLastCollected;
+                timeLastCollectedPatron[tokenPatron] = newTimeLastCollected;
                 collection = price[tokenId].mul(newTimeLastCollected.sub(previousTokenCollection)).mul(patronageNumerator[tokenId]).div(patronageDenominator).div(365 days);
 
-                deposit[tokenHolder] = 0;
+                deposit[tokenPatron] = 0;
                 _foreclose(tokenId);
             } else {
                 // just a normal collection
                 collection = price[tokenId].mul(now.sub(previousTokenCollection)).mul(patronageNumerator[tokenId]).div(patronageDenominator).div(365 days);
                 timeLastCollected[tokenId] = now;
-                timeLastCollectedUser[tokenHolder] = now;
+                timeLastCollectedPatron[tokenPatron] = now;
                 currentCollected[tokenId] = currentCollected[tokenId].add(collection);
-                deposit[tokenHolder] = deposit[tokenHolder].sub(patronageOwedByTokenOwner);
+                deposit[tokenPatron] = deposit[tokenPatron].sub(patronageOwedByTokenPatron);
             }
             totalCollected[tokenId] = totalCollected[tokenId].add(collection);
             address benefactor = benefactors[tokenId];
@@ -207,29 +207,29 @@ contract WildcardSteward_v0 is Initializable {
     }
 
     // This does accounting without transfering any tokens
-    function _collectPatronageUser(address tokenHolder) public {
-        uint256 patronageOwedByTokenOwner = patronageOwedUser(tokenHolder);
-        if (patronageOwedByTokenOwner > 0 && patronageOwedByTokenOwner >= deposit[tokenHolder]) {
-            uint256 previousCollectionTime = timeLastCollectedUser[tokenHolder];
+    function _collectPatronagePatron(address tokenPatron) public {
+        uint256 patronageOwedByTokenPatron = patronageOwedPatron(tokenPatron);
+        if (patronageOwedByTokenPatron > 0 && patronageOwedByTokenPatron >= deposit[tokenPatron]) {
+            uint256 previousCollectionTime = timeLastCollectedPatron[tokenPatron];
             // up to when was it actually paid for?
-            uint256 newTimeLastCollected = previousCollectionTime.add(((now.sub(previousCollectionTime)).mul(deposit[tokenHolder]).div(patronageOwedByTokenOwner)));
-            timeLastCollectedUser[tokenHolder] = newTimeLastCollected;
-            deposit[tokenHolder] = 0;
+            uint256 newTimeLastCollected = previousCollectionTime.add(((now.sub(previousCollectionTime)).mul(deposit[tokenPatron]).div(patronageOwedByTokenPatron)));
+            timeLastCollectedPatron[tokenPatron] = newTimeLastCollected;
+            deposit[tokenPatron] = 0;
         } else  {
-            timeLastCollectedUser[tokenHolder] = now;
-            deposit[tokenHolder] = deposit[tokenHolder].sub(patronageOwedByTokenOwner);
+            timeLastCollectedPatron[tokenPatron] = now;
+            deposit[tokenPatron] = deposit[tokenPatron].sub(patronageOwedByTokenPatron);
         }
 
-        emit LogRemainingDepositUpdate(tokenHolder, deposit[tokenHolder]);
+        emit LogRemainingDepositUpdate(tokenPatron, deposit[tokenPatron]);
     }
 
     // note: anyone can deposit
     function depositWei() public payable {
-      depositWeiUser(msg.sender);
+      depositWeiPatron(msg.sender);
     }
-    function depositWeiUser(address user) public payable {
-        require(totalUserOwnedTokenCost[user] > 0, "No tokens owned");
-        deposit[user] = deposit[user].add(msg.value);
+    function depositWeiPatron(address patron) public payable {
+        require(totalPatronOwnedTokenCost[patron] > 0, "No tokens owned");
+        deposit[patron] = deposit[patron].add(msg.value);
     }
 
     function buy(uint256 tokenId, uint256 _newPrice) public payable collectPatronage(tokenId) collectPatronageAddress(msg.sender) {
@@ -241,7 +241,7 @@ contract WildcardSteward_v0 is Initializable {
         if (state[tokenId] == StewardState.Owned) {
             uint256 totalToPayBack = price[tokenId];
             // NOTE: pay back the deposit only if it is the only token the patron owns.
-            if(totalUserOwnedTokenCost[currentPatron] == price[tokenId].mul(patronageNumerator[tokenId])) {
+            if(totalPatronOwnedTokenCost[currentPatron] == price[tokenId].mul(patronageNumerator[tokenId])) {
                 totalToPayBack = totalToPayBack.add(deposit[currentPatron]);
                 deposit[currentPatron] = 0;
             }
@@ -263,7 +263,7 @@ contract WildcardSteward_v0 is Initializable {
         require(state[tokenId] != StewardState.Foreclosed, "Foreclosed");
         require(_newPrice != 0, "Incorrect Price");
 
-        totalUserOwnedTokenCost[msg.sender] = totalUserOwnedTokenCost[msg.sender]
+        totalPatronOwnedTokenCost[msg.sender] = totalPatronOwnedTokenCost[msg.sender]
           .sub(price[tokenId].mul(patronageNumerator[tokenId]))
           .add(_newPrice.mul(patronageNumerator[tokenId]));
 
@@ -311,8 +311,8 @@ contract WildcardSteward_v0 is Initializable {
 
     function transferAssetTokenTo(uint256 tokenId, address _currentOwner, address _currentPatron, address _newOwner, uint256 _newPrice) internal {
         // TODO: add the patronage rate as a multiplier here: https://github.com/wild-cards/contracts/issues/7
-        totalUserOwnedTokenCost[_newOwner] = totalUserOwnedTokenCost[_newOwner].add(_newPrice.mul(patronageNumerator[tokenId]));
-        totalUserOwnedTokenCost[_currentPatron] = totalUserOwnedTokenCost[_currentPatron].sub(price[tokenId].mul(patronageNumerator[tokenId]));
+        totalPatronOwnedTokenCost[_newOwner] = totalPatronOwnedTokenCost[_newOwner].add(_newPrice.mul(patronageNumerator[tokenId]));
+        totalPatronOwnedTokenCost[_currentPatron] = totalPatronOwnedTokenCost[_currentPatron].sub(price[tokenId].mul(patronageNumerator[tokenId]));
 
         // note: it would also tabulate time held in stewardship by smart contract
         timeHeld[tokenId][_currentPatron] = timeHeld[tokenId][_currentPatron].add((timeLastCollected[tokenId].sub(timeAcquired[tokenId])));
