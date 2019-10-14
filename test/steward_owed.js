@@ -80,7 +80,7 @@ contract('WildcardSteward owed', (accounts) => {
 
     await time.increase(time.duration.minutes(10));
     const owed = await steward.patronageOwedWithTimestamp.call(1, { from: accounts[2] });
-    const userOwed = await steward.patronageOwedUserWithTimestamp.call(accounts[2], { from: accounts[2] });
+    const PatronOwed = await steward.patronageOwedPatronWithTimestamp.call(accounts[2], { from: accounts[2] });
     const { logs } = await steward._collectPatronage(testTokenId);
 
     const deposit = await steward.deposit.call(accounts[2]);
@@ -303,7 +303,7 @@ contract('WildcardSteward owed', (accounts) => {
     await waitTillBeginningOfSecond()
     await steward.buy(1, ether('1'), { from: accounts[2], value: ether('2') });
     await steward.depositWei({ from: accounts[2], value: ether('1') });
-    await steward.depositWeiUser(accounts[2], { from: accounts[3], value: ether('1') });
+    await steward.depositWeiPatron(accounts[2], { from: accounts[3], value: ether('1') });
     const deposit = await steward.deposit.call(accounts[2]);
     assert.equal(deposit.toString(), ether('4').toString());
   });
@@ -343,9 +343,9 @@ contract('WildcardSteward owed', (accounts) => {
     const deposit = await steward.deposit.call(accounts[2]);
     await steward.withdrawDeposit(deposit, { from: accounts[2] });
     const foreclosed = await steward.foreclosed.call(1);
-    const foreclosedUser = await steward.foreclosedUser.call(accounts[2]);
+    const foreclosedPatron = await steward.foreclosedPatron.call(accounts[2]);
     assert(foreclosed);
-    assert(foreclosedUser);
+    assert(foreclosedPatron);
   });
 
   it('steward: owned. withdraw whole deposit through exit into foreclosure after 10min [succeed]', async () => {
@@ -354,9 +354,9 @@ contract('WildcardSteward owed', (accounts) => {
     await time.increase(time.duration.minutes(10));
     await steward.exit({ from: accounts[2] });
     const foreclosed = await steward.foreclosed.call(1);
-    const foreclosedUser = await steward.foreclosedUser.call(accounts[2]);
+    const foreclosedPatron = await steward.foreclosedPatron.call(accounts[2]);
     assert(foreclosed);
-    assert(foreclosedUser);
+    assert(foreclosedPatron);
   });
 
   it('steward: owned. withdraw some deposit [succeeds]', async () => {
@@ -444,7 +444,7 @@ contract('WildcardSteward owed', (accounts) => {
     const preDeposit = await steward.deposit.call(accounts[2]);
     await steward.buy(1, ether('1'), { from: accounts[3], value: ether('2'), gasPrice: '1000000000' }); // 1 gwei
 
-    // TODO: Add a check in the smart contract, that if it is the only token owned by the user, return their deposit. And add the following 3 lines back.
+    // TODO: Add a check in the smart contract, that if it is the only token owned by the Patron, return their deposit. And add the following 3 lines back.
     // const calcDiff = preDeposit.sub(patronageFor10min).add(ether('1'));
 
     // const delta = await balTrack.delta();

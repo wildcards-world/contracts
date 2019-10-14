@@ -30,7 +30,7 @@ contract('WildcardSteward', (accounts) => {
     assert.equal(steward.address, currentOwner);
   });
 
-  // TODO: add a check that users can't add deposit when they don't own any tokens. Is that needed?
+  // TODO: add a check that patrons can't add deposit when they don't own any tokens. Is that needed?
   it('steward: init: deposit wei fail [foreclosed]', async () => {
     await expectRevert(steward.depositWei({ from: accounts[2], value: web3.utils.toWei('1', 'ether') }), "No tokens owned");
   });
