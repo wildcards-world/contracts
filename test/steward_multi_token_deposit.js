@@ -1,4 +1,4 @@
-const { BN, expectRevert, ether, expectEvent, balance, time } = require('openzeppelin-test-helpers');
+const { BN, expectRevert, ether, expectEvent, balance, time } = require('@openzeppelin/test-helpers');
 
 const Artwork = artifacts.require('./ERC721Patronage_v0.sol');
 const WildcardSteward = artifacts.require('./WildcardSteward_v0.sol');

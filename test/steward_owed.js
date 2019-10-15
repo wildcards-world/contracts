@@ -1,4 +1,4 @@
-const { BN, expectRevert, ether, expectEvent, balance, time } = require('openzeppelin-test-helpers');
+const { BN, expectRevert, ether, expectEvent, balance, time } = require('@openzeppelin/test-helpers');
 
 const Artwork = artifacts.require('./ERC721Patronage_v0.sol');
 const WildcardSteward = artifacts.require('./WildcardSteward_v0.sol');
@@ -233,7 +233,7 @@ contract('WildcardSteward owed', (accounts) => {
     assert.equal(state.toString(), '1'); // owned state
   });
 
-  it('steward: owned. collect patronage by benefactor after 10min.', async () => {
+  it('steward: owned. collect patronage by benefactor after 10min. [ @skip-on-coverage ]', async () => {
     await waitTillBeginningOfSecond()
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
@@ -424,7 +424,7 @@ contract('WildcardSteward owed', (accounts) => {
     assert.equal(currentOwner2, accounts[3]);
   });
 
-  it('steward: bought once, bought again from another account after 10min [success]', async () => {
+  it('steward: bought once, bought again from another account after 10min [success] [ @skip-on-coverage ]', async () => {
     await waitTillBeginningOfSecond()
     await steward.buy(1, ether('1'), { from: accounts[2], value: ether('2') });
     const deposit = await steward.deposit.call(accounts[2]);

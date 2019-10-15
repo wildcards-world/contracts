@@ -1,4 +1,4 @@
-const { BN } = require('openzeppelin-test-helpers')
+const { BN } = require('@openzeppelin/test-helpers')
 
 const NUM_SECONDS_IN_YEAR = '31536000'
 
