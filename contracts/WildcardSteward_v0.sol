@@ -55,12 +55,18 @@ contract WildcardSteward_v0 is Initializable {
         _;
     }
 
-    modifier onlyReceivingBenefactor(uint256 tokenId) {
-        require(msg.sender == benefactors[tokenId], "Not benefactor");
-        _;
-    }
+    // modifier onlyReceivingBenefactor(uint256 tokenId) {
+    //     require(msg.sender == benefactors[tokenId], "Not benefactor");
+    //     _;
+    // }
+    
     modifier onlyAdmin() {
         require(msg.sender == admin, "Not admin");
+        _;
+    }
+
+     modifier onlyReceivingBenefactorOrAdmin(uint256 tokenId) {
+        require(msg.sender == benefactors[tokenId] || msg.sender == admin, "Not benefactor or admin");
         _;
     }
 
@@ -92,13 +98,8 @@ contract WildcardSteward_v0 is Initializable {
         }
     }
 
-    function changeReceivingBenefactor(uint256 tokenId, address payable _newReceivingBenefactor) public onlyReceivingBenefactor(tokenId) {
-        benefactors[tokenId] = _newReceivingBenefactor;
-        benefactorFunds[_newReceivingBenefactor] = benefactorFunds[msg.sender];
-        benefactorFunds[msg.sender] = 0;
-    }
-
-    function changeReceivingBenefactorAdmin(uint256 tokenId, address payable _newReceivingBenefactor) public onlyAdmin {
+    function changeReceivingBenefactorAdmin(uint256 tokenId, address payable _newReceivingBenefactor)
+    public onlyReceivingBenefactorOrAdmin(tokenId) {
         address oldBenfactor = benefactors[tokenId];
         benefactors[tokenId] = _newReceivingBenefactor;
         benefactorFunds[_newReceivingBenefactor] = benefactorFunds[oldBenfactor];
