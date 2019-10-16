@@ -244,18 +244,18 @@ contract WildcardSteward_v0 is Initializable {
         require(_newPrice > 0, "Price is zero");
         require(msg.value > price[tokenId], "Not enough"); // >, coz need to have at least something for deposit
         address currentOwner = assetToken.ownerOf(tokenId);
-        address currentPatron = currentPatron[tokenId];
+        address tokenPatron = currentPatron[tokenId];
 
         if (state[tokenId] == StewardState.Owned) {
             uint256 totalToPayBack = price[tokenId];
             // NOTE: pay back the deposit only if it is the only token the patron owns.
-            if(totalPatronOwnedTokenCost[currentPatron] == price[tokenId].mul(patronageNumerator[tokenId])) {
-                totalToPayBack = totalToPayBack.add(deposit[currentPatron]);
-                deposit[currentPatron] = 0;
+            if(totalPatronOwnedTokenCost[tokenPatron] == price[tokenId].mul(patronageNumerator[tokenId])) {
+                totalToPayBack = totalToPayBack.add(deposit[tokenPatron]);
+                deposit[tokenPatron] = 0;
             }
 
             // pay previous owner their price + deposit back.
-            address payable payableCurrentPatron = address(uint160(currentPatron));
+            address payable payableCurrentPatron = address(uint160(tokenPatron));
             payableCurrentPatron.transfer(totalToPayBack);
         } else if(state[tokenId] == StewardState.Foreclosed) {
             state[tokenId] = StewardState.Owned;
@@ -263,7 +263,7 @@ contract WildcardSteward_v0 is Initializable {
         }
 
         deposit[msg.sender] = deposit[msg.sender].add(msg.value.sub(price[tokenId]));
-        transferAssetTokenTo(tokenId, currentOwner, currentPatron, msg.sender, _newPrice);
+        transferAssetTokenTo(tokenId, currentOwner, tokenPatron, msg.sender, _newPrice);
         emit LogBuy(msg.sender, _newPrice);
     }
 
@@ -309,8 +309,8 @@ contract WildcardSteward_v0 is Initializable {
     function _foreclose(uint256 tokenId) internal {
         // become steward of assetToken (aka foreclose)
         address currentOwner = assetToken.ownerOf(tokenId);
-        address currentPatron = currentPatron[tokenId];
-        transferAssetTokenTo(tokenId, currentOwner, currentPatron, address(this), 0);
+        address tokenPatron = currentPatron[tokenId];
+        transferAssetTokenTo(tokenId, currentOwner, tokenPatron, address(this), 0);
         state[tokenId] = StewardState.Foreclosed;
         currentCollected[tokenId] = 0;
 
