@@ -98,6 +98,13 @@ contract WildcardSteward_v0 is Initializable {
         benefactorFunds[msg.sender] = 0;
     }
 
+    function changeReceivingBenefactorAdmin(uint256 tokenId, address payable _newReceivingBenefactor) public onlyAdmin {
+        address oldBenfactor = benefactors[tokenId];
+        benefactors[tokenId] = _newReceivingBenefactor;
+        benefactorFunds[_newReceivingBenefactor] = benefactorFunds[oldBenfactor];
+        benefactorFunds[oldBenfactor] = 0;
+    }
+
     function changeAdmin(address _admin) public onlyAdmin {
         admin = _admin;
     }
