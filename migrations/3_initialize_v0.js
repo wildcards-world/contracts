@@ -7,15 +7,18 @@ const patronageDenominator = 1000000
 const image1MetadataJson = {
   artist: "Matty Fraser",
   name: "Simon",
+
   // https://ipfs.infura.io/ipfs/QmZt5S8tD7L4nMBo4NTtVDpV3qpteA1DXJwKRmuF318tHd"
-  ipfs: "QmZt5S8tD7L4nMBo4NTtVDpV3qpteA1DXJwKRmuF318tHd"
+  ipfs: "QmZt5S8tD7L4nMBo4NTtVDpV3qpteA1DXJwKRmuF318tHd",
+  type: "Gorilla"
 }
 const image1MetadataString = JSON.stringify(image1MetadataJson)
 const image2MetadataJson = {
   artist: "Matty Fraser",
   name: "Andy",
   // https://ipfs.infura.io/ipfs/QmUjnwmYQE1QjkNpoEdpGwbj1s4cj5gVfEePNPnArbm5Tv
-  ipfs: "QmUjnwmYQE1QjkNpoEdpGwbj1s4cj5gVfEePNPnArbm5Tv"
+  ipfs: "QmUjnwmYQE1QjkNpoEdpGwbj1s4cj5gVfEePNPnArbm5Tv",
+  type: "Gorilla"
 }
 const image2MetadataString = JSON.stringify(image2MetadataJson)
 
