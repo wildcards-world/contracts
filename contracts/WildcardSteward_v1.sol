@@ -1,6 +1,7 @@
 pragma solidity ^0.5.0;
 import "./ERC721Patronage_v1.sol";
 import "./ERC20PatronageReceipt_v1.sol";
+import "./interfaces/IERC20Mintable.sol";
 
 contract WildcardSteward_v1 is Initializable {
 
@@ -52,10 +53,9 @@ contract WildcardSteward_v1 is Initializable {
 
     // These are for every NFT, the erc20 contract we are poiting too.
     // Note that the steward needs to have permission to call the mint function on the erc20
-    mapping(uint256 => address) public nft2erc; // set our erc20 token as default
-    mapping(uint256 => uint256) public timeLastCollectedERC20;
+    mapping(uint256 => IERC20Mintable) public nft2erc; // set our erc20 token as default
 
-    //ERC20PatronageReceipt_v1 public carbonCredit;
+    //ERC20PatronageReceipt_v1 public wildcardsToken;
 
     event LogBuy(address indexed owner, uint256 indexed price);
     event LogPriceChange(uint256 indexed newPrice);
@@ -98,13 +98,14 @@ contract WildcardSteward_v1 is Initializable {
     }
 
     // TODO:: add validation that the token that is complient with the "PatronageToken" ERC721 interface extension somehow!
-    function listNewTokens(uint256[] memory tokens, address payable[] memory _benefactors, uint256[] memory _patronageNumerator) public onlyAdmin {
+    function listNewTokens(uint256[] memory tokens, address payable[] memory _benefactors, uint256[] memory _patronageNumerator, address[] memory _receiptERC20) public onlyAdmin {
         assert(tokens.length == _benefactors.length);
         for (uint8 i = 0; i < tokens.length; ++i){
             assert(_benefactors[i]!=address(0));
             benefactors[tokens[i]] = _benefactors[i];
             state[tokens[i]] = StewardState.Foreclosed;
             patronageNumerator[tokens[i]] = _patronageNumerator[i];
+            nft2erc[tokens[i]] = IERC20Mintable(_receiptERC20[i]);
             emit AddToken(tokens[i], _patronageNumerator[i]);
         }
     }
@@ -122,9 +123,9 @@ contract WildcardSteward_v1 is Initializable {
     }
 
     // This function will change which token is being minted from loyalty. 
-    // function changeERC20(address _admin) public onlyAdmin {
-    //     admin = _admin;
-    // }   
+    function changeERC20(uint256 tokenId, address _newERC) public onlyAdmin _collectPatronage(tokenId){
+        nft2erc[tokenId] = IERC20Mintable(_newERC);
+    }
 
     /* public view functions */
     function patronageOwed(uint256 tokenId) public view returns (uint256 patronageDue) {
@@ -203,6 +204,7 @@ contract WildcardSteward_v1 is Initializable {
             uint256 previousTokenCollection = timeLastCollected[tokenId]; 
             uint256 patronageOwedByTokenPatron = patronageOwedPatron(tokenPatron);
             uint256 collection;
+            uint256 amountToMint;
 
             // should foreclose and stake stewardship
             if (patronageOwedByTokenPatron >= deposit[tokenPatron]) {
@@ -212,12 +214,14 @@ contract WildcardSteward_v1 is Initializable {
                 timeLastCollected[tokenId] = newTimeLastCollected;
                 timeLastCollectedPatron[tokenPatron] = newTimeLastCollected;
                 collection = price[tokenId].mul(newTimeLastCollected.sub(previousTokenCollection)).mul(patronageNumerator[tokenId]).div(patronageDenominator).div(365 days);
+                amountToMint = (newTimeLastCollected.sub(previousTokenCollection)).mul(tokenGenerationRate[tokenId]);
 
                 deposit[tokenPatron] = 0;
                 _foreclose(tokenId);
             } else {
                 // just a normal collection
                 collection = price[tokenId].mul(now.sub(previousTokenCollection)).mul(patronageNumerator[tokenId]).div(patronageDenominator).div(365 days);
+                amountToMint = now.sub(timeLastCollected[tokenId]);
                 timeLastCollected[tokenId] = now;
                 timeLastCollectedPatron[tokenPatron] = now;
                 currentCollected[tokenId] = currentCollected[tokenId].add(collection);
@@ -226,6 +230,8 @@ contract WildcardSteward_v1 is Initializable {
             totalCollected[tokenId] = totalCollected[tokenId].add(collection);
             address benefactor = benefactors[tokenId];
             benefactorFunds[benefactor] = benefactorFunds[benefactor].add(collection);
+            nft2erc[tokenId].mint(currentPatron[tokenId], amountToMint);
+            tokensGenerated[tokenId][currentPatron[tokenId]] = tokensGenerated[tokenId][currentPatron[tokenId]].add(amountToMint);
             emit LogCollection(collection);
         }
     }
@@ -246,27 +252,6 @@ contract WildcardSteward_v1 is Initializable {
 
         emit LogRemainingDepositUpdate(tokenPatron, deposit[tokenPatron]);
     }
-
-    function _collectERC20s(uint256 tokenId) public {
-        // Time since last tokens were minted and distributed...
-        // Need to set time last collected somewhere. 
-        uint256 timeDelta = now.sub(timeLastCollectedERC20[tokenId]);
-
-        // should you be allowed to change the token generation rate?
-        // should this be linked to a certain erc20 token?
-        // wildcards erc20's generate at this rate and others don't.
-        // should you be able to mint multiple types of tokens?
-        uint256 amountToMint = timeDelta.mul(tokenGenerationRate[tokenId]);
-
-        // need to set the type of erc20 being minted
-        // Intially lets set this to our wildcards erc20 token for all new nft's
-        //nft2erc[tokenId].mint(currentPatron[tokenId], amountToMint);
-    
-        timeLastCollectedERC20[tokenId] = now;
-        //tokensGenerated[tokenId][_erc20address] = tokensGenerated[tokenId][_erc20address].add(amountToMint);
-    }
-
-
 
 
 
@@ -364,11 +349,7 @@ contract WildcardSteward_v1 is Initializable {
 
         // note: it would also tabulate time held in stewardship by smart contract
         timeHeld[tokenId][_currentPatron] = timeHeld[tokenId][_currentPatron].add((timeLastCollected[tokenId].sub(timeAcquired[tokenId])));
-
-        // Simply call the transfer ERC20tokens function here
-        //_collectERC20s(tokenId, _currentPatron, _currentOwner);
         assetToken.transferFrom(_currentOwner, _newOwner, tokenId);
-
         currentPatron[tokenId] = _newOwner;
 
         price[tokenId] = _newPrice;
