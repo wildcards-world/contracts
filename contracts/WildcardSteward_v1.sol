@@ -45,10 +45,17 @@ contract WildcardSteward_v1 is Initializable {
 
     address public admin;
 
-    // MULTI TOKEN
+    // ////////// NEW ///////////////////
+    // //////////////////////////////////
     mapping(uint256 => mapping (address => uint256)) public tokensGenerated;
     mapping(uint256 => uint256) public tokenGenerationRate; // we can reuse the patronage denominator
-    ERC20PatronageReceipt_v1 public carbonCredit;
+
+    // These are for every NFT, the erc20 contract we are poiting too.
+    // Note that the steward needs to have permission to call the mint function on the erc20
+    mapping(uint256 => address) public nft2erc; // set our erc20 token as default
+    mapping(uint256 => uint256) public timeLastCollectedERC20;
+
+    //ERC20PatronageReceipt_v1 public carbonCredit;
 
     event LogBuy(address indexed owner, uint256 indexed price);
     event LogPriceChange(uint256 indexed newPrice);
@@ -56,6 +63,7 @@ contract WildcardSteward_v1 is Initializable {
     event LogCollection(uint256 indexed collected);
     event LogRemainingDepositUpdate(address indexed tokenPatron, uint256 indexed remainingDeposit);
     event AddToken(uint256 indexed tokenId, uint256 patronageNumerator);
+    // TODO add events for erc20 mints
 
     modifier onlyPatron(uint256 tokenId) {
         require(msg.sender == currentPatron[tokenId], "Not patron");
@@ -83,7 +91,8 @@ contract WildcardSteward_v1 is Initializable {
     }
 
     function initialize(address _assetToken, address _admin, uint256 _patronageDenominator) public initializer {
-        assetToken = ERC721Patronage_v0(_assetToken);
+        assetToken = ERC721Patronage_v1(_assetToken);
+        // How do we initialize the erc20s?
         admin = _admin;
         patronageDenominator = _patronageDenominator;
     }
@@ -111,6 +120,11 @@ contract WildcardSteward_v1 is Initializable {
     function changeAdmin(address _admin) public onlyAdmin {
         admin = _admin;
     }
+
+    // This function will change which token is being minted from loyalty. 
+    // function changeERC20(address _admin) public onlyAdmin {
+    //     admin = _admin;
+    // }   
 
     /* public view functions */
     function patronageOwed(uint256 tokenId) public view returns (uint256 patronageDue) {
@@ -233,6 +247,29 @@ contract WildcardSteward_v1 is Initializable {
         emit LogRemainingDepositUpdate(tokenPatron, deposit[tokenPatron]);
     }
 
+    function _collectERC20s(uint256 tokenId) public {
+        // Time since last tokens were minted and distributed...
+        // Need to set time last collected somewhere. 
+        uint256 timeDelta = now.sub(timeLastCollectedERC20[tokenId]);
+
+        // should you be allowed to change the token generation rate?
+        // should this be linked to a certain erc20 token?
+        // wildcards erc20's generate at this rate and others don't.
+        // should you be able to mint multiple types of tokens?
+        uint256 amountToMint = timeDelta.mul(tokenGenerationRate[tokenId]);
+
+        // need to set the type of erc20 being minted
+        // Intially lets set this to our wildcards erc20 token for all new nft's
+        //nft2erc[tokenId].mint(currentPatron[tokenId], amountToMint);
+    
+        timeLastCollectedERC20[tokenId] = now;
+        //tokensGenerated[tokenId][_erc20address] = tokensGenerated[tokenId][_erc20address].add(amountToMint);
+    }
+
+
+
+
+
     // note: anyone can deposit
     function depositWei() public payable {
       depositWeiPatron(msg.sender);
@@ -319,13 +356,6 @@ contract WildcardSteward_v1 is Initializable {
         emit LogForeclosure(currentOwner);
     }
 
-    function transferERC20tokens(uint256 tokenId, address _currentPatron) public {
-        uint256 timeDelta = timeLastCollected[tokenId].sub(timeAcquired[tokenId]);
-
-        // note: it would also tabulate time held in stewardship by smart contract
-        timeHeld[tokenId][_currentPatron] = timeHeld[tokenId][_currentPatron].add(timeDelta);
-        carbonCredit.mint(_currentOwner, timeDelta.mul(tokenGenerationRate[tokenId]));
-    }
 
     function transferAssetTokenTo(uint256 tokenId, address _currentOwner, address _currentPatron, address _newOwner, uint256 _newPrice) internal {
         // TODO: add the patronage rate as a multiplier here: https://github.com/wild-cards/contracts/issues/7
@@ -335,13 +365,8 @@ contract WildcardSteward_v1 is Initializable {
         // note: it would also tabulate time held in stewardship by smart contract
         timeHeld[tokenId][_currentPatron] = timeHeld[tokenId][_currentPatron].add((timeLastCollected[tokenId].sub(timeAcquired[tokenId])));
 
-
-        uint256 timeDelta = timeLastCollected[tokenId].sub(timeAcquired[tokenId]);
-
-        // note: it would also tabulate time held in stewardship by smart contract
-        timeHeld[tokenId][_currentPatron] = timeHeld[tokenId][_currentPatron].add(timeDelta);
-        carbonCredit.mint(_currentOwner, timeDelta.mul(tokenGenerationRate[tokenId]));
-        
+        // Simply call the transfer ERC20tokens function here
+        //_collectERC20s(tokenId, _currentPatron, _currentOwner);
         assetToken.transferFrom(_currentOwner, _newOwner, tokenId);
 
         currentPatron[tokenId] = _newOwner;
