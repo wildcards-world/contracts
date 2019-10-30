@@ -198,7 +198,7 @@ contract WildcardSteward_v0 is Initializable {
                 collection = price[tokenId].mul(newTimeLastCollected.sub(previousTokenCollection)).mul(patronageNumerator[tokenId]).div(patronageDenominator).div(365 days);
 
                 deposit[tokenPatron] = 0;
-                _foreclose(tokenId);
+                _foreclose(tokenId); // This only forecloses a single token
             } else {
                 // just a normal collection
                 collection = price[tokenId].mul(now.sub(previousTokenCollection)).mul(patronageNumerator[tokenId]).div(patronageDenominator).div(365 days);
