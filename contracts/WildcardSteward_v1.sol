@@ -92,7 +92,6 @@ contract WildcardSteward_v1 is Initializable {
 
     function initialize(address _assetToken, address _admin, uint256 _patronageDenominator) public initializer {
         assetToken = ERC721Patronage_v1(_assetToken);
-        // How do we initialize the erc20s?
         admin = _admin;
         patronageDenominator = _patronageDenominator;
     }
@@ -123,7 +122,7 @@ contract WildcardSteward_v1 is Initializable {
     }
 
     // This function will change which token is being minted from loyalty. 
-    function changeERC20(uint256 tokenId, address _newERC) public onlyAdmin _collectPatronage(tokenId){
+    function changeERC20(uint256 tokenId, address _newERC) public onlyAdmin collectPatronage(tokenId){
         nft2erc[tokenId] = IERC20Mintable(_newERC);
     }
 
@@ -200,32 +199,31 @@ contract WildcardSteward_v1 is Initializable {
     function _collectPatronage(uint256 tokenId) public {
         // determine patronage to pay
         if (state[tokenId] == StewardState.Owned) {
-            address tokenPatron = currentPatron[tokenId];
-            uint256 previousTokenCollection = timeLastCollected[tokenId]; 
-            uint256 patronageOwedByTokenPatron = patronageOwedPatron(tokenPatron);
+            uint256 previousTokenCollection = timeLastCollected[tokenId];
+            uint256 patronageOwedByTokenPatron = patronageOwedPatron(currentPatron[tokenId]);
             uint256 collection;
             uint256 amountToMint;
 
             // should foreclose and stake stewardship
-            if (patronageOwedByTokenPatron >= deposit[tokenPatron]) {
+            if (patronageOwedByTokenPatron >= deposit[currentPatron[tokenId]]) {
                 // up to when was it actually paid for?
-                uint256 newTimeLastCollected = timeLastCollectedPatron[tokenPatron].add(((now.sub(timeLastCollectedPatron[tokenPatron])).mul(deposit[tokenPatron]).div(patronageOwedByTokenPatron)));
+                uint256 newTimeLastCollected = timeLastCollectedPatron[currentPatron[tokenId]].add(((now.sub(timeLastCollectedPatron[currentPatron[tokenId]])).mul(deposit[currentPatron[tokenId]]).div(patronageOwedByTokenPatron)));
 
                 timeLastCollected[tokenId] = newTimeLastCollected;
-                timeLastCollectedPatron[tokenPatron] = newTimeLastCollected;
+                timeLastCollectedPatron[currentPatron[tokenId]] = newTimeLastCollected;
                 collection = price[tokenId].mul(newTimeLastCollected.sub(previousTokenCollection)).mul(patronageNumerator[tokenId]).div(patronageDenominator).div(365 days);
                 amountToMint = (newTimeLastCollected.sub(previousTokenCollection)).mul(tokenGenerationRate[tokenId]);
 
-                deposit[tokenPatron] = 0;
+                deposit[currentPatron[tokenId]] = 0;
                 _foreclose(tokenId);
             } else {
                 // just a normal collection
                 collection = price[tokenId].mul(now.sub(previousTokenCollection)).mul(patronageNumerator[tokenId]).div(patronageDenominator).div(365 days);
                 amountToMint = now.sub(timeLastCollected[tokenId]);
                 timeLastCollected[tokenId] = now;
-                timeLastCollectedPatron[tokenPatron] = now;
+                timeLastCollectedPatron[currentPatron[tokenId]] = now;
                 currentCollected[tokenId] = currentCollected[tokenId].add(collection);
-                deposit[tokenPatron] = deposit[tokenPatron].sub(patronageOwedByTokenPatron);
+                deposit[currentPatron[tokenId]] = deposit[currentPatron[tokenId]].sub(patronageOwedByTokenPatron);
             }
             totalCollected[tokenId] = totalCollected[tokenId].add(collection);
             address benefactor = benefactors[tokenId];

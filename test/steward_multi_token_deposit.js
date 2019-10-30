@@ -40,8 +40,6 @@ contract('WildcardSteward owed', (accounts) => {
   const patronageNumerator = 12;
   const patronageDenominator = 1;
   let testTokenURI = 'test token uri'
-  // price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
-  const tenMinPatronageAt1Eth = ether('1').mul(new BN('600')).mul(new BN('12')).div(new BN('1')).div(new BN('31536000'));
 
   beforeEach(async () => {
     artwork = await Artwork.new({ from: accounts[0] });
