@@ -1,7 +1,7 @@
 {
   "contracts": {
     "WildcardSteward": {
-      "address": "0x844849A90479a12FFc549c8Da98E362575FF78d7",
+      "address": "0x929bbCcdAA014585666d1497aFb2D8D7c9dA38E5",
       "constructorCode": "608060405234801561001057600080fd5b5061258f806100206000396000f3fe",
       "bodyBytecodeHash": "4c9946a65e8cb5123b0648a04c51c18ac4a3c63f8236aada00f0070f1b73cc7e",
       "localBytecodeHash": "495f2702c2c73e09b1a6722e7e91edce07628cb11ea8d671ac4f469c26feaad3",
@@ -253,7 +253,7 @@
       }
     },
     "ERC721Patronage": {
-      "address": "0x2167016491369C0820F054FC92A301B97c4C0413",
+      "address": "0x045fBb0c3A9c24B607fA0821757A3bb343181AA4",
       "constructorCode": "60806040526125e6806100136000396000f3fe",
       "bodyBytecodeHash": "e6ee210d86c52a1b3c3fbc4c9503ca09c665b70ccc6501482d2cd9a8fb3456ad",
       "localBytecodeHash": "2505200f3a4d1c8364f45a2f408e4fc971c37772feca95b24afa9409b61690fa",
@@ -555,19 +555,33 @@
   "proxies": {
     "wildcards-contracts/WildcardSteward": [
       {
-        "address": "0x0C00CFE8EbB34fE7C31d4915a43Cde211e9F0F3B",
+        "address": "0xfC4753Af6946bE51aBCAFC21F2a10F9FA328949D",
         "version": "0.1.0",
-        "implementation": "0x844849A90479a12FFc549c8Da98E362575FF78d7",
-        "admin": "0xB8bAa0b4bd356b3f643047DF729F62F401F4DB2d",
+        "implementation": "0x929bbCcdAA014585666d1497aFb2D8D7c9dA38E5",
+        "admin": "0x2D66278CF4d3537A7fD5842785570507996812b7",
+        "kind": "Upgradeable"
+      },
+      {
+        "address": "0x6D47CF86F6A490c6410fC082Fd1Ad29CF61492d0",
+        "version": "0.1.0",
+        "implementation": "0x929bbCcdAA014585666d1497aFb2D8D7c9dA38E5",
+        "admin": "0x2D66278CF4d3537A7fD5842785570507996812b7",
         "kind": "Upgradeable"
       }
     ],
     "wildcards-contracts/ERC721Patronage": [
       {
-        "address": "0x6Da7DD22A9c1B6bC7b2Ba9A540A37EC786E30eA7",
+        "address": "0x76bc15CA184FEF534292DA7A6043071CE94061fF",
         "version": "0.1.0",
-        "implementation": "0x2167016491369C0820F054FC92A301B97c4C0413",
-        "admin": "0xB8bAa0b4bd356b3f643047DF729F62F401F4DB2d",
+        "implementation": "0x045fBb0c3A9c24B607fA0821757A3bb343181AA4",
+        "admin": "0x2D66278CF4d3537A7fD5842785570507996812b7",
+        "kind": "Upgradeable"
+      },
+      {
+        "address": "0x6aD0f855c97eb80665F2D0C7d8204895e052C373",
+        "version": "0.1.0",
+        "implementation": "0x045fBb0c3A9c24B607fA0821757A3bb343181AA4",
+        "admin": "0x2D66278CF4d3537A7fD5842785570507996812b7",
         "kind": "Upgradeable"
       }
     ]
@@ -575,6 +589,6 @@
   "manifestVersion": "2.2",
   "version": "0.1.0",
   "proxyAdmin": {
-    "address": "0xB8bAa0b4bd356b3f643047DF729F62F401F4DB2d"
+    "address": "0x2D66278CF4d3537A7fD5842785570507996812b7"
   }
 }
