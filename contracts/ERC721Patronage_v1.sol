@@ -4,9 +4,8 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.s
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721MetadataMintable.sol";
-// import "../node_modules/@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol";
-// import "../node_modules/@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol";
-// import "../node_modules/@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol";
+
+import "./WildcardSteward_v1.sol";
 
 contract ERC721Patronage_v1 is Initializable, ERC721, ERC721Enumerable, ERC721Metadata, ERC721MetadataMintable {
     address public steward;
@@ -24,5 +23,18 @@ contract ERC721Patronage_v1 is Initializable, ERC721, ERC721Enumerable, ERC721Me
 
     function _isApprovedOrOwner(address spender, uint256 tokenId) internal view returns (bool) {
         return (spender == steward || ERC721._isApprovedOrOwner(spender, tokenId));
+    }
+
+    function transferFrom(address from, address to, uint256 tokenId) public {
+        WildcardSteward_v1 stewardContract = WildcardSteward_v1(steward);
+
+        // Calculate remaining deposit for the two addresses involved in transfer.
+        stewardContract._collectPatronagePatron(to);
+        stewardContract._collectPatronage(tokenId);
+
+        // Do not allow someone to transfer a token if their deposit is Zero.
+        require(stewardContract.deposit(to) > 0, "Recipient needs to have a deposit.");
+        require(stewardContract.deposit(from) > 0, "Sender deposit has run out.");
+        ERC721.transferFrom(from, to, tokenId);
     }
 }
