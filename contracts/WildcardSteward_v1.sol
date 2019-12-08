@@ -57,11 +57,11 @@ contract WildcardSteward_v1 is Initializable {
 
     //ERC20PatronageReceipt_v1 public wildcardsToken;
 
-    event LogBuy(address indexed owner, uint256 indexed price);
-    event LogPriceChange(uint256 indexed newPrice);
-    event LogForeclosure(address indexed prevOwner);
-    event LogCollection(uint256 indexed collected);
-    event LogRemainingDepositUpdate(address indexed tokenPatron, uint256 indexed remainingDeposit);
+    event Buy(uint256 indexed tokenId, address indexed owner, uint256 indexed price);
+    event PriceChange(uint256 indexed tokenId, uint256 indexed newPrice);
+    event Foreclosure(address indexed prevOwner);
+    event Collection(uint256 indexed tokenId, uint256 indexed collected);
+    event RemainingDepositUpdate(address indexed tokenPatron, uint256 indexed remainingDeposit);
     event AddToken(uint256 indexed tokenId, uint256 patronageNumerator);
     // TODO add events for erc20 mints
 
@@ -121,7 +121,7 @@ contract WildcardSteward_v1 is Initializable {
         admin = _admin;
     }
 
-    // This function will change which token is being minted from loyalty. 
+    // This function will change which token is being minted from loyalty.
     function changeERC20(uint256 tokenId, address _newERC) public onlyAdmin collectPatronage(tokenId){
         nft2erc[tokenId] = IERC20Mintable(_newERC);
     }
@@ -230,7 +230,7 @@ contract WildcardSteward_v1 is Initializable {
             benefactorFunds[benefactor] = benefactorFunds[benefactor].add(collection);
             nft2erc[tokenId].mint(currentPatron[tokenId], amountToMint);
             tokensGenerated[tokenId][currentPatron[tokenId]] = tokensGenerated[tokenId][currentPatron[tokenId]].add(amountToMint);
-            emit LogCollection(collection);
+            emit Collection(tokenId, collection);
         }
     }
 
@@ -248,7 +248,7 @@ contract WildcardSteward_v1 is Initializable {
             deposit[tokenPatron] = deposit[tokenPatron].sub(patronageOwedByTokenPatron);
         }
 
-        emit LogRemainingDepositUpdate(tokenPatron, deposit[tokenPatron]);
+        emit RemainingDepositUpdate(tokenPatron, deposit[tokenPatron]);
     }
 
 
@@ -286,7 +286,7 @@ contract WildcardSteward_v1 is Initializable {
 
         deposit[msg.sender] = deposit[msg.sender].add(msg.value.sub(price[tokenId]));
         transferAssetTokenTo(tokenId, currentOwner, tokenPatron, msg.sender, _newPrice);
-        emit LogBuy(msg.sender, _newPrice);
+        emit Buy(tokenId, msg.sender, _newPrice);
     }
 
     function changePrice(uint256 tokenId, uint256 _newPrice) public onlyPatron(tokenId) collectPatronage(tokenId) {
@@ -298,7 +298,7 @@ contract WildcardSteward_v1 is Initializable {
           .add(_newPrice.mul(patronageNumerator[tokenId]));
 
         price[tokenId] = _newPrice;
-        emit LogPriceChange(price[tokenId]);
+        emit PriceChange(tokenId, price[tokenId]);
     }
 
     function withdrawDeposit(uint256 _wei) public collectPatronageAddress(msg.sender) returns (uint256) {
@@ -336,7 +336,7 @@ contract WildcardSteward_v1 is Initializable {
         state[tokenId] = StewardState.Foreclosed;
         currentCollected[tokenId] = 0;
 
-        emit LogForeclosure(currentOwner);
+        emit Foreclosure(currentOwner);
     }
 
 
