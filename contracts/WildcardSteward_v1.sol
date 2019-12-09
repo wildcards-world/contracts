@@ -46,23 +46,24 @@ contract WildcardSteward_v1 is Initializable {
 
     address public admin;
 
-    // ////////// NEW ///////////////////
-    // //////////////////////////////////
-    mapping(uint256 => mapping (address => uint256)) public tokensGenerated;
+    //////////////// NEW ///////////////////
     mapping(uint256 => uint256) public tokenGenerationRate; // we can reuse the patronage denominator
 
     // These are for every NFT, the erc20 contract we are poiting too.
     // Note that the steward needs to have permission to call the mint function on the erc20
     mapping(uint256 => IERC20Mintable) public nft2erc; // set our erc20 token as default
 
-    //ERC20PatronageReceipt_v1 public wildcardsToken;
+    // NOTE: This isn't really needed, and it can be calculated from the "timeHeld". Removed for now (or forever)
+    // mapping(uint256 => mapping (address => uint256)) public tokensGenerated;
 
-    event Buy(uint256 indexed tokenId, address indexed owner, uint256 indexed price);
-    event PriceChange(uint256 indexed tokenId, uint256 indexed newPrice);
+    event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
+    event PriceChange(uint256 indexed tokenId, uint256 newPrice);
     event Foreclosure(address indexed prevOwner);
-    event Collection(uint256 indexed tokenId, uint256 indexed collected);
-    event RemainingDepositUpdate(address indexed tokenPatron, uint256 indexed remainingDeposit);
+    event Collection(uint256 indexed tokenId, uint256 collected);
+    event RemainingDepositUpdate(address indexed tokenPatron, uint256 remainingDeposit);
+
     event AddToken(uint256 indexed tokenId, uint256 patronageNumerator);
+    event ERC20Minted(uint256 indexed tokenId, address indexed reciever, uint256 amount);
     // TODO add events for erc20 mints
 
     modifier onlyPatron(uint256 tokenId) {
@@ -97,14 +98,21 @@ contract WildcardSteward_v1 is Initializable {
     }
 
     // TODO:: add validation that the token that is complient with the "PatronageToken" ERC721 interface extension somehow!
-    function listNewTokens(uint256[] memory tokens, address payable[] memory _benefactors, uint256[] memory _patronageNumerator, address[] memory _receiptERC20) public onlyAdmin {
+    function listNewTokens(
+        uint256[] memory tokens, 
+        address payable[] memory _benefactors, 
+        uint256[] memory _patronageNumerator, 
+        uint256[] memory _tokenGenerationRate, 
+        address[] memory _receiptERC20
+    ) public onlyAdmin {
         assert(tokens.length == _benefactors.length);
         for (uint8 i = 0; i < tokens.length; ++i){
             assert(_benefactors[i]!=address(0));
             benefactors[tokens[i]] = _benefactors[i];
             state[tokens[i]] = StewardState.Foreclosed;
             patronageNumerator[tokens[i]] = _patronageNumerator[i];
-            nft2erc[tokens[i]] = IERC20Mintable(_receiptERC20[i]);
+            tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i]; // TODO: set these for old tokens
+            nft2erc[tokens[i]] = IERC20Mintable(_receiptERC20[i]); // TODO: set for old tokens
             emit AddToken(tokens[i], _patronageNumerator[i]);
         }
     }
@@ -229,7 +237,7 @@ contract WildcardSteward_v1 is Initializable {
             address benefactor = benefactors[tokenId];
             benefactorFunds[benefactor] = benefactorFunds[benefactor].add(collection);
             nft2erc[tokenId].mint(currentPatron[tokenId], amountToMint);
-            tokensGenerated[tokenId][currentPatron[tokenId]] = tokensGenerated[tokenId][currentPatron[tokenId]].add(amountToMint);
+            // tokensGenerated[tokenId][currentPatron[tokenId]] = tokensGenerated[tokenId][currentPatron[tokenId]].add(amountToMint);
             emit Collection(tokenId, collection);
         }
     }
