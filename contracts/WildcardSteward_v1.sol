@@ -51,7 +51,7 @@ contract WildcardSteward_v1 is Initializable {
 
     // These are for every NFT, the erc20 contract we are poiting too.
     // Note that the steward needs to have permission to call the mint function on the erc20
-    mapping(uint256 => IERC20Mintable) public nft2erc; // set our erc20 token as default
+    mapping(uint256 => IERC20Mintable) public erc20Minter; // set our erc20 token as default
 
     // NOTE: This isn't really needed, and it can be calculated from the "timeHeld". Removed for now (or forever)
     // mapping(uint256 => mapping (address => uint256)) public tokensGenerated;
@@ -59,11 +59,13 @@ contract WildcardSteward_v1 is Initializable {
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
     event PriceChange(uint256 indexed tokenId, uint256 newPrice);
     event Foreclosure(address indexed prevOwner);
-    event Collection(uint256 indexed tokenId, uint256 collected);
     event RemainingDepositUpdate(address indexed tokenPatron, uint256 remainingDeposit);
 
     event AddToken(uint256 indexed tokenId, uint256 patronageNumerator);
-    event ERC20Minted(uint256 indexed tokenId, address indexed reciever, uint256 amount);
+    // QUESTION: should these two events be combined into one? - they only ever happen at the same time.
+    // event Collection(uint256 indexed tokenId, address indexed payedBy, uint256 collected);
+    // event ERC20Minted(uint256 indexed tokenId, address indexed reciever, uint256 amount);
+    event CollectPatronageAndRecordMinting(uint256 indexed tokenId, address indexed patron, uint256 amountRecieved, uint256 amountMinted);
     // TODO add events for erc20 mints
 
     modifier onlyPatron(uint256 tokenId) {
@@ -112,7 +114,7 @@ contract WildcardSteward_v1 is Initializable {
             state[tokens[i]] = StewardState.Foreclosed;
             patronageNumerator[tokens[i]] = _patronageNumerator[i];
             tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i]; // TODO: set these for old tokens
-            nft2erc[tokens[i]] = IERC20Mintable(_receiptERC20[i]); // TODO: set for old tokens
+            erc20Minter[tokens[i]] = IERC20Mintable(_receiptERC20[i]); // TODO: set for old tokens
             emit AddToken(tokens[i], _patronageNumerator[i]);
         }
     }
@@ -131,7 +133,7 @@ contract WildcardSteward_v1 is Initializable {
 
     // This function will change which token is being minted from loyalty.
     function changeERC20(uint256 tokenId, address _newERC) public onlyAdmin collectPatronage(tokenId){
-        nft2erc[tokenId] = IERC20Mintable(_newERC);
+        erc20Minter[tokenId] = IERC20Mintable(_newERC);
     }
 
     /* public view functions */
@@ -236,9 +238,9 @@ contract WildcardSteward_v1 is Initializable {
             totalCollected[tokenId] = totalCollected[tokenId].add(collection);
             address benefactor = benefactors[tokenId];
             benefactorFunds[benefactor] = benefactorFunds[benefactor].add(collection);
-            nft2erc[tokenId].mint(currentPatron[tokenId], amountToMint);
+            erc20Minter[tokenId].mint(currentPatron[tokenId], amountToMint);
             // tokensGenerated[tokenId][currentPatron[tokenId]] = tokensGenerated[tokenId][currentPatron[tokenId]].add(amountToMint);
-            emit Collection(tokenId, collection);
+            emit CollectPatronageAndRecordMinting(tokenId, currentPatron[tokenId], collection, amountToMint);
         }
     }
 
@@ -270,7 +272,7 @@ contract WildcardSteward_v1 is Initializable {
         deposit[patron] = deposit[patron].add(msg.value);
     }
 
-    function buy(uint256 tokenId, uint256 _newPrice) public payable collectPatronage(tokenId) collectPatronageAddress(msg.sender) {
+    function buy(uint256 tokenId, uint256 _newPrice) public payable collectPatronage(tokenId) {
         require(_newPrice > 0, "Price is zero");
         require(msg.value > price[tokenId], "Not enough"); // >, coz need to have at least something for deposit
         address currentOwner = assetToken.ownerOf(tokenId);
