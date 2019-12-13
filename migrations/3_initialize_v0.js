@@ -1,8 +1,8 @@
 const ERC721Patronage_v0 = artifacts.require("ERC721Patronage_v0");
 const WildcardSteward_v0 = artifacts.require("WildcardSteward_v0");
 
-const patronageNumerator = 1000000
-const patronageDenominator = 1000000
+const patronageNumerator = 2400000000000
+const patronageDenominator = 1000000000000
 
 const image1MetadataJson = {
   artist: "Matty Fraser",

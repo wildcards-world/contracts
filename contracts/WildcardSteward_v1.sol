@@ -1,7 +1,9 @@
 pragma solidity ^0.5.0;
-import "./ERC721Patronage_v0.sol";
+import "./ERC721Patronage_v1.sol";
+import "./ERC20PatronageReceipt_v1.sol";
+import "./interfaces/IERC20Mintable.sol";
 
-contract WildcardSteward_v0 is Initializable {
+contract WildcardSteward_v1 is Initializable {
 
     /*
     This smart contract collects patronage from current owner through a Harberger tax model and 
@@ -16,7 +18,7 @@ contract WildcardSteward_v0 is Initializable {
     using SafeMath for uint256;
 
     mapping(uint256 => uint256) public price; //in wei
-    ERC721Patronage_v0 public assetToken; // ERC721 NFT.
+    ERC721Patronage_v1 public assetToken; // ERC721 NFT.
 
     mapping(uint256 => uint256) public totalCollected; // all patronage ever collected
     mapping(uint256 => uint256) public currentCollected; // amount currently collected for patron
@@ -38,27 +40,38 @@ contract WildcardSteward_v0 is Initializable {
     mapping(uint256 => uint256) public patronageNumerator;
     uint256 public patronageDenominator;
 
+
     enum StewardState { Foreclosed, Owned }
     mapping(uint256 => StewardState) public state;
 
     address public admin;
 
-    event LogBuy(address indexed owner, uint256 indexed price);
-    event LogPriceChange(uint256 indexed newPrice);
-    event LogForeclosure(address indexed prevOwner);
-    event LogCollection(uint256 indexed collected);
-    event LogRemainingDepositUpdate(address indexed tokenPatron, uint256 indexed remainingDeposit);
+    //////////////// NEW ///////////////////
+    mapping(uint256 => uint256) public tokenGenerationRate; // we can reuse the patronage denominator
+
+    // These are for every NFT, the erc20 contract we are poiting too.
+    // Note that the steward needs to have permission to call the mint function on the erc20
+    mapping(uint256 => IERC20Mintable) public erc20Minter; // set our erc20 token as default
+
+    // NOTE: This isn't really needed, and it can be calculated from the "timeHeld". Removed for now (or forever)
+    // mapping(uint256 => mapping (address => uint256)) public tokensGenerated;
+
+    event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
+    event PriceChange(uint256 indexed tokenId, uint256 newPrice);
+    event Foreclosure(address indexed prevOwner);
+    event RemainingDepositUpdate(address indexed tokenPatron, uint256 remainingDeposit);
+
     event AddToken(uint256 indexed tokenId, uint256 patronageNumerator);
+    // QUESTION: should these two events be combined into one? - they only ever happen at the same time.
+    // event Collection(uint256 indexed tokenId, address indexed payedBy, uint256 collected);
+    // event ERC20Minted(uint256 indexed tokenId, address indexed reciever, uint256 amount);
+    event CollectPatronageAndRecordMinting(uint256 indexed tokenId, address indexed patron, uint256 amountRecieved, uint256 amountMinted);
+    // TODO add events for erc20 mints
 
     modifier onlyPatron(uint256 tokenId) {
         require(msg.sender == currentPatron[tokenId], "Not patron");
         _;
     }
-
-    // modifier onlyReceivingBenefactor(uint256 tokenId) {
-    //     require(msg.sender == benefactors[tokenId], "Not benefactor");
-    //     _;
-    // }
 
     modifier onlyAdmin() {
         require(msg.sender == admin, "Not admin");
@@ -81,19 +94,27 @@ contract WildcardSteward_v0 is Initializable {
     }
 
     function initialize(address _assetToken, address _admin, uint256 _patronageDenominator) public initializer {
-        assetToken = ERC721Patronage_v0(_assetToken);
+        assetToken = ERC721Patronage_v1(_assetToken);
         admin = _admin;
         patronageDenominator = _patronageDenominator;
     }
 
     // TODO:: add validation that the token that is complient with the "PatronageToken" ERC721 interface extension somehow!
-    function listNewTokens(uint256[] memory tokens, address payable[] memory _benefactors, uint256[] memory _patronageNumerator) public onlyAdmin {
+    function listNewTokens(
+        uint256[] memory tokens, 
+        address payable[] memory _benefactors, 
+        uint256[] memory _patronageNumerator, 
+        uint256[] memory _tokenGenerationRate, 
+        address[] memory _receiptERC20
+    ) public onlyAdmin {
         assert(tokens.length == _benefactors.length);
         for (uint8 i = 0; i < tokens.length; ++i){
             assert(_benefactors[i]!=address(0));
             benefactors[tokens[i]] = _benefactors[i];
             state[tokens[i]] = StewardState.Foreclosed;
             patronageNumerator[tokens[i]] = _patronageNumerator[i];
+            tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i]; // TODO: set these for old tokens
+            erc20Minter[tokens[i]] = IERC20Mintable(_receiptERC20[i]); // TODO: set for old tokens
             emit AddToken(tokens[i], _patronageNumerator[i]);
         }
     }
@@ -108,6 +129,11 @@ contract WildcardSteward_v0 is Initializable {
 
     function changeAdmin(address _admin) public onlyAdmin {
         admin = _admin;
+    }
+
+    // This function will change which token is being minted from loyalty.
+    function changeERC20(uint256 tokenId, address _newERC) public onlyAdmin collectPatronage(tokenId){
+        erc20Minter[tokenId] = IERC20Mintable(_newERC);
     }
 
     /* public view functions */
@@ -183,34 +209,38 @@ contract WildcardSteward_v0 is Initializable {
     function _collectPatronage(uint256 tokenId) public {
         // determine patronage to pay
         if (state[tokenId] == StewardState.Owned) {
-            address tokenPatron = currentPatron[tokenId];
-            uint256 previousTokenCollection = timeLastCollected[tokenId]; 
-            uint256 patronageOwedByTokenPatron = patronageOwedPatron(tokenPatron);
+            uint256 previousTokenCollection = timeLastCollected[tokenId];
+            uint256 patronageOwedByTokenPatron = patronageOwedPatron(currentPatron[tokenId]);
             uint256 collection;
+            uint256 amountToMint;
 
             // should foreclose and stake stewardship
-            if (patronageOwedByTokenPatron >= deposit[tokenPatron]) {
+            if (patronageOwedByTokenPatron >= deposit[currentPatron[tokenId]]) {
                 // up to when was it actually paid for?
-                uint256 newTimeLastCollected = timeLastCollectedPatron[tokenPatron].add(((now.sub(timeLastCollectedPatron[tokenPatron])).mul(deposit[tokenPatron]).div(patronageOwedByTokenPatron)));
+                uint256 newTimeLastCollected = timeLastCollectedPatron[currentPatron[tokenId]].add(((now.sub(timeLastCollectedPatron[currentPatron[tokenId]])).mul(deposit[currentPatron[tokenId]]).div(patronageOwedByTokenPatron)));
 
                 timeLastCollected[tokenId] = newTimeLastCollected;
-                timeLastCollectedPatron[tokenPatron] = newTimeLastCollected;
+                timeLastCollectedPatron[currentPatron[tokenId]] = newTimeLastCollected;
                 collection = price[tokenId].mul(newTimeLastCollected.sub(previousTokenCollection)).mul(patronageNumerator[tokenId]).div(patronageDenominator).div(365 days);
+                amountToMint = (newTimeLastCollected.sub(previousTokenCollection)).mul(tokenGenerationRate[tokenId]);
 
-                deposit[tokenPatron] = 0;
-                _foreclose(tokenId); // This only forecloses a single token
+                deposit[currentPatron[tokenId]] = 0;
+                _foreclose(tokenId);
             } else {
                 // just a normal collection
                 collection = price[tokenId].mul(now.sub(previousTokenCollection)).mul(patronageNumerator[tokenId]).div(patronageDenominator).div(365 days);
+                amountToMint = now.sub(timeLastCollected[tokenId]);
                 timeLastCollected[tokenId] = now;
-                timeLastCollectedPatron[tokenPatron] = now;
+                timeLastCollectedPatron[currentPatron[tokenId]] = now;
                 currentCollected[tokenId] = currentCollected[tokenId].add(collection);
-                deposit[tokenPatron] = deposit[tokenPatron].sub(patronageOwedByTokenPatron);
+                deposit[currentPatron[tokenId]] = deposit[currentPatron[tokenId]].sub(patronageOwedByTokenPatron);
             }
             totalCollected[tokenId] = totalCollected[tokenId].add(collection);
             address benefactor = benefactors[tokenId];
             benefactorFunds[benefactor] = benefactorFunds[benefactor].add(collection);
-            emit LogCollection(collection);
+            erc20Minter[tokenId].mint(currentPatron[tokenId], amountToMint);
+            // tokensGenerated[tokenId][currentPatron[tokenId]] = tokensGenerated[tokenId][currentPatron[tokenId]].add(amountToMint);
+            emit CollectPatronageAndRecordMinting(tokenId, currentPatron[tokenId], collection, amountToMint);
         }
     }
 
@@ -228,8 +258,10 @@ contract WildcardSteward_v0 is Initializable {
             deposit[tokenPatron] = deposit[tokenPatron].sub(patronageOwedByTokenPatron);
         }
 
-        emit LogRemainingDepositUpdate(tokenPatron, deposit[tokenPatron]);
+        emit RemainingDepositUpdate(tokenPatron, deposit[tokenPatron]);
     }
+
+
 
     // note: anyone can deposit
     function depositWei() public payable {
@@ -240,7 +272,7 @@ contract WildcardSteward_v0 is Initializable {
         deposit[patron] = deposit[patron].add(msg.value);
     }
 
-    function buy(uint256 tokenId, uint256 _newPrice) public payable collectPatronage(tokenId) collectPatronageAddress(msg.sender) {
+    function buy(uint256 tokenId, uint256 _newPrice) public payable collectPatronage(tokenId) {
         require(_newPrice > 0, "Price is zero");
         require(msg.value > price[tokenId], "Not enough"); // >, coz need to have at least something for deposit
         address currentOwner = assetToken.ownerOf(tokenId);
@@ -264,7 +296,7 @@ contract WildcardSteward_v0 is Initializable {
 
         deposit[msg.sender] = deposit[msg.sender].add(msg.value.sub(price[tokenId]));
         transferAssetTokenTo(tokenId, currentOwner, tokenPatron, msg.sender, _newPrice);
-        emit LogBuy(msg.sender, _newPrice);
+        emit Buy(tokenId, msg.sender, _newPrice);
     }
 
     function changePrice(uint256 tokenId, uint256 _newPrice) public onlyPatron(tokenId) collectPatronage(tokenId) {
@@ -276,7 +308,7 @@ contract WildcardSteward_v0 is Initializable {
           .add(_newPrice.mul(patronageNumerator[tokenId]));
 
         price[tokenId] = _newPrice;
-        emit LogPriceChange(price[tokenId]);
+        emit PriceChange(tokenId, price[tokenId]);
     }
 
     function withdrawDeposit(uint256 _wei) public collectPatronageAddress(msg.sender) returns (uint256) {
@@ -314,8 +346,9 @@ contract WildcardSteward_v0 is Initializable {
         state[tokenId] = StewardState.Foreclosed;
         currentCollected[tokenId] = 0;
 
-        emit LogForeclosure(currentOwner);
+        emit Foreclosure(currentOwner);
     }
+
 
     function transferAssetTokenTo(uint256 tokenId, address _currentOwner, address _currentPatron, address _newOwner, uint256 _newPrice) internal {
         // TODO: add the patronage rate as a multiplier here: https://github.com/wild-cards/contracts/issues/7
@@ -324,9 +357,7 @@ contract WildcardSteward_v0 is Initializable {
 
         // note: it would also tabulate time held in stewardship by smart contract
         timeHeld[tokenId][_currentPatron] = timeHeld[tokenId][_currentPatron].add((timeLastCollected[tokenId].sub(timeAcquired[tokenId])));
-
         assetToken.transferFrom(_currentOwner, _newOwner, tokenId);
-
         currentPatron[tokenId] = _newOwner;
 
         price[tokenId] = _newPrice;
