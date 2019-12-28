@@ -65,7 +65,13 @@ contract WildcardSteward_v1 is Initializable {
     // QUESTION: should these two events be combined into one? - they only ever happen at the same time.
     // event Collection(uint256 indexed tokenId, address indexed payedBy, uint256 collected);
     // event ERC20Minted(uint256 indexed tokenId, address indexed reciever, uint256 amount);
-    event CollectPatronageAndRecordMinting(uint256 indexed tokenId, address indexed patron, uint256 amountRecieved, uint256 amountMinted);
+    event CollectPatronageAndRecordMinting(
+      uint256 indexed tokenId,
+      address indexed patron,
+      uint256 remainingDeposit,
+      uint256 amountRecieved,
+      uint256 amountMinted
+    );
     // TODO add events for erc20 mints
 
     modifier onlyPatron(uint256 tokenId) {
@@ -240,7 +246,7 @@ contract WildcardSteward_v1 is Initializable {
             benefactorFunds[benefactor] = benefactorFunds[benefactor].add(collection);
             erc20Minter[tokenId].mint(currentPatron[tokenId], amountToMint);
             // tokensGenerated[tokenId][currentPatron[tokenId]] = tokensGenerated[tokenId][currentPatron[tokenId]].add(amountToMint);
-            emit CollectPatronageAndRecordMinting(tokenId, currentPatron[tokenId], collection, amountToMint);
+            emit CollectPatronageAndRecordMinting(tokenId, currentPatron[tokenId], deposit[currentPatron[tokenId]], collection, amountToMint);
         }
     }
 
@@ -292,6 +298,7 @@ contract WildcardSteward_v1 is Initializable {
         } else if(state[tokenId] == StewardState.Foreclosed) {
             state[tokenId] = StewardState.Owned;
             timeLastCollected[tokenId] = now;
+            timeLastCollectedPatron[msg.sender] = now;
         }
 
         deposit[msg.sender] = deposit[msg.sender].add(msg.value.sub(price[tokenId]));
