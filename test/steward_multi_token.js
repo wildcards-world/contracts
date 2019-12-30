@@ -1,127 +1,261 @@
-const { BN, expectRevert, ether, expectEvent, balance, time } = require('@openzeppelin/test-helpers');
+const {
+  BN,
+  expectRevert,
+  ether,
+  expectEvent,
+  balance,
+  time
+} = require("@openzeppelin/test-helpers");
 
-const Artwork = artifacts.require('./ERC721Patronage_v0.sol');
-const WildcardSteward = artifacts.require('./WildcardSteward_v0.sol');
-const { multiPatronageCalculator } = require('./helpers')
-
+const Artwork = artifacts.require("./ERC721Patronage_v1.sol");
+const WildcardSteward = artifacts.require("./WildcardSteward_v1.sol");
+const { multiPatronageCalculator } = require("./helpers");
 
 const delay = duration => new Promise(resolve => setTimeout(resolve, duration));
 
 // NOTE:: This was inspired by this question and the off by one second errors I was getting:
 // https://ethereum.stackexchange.com/a/74558/4642
-const waitTillBeginningOfSecond = () => new Promise(resolve => {
-  const timeTilNextSecond = 1000 - new Date().getMilliseconds()
-  setTimeout(resolve, timeTilNextSecond - 1000)
-})
+const waitTillBeginningOfSecond = () =>
+  new Promise(resolve => {
+    const timeTilNextSecond = 1000 - new Date().getMilliseconds();
+    setTimeout(resolve, timeTilNextSecond - 1000);
+  });
 
-const PATRONAGE_DENOMINATOR = '1'
-const patronageCalculator = multiPatronageCalculator(PATRONAGE_DENOMINATOR)
+const PATRONAGE_DENOMINATOR = "1";
+const patronageCalculator = multiPatronageCalculator(PATRONAGE_DENOMINATOR);
 
-contract('WildcardSteward owed', (accounts) => {
-
+contract("WildcardSteward owed", accounts => {
   let artwork;
   let steward;
   const patronageNumerator = 12;
   const patronageDenominator = 1;
-  const testToken1 = { id: 1, patronageNumerator: 12 }
-  const testToken2 = { id: 2, patronageNumerator: 12 }
-  testTokenId1 = testToken1.id
-  testTokenId2 = testToken2.id
-  let testTokenURI = 'test token uri'
+  const testToken1 = { id: 1, patronageNumerator: 12 };
+  const testToken2 = { id: 2, patronageNumerator: 12 };
+  testTokenId1 = testToken1.id;
+  testTokenId2 = testToken2.id;
+  let testTokenURI = "test token uri";
 
   beforeEach(async () => {
     artwork = await Artwork.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
-    await artwork.setup(steward.address, "ALWAYSFORSALETestToken", "AFSTT", accounts[0], { from: accounts[0] })
-    await artwork.mintWithTokenURI(steward.address, 0, testTokenURI, { from: accounts[0] })
-    await artwork.mintWithTokenURI(steward.address, 1, testTokenURI, { from: accounts[0] })
-    await artwork.mintWithTokenURI(steward.address, 2, testTokenURI, { from: accounts[0] })
+    await artwork.setup(
+      steward.address,
+      "ALWAYSFORSALETestToken",
+      "AFSTT",
+      accounts[0],
+      { from: accounts[0] }
+    );
+    await artwork.mintWithTokenURI(steward.address, 0, testTokenURI, {
+      from: accounts[0]
+    });
+    await artwork.mintWithTokenURI(steward.address, 1, testTokenURI, {
+      from: accounts[0]
+    });
+    await artwork.mintWithTokenURI(steward.address, 2, testTokenURI, {
+      from: accounts[0]
+    });
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(artwork.address, accounts[0], patronageDenominator)
-    await steward.listNewTokens([0, testTokenId1, testTokenId2], [accounts[0], accounts[0], accounts[0]], [patronageNumerator, testToken1.patronageNumerator, testToken2.patronageNumerator])
-  })
+    await steward.initialize(
+      artwork.address,
+      accounts[0],
+      patronageDenominator
+    );
+    await steward.listNewTokens(
+      [0, testTokenId1, testTokenId2],
+      [accounts[0], accounts[0], accounts[0]],
+      [
+        patronageNumerator,
+        testToken1.patronageNumerator,
+        testToken2.patronageNumerator
+      ]
+    );
+  });
 
-  it('steward: multi-token. check patronage of two tokens owed by the same patron after 10 minutes.', async () => {
-    await waitTillBeginningOfSecond()
+  it("steward: multi-token. check patronage of two tokens owed by the same patron after 10 minutes.", async () => {
+    await waitTillBeginningOfSecond();
 
     // buy 2 tokens, with prices of 1 ether and 2 ether.
-    await steward.buy(testTokenId1, web3.utils.toWei('1', 'ether'), { from: accounts[2], value: web3.utils.toWei('1', 'ether') });
-    await steward.buy(testTokenId2, web3.utils.toWei('2', 'ether'), { from: accounts[2], value: web3.utils.toWei('1', 'ether') });
+    await steward.buy(testTokenId1, web3.utils.toWei("1", "ether"), {
+      from: accounts[2],
+      value: web3.utils.toWei("1", "ether")
+    });
+    await steward.buy(testTokenId2, web3.utils.toWei("2", "ether"), {
+      from: accounts[2],
+      value: web3.utils.toWei("1", "ether")
+    });
 
     await time.increase(time.duration.minutes(10));
     // What the smart contracts say should be owed
-    const owed1 = await steward.patronageOwedWithTimestamp.call(testTokenId1, { from: accounts[2] });
-    const owed2 = await steward.patronageOwedWithTimestamp.call(testTokenId2, { from: accounts[2] });
-    const owedPatron = await steward.patronageOwedPatronWithTimestamp.call(accounts[2], { from: accounts[2] });
+    const owed1 = await steward.patronageOwedWithTimestamp.call(testTokenId1, {
+      from: accounts[2]
+    });
+    const owed2 = await steward.patronageOwedWithTimestamp.call(testTokenId2, {
+      from: accounts[2]
+    });
+    const owedPatron = await steward.patronageOwedPatronWithTimestamp.call(
+      accounts[2],
+      { from: accounts[2] }
+    );
 
     // What our functions calculate should be owed
-    const priceOfToken1 = await steward.price.call(testTokenId1)
-    const priceOfToken2 = await steward.price.call(testTokenId2)
-    const expectedPatronageAfter10minToken1 = patronageCalculator('600',
-      [{ patronageNumerator: testToken1.patronageNumerator.toString(), price: priceOfToken1.toString() }])
-    const expectedPatronageAfter10minToken2 = patronageCalculator('600',
-      [{ patronageNumerator: testToken2.patronageNumerator.toString(), price: priceOfToken2.toString() }])
-    const expectedPatronageBoth = patronageCalculator('600',
-      [{ patronageNumerator: testToken1.patronageNumerator.toString(), price: priceOfToken1.toString() },
-      { patronageNumerator: testToken2.patronageNumerator.toString(), price: priceOfToken2.toString() }])
+    const priceOfToken1 = await steward.price.call(testTokenId1);
+    const priceOfToken2 = await steward.price.call(testTokenId2);
+    const expectedPatronageAfter10minToken1 = patronageCalculator("600", [
+      {
+        patronageNumerator: testToken1.patronageNumerator.toString(),
+        price: priceOfToken1.toString()
+      }
+    ]);
+    const expectedPatronageAfter10minToken2 = patronageCalculator("600", [
+      {
+        patronageNumerator: testToken2.patronageNumerator.toString(),
+        price: priceOfToken2.toString()
+      }
+    ]);
+    const expectedPatronageBoth = patronageCalculator("600", [
+      {
+        patronageNumerator: testToken1.patronageNumerator.toString(),
+        price: priceOfToken1.toString()
+      },
+      {
+        patronageNumerator: testToken2.patronageNumerator.toString(),
+        price: priceOfToken2.toString()
+      }
+    ]);
 
-    assert.equal(owed1.patronageDue.toString(), expectedPatronageAfter10minToken1.toString());
-    assert.equal(owed2.patronageDue.toString(), expectedPatronageAfter10minToken2.toString());
-    assert.equal(owedPatron.patronageDue.toString(), expectedPatronageBoth.toString());
-    assert(true)
+    assert.equal(
+      owed1.patronageDue.toString(),
+      expectedPatronageAfter10minToken1.toString()
+    );
+    assert.equal(
+      owed2.patronageDue.toString(),
+      expectedPatronageAfter10minToken2.toString()
+    );
+    assert.equal(
+      owedPatron.patronageDue.toString(),
+      expectedPatronageBoth.toString()
+    );
+    assert(true);
   });
 
   // buy 2 tokens, with prices of 1 ether and 2 ether.
-  it('steward: multi-token. check patronage of two tokens owed by the same patron after 10 minutes one of the tokens gets bought.', async () => {
-    await waitTillBeginningOfSecond()
-    await steward.buy(testTokenId1, web3.utils.toWei('1', 'ether'), { from: accounts[2], value: web3.utils.toWei('1', 'ether') });
-    await steward.buy(testTokenId2, web3.utils.toWei('2', 'ether'), { from: accounts[2], value: web3.utils.toWei('0.1', 'ether') });
+  it("steward: multi-token. check patronage of two tokens owed by the same patron after 10 minutes one of the tokens gets bought.", async () => {
+    await waitTillBeginningOfSecond();
+    await steward.buy(testTokenId1, web3.utils.toWei("1", "ether"), {
+      from: accounts[2],
+      value: web3.utils.toWei("1", "ether")
+    });
+    await steward.buy(testTokenId2, web3.utils.toWei("2", "ether"), {
+      from: accounts[2],
+      value: web3.utils.toWei("0.1", "ether")
+    });
 
     await time.increase(time.duration.minutes(10));
     // What the blockchain calculates
-    const owed1 = await steward.patronageOwedWithTimestamp.call(testTokenId1, { from: accounts[2] });
-    const owed2 = await steward.patronageOwedWithTimestamp.call(testTokenId2, { from: accounts[2] });
-    const owedPatron = await steward.patronageOwedPatronWithTimestamp.call(accounts[2], { from: accounts[2] });
+    const owed1 = await steward.patronageOwedWithTimestamp.call(testTokenId1, {
+      from: accounts[2]
+    });
+    const owed2 = await steward.patronageOwedWithTimestamp.call(testTokenId2, {
+      from: accounts[2]
+    });
+    const owedPatron = await steward.patronageOwedPatronWithTimestamp.call(
+      accounts[2],
+      { from: accounts[2] }
+    );
 
     // What we calculate
-    const priceOfToken1 = await steward.price.call(testTokenId1)
-    const priceOfToken2 = await steward.price.call(testTokenId2)
-    const expectedPatronageAfter10minToken1 = patronageCalculator('600',
-      [{ patronageNumerator: testToken1.patronageNumerator.toString(), price: priceOfToken1.toString() }])
-    const expectedPatronageAfter10minToken2 = patronageCalculator('600',
-      [{ patronageNumerator: testToken2.patronageNumerator.toString(), price: priceOfToken2.toString() }])
-    const expectedPatronageBoth = patronageCalculator('600',
-      [{ patronageNumerator: testToken1.patronageNumerator.toString(), price: priceOfToken1.toString() },
-      { patronageNumerator: testToken2.patronageNumerator.toString(), price: priceOfToken2.toString() }])
-
+    const priceOfToken1 = await steward.price.call(testTokenId1);
+    const priceOfToken2 = await steward.price.call(testTokenId2);
+    const expectedPatronageAfter10minToken1 = patronageCalculator("600", [
+      {
+        patronageNumerator: testToken1.patronageNumerator.toString(),
+        price: priceOfToken1.toString()
+      }
+    ]);
+    const expectedPatronageAfter10minToken2 = patronageCalculator("600", [
+      {
+        patronageNumerator: testToken2.patronageNumerator.toString(),
+        price: priceOfToken2.toString()
+      }
+    ]);
+    const expectedPatronageBoth = patronageCalculator("600", [
+      {
+        patronageNumerator: testToken1.patronageNumerator.toString(),
+        price: priceOfToken1.toString()
+      },
+      {
+        patronageNumerator: testToken2.patronageNumerator.toString(),
+        price: priceOfToken2.toString()
+      }
+    ]);
 
     // Token 1 bought
-    await steward.buy(testTokenId1, ether('0.1'), { from: accounts[3], value: ether('1.1') });
+    await steward.buy(testTokenId1, ether("0.1"), {
+      from: accounts[3],
+      value: ether("1.1")
+    });
     // Time increases
     await time.increase(time.duration.minutes(10));
 
-    const owed1Second = await steward.patronageOwedWithTimestamp.call(testTokenId1);
-    const owed2Second = await steward.patronageOwedWithTimestamp.call(testTokenId2, { from: accounts[2] });
-    const owedPatronSecond = await steward.patronageOwedPatronWithTimestamp.call(accounts[2]);
-    const owedPatron2Second = await steward.patronageOwedPatronWithTimestamp.call(accounts[3]);
+    const owed1Second = await steward.patronageOwedWithTimestamp.call(
+      testTokenId1
+    );
+    const owed2Second = await steward.patronageOwedWithTimestamp.call(
+      testTokenId2,
+      { from: accounts[2] }
+    );
+    const owedPatronSecond = await steward.patronageOwedPatronWithTimestamp.call(
+      accounts[2]
+    );
+    const owedPatron2Second = await steward.patronageOwedPatronWithTimestamp.call(
+      accounts[3]
+    );
 
-    const priceOfToken1new = await steward.price.call(testTokenId1)
-    const expectedPatronageAfter20minToken2 = patronageCalculator('1200',
-      [{ patronageNumerator: testToken2.patronageNumerator.toString(), price: priceOfToken2.toString() }])
-    const expectedPatronageAfter20minToken1 = patronageCalculator('600',
-      [{ patronageNumerator: testToken1.patronageNumerator.toString(), price: priceOfToken1new.toString() }])
+    const priceOfToken1new = await steward.price.call(testTokenId1);
+    const expectedPatronageAfter20minToken2 = patronageCalculator("1200", [
+      {
+        patronageNumerator: testToken2.patronageNumerator.toString(),
+        price: priceOfToken2.toString()
+      }
+    ]);
+    const expectedPatronageAfter20minToken1 = patronageCalculator("600", [
+      {
+        patronageNumerator: testToken1.patronageNumerator.toString(),
+        price: priceOfToken1new.toString()
+      }
+    ]);
 
-
-    assert.equal(owed1.patronageDue.toString(), expectedPatronageAfter10minToken1.toString());
-    assert.equal(owed2.patronageDue.toString(), expectedPatronageAfter10minToken2.toString());
-    assert.equal(owedPatron.patronageDue.toString(), expectedPatronageBoth.toString());
+    assert.equal(
+      owed1.patronageDue.toString(),
+      expectedPatronageAfter10minToken1.toString()
+    );
+    assert.equal(
+      owed2.patronageDue.toString(),
+      expectedPatronageAfter10minToken2.toString()
+    );
+    assert.equal(
+      owedPatron.patronageDue.toString(),
+      expectedPatronageBoth.toString()
+    );
     // collected double since 20 min
     // Here is the issue, when the token is bought from the guy, patronage is only collected on that token.
     // Not on the owner who might own multiple tokens??? V interesting consequences
-    assert.equal(owed2Second.patronageDue.toString(), expectedPatronageAfter20minToken2.toString());
-    assert.equal(owed1Second.patronageDue.toString(), expectedPatronageAfter20minToken1.toString());
+    assert.equal(
+      owed2Second.patronageDue.toString(),
+      expectedPatronageAfter20minToken2.toString()
+    );
+    assert.equal(
+      owed1Second.patronageDue.toString(),
+      expectedPatronageAfter20minToken1.toString()
+    );
     // Should only count since the last clearance (when token 1 was bought)
-    assert.equal(owedPatronSecond.patronageDue.toString(), expectedPatronageAfter10minToken2.toString());
-    assert.equal(owedPatron2Second.patronageDue.toString(), expectedPatronageAfter20minToken1.toString());
+    assert.equal(
+      owedPatronSecond.patronageDue.toString(),
+      expectedPatronageAfter10minToken2.toString()
+    );
+    assert.equal(
+      owedPatron2Second.patronageDue.toString(),
+      expectedPatronageAfter20minToken1.toString()
+    );
   });
 });
