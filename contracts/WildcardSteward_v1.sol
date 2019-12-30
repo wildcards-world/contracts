@@ -1,7 +1,5 @@
 pragma solidity ^0.5.0;
 import "./ERC721Patronage_v1.sol";
-import "./ERC20PatronageReceipt_v1.sol";
-import "./interfaces/IERC20Mintable.sol";
 
 contract WildcardSteward_v1 is Initializable {
 
@@ -57,7 +55,6 @@ contract WildcardSteward_v1 is Initializable {
       uint256 remainingDeposit,
       uint256 amountReceived
     );
-    // TODO add events for erc20 mints
 
     modifier onlyPatron(uint256 tokenId) {
         require(msg.sender == currentPatron[tokenId], "Not patron");
