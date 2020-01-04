@@ -7,8 +7,8 @@ const {
   time
 } = require("@openzeppelin/test-helpers");
 
-const Artwork = artifacts.require("./ERC721Patronage_v0.sol");
-const WildcardSteward = artifacts.require("./WildcardSteward_v0.sol");
+const Artwork = artifacts.require("./ERC721Patronage_v1.sol");
+const WildcardSteward = artifacts.require("./WildcardSteward_v1.sol");
 
 const delay = duration => new Promise(resolve => setTimeout(resolve, duration));
 
@@ -153,7 +153,9 @@ contract("WildcardSteward owed", accounts => {
     const totalCollected = await steward.totalCollected.call(1);
 
     const calcDeposit = ether("1").sub(owed.patronageDue);
-    expectEvent.inLogs(logs, "LogCollection", { collected: totalCollected });
+    expectEvent.inLogs(logs, "CollectPatronage", {
+      amountReceived: totalCollected
+    });
     assert.equal(deposit.toString(), calcDeposit.toString());
     assert.equal(benefactorFund.toString(), owed.patronageDue.toString());
     assert.equal(timeLastCollected.toString(), previousBlockTime.toString());
@@ -233,7 +235,7 @@ contract("WildcardSteward owed", accounts => {
 
     const timeHeld = await steward.timeHeld.call(1, accounts[2]);
 
-    expectEvent.inLogs(logs, "LogForeclosure", { prevOwner: accounts[2] });
+    expectEvent.inLogs(logs, "Foreclosure", { prevOwner: accounts[2] });
     assert.equal(timeHeld.toString(), time.duration.minutes(10).toString());
     assert.equal(currentOwner, steward.address);
     assert.equal(deposit.toString(), "0");
@@ -316,11 +318,8 @@ contract("WildcardSteward owed", accounts => {
     const timeHeld = await steward.timeHeld.call(1, accounts[2]);
     const calcTH = timeLastCollected.sub(preTimeBought);
 
-    expectEvent.inLogs(logs, "LogForeclosure", { prevOwner: accounts[2] });
-    expectEvent.inLogs(logs, "LogBuy", {
-      owner: accounts[3],
-      price: ether("2")
-    });
+    expectEvent.inLogs(logs, "Foreclosure", { prevOwner: accounts[2] });
+    expectEvent.inLogs(logs, "Buy", { owner: accounts[3], price: ether("2") });
     // TODO: invistigate why this sometimes gives an off by one error (not always)
     // assert.equal(timeHeld.toString(), calcTH.toString();
     assert(
@@ -449,7 +448,7 @@ contract("WildcardSteward owed", accounts => {
     const { logs } = await steward.changePrice(testTokenId, ether("3"), {
       from: accounts[2]
     });
-    expectEvent.inLogs(logs, "LogPriceChange", { newPrice: ether("3") });
+    expectEvent.inLogs(logs, "PriceChange", { newPrice: ether("3") });
     const postPrice = await steward.price.call(1);
     assert.equal(ether("3").toString(), postPrice.toString());
   });

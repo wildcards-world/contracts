@@ -7,8 +7,8 @@ const {
   time
 } = require("@openzeppelin/test-helpers");
 
-const Artwork = artifacts.require("./ERC721Patronage_v0.sol");
-const WildcardSteward = artifacts.require("./WildcardSteward_v0.sol");
+const Artwork = artifacts.require("./ERC721Patronage_v1.sol");
+const WildcardSteward = artifacts.require("./WildcardSteward_v1.sol");
 
 const delay = duration => new Promise(resolve => setTimeout(resolve, duration));
 
@@ -109,10 +109,7 @@ contract("WildcardSteward", accounts => {
       from: accounts[2],
       value: web3.utils.toWei("1", "ether")
     });
-    expectEvent.inLogs(logs, "LogBuy", {
-      owner: accounts[2],
-      price: ether("1")
-    });
+    expectEvent.inLogs(logs, "Buy", { owner: accounts[2], price: ether("1") });
     const deposit = await steward.deposit.call(accounts[2]);
     const price = await steward.price.call(0);
     const state = await steward.state.call(0);
