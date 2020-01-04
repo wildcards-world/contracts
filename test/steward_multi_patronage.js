@@ -8,8 +8,8 @@ const {
 } = require("@openzeppelin/test-helpers");
 const { multiPatronageCalculator } = require("./helpers");
 
-const Artwork = artifacts.require("./ERC721Patronage_v0.sol");
-const WildcardSteward = artifacts.require("./WildcardSteward_v0.sol");
+const Artwork = artifacts.require("./ERC721Patronage_v1.sol");
+const WildcardSteward = artifacts.require("./WildcardSteward_v1.sol");
 
 const delay = duration => new Promise(resolve => setTimeout(resolve, duration));
 

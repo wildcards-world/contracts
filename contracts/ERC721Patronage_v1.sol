@@ -5,7 +5,7 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721En
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721MetadataMintable.sol";
 
-import "./WildcardSteward_v1.sol";
+// import "./WildcardSteward_v1.sol";
 
 contract ERC721Patronage_v1 is Initializable, ERC721, ERC721Enumerable, ERC721Metadata, ERC721MetadataMintable {
     address public steward;
