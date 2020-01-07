@@ -2952,7 +2952,8 @@
             {
               "indexed": true,
               "name": "account",
-              "type": "address"
+              "type": "address",
+              "internalType": "address"
             }
           ],
           "name": "MinterAdded",
@@ -2965,7 +2966,8 @@
             {
               "indexed": true,
               "name": "account",
-              "type": "address"
+              "type": "address",
+              "internalType": "address"
             }
           ],
           "name": "MinterRemoved",
@@ -2978,17 +2980,20 @@
             {
               "indexed": true,
               "name": "from",
-              "type": "address"
+              "type": "address",
+              "internalType": "address"
             },
             {
               "indexed": true,
               "name": "to",
-              "type": "address"
+              "type": "address",
+              "internalType": "address"
             },
             {
               "indexed": true,
               "name": "tokenId",
-              "type": "uint256"
+              "type": "uint256",
+              "internalType": "uint256"
             }
           ],
           "name": "Transfer",
@@ -3001,17 +3006,20 @@
             {
               "indexed": true,
               "name": "owner",
-              "type": "address"
+              "type": "address",
+              "internalType": "address"
             },
             {
               "indexed": true,
               "name": "approved",
-              "type": "address"
+              "type": "address",
+              "internalType": "address"
             },
             {
               "indexed": true,
               "name": "tokenId",
-              "type": "uint256"
+              "type": "uint256",
+              "internalType": "uint256"
             }
           ],
           "name": "Approval",
@@ -3024,17 +3032,20 @@
             {
               "indexed": true,
               "name": "owner",
-              "type": "address"
+              "type": "address",
+              "internalType": "address"
             },
             {
               "indexed": true,
               "name": "operator",
-              "type": "address"
+              "type": "address",
+              "internalType": "address"
             },
             {
               "indexed": false,
               "name": "approved",
-              "type": "bool"
+              "type": "bool",
+              "internalType": "bool"
             }
           ],
           "name": "ApprovalForAll",
@@ -3160,7 +3171,7 @@
     }
   },
   "schemaVersion": "3.0.19",
-  "updatedAt": "2020-01-02T10:04:18.760Z",
+  "updatedAt": "2020-01-04T17:05:18.018Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {
