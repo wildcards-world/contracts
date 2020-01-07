@@ -23,13 +23,6 @@
   "proxies": {
     "wildcards-contracts/WildcardSteward": [
       {
-        "address": "0xfC4753Af6946bE51aBCAFC21F2a10F9FA328949D",
-        "version": "0.1.0",
-        "implementation": "0x935AC70f8F1013A97F0aEEf9ABD1421002989D18",
-        "admin": "0x2D66278CF4d3537A7fD5842785570507996812b7",
-        "kind": "Upgradeable"
-      },
-      {
         "address": "0x6D47CF86F6A490c6410fC082Fd1Ad29CF61492d0",
         "version": "0.1.0",
         "implementation": "0x935AC70f8F1013A97F0aEEf9ABD1421002989D18",
@@ -38,13 +31,6 @@
       }
     ],
     "wildcards-contracts/ERC721Patronage": [
-      {
-        "address": "0x76bc15CA184FEF534292DA7A6043071CE94061fF",
-        "version": "0.1.0",
-        "implementation": "0xc69Ca939481A266fB42e383ae091212e37d56Af2",
-        "admin": "0x2D66278CF4d3537A7fD5842785570507996812b7",
-        "kind": "Upgradeable"
-      },
       {
         "address": "0x6aD0f855c97eb80665F2D0C7d8204895e052C373",
         "version": "0.1.0",
