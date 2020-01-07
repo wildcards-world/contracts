@@ -17,3 +17,7 @@ Steward (proxy): https://etherscan.io/address/0x6D47CF86F6A490c6410fC082Fd1Ad29C
 Token (proxy): https://etherscan.io/address/0x6aD0f855c97eb80665F2D0C7d8204895e052C373
 v0 steward: https://etherscan.io/address/0x929bbCcdAA014585666d1497aFb2D8D7c9dA38E5
 v0 token: https://etherscan.io/address/0x045fBb0c3A9c24B607fA0821757A3bb343181AA4
+Token URI fixer: https://goerli.etherscan.io/address/0x3ea1ecb8775a37fb797bb79f6c419176f15e35d4
+v1 steward: https://goerli.etherscan.io/address/0x935AC70f8F1013A97F0aEEf9ABD1421002989D18
+v1 token: https://goerli.etherscan.io/address/0xc69Ca939481A266fB42e383ae091212e37d56Af2
+
