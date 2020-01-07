@@ -17115,7 +17115,7 @@
                             "name": "this",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 7491,
+                            "referencedDeclaration": 7477,
                             "src": "14199:4:4",
                             "typeDescriptions": {
                               "typeIdentifier": "t_contract$_WildcardSteward_v0_$1653",
@@ -35131,7 +35131,7 @@
                             "name": "this",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 7491,
+                            "referencedDeclaration": 7477,
                             "src": "14199:4:4",
                             "typeDescriptions": {
                               "typeIdentifier": "t_contract$_WildcardSteward_v0_$1653",
@@ -37146,7 +37146,7 @@
     }
   },
   "schemaVersion": "3.0.19",
-  "updatedAt": "2020-01-02T09:57:22.960Z",
+  "updatedAt": "2020-01-04T16:44:32.740Z",
   "devdoc": {
     "methods": {}
   },
