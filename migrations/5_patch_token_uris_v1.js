@@ -43,7 +43,7 @@ module.exports = function(deployer, networkName, accounts) {
 
       uriFixer.updateTokenUri(
         1,
-        "https://ipfs.io/ipfs/QmWUh3RLNd4bR6Pf3YenXw9m9s1VKpqqSLWkDMo8gCyeMS",
+        "https://ipfs.io/ipfs/QmbbHEMaakEyPcxKmeJ1N87CVot9NhF2YePgcjsiPxZgX5",
         {
           from: accounts[0]
         }
