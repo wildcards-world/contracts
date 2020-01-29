@@ -146,7 +146,7 @@ const tokenData = [
       ipfs: "QmXGMcZPxVVsbiHngN5hb79wyVEEx3CT4j8HUivvqpHMMV",
       type: "Gorilla"
     },
-    patronageNumerator: 1200000000000,
+    patronageNumerator: 300000000000,
     id: 42,
     benefactor: "0xFA53ed45C13A2b86daA0074E7AdA739280635d19"
   }

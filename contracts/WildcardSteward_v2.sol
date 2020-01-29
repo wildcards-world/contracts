@@ -58,7 +58,7 @@ contract WildcardSteward_v2 is Initializable {
 
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
     event PriceChange(uint256 indexed tokenId, uint256 newPrice);
-    event Foreclosure(address indexed prevOwner);
+    event Foreclosure(address indexed prevOwner, uint254 foreclosureTime);
     event RemainingDepositUpdate(address indexed tokenPatron, uint256 remainingDeposit);
 
     event AddToken(uint256 indexed tokenId, uint256 patronageNumerator);
@@ -274,9 +274,9 @@ contract WildcardSteward_v2 is Initializable {
       depositWeiPatron(msg.sender);
     }
     function depositWeiPatron(address patron) public payable {
-        require(totalPatronOwnedTokenCost[patron] > 0, "No tokens owned");
-        deposit[patron] = deposit[patron].add(msg.value);
-        emit RemainingDepositUpdate(patron, deposit[patron]);
+      require(totalPatronOwnedTokenCost[patron] > 0, "No tokens owned");
+      deposit[patron] = deposit[patron].add(msg.value);
+      emit RemainingDepositUpdate(patron, deposit[patron]);
     }
 
     function buy(uint256 tokenId, uint256 _newPrice) public payable collectPatronage(tokenId) collectPatronageAddress(msg.sender) {
