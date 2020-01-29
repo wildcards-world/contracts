@@ -6,30 +6,42 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Me
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721MetadataMintable.sol";
 
 // import "./WildcardSteward_v1.sol";
-
-contract ERC721Patronage_v1 is Initializable, ERC721, ERC721Enumerable, ERC721Metadata, ERC721MetadataMintable {
+contract ERC721Patronage_v1 is
+    Initializable,
+    ERC721,
+    ERC721Enumerable,
+    ERC721Metadata,
+    ERC721MetadataMintable
+{
     address public steward;
 
-    function setup(address _steward, string memory name, string memory symbol, address minter) public initializer {
+    function setup(
+        address _steward,
+        string memory name,
+        string memory symbol,
+        address minter
+    ) public initializer {
         steward = _steward;
         ERC721.initialize();
         ERC721Enumerable.initialize();
         ERC721Metadata.initialize(name, symbol);
-                // Initialize the minter and pauser roles, and renounce them
+        // Initialize the minter and pauser roles, and renounce them
         ERC721MetadataMintable.initialize(address(this));
         _removeMinter(address(this));
         _addMinter(minter);
     }
 
-    function _isApprovedOrOwner(address spender, uint256 tokenId) internal view returns (bool) {
-        return (
-          spender == steward 
-          /*
+    function _isApprovedOrOwner(address spender, uint256 tokenId)
+        internal
+        view
+        returns (bool)
+    {
+        return (spender == steward);
+        /*
           // NOTE: temporarily disabling sending of the tokens independently. A protective messure since it isn't clear to users how this function should work.
           //       Will re-add once a mechanism is agreed on by the community.
           || ERC721._isApprovedOrOwner(spender, tokenId)
           */
-          );
     }
 
     // function transferFrom(address from, address to, uint256 tokenId) public {
@@ -47,4 +59,5 @@ contract ERC721Patronage_v1 is Initializable, ERC721, ERC721Enumerable, ERC721Me
 
     //     ERC721.transferFrom(from, to, tokenId);
     // }
+
 }
