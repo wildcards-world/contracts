@@ -1,10 +1,10 @@
 pragma solidity ^0.5.0;
 import "./ERC721Patronage_v1.sol";
-import "./ERC20PatronageReceipt_v1.sol";
+//import "./ERC20PatronageReceipt_v2.sol";
 import "./interfaces/IERC20Mintable.sol";
 
 contract WildcardSteward_v2 is Initializable {
-    /*
+    /*s
     This smart contract collects patronage from current owner through a Harberger tax model and 
     takes stewardship of the asset token if the patron can't pay anymore.
 
@@ -123,9 +123,10 @@ contract WildcardSteward_v2 is Initializable {
     ) public onlyAdmin {
         assert(tokens.length == _benefactors.length);
         for (uint8 i = 0; i < tokens.length; ++i) {
+            // This index is starting from 0? How do we ensure non conflicting index to already minted tokens?
             assert(_benefactors[i] != address(0));
             benefactors[tokens[i]] = _benefactors[i];
-            state[tokens[i]] = StewardState.Foreclosed;
+            state[tokens[i]] = StewardState.Foreclosed; // TODO: Maybe Implement reverse dutch auction on intial sale
             patronageNumerator[tokens[i]] = _patronageNumerator[i];
             tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i]; // TODO: set these for old tokens
             erc20Minter[tokens[i]] = IERC20Mintable(_receiptERC20[i]); // TODO: set for old tokens
@@ -140,6 +141,9 @@ contract WildcardSteward_v2 is Initializable {
         address oldBenfactor = benefactors[tokenId];
         benefactors[tokenId] = _newReceivingBenefactor;
         benefactorFunds[_newReceivingBenefactor] = benefactorFunds[oldBenfactor];
+        // Maybe we shouldn't also swap over the from old to new benefactor?
+        // What is the asset moves consistently changes benefactors as part of a campaign?
+        // When it ends we shold drain funds to the new address?
         benefactorFunds[oldBenfactor] = 0;
     }
 
@@ -262,74 +266,104 @@ contract WildcardSteward_v2 is Initializable {
     function _collectPatronage(uint256 tokenId) public {
         // determine patronage to pay
         if (state[tokenId] == StewardState.Owned) {
+            address currentOwner = currentPatron[tokenId];
             uint256 previousTokenCollection = timeLastCollected[tokenId];
             uint256 patronageOwedByTokenPatron = patronageOwedPatron(
-                currentPatron[tokenId]
+                currentOwner
             );
+
             uint256 collection;
             uint256 amountToMint;
-
             // should foreclose and stake stewardship
-            if (patronageOwedByTokenPatron >= deposit[currentPatron[tokenId]]) {
-                // up to when was it actually paid for?
-                uint256 newTimeLastCollected = timeLastCollectedPatron[currentPatron[tokenId]]
-                    .add(
-                    (
-                        (
-                            now.sub(
-                                timeLastCollectedPatron[currentPatron[tokenId]]
-                            )
-                        )
-                            .mul(deposit[currentPatron[tokenId]])
-                            .div(patronageOwedByTokenPatron)
-                    )
+            if (patronageOwedByTokenPatron >= deposit[currentOwner]) {
+                _foreclosurePatronageMint(
+                    tokenId,
+                    currentOwner,
+                    previousTokenCollection,
+                    patronageOwedByTokenPatron
                 );
 
-                timeLastCollected[tokenId] = newTimeLastCollected;
-                timeLastCollectedPatron[currentPatron[tokenId]] = newTimeLastCollected;
-                collection = price[tokenId]
-                    .mul(newTimeLastCollected.sub(previousTokenCollection))
-                    .mul(patronageNumerator[tokenId])
-                    .div(patronageDenominator)
-                    .div(365 days);
-                amountToMint = (
-                    newTimeLastCollected.sub(previousTokenCollection)
-                )
-                    .mul(tokenGenerationRate[tokenId]);
-
-                deposit[currentPatron[tokenId]] = 0;
-                _foreclose(tokenId);
             } else {
-                // just a normal collection
-                collection = price[tokenId]
-                    .mul(now.sub(previousTokenCollection))
-                    .mul(patronageNumerator[tokenId])
-                    .div(patronageDenominator)
-                    .div(365 days);
-                amountToMint = now.sub(timeLastCollected[tokenId]);
-                timeLastCollected[tokenId] = now;
-                timeLastCollectedPatron[currentPatron[tokenId]] = now;
-                currentCollected[tokenId] = currentCollected[tokenId].add(
-                    collection
+                (collection, amountToMint) = _PatronageMint(
+                    tokenId,
+                    currentOwner,
+                    previousTokenCollection,
+                    patronageOwedByTokenPatron
                 );
-                deposit[currentPatron[tokenId]] = deposit[currentPatron[tokenId]]
-                    .sub(patronageOwedByTokenPatron);
             }
             totalCollected[tokenId] = totalCollected[tokenId].add(collection);
             address benefactor = benefactors[tokenId];
             benefactorFunds[benefactor] = benefactorFunds[benefactor].add(
                 collection
             );
-            erc20Minter[tokenId].mint(currentPatron[tokenId], amountToMint);
-            // tokensGenerated[tokenId][currentPatron[tokenId]] = tokensGenerated[tokenId][currentPatron[tokenId]].add(amountToMint);
+            erc20Minter[tokenId].mint(currentOwner, amountToMint);
+            // if foreclosed, tokens are minted and sent to the steward since _foreclose is already called.
+            // tokensGenerated[tokenId][currentOwner] = tokensGenerated[tokenId][currentOwner].add(amountToMint);
             emit CollectPatronageAndRecordMinting(
                 tokenId,
-                currentPatron[tokenId],
-                deposit[currentPatron[tokenId]],
+                currentOwner, // Here _foreclose has also already been called so this will log the steward as the current patron?
+                deposit[currentOwner],
                 collection,
                 amountToMint
             );
         }
+    }
+
+    // Internal helper function to avoid reaching stack limit in original function
+    function _foreclosurePatronageMint(
+        uint256 tokenId,
+        address currentOwner,
+        uint256 previousTokenCollection,
+        uint256 patronageOwedByTokenPatron
+    ) internal returns (uint256 collection, uint256 amountToMint) {
+        // up to when was it actually paid for?
+        uint256 newTimeLastCollected = timeLastCollectedPatron[currentOwner]
+            .add(
+            (
+                (now.sub(timeLastCollectedPatron[currentOwner]))
+                    .mul(deposit[currentOwner])
+                    .div(patronageOwedByTokenPatron)
+            )
+        );
+
+        timeLastCollected[tokenId] = newTimeLastCollected;
+        timeLastCollectedPatron[currentOwner] = newTimeLastCollected;
+        collection = price[tokenId]
+            .mul(newTimeLastCollected.sub(previousTokenCollection))
+            .mul(patronageNumerator[tokenId])
+            .div(patronageDenominator)
+            .div(365 days);
+        amountToMint = (newTimeLastCollected.sub(previousTokenCollection)).mul(
+            tokenGenerationRate[tokenId]
+        );
+        deposit[currentOwner] = 0;
+        _foreclose(tokenId);
+
+    }
+
+    // Internal helper function to avoid reaching stack limit in original function
+    function _PatronageMint(
+        uint256 tokenId,
+        address currentOwner,
+        uint256 previousTokenCollection,
+        uint256 patronageOwedByTokenPatron
+    ) internal returns (uint256 collection, uint256 amountToMint) {
+        // just a normal collection
+        collection = price[tokenId]
+            .mul(now.sub(previousTokenCollection))
+            .mul(patronageNumerator[tokenId])
+            .div(patronageDenominator)
+            .div(365 days);
+        amountToMint = now.sub(timeLastCollected[tokenId]).mul(
+            tokenGenerationRate[tokenId]
+        );
+        timeLastCollected[tokenId] = now;
+        timeLastCollectedPatron[currentOwner] = now;
+        currentCollected[tokenId] = currentCollected[tokenId].add(collection);
+        deposit[currentOwner] = deposit[currentOwner].sub(
+            patronageOwedByTokenPatron
+        );
+
     }
 
     // This does accounting without transfering any tokens
