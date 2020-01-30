@@ -6,20 +6,14 @@ const {
   balance,
   time
 } = require("@openzeppelin/test-helpers");
+const {
+  waitTillBeginningOfSecond,
+  STEWARD_CONTRACT_NAME,
+  ERC721_CONTRACT_NAME
+} = require("./helpers");
 
-const Artwork = artifacts.require("./ERC721Patronage_v1.sol");
-const WildcardSteward = artifacts.require("./WildcardSteward_v1.sol");
-
-const delay = duration => new Promise(resolve => setTimeout(resolve, duration));
-
-// NOTE:: This was inspired by this question and the off by one second errors I was getting:
-//        https://ethereum.stackexchange.com/a/74558/4642
-const waitTillBeginningOfSecond = () =>
-  new Promise(resolve => {
-    const timeTilNextSecond = 1000 - new Date().getMilliseconds();
-
-    setTimeout(resolve, timeTilNextSecond - 1000);
-  });
+const Artwork = artifacts.require(ERC721_CONTRACT_NAME);
+const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
 
 // todo: test over/underflows
 
