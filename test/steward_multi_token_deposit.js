@@ -6,38 +6,17 @@ const {
   balance,
   time
 } = require("@openzeppelin/test-helpers");
+const {
+  multiPatronageCalculator,
+  waitTillBeginningOfSecond,
+  STEWARD_CONTRACT_NAME,
+  ERC721_CONTRACT_NAME
+} = require("./helpers");
 
-const Artwork = artifacts.require("./ERC721Patronage_v1.sol");
-const WildcardSteward = artifacts.require("./WildcardSteward_v1.sol");
-
-const delay = duration => new Promise(resolve => setTimeout(resolve, duration));
-
-// NOTE:: This was inspired by this question and the off by one second errors I was getting:
-// https://ethereum.stackexchange.com/a/74558/4642
-const waitTillBeginningOfSecond = () =>
-  new Promise(resolve => {
-    const timeTilNextSecond = 1000 - new Date().getMilliseconds();
-    setTimeout(resolve, timeTilNextSecond);
-  });
+const Artwork = artifacts.require(ERC721_CONTRACT_NAME);
+const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
 
 // todo: test over/underflows
-const NUM_SECONDS_IN_YEAR = "31536000";
-const PATRONAGE_DENOMINATOR = "1";
-
-const multiPatronageCalculator = (timeInSeconds, tokenArray) => {
-  const totalPatronage = tokenArray.reduce(
-    (totalPatronage, token) =>
-      totalPatronage.add(
-        new BN(token.price)
-          .mul(new BN(timeInSeconds))
-          .mul(new BN(token.patronageNumerator))
-          .div(new BN(PATRONAGE_DENOMINATOR))
-          .div(new BN(NUM_SECONDS_IN_YEAR))
-      ),
-    new BN("0")
-  );
-  return totalPatronage;
-};
 
 contract("WildcardSteward owed", accounts => {
   let artwork;

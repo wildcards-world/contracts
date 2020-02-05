@@ -5,7 +5,7 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Mint
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Burnable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Detailed.sol";
 
-contract ERC20PatronageReceipt_v1 is
+contract ERC20PatronageReceipt_v2 is
     ERC20,
     ERC20Mintable,
     ERC20Burnable,

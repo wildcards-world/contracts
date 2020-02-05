@@ -6,11 +6,10 @@ const {
   balance,
   time
 } = require("@openzeppelin/test-helpers");
+const { STEWARD_CONTRACT_NAME, ERC721_CONTRACT_NAME } = require("./helpers");
 
-const Artwork = artifacts.require("./ERC721Patronage_v1.sol");
-const WildcardSteward = artifacts.require("./WildcardSteward_v1.sol");
-
-const delay = duration => new Promise(resolve => setTimeout(resolve, duration));
+const Artwork = artifacts.require(ERC721_CONTRACT_NAME);
+const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
 
 contract("WildcardSteward", accounts => {
   let artwork;
