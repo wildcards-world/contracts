@@ -145,9 +145,6 @@ contract WildcardSteward_v2 is Initializable {
         address oldBenfactor = benefactors[tokenId];
         benefactors[tokenId] = _newReceivingBenefactor;
         benefactorFunds[_newReceivingBenefactor] = benefactorFunds[oldBenfactor];
-        // Maybe we shouldn't also swap over the from old to new benefactor?
-        // What is the asset moves consistently changes benefactors as part of a campaign?
-        // When it ends we shold drain funds to the new address?
         benefactorFunds[oldBenfactor] = 0;
     }
 
