@@ -6,21 +6,28 @@ const {
   balance,
   time
 } = require("@openzeppelin/test-helpers");
-const { STEWARD_CONTRACT_NAME, ERC721_CONTRACT_NAME } = require("./helpers");
+const {
+  STEWARD_CONTRACT_NAME,
+  ERC721_CONTRACT_NAME,
+  ERC20_CONTRACT_NAME
+} = require("./helpers");
 
 const Artwork = artifacts.require(ERC721_CONTRACT_NAME);
 const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
-
+const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
 contract("WildcardSteward", accounts => {
   let artwork;
   let steward;
+  let erc;
   const patronageDenominator = 1;
   const patronageNumerator = 12;
+  const tokenGenerationRate = 10; // should depend on token
   const testTokenURI = "test token uri";
 
   beforeEach(async () => {
     artwork = await Artwork.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
+    erc = await ERC20token.new({ from: accounts[0] });
     await artwork.setup(
       steward.address,
       "ALWAYSFORSALETestToken",
@@ -28,6 +35,7 @@ contract("WildcardSteward", accounts => {
       accounts[0],
       { from: accounts[0] }
     );
+
     await artwork.mintWithTokenURI(steward.address, 0, testTokenURI, {
       from: accounts[0]
     });
@@ -37,7 +45,13 @@ contract("WildcardSteward", accounts => {
       accounts[0],
       patronageDenominator
     );
-    await steward.listNewTokens([0], [accounts[0]], [patronageNumerator]);
+    await steward.listNewTokens(
+      [0],
+      [accounts[0]],
+      [patronageNumerator],
+      tokenGenerationRate,
+      erc.address
+    );
   });
 
   it("steward: init: artwork minted", async () => {
