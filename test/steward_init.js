@@ -27,7 +27,9 @@ contract("WildcardSteward", accounts => {
   beforeEach(async () => {
     artwork = await Artwork.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
-    erc = await ERC20token.new({ from: accounts[0] });
+    erc = await ERC20token.new({
+      from: accounts[0]
+    });
     await artwork.setup(
       steward.address,
       "ALWAYSFORSALETestToken",
@@ -35,6 +37,7 @@ contract("WildcardSteward", accounts => {
       accounts[0],
       { from: accounts[0] }
     );
+    await erc.initialize("Wildcards Test Token", "WTT", 18, steward.address);
 
     await artwork.mintWithTokenURI(steward.address, 0, testTokenURI, {
       from: accounts[0]
@@ -49,8 +52,8 @@ contract("WildcardSteward", accounts => {
       [0],
       [accounts[0]],
       [patronageNumerator],
-      tokenGenerationRate,
-      erc.address
+      [tokenGenerationRate],
+      [erc.address]
     );
   });
 
