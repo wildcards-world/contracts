@@ -10,11 +10,13 @@ const {
   multiPatronageCalculator,
   waitTillBeginningOfSecond,
   STEWARD_CONTRACT_NAME,
+  ERC20_CONTRACT_NAME,
   ERC721_CONTRACT_NAME
 } = require("./helpers");
 
 const Artwork = artifacts.require(ERC721_CONTRACT_NAME);
 const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
+const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
 
 const PATRONAGE_DENOMINATOR = "1";
 const patronageCalculator = multiPatronageCalculator(PATRONAGE_DENOMINATOR);
@@ -22,14 +24,19 @@ const patronageCalculator = multiPatronageCalculator(PATRONAGE_DENOMINATOR);
 contract("WildcardSteward owed", accounts => {
   let artwork;
   let steward;
+  let erc;
   const testTokenId1 = 1;
   const patronageNumerator = 12;
   const patronageDenominator = 1;
+  const tokenGenerationRate = 10; // should depend on token
   let testTokenURI = "test token uri";
 
   beforeEach(async () => {
     artwork = await Artwork.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
+    erc = await ERC20token.new({
+      from: accounts[0]
+    });
     await artwork.setup(
       steward.address,
       "ALWAYSFORSALETestToken",
@@ -37,6 +44,7 @@ contract("WildcardSteward owed", accounts => {
       accounts[0],
       { from: accounts[0] }
     );
+    await erc.initialize("Wildcards Test Token", "WTT", 18, steward.address);
     await artwork.mintWithTokenURI(steward.address, 1, testTokenURI, {
       from: accounts[0]
     });
@@ -46,7 +54,13 @@ contract("WildcardSteward owed", accounts => {
       accounts[0],
       patronageDenominator
     );
-    await steward.listNewTokens([1], [accounts[9]], [patronageNumerator]);
+    await steward.listNewTokens(
+      [1],
+      [accounts[9]],
+      [patronageNumerator],
+      [tokenGenerationRate],
+      [erc.address]
+    );
   });
 
   it("steward: admin-management. On admin change, check that only the admin can change the admin address. Also checking withdraw benfactor funds can be called", async () => {

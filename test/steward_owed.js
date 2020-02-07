@@ -9,21 +9,25 @@ const {
 const {
   waitTillBeginningOfSecond,
   STEWARD_CONTRACT_NAME,
+  ERC20_CONTRACT_NAME,
   ERC721_CONTRACT_NAME
 } = require("./helpers");
 
 const Artwork = artifacts.require(ERC721_CONTRACT_NAME);
 const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
+const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
 
 // todo: test over/underflows
 
 contract("WildcardSteward owed", accounts => {
   let artwork;
   let steward;
+  let erc;
   let testTokenURI = "test token uri";
   const testTokenId = 1;
   const patronageNumerator = 12;
   const patronageDenominator = 1;
+  const tokenGenerationRate = 10; // should depend on token
   // price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
   const tenMinPatronageAt1Eth = ether("1")
     .mul(new BN("600"))
@@ -34,6 +38,9 @@ contract("WildcardSteward owed", accounts => {
   beforeEach(async () => {
     artwork = await Artwork.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
+    erc = await ERC20token.new({
+      from: accounts[0]
+    });
     await artwork.setup(
       steward.address,
       "ALWAYSFORSALETestToken",
@@ -41,6 +48,7 @@ contract("WildcardSteward owed", accounts => {
       accounts[0],
       { from: accounts[0] }
     );
+    await erc.initialize("Wildcards Test Token", "WTT", 18, steward.address);
     await artwork.mintWithTokenURI(steward.address, 0, testTokenURI, {
       from: accounts[0]
     });
@@ -59,7 +67,9 @@ contract("WildcardSteward owed", accounts => {
     await steward.listNewTokens(
       [0, 1, 2],
       [accounts[0], accounts[0], accounts[0]],
-      [patronageNumerator, patronageNumerator, patronageNumerator]
+      [patronageNumerator, patronageNumerator, patronageNumerator],
+      [tokenGenerationRate, tokenGenerationRate, tokenGenerationRate],
+      [erc.address, erc.address, erc.address]
     );
   });
 
