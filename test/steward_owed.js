@@ -58,7 +58,7 @@ contract("WildcardSteward owed", accounts => {
     await artwork.mintWithTokenURI(steward.address, 2, testTokenURI, {
       from: accounts[0]
     });
-    // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
+    // TODO: use this to make the contract address of the token deterministic: https://ethereum.stackexchange.com/a/46960/4642
     await steward.initialize(
       artwork.address,
       accounts[0],
@@ -157,7 +157,11 @@ contract("WildcardSteward owed", accounts => {
     const totalCollected = await steward.totalCollected.call(1);
 
     const calcDeposit = ether("1").sub(owed.patronageDue);
+    // Should we have these in all of our test cases?
     expectEvent.inLogs(logs, "CollectPatronage", {
+      tokenId: testTokenId.toString(),
+      patron: accounts[2],
+      remainingDeposit: deposit,
       amountReceived: totalCollected
     });
     assert.equal(deposit.toString(), calcDeposit.toString());
@@ -216,7 +220,6 @@ contract("WildcardSteward owed", accounts => {
       from: accounts[2],
       value: tenMinPatronageAt1Eth
     });
-    const pred = await steward.deposit.call(accounts[2]);
 
     await time.increase(time.duration.minutes(10));
     const owed = await steward.patronageOwedWithTimestamp.call(1, {
@@ -239,7 +242,10 @@ contract("WildcardSteward owed", accounts => {
 
     const timeHeld = await steward.timeHeld.call(1, accounts[2]);
 
-    expectEvent.inLogs(logs, "Foreclosure", { prevOwner: accounts[2] });
+    expectEvent.inLogs(logs, "Foreclosure", {
+      prevOwner: accounts[2],
+      foreclosureTime: timeLastCollected
+    });
     assert.equal(timeHeld.toString(), time.duration.minutes(10).toString());
     assert.equal(currentOwner, steward.address);
     assert.equal(deposit.toString(), "0");
