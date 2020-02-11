@@ -62,6 +62,7 @@ contract WildcardSteward_v2 is Initializable {
         uint256 remainingDeposit
     );
 
+    // Add token generation rate to this event.
     event AddToken(uint256 indexed tokenId, uint256 patronageNumerator);
     // QUESTION: should these two events be combined into one? - they only ever happen at the same time.
     // event Collection(uint256 indexed tokenId, address indexed payedBy, uint256 collected);
@@ -70,7 +71,7 @@ contract WildcardSteward_v2 is Initializable {
         uint256 indexed tokenId,
         address indexed patron,
         uint256 remainingDeposit,
-        uint256 amountRecieved
+        uint256 amountReceived
     );
     // TODO add events for erc20 mints
     event CollectLoyalty(

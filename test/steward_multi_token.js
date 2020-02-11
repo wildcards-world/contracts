@@ -14,7 +14,7 @@ const {
   ERC721_CONTRACT_NAME
 } = require("./helpers");
 
-const Artwork = artifacts.require(ERC721_CONTRACT_NAME);
+const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
 const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
 const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
 
@@ -22,7 +22,7 @@ const PATRONAGE_DENOMINATOR = "1";
 const patronageCalculator = multiPatronageCalculator(PATRONAGE_DENOMINATOR);
 
 contract("WildcardSteward owed", accounts => {
-  let artwork;
+  let erc721;
   let steward;
   let erc;
   const patronageNumerator = 12;
@@ -35,12 +35,12 @@ contract("WildcardSteward owed", accounts => {
   let testTokenURI = "test token uri";
 
   beforeEach(async () => {
-    artwork = await Artwork.new({ from: accounts[0] });
+    erc721 = await ERC721token.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
     erc = await ERC20token.new({
       from: accounts[0]
     });
-    await artwork.setup(
+    await erc721.setup(
       steward.address,
       "ALWAYSFORSALETestToken",
       "AFSTT",
@@ -48,21 +48,17 @@ contract("WildcardSteward owed", accounts => {
       { from: accounts[0] }
     );
     await erc.initialize("Wildcards Test Token", "WTT", 18, steward.address);
-    await artwork.mintWithTokenURI(steward.address, 0, testTokenURI, {
+    await erc721.mintWithTokenURI(steward.address, 0, testTokenURI, {
       from: accounts[0]
     });
-    await artwork.mintWithTokenURI(steward.address, 1, testTokenURI, {
+    await erc721.mintWithTokenURI(steward.address, 1, testTokenURI, {
       from: accounts[0]
     });
-    await artwork.mintWithTokenURI(steward.address, 2, testTokenURI, {
+    await erc721.mintWithTokenURI(steward.address, 2, testTokenURI, {
       from: accounts[0]
     });
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(
-      artwork.address,
-      accounts[0],
-      patronageDenominator
-    );
+    await steward.initialize(erc721.address, accounts[0], patronageDenominator);
     await steward.listNewTokens(
       [0, testTokenId1, testTokenId2],
       [accounts[0], accounts[0], accounts[0]],
@@ -146,6 +142,7 @@ contract("WildcardSteward owed", accounts => {
   // buy 2 tokens, with prices of 1 ether and 2 ether.
   it("steward: multi-token. check patronage of two tokens owed by the same patron after 10 minutes one of the tokens gets bought.", async () => {
     await waitTillBeginningOfSecond();
+    console.log("poopbegin");
     await steward.buy(testTokenId1, web3.utils.toWei("1", "ether"), {
       from: accounts[2],
       value: web3.utils.toWei("1", "ether")
@@ -154,6 +151,7 @@ contract("WildcardSteward owed", accounts => {
       from: accounts[2],
       value: web3.utils.toWei("0.1", "ether")
     });
+    console.log("poopafter");
 
     await time.increase(time.duration.minutes(10));
     // What the blockchain calculates
@@ -193,7 +191,6 @@ contract("WildcardSteward owed", accounts => {
         price: priceOfToken2.toString()
       }
     ]);
-
     // Token 1 bought
     await steward.buy(testTokenId1, ether("0.1"), {
       from: accounts[3],

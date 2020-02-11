@@ -12,54 +12,49 @@ const {
   ERC20_CONTRACT_NAME
 } = require("./helpers");
 
-const Artwork = artifacts.require(ERC721_CONTRACT_NAME);
+const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
 const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
 const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
 contract("WildcardSteward", accounts => {
-  let artwork;
+  let erc721;
   let steward;
-  let erc;
+  let erc20;
   const patronageDenominator = 1;
   const patronageNumerator = 12;
   const tokenGenerationRate = 10; // should depend on token
   const testTokenURI = "test token uri";
 
   beforeEach(async () => {
-    artwork = await Artwork.new({ from: accounts[0] });
+    erc721 = await ERC721token.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
-    erc = await ERC20token.new({
+    erc20 = await ERC20token.new({
       from: accounts[0]
     });
-    await artwork.setup(
+    await erc721.setup(
       steward.address,
       "ALWAYSFORSALETestToken",
       "AFSTT",
       accounts[0],
       { from: accounts[0] }
     );
-    await erc.initialize("Wildcards Test Token", "WTT", 18, steward.address);
-
-    await artwork.mintWithTokenURI(steward.address, 0, testTokenURI, {
+    await erc20.initialize("Wildcards Test Token", "WTT", 18, steward.address);
+    await erc721.mintWithTokenURI(steward.address, 0, testTokenURI, {
       from: accounts[0]
     });
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(
-      artwork.address,
-      accounts[0],
-      patronageDenominator
-    );
+    await steward.initialize(erc721.address, accounts[0], patronageDenominator);
     await steward.listNewTokens(
       [0],
       [accounts[0]],
       [patronageNumerator],
       [tokenGenerationRate],
-      [erc.address]
+      [erc20.address]
     );
   });
 
-  it("steward: init: artwork minted", async () => {
-    const currentOwner = await artwork.ownerOf.call(0);
-    const uri = await artwork.tokenURI(0);
+  it("steward: init: erc721 minted", async () => {
+    const currentOwner = await erc721.ownerOf.call(0);
+    const uri = await erc721.tokenURI(0);
     assert.equal(uri, testTokenURI);
     assert.equal(steward.address, currentOwner);
   });
