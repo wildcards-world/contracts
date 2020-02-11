@@ -37,7 +37,12 @@ contract("WildcardSteward", accounts => {
       accounts[0],
       { from: accounts[0] }
     );
-    await erc20.initialize("Wildcards Test Token", "WTT", 18, steward.address);
+    await erc20.initialize(
+      "Wildcards Loyalty Token",
+      "WLT",
+      18,
+      steward.address
+    );
     await erc721.mintWithTokenURI(steward.address, 0, testTokenURI, {
       from: accounts[0]
     });
@@ -59,8 +64,9 @@ contract("WildcardSteward", accounts => {
     assert.equal(steward.address, currentOwner);
   });
 
-  // TODO: add a check that patrons can't add deposit when they don't own any tokens. Is that needed?
-  it("steward: init: deposit wei fail [foreclosed]", async () => {
+  // Can they still add deposit if it is foreclose? Since they only technically lose ownership on the
+  // next collect patronage event?
+  it("steward: init: deposit wei fail [foreclosed or don't own any tokens]", async () => {
     await expectRevert(
       steward.depositWei({
         from: accounts[2],

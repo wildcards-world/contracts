@@ -14,7 +14,7 @@ const {
   ERC721_CONTRACT_NAME
 } = require("./helpers");
 
-const Artwork = artifacts.require(ERC721_CONTRACT_NAME);
+const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
 const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
 const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
 
@@ -22,9 +22,9 @@ const PATRONAGE_DENOMINATOR = "1";
 const patronageCalculator = multiPatronageCalculator(PATRONAGE_DENOMINATOR);
 
 contract("WildcardSteward owed", accounts => {
-  let artwork;
+  let erc721;
   let steward;
-  let erc;
+  let erc20;
   const testTokenId1 = 1;
   const patronageNumerator = 12;
   const patronageDenominator = 1;
@@ -32,38 +32,39 @@ contract("WildcardSteward owed", accounts => {
   let testTokenURI = "test token uri";
 
   beforeEach(async () => {
-    artwork = await Artwork.new({ from: accounts[0] });
+    erc721 = await ERC721token.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
-    erc = await ERC20token.new({
+    erc20 = await ERC20token.new({
       from: accounts[0]
     });
-    await artwork.setup(
+    await erc721.setup(
       steward.address,
       "ALWAYSFORSALETestToken",
       "AFSTT",
       accounts[0],
       { from: accounts[0] }
     );
-    await erc.initialize("Wildcards Test Token", "WTT", 18, steward.address);
-    await artwork.mintWithTokenURI(steward.address, 1, testTokenURI, {
+    await erc20.initialize(
+      "Wildcards Loyalty Token",
+      "WLT",
+      18,
+      steward.address
+    );
+    await erc721.mintWithTokenURI(steward.address, 1, testTokenURI, {
       from: accounts[0]
     });
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(
-      artwork.address,
-      accounts[0],
-      patronageDenominator
-    );
+    await steward.initialize(erc721.address, accounts[0], patronageDenominator);
     await steward.listNewTokens(
       [1],
       [accounts[9]],
       [patronageNumerator],
       [tokenGenerationRate],
-      [erc.address]
+      [erc20.address]
     );
   });
 
-  it("steward: admin-management. On admin change, check that only the admin can change the admin address. Also checking withdraw benfactor funds can be called", async () => {
+  it("steward: admin-change. On admin change, check that only the admin can change the admin address. Also checking withdraw benfactor funds can be called", async () => {
     await waitTillBeginningOfSecond();
 
     //Buy a token

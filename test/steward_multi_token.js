@@ -24,9 +24,8 @@ const patronageCalculator = multiPatronageCalculator(PATRONAGE_DENOMINATOR);
 contract("WildcardSteward owed", accounts => {
   let erc721;
   let steward;
-  let erc;
+  let erc20;
   const patronageNumerator = 12;
-  const patronageDenominator = 1;
   const tokenGenerationRate = 10; // should depend on token
   const testToken1 = { id: 1, patronageNumerator: 12 };
   const testToken2 = { id: 2, patronageNumerator: 12 };
@@ -37,7 +36,7 @@ contract("WildcardSteward owed", accounts => {
   beforeEach(async () => {
     erc721 = await ERC721token.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
-    erc = await ERC20token.new({
+    erc20 = await ERC20token.new({
       from: accounts[0]
     });
     await erc721.setup(
@@ -47,7 +46,12 @@ contract("WildcardSteward owed", accounts => {
       accounts[0],
       { from: accounts[0] }
     );
-    await erc.initialize("Wildcards Test Token", "WTT", 18, steward.address);
+    await erc20.initialize(
+      "Wildcards Loyalty Token",
+      "WLT",
+      18,
+      steward.address
+    );
     await erc721.mintWithTokenURI(steward.address, 0, testTokenURI, {
       from: accounts[0]
     });
@@ -58,7 +62,11 @@ contract("WildcardSteward owed", accounts => {
       from: accounts[0]
     });
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(erc721.address, accounts[0], patronageDenominator);
+    await steward.initialize(
+      erc721.address,
+      accounts[0],
+      PATRONAGE_DENOMINATOR
+    );
     await steward.listNewTokens(
       [0, testTokenId1, testTokenId2],
       [accounts[0], accounts[0], accounts[0]],
@@ -68,7 +76,7 @@ contract("WildcardSteward owed", accounts => {
         testToken2.patronageNumerator
       ],
       [tokenGenerationRate, tokenGenerationRate, tokenGenerationRate],
-      [erc.address, erc.address, erc.address]
+      [erc20.address, erc20.address, erc20.address]
     );
   });
 
@@ -142,7 +150,6 @@ contract("WildcardSteward owed", accounts => {
   // buy 2 tokens, with prices of 1 ether and 2 ether.
   it("steward: multi-token. check patronage of two tokens owed by the same patron after 10 minutes one of the tokens gets bought.", async () => {
     await waitTillBeginningOfSecond();
-    console.log("poopbegin");
     await steward.buy(testTokenId1, web3.utils.toWei("1", "ether"), {
       from: accounts[2],
       value: web3.utils.toWei("1", "ether")
@@ -151,7 +158,6 @@ contract("WildcardSteward owed", accounts => {
       from: accounts[2],
       value: web3.utils.toWei("0.1", "ether")
     });
-    console.log("poopafter");
 
     await time.increase(time.duration.minutes(10));
     // What the blockchain calculates
