@@ -73,7 +73,7 @@ contract("WildcardSteward owed", accounts => {
     );
   });
 
-  it("steward: owned. transfer without steward (fail)", async () => {
+  it("steward: owed. transfer without steward (fail)", async () => {
     await steward.buy(1, web3.utils.toWei("1", "ether"), {
       from: accounts[2],
       value: web3.utils.toWei("1", "ether")
@@ -83,7 +83,7 @@ contract("WildcardSteward owed", accounts => {
     );
   });
 
-  it("steward: owned. check patronage owed after 1 second.", async () => {
+  it("steward: owed. check patronage owed after 1 second.", async () => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, web3.utils.toWei("1", "ether"), {
       from: accounts[2],
@@ -107,7 +107,7 @@ contract("WildcardSteward owed", accounts => {
     assert.equal(owed.patronageDue.toString(), due.toString());
   });
 
-  it("steward: owned. check patronage owed after 1 year.", async () => {
+  it("steward: owed. check patronage owed after 1 year.", async () => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, web3.utils.toWei("1", "ether"), {
       from: accounts[2],
@@ -132,7 +132,7 @@ contract("WildcardSteward owed", accounts => {
     assert.equal(owed.patronageDue.toString(), "12000000000000000000"); // 5% over 365 days.
   });
 
-  it("steward: owned. collect patronage successfully after 10 minutes.", async () => {
+  it("steward: owed. collect patronage successfully after 10 minutes.", async () => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, web3.utils.toWei("1", "ether"), {
       from: accounts[2],
@@ -171,7 +171,7 @@ contract("WildcardSteward owed", accounts => {
     assert.equal(totalCollected.toString(), owed.patronageDue.toString());
   });
 
-  it("steward: owned. collect patronage successfully after 10min and again after 10min.", async () => {
+  it("steward: owed. collect patronage successfully after 10min and again after 10min.", async () => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, web3.utils.toWei("1", "ether"), {
       from: accounts[2],
@@ -213,7 +213,7 @@ contract("WildcardSteward owed", accounts => {
     );
   });
 
-  it("steward: owned. collect patronage that forecloses precisely after 10min.", async () => {
+  it("steward: owed. collect patronage that forecloses precisely after 10min.", async () => {
     await waitTillBeginningOfSecond();
     // 10min of patronage
     await steward.buy(1, ether("1"), {
@@ -266,7 +266,7 @@ contract("WildcardSteward owed", accounts => {
     assert.equal(state.toString(), "0"); // foreclosed state
   });
 
-  it("steward: owned. Deposit zero after 10min of patronage (after 10min) [success].", async () => {
+  it("steward: owed. Deposit zero after 10min of patronage (after 10min) [success].", async () => {
     await waitTillBeginningOfSecond();
     // 10min of patronage
     await steward.buy(1, ether("1"), {
@@ -284,7 +284,7 @@ contract("WildcardSteward owed", accounts => {
     assert.equal(availableToWithdraw.toString(), "0");
   });
 
-  it("steward: owned. Foreclose Time is 10min into future on 10min patronage deposit [success].", async () => {
+  it("steward: owed. Foreclose Time is 10min into future on 10min patronage deposit [success].", async () => {
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
     await steward.buy(1, ether("1"), { from: accounts[2], value: totalToBuy });
@@ -295,7 +295,7 @@ contract("WildcardSteward owed", accounts => {
     assert.equal(forecloseTime.toString(), finalTime.toString());
   });
 
-  it("steward: owned. buy from person that forecloses precisely after 10min.", async () => {
+  it("steward: owed. buy from person that forecloses precisely after 10min.", async () => {
     await waitTillBeginningOfSecond();
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
@@ -350,7 +350,7 @@ contract("WildcardSteward owed", accounts => {
     assert.equal(state.toString(), "1"); // owned state
   });
 
-  it("steward: owned. collect patronage by benefactor after 10min. [ @skip-on-coverage ]", async () => {
+  it("steward: owed. collect patronage by benefactor after 10min. [ @skip-on-coverage ]", async () => {
     await waitTillBeginningOfSecond();
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
@@ -377,7 +377,7 @@ contract("WildcardSteward owed", accounts => {
     assert.equal(delta.toString(), calcDiff.toString());
   });
 
-  it("steward: owned. collect patronage. 10min deposit. 20min Foreclose.", async () => {
+  it("steward: owed. collect patronage. 10min deposit. 20min Foreclose.", async () => {
     await waitTillBeginningOfSecond();
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
@@ -431,7 +431,7 @@ contract("WildcardSteward owed", accounts => {
     assert.equal(state.toString(), "0"); // foreclosed state
   });
 
-  it("steward: owned. deposit wei success from many accounts", async () => {
+  it("steward: owed. deposit wei success from many accounts", async () => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, ether("1"), { from: accounts[2], value: ether("2") });
     await steward.depositWei({ from: accounts[2], value: ether("1") });
@@ -443,7 +443,7 @@ contract("WildcardSteward owed", accounts => {
     assert.equal(deposit.toString(), ether("4").toString());
   });
 
-  it("steward: owned. change price to zero [fail]", async () => {
+  it("steward: owed. change price to zero [fail]", async () => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, ether("1"), { from: accounts[2], value: ether("2") });
     await expectRevert(
@@ -452,7 +452,7 @@ contract("WildcardSteward owed", accounts => {
     );
   });
 
-  it("steward: owned. change price to more [success]", async () => {
+  it("steward: owed. change price to more [success]", async () => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, ether("1"), { from: accounts[2], value: ether("2") });
     const { logs } = await steward.changePrice(testTokenId, ether("3"), {
@@ -463,7 +463,7 @@ contract("WildcardSteward owed", accounts => {
     assert.equal(ether("3").toString(), postPrice.toString());
   });
 
-  it("steward: owned. change price to less [success]", async () => {
+  it("steward: owed. change price to less [success]", async () => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, ether("1"), { from: accounts[2], value: ether("2") });
     await steward.changePrice(testTokenId, ether("0.5"), { from: accounts[2] });
@@ -471,7 +471,7 @@ contract("WildcardSteward owed", accounts => {
     assert.equal(ether("0.5").toString(), postPrice.toString());
   });
 
-  it("steward: owned. change price to less with another account [fail]", async () => {
+  it("steward: owed. change price to less with another account [fail]", async () => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, ether("1"), { from: accounts[2], value: ether("2") });
     await expectRevert(
@@ -480,7 +480,7 @@ contract("WildcardSteward owed", accounts => {
     );
   });
 
-  it("steward: owned. withdraw whole deposit into foreclosure [succeed]", async () => {
+  it("steward: owed. withdraw whole deposit into foreclosure [succeed]", async () => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, ether("1"), { from: accounts[2], value: ether("2") });
     const deposit = await steward.deposit.call(accounts[2]);
@@ -491,7 +491,7 @@ contract("WildcardSteward owed", accounts => {
     assert(foreclosedPatron);
   });
 
-  it("steward: owned. withdraw whole deposit through exit into foreclosure after 10min [succeed]", async () => {
+  it("steward: owed. withdraw whole deposit through exit into foreclosure after 10min [succeed]", async () => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, ether("1"), { from: accounts[2], value: ether("2") });
     await time.increase(time.duration.minutes(10));
@@ -502,7 +502,7 @@ contract("WildcardSteward owed", accounts => {
     assert(foreclosedPatron);
   });
 
-  it("steward: owned. withdraw some deposit [succeeds]", async () => {
+  it("steward: owed. withdraw some deposit [succeeds]", async () => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, ether("1"), { from: accounts[2], value: ether("2") });
     await steward.withdrawDeposit(ether("1"), { from: accounts[2] });
@@ -510,7 +510,7 @@ contract("WildcardSteward owed", accounts => {
     assert.equal(deposit.toString(), ether("1").toString());
   });
 
-  it("steward: owned. withdraw more than exists [fail]", async () => {
+  it("steward: owed. withdraw more than exists [fail]", async () => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, ether("1"), { from: accounts[2], value: ether("2") });
     await expectRevert(
@@ -526,7 +526,7 @@ contract("WildcardSteward owed", accounts => {
   //   await expectRevert(steward.withdrawDeposit(ether('1'), { from: accounts[3] }), "Not patron");
   // });
 
-  it("steward: bought once, bought again from same account [success]", async () => {
+  it("steward: owed. Bought once, bought again from same account [success]", async () => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, ether("1"), { from: accounts[2], value: ether("2") });
     const deposit = await steward.deposit.call(accounts[2]);
@@ -548,7 +548,7 @@ contract("WildcardSteward owed", accounts => {
     assert.equal(currentOwner2, accounts[2]);
   });
 
-  it("steward: bought once, bought again from another account [success]", async () => {
+  it("steward: owed. Bought once, bought again from another account [success]", async () => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, ether("1"), { from: accounts[2], value: ether("2") });
     const deposit = await steward.deposit.call(accounts[2]);
@@ -570,7 +570,7 @@ contract("WildcardSteward owed", accounts => {
     assert.equal(currentOwner2, accounts[3]);
   });
 
-  it("steward: bought once, bought again from another account after 10min [success] [ @skip-on-coverage ]", async () => {
+  it("steward: owed. Bought once, bought again from another account after 10min [success] [ @skip-on-coverage ]", async () => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, ether("1"), { from: accounts[2], value: ether("2") });
     const deposit = await steward.deposit.call(accounts[2]);
@@ -609,7 +609,7 @@ contract("WildcardSteward owed", accounts => {
     assert.equal(currentOwner2, accounts[3]);
   });
 
-  it("steward: owned: deposit wei, change price, withdrawing deposit in foreclosure state [fail]", async () => {
+  it("steward: owed: deposit wei, change price, withdrawing deposit in foreclosure state [fail]", async () => {
     await waitTillBeginningOfSecond();
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
@@ -627,7 +627,7 @@ contract("WildcardSteward owed", accounts => {
     );
   });
 
-  it("steward: owned: goes into foreclosure state & bought from another account [success]", async () => {
+  it("steward: owed: goes into foreclosure state & bought from another account [success]", async () => {
     await waitTillBeginningOfSecond();
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
@@ -659,7 +659,7 @@ contract("WildcardSteward owed", accounts => {
     assert.isTrue(wasPatron2);
   });
 
-  it("steward: owned: goes into foreclosure state & bought from same account [success]", async () => {
+  it("steward: owed: goes into foreclosure state & bought from same account [success]", async () => {
     await waitTillBeginningOfSecond();
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
