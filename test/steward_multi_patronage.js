@@ -11,12 +11,14 @@ const {
   waitTillBeginningOfSecond,
   STEWARD_CONTRACT_NAME,
   ERC20_CONTRACT_NAME,
-  ERC721_CONTRACT_NAME
+  ERC721_CONTRACT_NAME,
+  MINT_MANAGER_CONTRACT_NAME
 } = require("./helpers");
 
 const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
 const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
 const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
+const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
 
 // todo: test over/underflows
 const PATRONAGE_DENOMINATOR = "1";
@@ -34,7 +36,11 @@ contract("WildcardSteward owed", accounts => {
   beforeEach(async () => {
     erc721 = await ERC721token.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
+    mintManager = await MintManager.new({ from: accounts[0] });
     erc20 = await ERC20token.new({
+      from: accounts[0]
+    });
+    await mintManager.initialize(accounts[0], steward.address, erc20.address, {
       from: accounts[0]
     });
     await erc721.setup(
@@ -48,7 +54,7 @@ contract("WildcardSteward owed", accounts => {
       "Wildcards Loyalty Token",
       "WLT",
       18,
-      steward.address
+      mintManager.address
     );
     //await erc721.mintWithTokenURI(steward.address, testToken0.id, testTokenURI, { from: accounts[0] })
     await erc721.mintWithTokenURI(
@@ -73,8 +79,7 @@ contract("WildcardSteward owed", accounts => {
       [testToken1.id, testToken2.id],
       [accounts[8], accounts[9]],
       [testToken1.patronageNumerator, testToken2.patronageNumerator],
-      [tokenGenerationRate, tokenGenerationRate],
-      [erc20.address, erc20.address]
+      [tokenGenerationRate, tokenGenerationRate]
     );
   });
 

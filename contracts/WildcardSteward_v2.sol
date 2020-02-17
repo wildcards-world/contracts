@@ -159,7 +159,7 @@ contract WildcardSteward_v2 is Initializable {
     }
 
     function setMintManager(address _mintManager) public {
-        require(_mintManager == address(0)); // This can only be called once!
+        require(address(mintManager) == address(0)); // This can only be called once!
         mintManager = MintManager_v2(_mintManager);
     }
 

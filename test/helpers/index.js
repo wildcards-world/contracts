@@ -5,6 +5,7 @@ const NUM_SECONDS_IN_YEAR = "31536000";
 const STEWARD_CONTRACT_NAME = "./WildcardSteward_v2.sol";
 const ERC721_CONTRACT_NAME = "./ERC721Patronage_v1.sol";
 const ERC20_CONTRACT_NAME = "./ERC20PatronageReceipt_v2.sol";
+const MINT_MANAGER_CONTRACT_NAME = "./MintManager_v2.sol";
 // NOTE:: This was inspired by this question and the off by one second errors I was getting:
 // https://ethereum.stackexchange.com/a/74558/4642
 const waitTillBeginningOfSecond = () =>
@@ -17,6 +18,7 @@ module.exports = {
   STEWARD_CONTRACT_NAME,
   ERC721_CONTRACT_NAME,
   ERC20_CONTRACT_NAME,
+  MINT_MANAGER_CONTRACT_NAME,
   waitTillBeginningOfSecond,
 
   //patronage per token = price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
