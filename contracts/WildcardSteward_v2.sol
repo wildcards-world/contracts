@@ -1,7 +1,6 @@
-pragma solidity ^0.5.0;
+pragma solidity 0.5.16;
 import "./ERC721Patronage_v1.sol";
-//import "./ERC20PatronageReceipt_v2.sol";
-import "./interfaces/IERC20Mintable.sol";
+import "./MintManager_v2.sol";
 
 contract WildcardSteward_v2 is Initializable {
     /*s
@@ -49,7 +48,7 @@ contract WildcardSteward_v2 is Initializable {
 
     // These are for every NFT, the erc20 contract we are poiting too.
     // Note that the steward needs to have permission to call the mint function on the erc20
-    mapping(uint256 => IERC20Mintable) public erc20Minter; // set our erc20 token as default
+    MintManager_v2 public mintManager; // set our erc20 token as default
 
     // NOTE: This isn't really needed, and it can be calculated from the "timeHeld". Removed for now (or forever)
     // mapping(uint256 => mapping (address => uint256)) public tokensGenerated;
@@ -63,7 +62,11 @@ contract WildcardSteward_v2 is Initializable {
     );
 
     // Add token generation rate to this event.
-    event AddToken(uint256 indexed tokenId, uint256 patronageNumerator);
+    event AddToken(
+        uint256 indexed tokenId,
+        uint256 patronageNumerator,
+        uint256 tokenGenerationRate
+    );
     // QUESTION: should these two events be combined into one? - they only ever happen at the same time.
     // event Collection(uint256 indexed tokenId, address indexed payedBy, uint256 collected);
     // event ERC20Minted(uint256 indexed tokenId, address indexed reciever, uint256 amount);
@@ -123,20 +126,41 @@ contract WildcardSteward_v2 is Initializable {
         uint256[] memory tokens,
         address payable[] memory _benefactors,
         uint256[] memory _patronageNumerator,
-        uint256[] memory _tokenGenerationRate,
-        address[] memory _receiptERC20
+        uint256[] memory _tokenGenerationRate
     ) public onlyAdmin {
         assert(tokens.length == _benefactors.length);
+        assert(tokens.length == _patronageNumerator.length);
+        assert(tokens.length == _tokenGenerationRate.length);
+
         for (uint8 i = 0; i < tokens.length; ++i) {
-            // This index is starting from 0? How do we ensure non conflicting index to already minted tokens?
             assert(_benefactors[i] != address(0));
             benefactors[tokens[i]] = _benefactors[i];
             state[tokens[i]] = StewardState.Foreclosed; // TODO: Maybe Implement reverse dutch auction on intial sale
             patronageNumerator[tokens[i]] = _patronageNumerator[i];
-            tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i]; // TODO: set these for old tokens
-            erc20Minter[tokens[i]] = IERC20Mintable(_receiptERC20[i]); // TODO: set for old tokens
-            emit AddToken(tokens[i], _patronageNumerator[i]);
+            tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i];
+            emit AddToken(
+                tokens[i],
+                _patronageNumerator[i],
+                _tokenGenerationRate[i]
+            );
         }
+    }
+
+    function addTokenGenerationRateToExistingTokens(
+        uint256[] memory tokens,
+        uint256[] memory _tokenGenerationRate
+    ) public onlyAdmin {
+        assert(tokens.length == _tokenGenerationRate.length);
+        for (uint8 i = 0; i < tokens.length; ++i) {
+            assert(tokenGenerationRate[tokens[i]] == 0);
+
+            tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i];
+        }
+    }
+
+    function setMintManager(address _mintManager) public {
+        require(_mintManager == address(0)); // This can only be called once!
+        mintManager = MintManager_v2(_mintManager);
     }
 
     function changeReceivingBenefactor(
@@ -153,14 +177,14 @@ contract WildcardSteward_v2 is Initializable {
         admin = _admin;
     }
 
-    // This function will change which token is being minted from loyalty.
-    function changeERC20(uint256 tokenId, address _newERC)
-        public
-        onlyAdmin
-        collectPatronage(tokenId)
-    {
-        erc20Minter[tokenId] = IERC20Mintable(_newERC);
-    }
+    // // This function will change which token is being minted from loyalty.
+    // function changeERC20(uint256 tokenId, address _newERC)
+    //     public
+    //     onlyAdmin
+    //     collectPatronage(tokenId)
+    // {
+    //     erc20Minter[tokenId] = IERC20Mintable(_newERC);
+    // }
 
     /* public view functions */
     function patronageOwed(uint256 tokenId)
@@ -267,7 +291,7 @@ contract WildcardSteward_v2 is Initializable {
         address currentOwner = currentPatron[tokenId];
         uint256 previousTokenCollection = timeLastCollected[tokenId];
         uint256 patronageOwedByTokenPatron = patronageOwedPatron(currentOwner);
-        uint256 amountToMint;
+        uint256 timeSinceLastMint;
 
         if (patronageOwedByTokenPatron >= deposit[currentOwner]) {
             uint256 newTimeLastCollected = timeLastCollectedPatron[currentOwner]
@@ -278,16 +302,19 @@ contract WildcardSteward_v2 is Initializable {
                         .div(patronageOwedByTokenPatron)
                 )
             );
-            amountToMint = (newTimeLastCollected.sub(previousTokenCollection))
-                .mul(tokenGenerationRate[tokenId]);
-        } else {
-            amountToMint = now.sub(timeLastCollected[tokenId]).mul(
-                tokenGenerationRate[tokenId]
+            timeSinceLastMint = (
+                newTimeLastCollected.sub(previousTokenCollection)
             );
+        } else {
+            timeSinceLastMint = now.sub(timeLastCollected[tokenId]);
 
         }
-        erc20Minter[tokenId].mint(currentOwner, amountToMint);
-        emit CollectLoyalty(tokenId, currentOwner, amountToMint);
+        mintManager.tokenMint(
+            currentOwner,
+            timeSinceLastMint,
+            tokenGenerationRate[tokenId]
+        );
+        emit CollectLoyalty(tokenId, currentOwner, timeSinceLastMint);
     }
     /* actions */
     // TODO:: think of more efficient ways for recipients to collect patronage for lots of tokens at the same time.
