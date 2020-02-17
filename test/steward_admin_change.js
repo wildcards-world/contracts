@@ -11,12 +11,14 @@ const {
   waitTillBeginningOfSecond,
   STEWARD_CONTRACT_NAME,
   ERC20_CONTRACT_NAME,
-  ERC721_CONTRACT_NAME
+  ERC721_CONTRACT_NAME,
+  MINT_MANAGER_CONTRACT_NAME
 } = require("./helpers");
 
 const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
 const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
 const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
+const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
 
 const PATRONAGE_DENOMINATOR = "1";
 const patronageCalculator = multiPatronageCalculator(PATRONAGE_DENOMINATOR);
@@ -34,7 +36,11 @@ contract("WildcardSteward owed", accounts => {
   beforeEach(async () => {
     erc721 = await ERC721token.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
+    mintManager = await MintManager.new({ from: accounts[0] });
     erc20 = await ERC20token.new({
+      from: accounts[0]
+    });
+    await mintManager.initialize(accounts[0], steward.address, erc20.address, {
       from: accounts[0]
     });
     await erc721.setup(
@@ -48,19 +54,19 @@ contract("WildcardSteward owed", accounts => {
       "Wildcards Loyalty Token",
       "WLT",
       18,
-      steward.address
+      mintManager.address
     );
     await erc721.mintWithTokenURI(steward.address, 1, testTokenURI, {
       from: accounts[0]
     });
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
     await steward.initialize(erc721.address, accounts[0], patronageDenominator);
+    await steward.setMintManager(mintManager.address);
     await steward.listNewTokens(
       [1],
       [accounts[9]],
       [patronageNumerator],
-      [tokenGenerationRate],
-      [erc20.address]
+      [tokenGenerationRate]
     );
   });
 

@@ -10,19 +10,22 @@ const {
   waitTillBeginningOfSecond,
   STEWARD_CONTRACT_NAME,
   ERC20_CONTRACT_NAME,
-  ERC721_CONTRACT_NAME
+  ERC721_CONTRACT_NAME,
+  MINT_MANAGER_CONTRACT_NAME
 } = require("./helpers");
 
-const Artwork = artifacts.require(ERC721_CONTRACT_NAME);
+const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
 const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
 const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
+const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
 
 // todo: test over/underflows
 
 contract("WildcardSteward owed", accounts => {
-  let artwork;
+  let erc721;
   let steward;
-  let erc;
+  let erc20;
+  let mintManager;
   let testTokenURI = "test token uri";
   const testTokenId = 1;
   const patronageNumerator = 12;
@@ -36,40 +39,45 @@ contract("WildcardSteward owed", accounts => {
     .div(new BN("31536000"));
 
   beforeEach(async () => {
-    artwork = await Artwork.new({ from: accounts[0] });
+    erc721 = await ERC721token.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
-    erc = await ERC20token.new({
+    mintManager = await MintManager.new({ from: accounts[0] });
+    erc20 = await ERC20token.new({
       from: accounts[0]
     });
-    await artwork.setup(
+    await mintManager.initialize(accounts[0], steward.address, erc20.address, {
+      from: accounts[0]
+    });
+    await erc721.setup(
       steward.address,
       "ALWAYSFORSALETestToken",
       "AFSTT",
       accounts[0],
       { from: accounts[0] }
     );
-    await erc.initialize("Wildcards Test Token", "WTT", 18, steward.address);
-    await artwork.mintWithTokenURI(steward.address, 0, testTokenURI, {
+    await erc20.initialize(
+      "Wildcards Loyalty Token",
+      "WLT",
+      18,
+      mintManager.address
+    );
+    await erc721.mintWithTokenURI(steward.address, 0, testTokenURI, {
       from: accounts[0]
     });
-    await artwork.mintWithTokenURI(steward.address, 1, testTokenURI, {
+    await erc721.mintWithTokenURI(steward.address, 1, testTokenURI, {
       from: accounts[0]
     });
-    await artwork.mintWithTokenURI(steward.address, 2, testTokenURI, {
+    await erc721.mintWithTokenURI(steward.address, 2, testTokenURI, {
       from: accounts[0]
     });
     // TODO: use this to make the contract address of the token deterministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(
-      artwork.address,
-      accounts[0],
-      patronageDenominator
-    );
+    await steward.initialize(erc721.address, accounts[0], patronageDenominator);
+    await steward.setMintManager(mintManager.address);
     await steward.listNewTokens(
       [0, 1, 2],
       [accounts[0], accounts[0], accounts[0]],
       [patronageNumerator, patronageNumerator, patronageNumerator],
-      [tokenGenerationRate, tokenGenerationRate, tokenGenerationRate],
-      [erc.address, erc.address, erc.address]
+      [tokenGenerationRate, tokenGenerationRate, tokenGenerationRate]
     );
   });
 
@@ -79,7 +87,7 @@ contract("WildcardSteward owed", accounts => {
       value: web3.utils.toWei("1", "ether")
     });
     await expectRevert.unspecified(
-      artwork.transferFrom(accounts[2], accounts[1], 42, { from: accounts[2] })
+      erc721.transferFrom(accounts[2], accounts[1], 42, { from: accounts[2] })
     );
   });
 
@@ -238,7 +246,7 @@ contract("WildcardSteward owed", accounts => {
     const calcBenefactorFund = owed.patronageDue;
     const calcTotalCurrentCollected = owed.patronageDue;
 
-    const currentOwner = await artwork.ownerOf.call(1);
+    const currentOwner = await erc721.ownerOf.call(1);
 
     const timeHeld = await steward.timeHeld.call(1, accounts[2]);
 
@@ -323,7 +331,7 @@ contract("WildcardSteward owed", accounts => {
     const calcBenefactorFund = owed.patronageDue;
     const calcTotalCurrentCollected = owed.patronageDue;
 
-    const currentOwner = await artwork.ownerOf.call(1);
+    const currentOwner = await erc721.ownerOf.call(1);
 
     const timeHeld = await steward.timeHeld.call(1, accounts[2]);
     const calcTH = timeLastCollected.sub(preTimeBought);
@@ -412,7 +420,7 @@ contract("WildcardSteward owed", accounts => {
     const calcBenefactorFund = tenMinPatronageAt1Eth;
     const calcTotalCurrentCollected = tenMinPatronageAt1Eth;
 
-    const currentOwner = await artwork.ownerOf.call(1);
+    const currentOwner = await erc721.ownerOf.call(1);
 
     const timeHeld = await steward.timeHeld.call(1, accounts[2]);
     const calcTH = timeLastCollected.sub(preTimeBought);
@@ -532,7 +540,7 @@ contract("WildcardSteward owed", accounts => {
     const deposit = await steward.deposit.call(accounts[2]);
     const price = await steward.price.call(1);
     const state = await steward.state.call(1);
-    const currentOwner = await artwork.ownerOf.call(1);
+    const currentOwner = await erc721.ownerOf.call(1);
     assert.equal(deposit, web3.utils.toWei("2", "ether"));
     assert.equal(price, web3.utils.toWei("1", "ether"));
     assert.equal(state, 1);
@@ -541,7 +549,7 @@ contract("WildcardSteward owed", accounts => {
     const deposit2 = await steward.deposit.call(accounts[2]);
     const price2 = await steward.price.call(1);
     const state2 = await steward.state.call(1);
-    const currentOwner2 = await artwork.ownerOf.call(1);
+    const currentOwner2 = await erc721.ownerOf.call(1);
     assert.equal(deposit2, web3.utils.toWei("1", "ether"));
     assert.equal(price2, web3.utils.toWei("1", "ether"));
     assert.equal(state2, 1);
@@ -554,7 +562,7 @@ contract("WildcardSteward owed", accounts => {
     const deposit = await steward.deposit.call(accounts[2]);
     const price = await steward.price.call(1);
     const state = await steward.state.call(1);
-    const currentOwner = await artwork.ownerOf.call(1);
+    const currentOwner = await erc721.ownerOf.call(1);
     assert.equal(deposit, web3.utils.toWei("2", "ether"));
     assert.equal(price, web3.utils.toWei("1", "ether"));
     assert.equal(state, 1);
@@ -563,7 +571,7 @@ contract("WildcardSteward owed", accounts => {
     const deposit2 = await steward.deposit.call(accounts[3]);
     const price2 = await steward.price.call(1);
     const state2 = await steward.state.call(1);
-    const currentOwner2 = await artwork.ownerOf.call(1);
+    const currentOwner2 = await erc721.ownerOf.call(1);
     assert.equal(deposit2, web3.utils.toWei("1", "ether"));
     assert.equal(price2, web3.utils.toWei("1", "ether"));
     assert.equal(state2, 1);
@@ -576,7 +584,7 @@ contract("WildcardSteward owed", accounts => {
     const deposit = await steward.deposit.call(accounts[2]);
     const price = await steward.price.call(1);
     const state = await steward.state.call(1);
-    const currentOwner = await artwork.ownerOf.call(1);
+    const currentOwner = await erc721.ownerOf.call(1);
     assert.equal(deposit, web3.utils.toWei("2", "ether"));
     assert.equal(price, web3.utils.toWei("1", "ether"));
     assert.equal(state, 1);
@@ -602,7 +610,7 @@ contract("WildcardSteward owed", accounts => {
     const deposit2 = await steward.deposit.call(accounts[3]);
     const price2 = await steward.price.call(1);
     const state2 = await steward.state.call(1);
-    const currentOwner2 = await artwork.ownerOf.call(1);
+    const currentOwner2 = await erc721.ownerOf.call(1);
     assert.equal(deposit2, web3.utils.toWei("1", "ether"));
     assert.equal(price2, web3.utils.toWei("1", "ether"));
     assert.equal(state2, 1);
@@ -644,7 +652,7 @@ contract("WildcardSteward owed", accounts => {
     const timeLastCollected = await steward.timeLastCollected.call(1); // on buy.
     const price = await steward.price.call(1);
     const state = await steward.state.call(1);
-    const owner = await artwork.ownerOf.call(1);
+    const owner = await erc721.ownerOf.call(1);
     const wasPatron1 = await steward.patrons.call(1, accounts[2]);
     const wasPatron2 = await steward.patrons.call(1, accounts[3]);
 
@@ -676,7 +684,7 @@ contract("WildcardSteward owed", accounts => {
     const timeLastCollected = await steward.timeLastCollected.call(1); // on buy.
     const price = await steward.price.call(1);
     const state = await steward.state.call(1);
-    const owner = await artwork.ownerOf.call(1);
+    const owner = await erc721.ownerOf.call(1);
 
     assert.equal(state, 1);
     assert.equal(deposit.toString(), totalToBuy.toString());
