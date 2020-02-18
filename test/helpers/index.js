@@ -38,5 +38,16 @@ module.exports = {
       new BN("0")
     );
     return totalPatronage;
+  },
+
+  multiTokenCalculator: (timeInSeconds, tokenArray) => {
+    const totalTokens = tokenArray.reduce(
+      (totalTokens, token) =>
+        totalTokens.add(
+          new BN(token.tokenGenerationRate).mul(new BN(timeInSeconds))
+        ),
+      new BN("0")
+    );
+    return totalTokens;
   }
 };

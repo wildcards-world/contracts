@@ -7,7 +7,7 @@ const {
   time
 } = require("@openzeppelin/test-helpers");
 const {
-  multiPatronageCalculator,
+  multiTokenCalculator,
   waitTillBeginningOfSecond,
   STEWARD_CONTRACT_NAME,
   ERC20_CONTRACT_NAME,
@@ -21,16 +21,20 @@ const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
 const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
 
 const PATRONAGE_DENOMINATOR = "1";
-const patronageCalculator = multiPatronageCalculator(PATRONAGE_DENOMINATOR);
+
+const tenMinPatronageAt1Eth = ether("1")
+  .mul(new BN("600"))
+  .mul(new BN("12"))
+  .div(new BN("1"))
+  .div(new BN("31536000"));
 
 contract("WildcardSteward owed", accounts => {
   let erc721;
   let steward;
   let erc20;
-  const testTokenId1 = 1;
-  const testTokenId2 = 2;
+  const testToken1 = { id: 1, tokenGenerationRate: 1 };
+  const testToken2 = { id: 2, tokenGenerationRate: 2 };
   const patronageNumerator = 12;
-  const tokenGenerationRate = 1; // should depend on token
   let testTokenURI = "test token uri";
 
   beforeEach(async () => {
@@ -56,9 +60,6 @@ contract("WildcardSteward owed", accounts => {
       18,
       mintManager.address
     );
-    await erc721.mintWithTokenURI(steward.address, 0, testTokenURI, {
-      from: accounts[0]
-    });
     await erc721.mintWithTokenURI(steward.address, 1, testTokenURI, {
       from: accounts[0]
     });
@@ -73,39 +74,114 @@ contract("WildcardSteward owed", accounts => {
     );
     await steward.setMintManager(mintManager.address);
     await steward.listNewTokens(
-      [0, 1, 2],
-      [accounts[0], accounts[0], accounts[0]],
-      [patronageNumerator, patronageNumerator, patronageNumerator],
-      [tokenGenerationRate, tokenGenerationRate, tokenGenerationRate]
+      [testToken1.id, testToken2.id],
+      [accounts[0], accounts[0]],
+      [patronageNumerator, patronageNumerator],
+      [testToken1.tokenGenerationRate, testToken2.tokenGenerationRate]
     );
   });
 
-  //////////////////////////////////////
-  /////////////////////////////////////
-  //////////////////////////////////////
-  //////////////////////////////////////
-  // Needing to be written - but we are going to change mint function first
-
-  it("steward: loyalty-mint. Checking tokens are received after 10min", async () => {
+  it("steward: loyalty-mint. Checking correct number of tokens are received after holding a token for  100min", async () => {
     await waitTillBeginningOfSecond();
-
+    testTokenId1 = testToken1.id;
+    const timeHeld = 100; // In minutes
     // Person buys a token
     await steward.buy(testTokenId1, web3.utils.toWei("1", "ether"), {
       from: accounts[2],
       value: web3.utils.toWei("1", "ether")
     });
 
-    // TIME INCREASES HERE BY 10 MIN
-    await time.increase(time.duration.minutes(1000));
-
+    // TIME INCREASES HERE BY timeHeld
+    await time.increase(time.duration.minutes(timeHeld));
     // First token bought from patron [Collect patronage will therefore be called]
     await steward.buy(testTokenId1, ether("1"), {
       from: accounts[3],
       value: ether("2")
     });
-    // Now should receive 1000 minutes of tokens.
 
+    const expectedTokens = multiTokenCalculator(
+      new BN(timeHeld).mul(new BN(60)).toString(),
+      [
+        {
+          tokenGenerationRate: testToken1.tokenGenerationRate.toString()
+        }
+      ]
+    );
     const amountOfToken = await erc20.balanceOf(accounts[2]);
-    console.log(amountOfToken.toString());
+
+    assert.equal(amountOfToken.toString(), expectedTokens.toString());
+  });
+
+  it("steward: loyalty-mint. Checking correct number of tokens received after holding 2 different token for  100min", async () => {
+    await waitTillBeginningOfSecond();
+    testTokenId1 = testToken1.id;
+    testTokenId2 = testToken2.id;
+    const timeHeld = 100; // In minutes
+    // Person buys a token
+    await steward.buy(testTokenId1, web3.utils.toWei("1", "ether"), {
+      from: accounts[2],
+      value: web3.utils.toWei("1", "ether")
+    });
+
+    await steward.buy(testTokenId2, web3.utils.toWei("1", "ether"), {
+      from: accounts[2],
+      value: web3.utils.toWei("1", "ether")
+    });
+
+    // TIME INCREASES HERE BY timeHeld
+    await time.increase(time.duration.minutes(timeHeld));
+    // First token bought from patron [Collect patronage will therefore be called]
+    await steward.buy(testTokenId1, ether("1"), {
+      from: accounts[3],
+      value: ether("2")
+    });
+    await steward.buy(testTokenId2, ether("1"), {
+      from: accounts[3],
+      value: ether("2")
+    });
+
+    const expectedTokens = multiTokenCalculator(
+      new BN(timeHeld).mul(new BN(60)).toString(),
+      [
+        {
+          tokenGenerationRate: testToken1.tokenGenerationRate.toString()
+        },
+        {
+          tokenGenerationRate: testToken2.tokenGenerationRate.toString()
+        }
+      ]
+    );
+    const amountOfToken = await erc20.balanceOf(accounts[2]);
+
+    assert.equal(amountOfToken.toString(), expectedTokens.toString());
+  });
+
+  it("steward: loyalty-mint. Checking correct number of tokens after foreclosure.", async () => {
+    await waitTillBeginningOfSecond();
+    testTokenId1 = testToken1.id;
+    const timeHeld = 10; // In minutes
+    const totalToBuy = new BN(tenMinPatronageAt1Eth);
+
+    await steward.buy(testTokenId1, ether("1"), {
+      from: accounts[2],
+      value: totalToBuy
+    });
+
+    await time.increase(time.duration.minutes(15));
+    // foreclosure should happen here (since patraonge was only for 10min)
+    await steward._collectPatronage(testTokenId1, { from: accounts[2] });
+
+    // should only receive 10min of tokens
+    const expectedTokens = multiTokenCalculator(
+      new BN(timeHeld).mul(new BN(60)).toString(),
+      [
+        {
+          tokenGenerationRate: testToken1.tokenGenerationRate.toString()
+        }
+      ]
+    );
+    const amountOfToken = await erc20.balanceOf(accounts[2]);
+
+    assert.equal(amountOfToken.toString(), expectedTokens.toString());
   });
 });
