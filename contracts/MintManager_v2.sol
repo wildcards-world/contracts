@@ -17,18 +17,18 @@ contract MintManager_v2 is Initializable {
         _;
     }
 
-    modifier onlyAdmin() {
-        require(msg.sender == admin, "Not admin");
-        _;
-    }
+    // modifier onlyAdmin() {
+    //     require(msg.sender == admin, "Not admin");
+    //     _;
+    // }
 
-    modifier onlyAdminOrSteward() {
-        require(
-            msg.sender == admin || msg.sender == steward,
-            "Not admin or Steward"
-        );
-        _;
-    }
+    // modifier onlyAdminOrSteward() {
+    //     require(
+    //         msg.sender == admin || msg.sender == steward,
+    //         "Not admin or Steward"
+    //     );
+    //     _;
+    // }
 
     function initialize(address _admin, address _steward, address _token)
         public
@@ -39,7 +39,6 @@ contract MintManager_v2 is Initializable {
         token = IERC20Mintable(_token);
     }
 
-    // Note insert modifier to make this function safe (only callable from our contract)
     function tokenMint(address receiverOfTokens, uint256 time, uint256 mintRate)
         external
         onlySteward
