@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity 0.5.16;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol";
@@ -31,9 +31,11 @@ contract ERC721Patronage_v1 is
         _addMinter(minter);
     }
 
-    function _isApprovedOrOwner(
-        address spender // , uint256 tokenId)
-    ) internal view returns (bool) {
+    function _isApprovedOrOwner(address spender, uint256 tokenId)
+        internal
+        view
+        returns (bool)
+    {
         return (spender == steward);
         /*
           // NOTE: temporarily disabling sending of the tokens independently. A protective messure since it isn't clear to users how this function should work.

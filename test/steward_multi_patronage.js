@@ -10,42 +10,60 @@ const {
   multiPatronageCalculator,
   waitTillBeginningOfSecond,
   STEWARD_CONTRACT_NAME,
-  ERC721_CONTRACT_NAME
+  ERC20_CONTRACT_NAME,
+  ERC721_CONTRACT_NAME,
+  MINT_MANAGER_CONTRACT_NAME
 } = require("./helpers");
 
-const Artwork = artifacts.require(ERC721_CONTRACT_NAME);
+const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
 const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
+const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
+const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
 
 // todo: test over/underflows
 const PATRONAGE_DENOMINATOR = "1";
 const patronageCalculator = multiPatronageCalculator(PATRONAGE_DENOMINATOR);
 
 contract("WildcardSteward owed", accounts => {
-  let artwork;
+  let erc721;
   let steward;
+  let erc20;
   const testToken1 = { id: 1, patronageNumerator: 12 };
   const testToken2 = { id: 2, patronageNumerator: 24 };
-  const patronageDenominator = 1;
+  const tokenGenerationRate = 10; // should depend on token
   let testTokenURI = "test token uri";
 
   beforeEach(async () => {
-    artwork = await Artwork.new({ from: accounts[0] });
+    erc721 = await ERC721token.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
-    await artwork.setup(
+    mintManager = await MintManager.new({ from: accounts[0] });
+    erc20 = await ERC20token.new({
+      from: accounts[0]
+    });
+    await mintManager.initialize(accounts[0], steward.address, erc20.address, {
+      from: accounts[0]
+    });
+    await erc721.setup(
       steward.address,
       "ALWAYSFORSALETestToken",
       "AFSTT",
       accounts[0],
       { from: accounts[0] }
     );
-    //await artwork.mintWithTokenURI(steward.address, testToken0.id, testTokenURI, { from: accounts[0] })
-    await artwork.mintWithTokenURI(
+    await erc20.initialize(
+      "Wildcards Loyalty Token",
+      "WLT",
+      18,
+      mintManager.address
+    );
+    //await erc721.mintWithTokenURI(steward.address, testToken0.id, testTokenURI, { from: accounts[0] })
+    await erc721.mintWithTokenURI(
       steward.address,
       testToken1.id,
       testTokenURI,
       { from: accounts[0] }
     );
-    await artwork.mintWithTokenURI(
+    await erc721.mintWithTokenURI(
       steward.address,
       testToken2.id,
       testTokenURI,
@@ -53,18 +71,19 @@ contract("WildcardSteward owed", accounts => {
     );
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
     await steward.initialize(
-      artwork.address,
+      erc721.address,
       accounts[0],
-      patronageDenominator
+      PATRONAGE_DENOMINATOR
     );
     await steward.listNewTokens(
       [testToken1.id, testToken2.id],
       [accounts[8], accounts[9]],
-      [testToken1.patronageNumerator, testToken2.patronageNumerator]
+      [testToken1.patronageNumerator, testToken2.patronageNumerator],
+      [tokenGenerationRate, tokenGenerationRate]
     );
   });
 
-  it("steward: deposit-management. On token buy, check that the remaining deposit is sent back to patron only if it is their only token", async () => {
+  it("steward: multi-patronage. On token buy, check that the remaining deposit is sent back to patron only if it is their only token", async () => {
     ///////////////////  TIME = 0 ////////////////////
     //////////////////////////////////////////////////
     //////////////////////////////////////////////////

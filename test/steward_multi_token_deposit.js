@@ -10,56 +10,79 @@ const {
   multiPatronageCalculator,
   waitTillBeginningOfSecond,
   STEWARD_CONTRACT_NAME,
-  ERC721_CONTRACT_NAME
+  ERC20_CONTRACT_NAME,
+  ERC721_CONTRACT_NAME,
+  MINT_MANAGER_CONTRACT_NAME
 } = require("./helpers");
 
-const Artwork = artifacts.require(ERC721_CONTRACT_NAME);
+const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
 const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
+const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
+const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
+
+const PATRONAGE_DENOMINATOR = "1";
+const patronageCalculator = multiPatronageCalculator(PATRONAGE_DENOMINATOR);
 
 // todo: test over/underflows
 
 contract("WildcardSteward owed", accounts => {
-  let artwork;
+  let erc721;
   let steward;
+  let erc20;
   const testTokenId1 = 1;
   const testTokenId2 = 2;
   const patronageNumerator = 12;
-  const patronageDenominator = 1;
+  const tokenGenerationRate = 10; // should depend on token
   let testTokenURI = "test token uri";
 
   beforeEach(async () => {
-    artwork = await Artwork.new({ from: accounts[0] });
+    erc721 = await ERC721token.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
-    await artwork.setup(
+    mintManager = await MintManager.new({ from: accounts[0] });
+    erc20 = await ERC20token.new({
+      from: accounts[0]
+    });
+    await mintManager.initialize(accounts[0], steward.address, erc20.address, {
+      from: accounts[0]
+    });
+    await erc721.setup(
       steward.address,
       "ALWAYSFORSALETestToken",
       "AFSTT",
       accounts[0],
       { from: accounts[0] }
     );
-    await artwork.mintWithTokenURI(steward.address, 0, testTokenURI, {
+    await erc20.initialize(
+      "Wildcards Loyalty Token",
+      "WLT",
+      18,
+      mintManager.address
+    );
+    await erc721.mintWithTokenURI(steward.address, 0, testTokenURI, {
       from: accounts[0]
     });
-    await artwork.mintWithTokenURI(steward.address, 1, testTokenURI, {
+    await erc721.mintWithTokenURI(steward.address, 1, testTokenURI, {
       from: accounts[0]
     });
-    await artwork.mintWithTokenURI(steward.address, 2, testTokenURI, {
+    await erc721.mintWithTokenURI(steward.address, 2, testTokenURI, {
       from: accounts[0]
     });
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
     await steward.initialize(
-      artwork.address,
+      erc721.address,
       accounts[0],
-      patronageDenominator
+      PATRONAGE_DENOMINATOR
     );
+    await steward.setMintManager(mintManager.address);
     await steward.listNewTokens(
       [0, 1, 2],
       [accounts[0], accounts[0], accounts[0]],
-      [patronageNumerator, patronageNumerator, patronageNumerator]
+      [patronageNumerator, patronageNumerator, patronageNumerator],
+      [tokenGenerationRate, tokenGenerationRate, tokenGenerationRate]
     );
   });
 
-  it("steward: deposit-management. On token buy, check that the remaining deposit is sent back to patron only if it is their only token", async () => {
+  it("steward: multi-token-deposit. On token buy, check that the remaining deposit is sent back to patron only if it is their only token", async () => {
     await waitTillBeginningOfSecond();
 
     //Buying 2 tokens. Setting selling price to 1 and 2 eth respectively. Sending 1 eth each for deposit.
@@ -82,7 +105,6 @@ contract("WildcardSteward owed", accounts => {
     const balancePatronBeforeSale = new BN(
       await web3.eth.getBalance(accounts[2])
     );
-
     // When first token is bought, deposit should remain.
     await steward.buy(testTokenId1, ether("1"), {
       from: accounts[3],
@@ -107,16 +129,17 @@ contract("WildcardSteward owed", accounts => {
       accounts[2]
     );
 
-    const expectedPatronageAfter10min = multiPatronageCalculator("600", [
+    const expectedPatronageAfter10min = patronageCalculator("600", [
       { patronageNumerator: "12", price: priceOftoken1.toString() },
       { patronageNumerator: "12", price: priceOftoken2.toString() }
     ]);
+
     assert.equal(
       patronDepositBeforeSale.toString(),
       patronDepositAfterFirstSale.add(expectedPatronageAfter10min).toString()
     );
 
-    //Checking once no more tokens are owned, the deopsit is set to zero
+    //Checking once no more tokens are owned, the deposit is set to zero
     assert.equal(patronDepositAfterSecondSale.toString(), "0");
     //Checking that the balance after selling 1 token has increased by only the amount recieved.
     assert.equal(
