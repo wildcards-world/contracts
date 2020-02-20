@@ -6,49 +6,74 @@ const {
   balance,
   time
 } = require("@openzeppelin/test-helpers");
-const { STEWARD_CONTRACT_NAME, ERC721_CONTRACT_NAME } = require("./helpers");
+const {
+  STEWARD_CONTRACT_NAME,
+  ERC721_CONTRACT_NAME,
+  ERC20_CONTRACT_NAME,
+  MINT_MANAGER_CONTRACT_NAME
+} = require("./helpers");
 
-const Artwork = artifacts.require(ERC721_CONTRACT_NAME);
+const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
 const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
-
+const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
+const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
 contract("WildcardSteward", accounts => {
-  let artwork;
+  let erc721;
   let steward;
+  let mintManager;
+  let erc20;
   const patronageDenominator = 1;
   const patronageNumerator = 12;
+  const tokenGenerationRate = 10; // should depend on token
   const testTokenURI = "test token uri";
 
   beforeEach(async () => {
-    artwork = await Artwork.new({ from: accounts[0] });
+    erc721 = await ERC721token.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
-    await artwork.setup(
+    mintManager = await MintManager.new({ from: accounts[0] });
+    erc20 = await ERC20token.new({
+      from: accounts[0]
+    });
+    await mintManager.initialize(accounts[0], steward.address, erc20.address, {
+      from: accounts[0]
+    });
+    await erc721.setup(
       steward.address,
       "ALWAYSFORSALETestToken",
       "AFSTT",
       accounts[0],
       { from: accounts[0] }
     );
-    await artwork.mintWithTokenURI(steward.address, 0, testTokenURI, {
+    await erc20.initialize(
+      "Wildcards Loyalty Token",
+      "WLT",
+      18,
+      mintManager.address
+    );
+    await erc721.mintWithTokenURI(steward.address, 0, testTokenURI, {
       from: accounts[0]
     });
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(
-      artwork.address,
-      accounts[0],
-      patronageDenominator
+    await steward.initialize(erc721.address, accounts[0], patronageDenominator);
+    await steward.setMintManager(mintManager.address);
+    await steward.listNewTokens(
+      [0],
+      [accounts[0]],
+      [patronageNumerator],
+      [tokenGenerationRate]
     );
-    await steward.listNewTokens([0], [accounts[0]], [patronageNumerator]);
   });
 
-  it("steward: init: artwork minted", async () => {
-    const currentOwner = await artwork.ownerOf.call(0);
-    const uri = await artwork.tokenURI(0);
+  it("steward: init: erc721 minted", async () => {
+    const currentOwner = await erc721.ownerOf.call(0);
+    const uri = await erc721.tokenURI(0);
     assert.equal(uri, testTokenURI);
     assert.equal(steward.address, currentOwner);
   });
 
-  // TODO: add a check that patrons can't add deposit when they don't own any tokens. Is that needed?
-  it("steward: init: deposit wei fail [foreclosed]", async () => {
+  // Can they still add deposit if it is foreclose? Since they only technically lose ownership on the
+  // next collect patronage event?
+  it("steward: init: deposit wei fail [foreclosed or don't own any tokens]", async () => {
     await expectRevert(
       steward.depositWei({
         from: accounts[2],
