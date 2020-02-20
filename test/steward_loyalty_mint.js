@@ -22,6 +22,9 @@ const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
 
 const PATRONAGE_DENOMINATOR = "1";
 
+const SECONDS_IN_A_MINUTE = "60";
+const TREASURY_NUMERATOR = "20"; // This indicates a 20% rate of tokens treasury collects
+const TREASURY_DENOMINATOR = "100";
 const tenMinPatronageAt1Eth = ether("1")
   .mul(new BN("600"))
   .mul(new BN("12"))
@@ -35,7 +38,7 @@ contract("WildcardSteward owed", accounts => {
   const testToken1 = { id: 1, tokenGenerationRate: 1 };
   const testToken2 = { id: 2, tokenGenerationRate: 2 };
   const patronageNumerator = 12;
-  let testTokenURI = "test token uri";
+  const testTokenURI = "test token uri";
 
   beforeEach(async () => {
     erc721 = await ERC721token.new({ from: accounts[0] });
@@ -100,7 +103,7 @@ contract("WildcardSteward owed", accounts => {
     });
 
     const expectedTokens = multiTokenCalculator(
-      new BN(timeHeld).mul(new BN(60)).toString(),
+      new BN(timeHeld).mul(new BN(SECONDS_IN_A_MINUTE)).toString(),
       [
         {
           tokenGenerationRate: testToken1.tokenGenerationRate.toString()
@@ -109,7 +112,16 @@ contract("WildcardSteward owed", accounts => {
     );
     const amountOfToken = await erc20.balanceOf(accounts[2]);
 
+    const amountOfTreasuryToken = await erc20.balanceOf(accounts[0]); // stewards account
+    const expectedTreasuryToken = new BN(expectedTokens)
+      .mul(new BN(TREASURY_NUMERATOR))
+      .div(new BN(TREASURY_DENOMINATOR));
+
     assert.equal(amountOfToken.toString(), expectedTokens.toString());
+    assert.equal(
+      amountOfTreasuryToken.toString(),
+      expectedTreasuryToken.toString()
+    );
   });
 
   it("steward: loyalty-mint. Checking correct number of tokens received after holding 2 different token for  100min", async () => {
@@ -141,7 +153,7 @@ contract("WildcardSteward owed", accounts => {
     });
 
     const expectedTokens = multiTokenCalculator(
-      new BN(timeHeld).mul(new BN(60)).toString(),
+      new BN(timeHeld).mul(new BN(SECONDS_IN_A_MINUTE)).toString(),
       [
         {
           tokenGenerationRate: testToken1.tokenGenerationRate.toString()
@@ -153,10 +165,19 @@ contract("WildcardSteward owed", accounts => {
     );
     const amountOfToken = await erc20.balanceOf(accounts[2]);
 
+    const amountOfTreasuryToken = await erc20.balanceOf(accounts[0]); // stewards account
+    const expectedTreasuryToken = new BN(expectedTokens)
+      .mul(new BN(TREASURY_NUMERATOR))
+      .div(new BN(TREASURY_DENOMINATOR));
+
     assert.equal(amountOfToken.toString(), expectedTokens.toString());
+    assert.equal(
+      amountOfTreasuryToken.toString(),
+      expectedTreasuryToken.toString()
+    );
   });
 
-  it("steward: loyalty-mint. Checking correct number of tokens after foreclosure.", async () => {
+  it("steward: loyalty-mint. Checking correct number of tokens are recieved/minted after foreclosure.", async () => {
     await waitTillBeginningOfSecond();
     testTokenId1 = testToken1.id;
     const timeHeld = 10; // In minutes
@@ -173,7 +194,7 @@ contract("WildcardSteward owed", accounts => {
 
     // should only receive 10min of tokens
     const expectedTokens = multiTokenCalculator(
-      new BN(timeHeld).mul(new BN(60)).toString(),
+      new BN(timeHeld).mul(new BN(SECONDS_IN_A_MINUTE)).toString(),
       [
         {
           tokenGenerationRate: testToken1.tokenGenerationRate.toString()
@@ -182,6 +203,51 @@ contract("WildcardSteward owed", accounts => {
     );
     const amountOfToken = await erc20.balanceOf(accounts[2]);
 
+    const amountOfTreasuryToken = await erc20.balanceOf(accounts[0]); // stewards account
+    const expectedTreasuryToken = new BN(expectedTokens)
+      .mul(new BN(TREASURY_NUMERATOR))
+      .div(new BN(TREASURY_DENOMINATOR));
+
     assert.equal(amountOfToken.toString(), expectedTokens.toString());
+    assert.equal(
+      amountOfTreasuryToken.toString(),
+      expectedTreasuryToken.toString()
+    );
+  });
+
+  it("steward: loyalty-mint. Checking MintManager cannot be altered after intial set up.", async () => {
+    await waitTillBeginningOfSecond();
+
+    await expectRevert(
+      steward.setMintManager(accounts[5], { from: accounts[5] }),
+      "Can only set on intialisation"
+    );
+  });
+
+  it("steward: loyalty-mint. Checking Minted erc20's can be sent between parties for sanity.", async () => {
+    await waitTillBeginningOfSecond();
+    testTokenId1 = testToken1.id;
+    const timeHeld = 100;
+
+    await steward.buy(testTokenId1, web3.utils.toWei("1", "ether"), {
+      from: accounts[2],
+      value: web3.utils.toWei("1", "ether")
+    });
+    await time.increase(time.duration.minutes(timeHeld));
+    await steward.buy(testTokenId1, ether("1"), {
+      from: accounts[7],
+      value: ether("2")
+    });
+
+    const amountToTransfer = 100;
+    await erc20.transfer(accounts[3], amountToTransfer, {
+      from: accounts[2]
+    });
+    const amountOfTokenTransferred = await erc20.balanceOf(accounts[3]);
+
+    assert.equal(
+      amountToTransfer.toString(),
+      amountOfTokenTransferred.toString()
+    );
   });
 });

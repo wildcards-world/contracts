@@ -80,6 +80,7 @@ contract WildcardSteward_v2 is Initializable {
     event CollectLoyalty(
         uint256 indexed tokenId,
         address indexed patron,
+        uint256 tokenGenerationRate,
         uint256 amountRecieved
     );
 
@@ -159,7 +160,10 @@ contract WildcardSteward_v2 is Initializable {
     }
 
     function setMintManager(address _mintManager) public {
-        require(address(mintManager) == address(0)); // This can only be called once!
+        require(
+            address(mintManager) == address(0),
+            "Can only set on intialisation"
+        ); // This can only be called once!
         mintManager = MintManager_v2(_mintManager);
     }
 
@@ -176,15 +180,6 @@ contract WildcardSteward_v2 is Initializable {
     function changeAdmin(address _admin) public onlyAdmin {
         admin = _admin;
     }
-
-    // // This function will change which token is being minted from loyalty.
-    // function changeERC20(uint256 tokenId, address _newERC)
-    //     public
-    //     onlyAdmin
-    //     collectPatronage(tokenId)
-    // {
-    //     erc20Minter[tokenId] = IERC20Mintable(_newERC);
-    // }
 
     /* public view functions */
     function patronageOwed(uint256 tokenId)
@@ -314,7 +309,13 @@ contract WildcardSteward_v2 is Initializable {
             timeSinceLastMint,
             tokenGenerationRate[tokenId]
         );
-        emit CollectLoyalty(tokenId, currentOwner, timeSinceLastMint);
+
+        emit CollectLoyalty(
+            tokenId,
+            currentOwner,
+            tokenGenerationRate[tokenId],
+            timeSinceLastMint
+        );
     }
     /* actions */
     // TODO:: think of more efficient ways for recipients to collect patronage for lots of tokens at the same time.
