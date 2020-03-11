@@ -3,7 +3,7 @@ import "./ERC721Patronage_v1.sol";
 import "./MintManager_v2.sol";
 
 contract WildcardSteward_v2 is Initializable {
-    /*s
+    /*
     This smart contract collects patronage from current owner through a Harberger tax model and 
     takes stewardship of the asset token if the patron can't pay anymore.
 
@@ -46,12 +46,7 @@ contract WildcardSteward_v2 is Initializable {
     //////////////// NEW ///////////////////
     mapping(uint256 => uint256) public tokenGenerationRate; // we can reuse the patronage denominator
 
-    // These are for every NFT, the erc20 contract we are poiting too.
-    // Note that the steward needs to have permission to call the mint function on the erc20
-    MintManager_v2 public mintManager; // set our erc20 token as default
-
-    // NOTE: This isn't really needed, and it can be calculated from the "timeHeld". Removed for now (or forever)
-    // mapping(uint256 => mapping (address => uint256)) public tokensGenerated;
+    MintManager_v2 public mintManager;
 
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
     event PriceChange(uint256 indexed tokenId, uint256 newPrice);
@@ -80,7 +75,6 @@ contract WildcardSteward_v2 is Initializable {
     event CollectLoyalty(
         uint256 indexed tokenId,
         address indexed patron,
-        uint256 tokenGenerationRate,
         uint256 amountRecieved
     );
 
@@ -93,6 +87,11 @@ contract WildcardSteward_v2 is Initializable {
         require(msg.sender == admin, "Not admin");
         _;
     }
+
+    // modifier onlyAdminOrInternal() {
+    //     require(msg.sender == admin || msg.sender == address(this), "Not admin");
+    //     _;
+    // }
 
     modifier onlyReceivingBenefactorOrAdmin(uint256 tokenId) {
         require(
@@ -162,9 +161,18 @@ contract WildcardSteward_v2 is Initializable {
     function setMintManager(address _mintManager) public {
         require(
             address(mintManager) == address(0),
-            "Can only set on intialisation"
+            "Only set on initialisation"
         ); // This can only be called once!
         mintManager = MintManager_v2(_mintManager);
+    }
+
+    function updateToV2(
+        address _mintManager,
+        uint256[] memory tokens,
+        uint256[] memory _tokenGenerationRate
+    ) public {
+        setMintManager(_mintManager);
+        addTokenGenerationRateToExistingTokens(tokens, _tokenGenerationRate);
     }
 
     function changeReceivingBenefactor(
@@ -309,13 +317,7 @@ contract WildcardSteward_v2 is Initializable {
             timeSinceLastMint,
             tokenGenerationRate[tokenId]
         );
-
-        emit CollectLoyalty(
-            tokenId,
-            currentOwner,
-            tokenGenerationRate[tokenId],
-            timeSinceLastMint
-        );
+        emit CollectLoyalty(tokenId, currentOwner, timeSinceLastMint);
     }
     /* actions */
     // TODO:: think of more efficient ways for recipients to collect patronage for lots of tokens at the same time.
@@ -445,7 +447,13 @@ contract WildcardSteward_v2 is Initializable {
             address payable payableCurrentPatron = address(
                 uint160(tokenPatron)
             );
-            payableCurrentPatron.transfer(totalToPayBack);
+            (bool transferSuccess, ) = payableCurrentPatron
+                .call
+                .gas(2300)
+                .value(totalToPayBack)("");
+            if (!transferSuccess) {
+                deposit[tokenPatron] = deposit[tokenPatron].add(totalToPayBack);
+            }
         } else if (state[tokenId] == StewardState.Foreclosed) {
             state[tokenId] = StewardState.Owned;
             timeLastCollected[tokenId] = now;
@@ -496,8 +504,15 @@ contract WildcardSteward_v2 is Initializable {
 
     function withdrawBenefactorFundsTo(address payable benefactor) public {
         require(benefactorFunds[benefactor] > 0, "No funds available");
-        benefactor.transfer(benefactorFunds[benefactor]);
+        uint256 amountToWithdraw = benefactorFunds[benefactor];
         benefactorFunds[benefactor] = 0;
+
+        (bool transferSuccess, ) = benefactor.call.gas(2300).value(
+            amountToWithdraw
+        )("");
+        if (!transferSuccess) {
+            revert("Unable to withdraw benefactor funds");
+        }
     }
 
     function exit() public collectPatronageAddress(msg.sender) {
@@ -510,7 +525,12 @@ contract WildcardSteward_v2 is Initializable {
         require(deposit[msg.sender] >= _wei, "Withdrawing too much");
 
         deposit[msg.sender] = deposit[msg.sender].sub(_wei);
-        msg.sender.transfer(_wei); // msg.sender == patron
+
+        // msg.sender == patron
+        (bool transferSuccess, ) = msg.sender.call.gas(2300).value(_wei)("");
+        if (!transferSuccess) {
+            revert("Unable to withdraw deposit");
+        }
     }
 
     function _foreclose(uint256 tokenId) internal {
