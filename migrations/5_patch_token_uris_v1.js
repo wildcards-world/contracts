@@ -11,7 +11,7 @@ async function deploy(options, primaryAccount) {
   // Push implementation contracts to the network
   await push({ ...options, force: true }); // I have to use force here because OpenZeppelin is being difficult :/ (and this is a hacky solution anyway...)
 
-  // Update instance, adding +10 to value as part of the migration
+  // Update instance
   await update(
     Object.assign(
       {

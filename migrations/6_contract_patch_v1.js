@@ -1,7 +1,5 @@
 const { ConfigManager, scripts } = require("@openzeppelin/cli");
 const { add, push, update } = scripts;
-const URIFixer = artifacts.require("URIFixer");
-const ERC721Patronage_v0 = artifacts.require("ERC721Patronage_v0");
 
 async function deploy(options) {
   add({
