@@ -31,7 +31,7 @@ contract("WildcardSteward", accounts => {
     erc721 = await ERC721token.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
     mintManager = await MintManager.new({ from: accounts[0] });
-    erc20 = await ERC20token.new({
+    erc20 = await ERC20token.new("Wildcards Loyalty Token", "WLT", 18, {
       from: accounts[0]
     });
     await mintManager.initialize(accounts[0], steward.address, erc20.address, {
@@ -44,18 +44,17 @@ contract("WildcardSteward", accounts => {
       accounts[0],
       { from: accounts[0] }
     );
-    await erc20.initialize(
-      "Wildcards Loyalty Token",
-      "WLT",
-      18,
-      mintManager.address
-    );
+    await erc20.addMinter(mintManager.address, {
+      from: accounts[0]
+    });
+    await erc20.renounceMinter({ from: accounts[0] });
+
     await erc721.mintWithTokenURI(steward.address, 0, testTokenURI, {
       from: accounts[0]
     });
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
     await steward.initialize(erc721.address, accounts[0], patronageDenominator);
-    await steward.setMintManager(mintManager.address);
+    await steward.updateToV2(mintManager.address, [], []);
     await steward.listNewTokens(
       [0],
       [accounts[0]],

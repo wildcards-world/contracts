@@ -44,7 +44,7 @@ contract("WildcardSteward owed", accounts => {
     erc721 = await ERC721token.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
     mintManager = await MintManager.new({ from: accounts[0] });
-    erc20 = await ERC20token.new({
+    erc20 = await ERC20token.new("Wildcards Loyalty Token", "WLT", 18, {
       from: accounts[0]
     });
     await mintManager.initialize(accounts[0], steward.address, erc20.address, {
@@ -57,12 +57,11 @@ contract("WildcardSteward owed", accounts => {
       accounts[0],
       { from: accounts[0] }
     );
-    await erc20.initialize(
-      "Wildcards Loyalty Token",
-      "WLT",
-      18,
-      mintManager.address
-    );
+    await erc20.addMinter(mintManager.address, {
+      from: accounts[0]
+    });
+    await erc20.renounceMinter({ from: accounts[0] });
+
     await erc721.mintWithTokenURI(steward.address, 1, testTokenURI, {
       from: accounts[0]
     });
@@ -75,7 +74,7 @@ contract("WildcardSteward owed", accounts => {
       accounts[0],
       PATRONAGE_DENOMINATOR
     );
-    await steward.setMintManager(mintManager.address);
+    await steward.updateToV2(mintManager.address, [], []);
     await steward.listNewTokens(
       [testToken1.id, testToken2.id],
       [accounts[0], accounts[0]],
@@ -220,7 +219,7 @@ contract("WildcardSteward owed", accounts => {
 
     await expectRevert(
       steward.setMintManager(accounts[5], { from: accounts[5] }),
-      "Can only set on intialisation"
+      "Only set on initialisation"
     );
   });
 
