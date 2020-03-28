@@ -2,6 +2,7 @@ pragma solidity 0.5.16;
 import "./ERC721Patronage_v1.sol";
 import "./MintManager_v2.sol";
 
+
 contract WildcardSteward_v2 is Initializable {
     /*
     This smart contract collects patronage from current owner through a Harberger tax model and 
@@ -149,7 +150,7 @@ contract WildcardSteward_v2 is Initializable {
     function addTokenGenerationRateToExistingTokens(
         uint256[] memory tokens,
         uint256[] memory _tokenGenerationRate
-    ) public onlyAdmin {
+    ) internal {
         assert(tokens.length == _tokenGenerationRate.length);
         for (uint8 i = 0; i < tokens.length; ++i) {
             assert(tokenGenerationRate[tokens[i]] == 0);
@@ -285,6 +286,7 @@ contract WildcardSteward_v2 is Initializable {
             .div(365 days);
         return now.add(depositAbleToWithdraw(tokenPatron).div(pps)); // zero division if price is zero.
     }
+
     function foreclosureTime(uint256 tokenId) public view returns (uint256) {
         address tokenPatron = currentPatron[tokenId];
         return foreclosureTimePatron(tokenPatron);
@@ -310,7 +312,6 @@ contract WildcardSteward_v2 is Initializable {
             );
         } else {
             timeSinceLastMint = now.sub(timeLastCollected[tokenId]);
-
         }
         mintManager.tokenMint(
             currentOwner,
@@ -319,6 +320,7 @@ contract WildcardSteward_v2 is Initializable {
         );
         emit CollectLoyalty(tokenId, currentOwner, timeSinceLastMint);
     }
+
     /* actions */
     // TODO:: think of more efficient ways for recipients to collect patronage for lots of tokens at the same time.
     function _collectPatronage(uint256 tokenId) public {
@@ -333,8 +335,9 @@ contract WildcardSteward_v2 is Initializable {
             uint256 collection;
             // should foreclose and stake stewardship
             if (patronageOwedByTokenPatron >= deposit[currentOwner]) {
-                uint256 newTimeLastCollected = timeLastCollectedPatron[currentOwner]
-                    .add(
+
+                    uint256 newTimeLastCollected
+                 = timeLastCollectedPatron[currentOwner].add(
                     (
                         (now.sub(timeLastCollectedPatron[currentOwner]))
                             .mul(deposit[currentOwner])
@@ -351,7 +354,6 @@ contract WildcardSteward_v2 is Initializable {
                     .div(365 days);
                 deposit[currentOwner] = 0;
                 _foreclose(tokenId);
-
             } else {
                 collection = price[tokenId]
                     .mul(now.sub(previousTokenCollection))
@@ -390,7 +392,9 @@ contract WildcardSteward_v2 is Initializable {
             patronageOwedByTokenPatron > 0 &&
             patronageOwedByTokenPatron >= deposit[tokenPatron]
         ) {
-            uint256 previousCollectionTime = timeLastCollectedPatron[tokenPatron];
+
+                uint256 previousCollectionTime
+             = timeLastCollectedPatron[tokenPatron];
             // up to when was it actually paid for?
             uint256 newTimeLastCollected = previousCollectionTime.add(
                 (
@@ -415,6 +419,7 @@ contract WildcardSteward_v2 is Initializable {
     function depositWei() public payable {
         depositWeiPatron(msg.sender);
     }
+
     function depositWeiPatron(address patron) public payable {
         require(totalPatronOwnedTokenCost[patron] > 0, "No tokens owned");
         deposit[patron] = deposit[patron].add(msg.value);

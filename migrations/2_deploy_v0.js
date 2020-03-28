@@ -10,7 +10,7 @@ async function deploy(options, accounts) {
     ]
   });
 
-  await push(options);
+  await push({ ...options, force: true });
 
   const steward = await create(
     Object.assign({ contractAlias: "WildcardSteward" }, options)
