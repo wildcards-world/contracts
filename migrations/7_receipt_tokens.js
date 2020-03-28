@@ -1,61 +1,66 @@
 const { ConfigManager, scripts } = require("@openzeppelin/cli");
 const { add, push, create, update } = scripts;
-const WildcardSteward_v1 = artifacts.require("WildcardSteward_v1");
-const MintManager_v2 = artifacts.require("MintManager_v2");
+const WildcardSteward_v0 = artifacts.require("WildcardSteward_v0");
+const ERC20PatronageReceipt_v2 = artifacts.require("ERC20PatronageReceipt_v2");
 
-async function deploy(options, accounts) {
-  // Manually putting the address here since not sure why trying to fetch it fails.
-  const stewardAddress = "0x935AC70f8F1013A97F0aEEf9ABD1421002989D18"; //(await WildcardSteward_v1.deployed()).address;
+const receiptGenerationRate = 11574074074074; // This is just less (rounded down) than one token a day (ie. 10^18 / 86400)
+
+async function deploy(options, accounts, erc20PatronageReceipt_v2) {
+  const stewardAddress = (await WildcardSteward_v0.deployed()).address;
 
   add({
     contractsData: [
       { name: "WildcardSteward_v2", alias: "WildcardSteward" },
-      { name: "MintManager_v2", alias: "MintManager" },
-      { name: "ERC20PatronageReceipt_v2", alias: "ERC20PatronageReceipt" }
+      { name: "MintManager_v2", alias: "MintManager" }
     ]
   });
 
   // Push implementation contracts to the network
   await push({ ...options, force: true });
 
-  // Update instance
-  const erc20 = await create(
-    Object.assign(
-      {
-        contractAlias: "ERC20PatronageReceipt",
-        methodName: "initialize",
-        methodArgs: [
-          "Wildcards Loyalty Token",
-          "WLT",
-          18,
-          accounts[0] /* NOTE: for now the 'admin' will also be able to mint tokens */
-        ]
-      },
-      options
-    )
-  );
+  // Update instances
   const mintManager = await create(
     Object.assign(
       {
         contractAlias: "MintManager",
         methodName: "initialize",
-        methodArgs: [accounts[0], stewardAddress, erc20.address]
+        methodArgs: [
+          accounts[0],
+          stewardAddress,
+          erc20PatronageReceipt_v2.address
+        ]
       },
       options
     )
   );
-  erc20.addMinter(mintManager.address);
+  erc20PatronageReceipt_v2.addMinter(mintManager.address);
+  erc20PatronageReceipt_v2.renounceMinter({ from: accounts[0] });
+
   await update(
     Object.assign(
       {
         contractAlias: "WildcardSteward",
-        methodName: "addTokenGenerationRateToExistingTokens",
+        methodName: "updateToV2",
         methodArgs: [
+          mintManager.address,
+          [0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 42],
           [
-            /* TODO: token ids */
-          ],
-          [
-            /* TODO: generation rates */
+            receiptGenerationRate,
+            receiptGenerationRate,
+            receiptGenerationRate,
+            receiptGenerationRate,
+
+            receiptGenerationRate,
+            receiptGenerationRate,
+            receiptGenerationRate,
+            receiptGenerationRate,
+
+            receiptGenerationRate,
+            receiptGenerationRate,
+            receiptGenerationRate,
+            receiptGenerationRate,
+
+            receiptGenerationRate
           ]
         ]
       },
@@ -71,14 +76,17 @@ module.exports = function(deployer, networkName, accounts) {
       return;
     }
 
-    if (networkName === "test") {
-      return;
-    }
+    const erc20PatronageReceipt_v2 = await deployer.deploy(
+      ERC20PatronageReceipt_v2,
+      "Wildcards Loyalty Token",
+      "WLT",
+      18
+    );
 
     const { network, txParams } = await ConfigManager.initNetworkConfiguration({
       network: networkName,
       from: accounts[0]
     });
-    await deploy({ network, txParams }, accounts);
+    await deploy({ network, txParams }, accounts, erc20PatronageReceipt_v2);
   });
 };
