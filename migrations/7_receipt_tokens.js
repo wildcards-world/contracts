@@ -8,6 +8,7 @@ const receiptGenerationRate = 11574074074074; // This is just less (rounded down
 async function deploy(options, accounts, erc20PatronageReceipt_v2) {
   const stewardAddress = (await WildcardSteward_v0.deployed()).address;
 
+  console.log("1");
   add({
     contractsData: [
       { name: "WildcardSteward_v2", alias: "WildcardSteward" },
@@ -15,9 +16,11 @@ async function deploy(options, accounts, erc20PatronageReceipt_v2) {
     ]
   });
 
+  console.log("2");
   // Push implementation contracts to the network
   await push({ ...options, force: true });
 
+  console.log("3");
   // Update instances
   const mintManager = await create(
     Object.assign(
@@ -33,9 +36,10 @@ async function deploy(options, accounts, erc20PatronageReceipt_v2) {
       options
     )
   );
-  erc20PatronageReceipt_v2.addMinter(mintManager.address);
+  await erc20PatronageReceipt_v2.addMinter(mintManager.address);
   erc20PatronageReceipt_v2.renounceMinter({ from: accounts[0] });
 
+  console.log("5");
   await update(
     Object.assign(
       {
@@ -82,6 +86,7 @@ module.exports = function(deployer, networkName, accounts) {
       "WLT",
       18
     );
+    // const erc20PatronageReceipt_v2 = await ERC20PatronageReceipt_v2.deployed();
 
     const { network, txParams } = await ConfigManager.initNetworkConfiguration({
       network: networkName,
