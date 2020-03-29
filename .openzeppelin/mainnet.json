@@ -1,11 +1,11 @@
 {
   "contracts": {
     "WildcardSteward": {
-      "address": "0x935AC70f8F1013A97F0aEEf9ABD1421002989D18",
-      "constructorCode": "608060405234801561001057600080fd5b506124eb806100206000396000f3fe",
-      "bodyBytecodeHash": "e195134d6dcd14534132addd59dddbf631c945cd61b842d615e1d08b059b4b36",
-      "localBytecodeHash": "2ea299fe519dbea61927b8cb156a06ecaf098072787222a2b6090447919bb17a",
-      "deployedBytecodeHash": "2ea299fe519dbea61927b8cb156a06ecaf098072787222a2b6090447919bb17a",
+      "address": "0x0B664a2497e562b1040337D820D687bed4c4f6BE",
+      "constructorCode": "608060405234801561001057600080fd5b50612c80806100206000396000f3fe",
+      "bodyBytecodeHash": "4baea267943ea36e59d6ccd77a8f9525957ae8933b38490156ff4346e997e652",
+      "localBytecodeHash": "cf71322ea5b50b51f35de382120075b885762889c900bc9ff523b8a6fa0f10c3",
+      "deployedBytecodeHash": "cf71322ea5b50b51f35de382120075b885762889c900bc9ff523b8a6fa0f10c3",
       "types": null,
       "storage": null
     },
