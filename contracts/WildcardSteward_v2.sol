@@ -127,7 +127,7 @@ contract WildcardSteward_v2 is Initializable {
         for (uint8 i = 0; i < tokens.length; ++i) {
             assert(_benefactors[i] != address(0));
             benefactors[tokens[i]] = _benefactors[i];
-            state[tokens[i]] = StewardState.Foreclosed; // TODO: Maybe Implement reverse dutch auction on intial sale or other such mechanisms to avoid the deadloss weight of 
+            state[tokens[i]] = StewardState.Foreclosed; // TODO: Maybe Implement reverse dutch auction on intial sale or other such mechanisms to avoid the deadloss weight of
             patronageNumerator[tokens[i]] = _patronageNumerator[i];
             tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i];
             emit AddToken(
@@ -320,9 +320,9 @@ contract WildcardSteward_v2 is Initializable {
                 currentOwner
             );
             _collectLoyalty(tokenId); // This needs to be called before before the token may be foreclosed next section
-            uint256 collection;000
+            uint256 collection;
 
-            reclose and stake stewardship
+            // it should foreclose and take stewardship
             if (patronageOwedByTokenPatron >= deposit[currentOwner]) {
 
                     uint256 newTimeLastCollected
