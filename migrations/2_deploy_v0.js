@@ -6,8 +6,8 @@ async function deploy(options, accounts) {
   add({
     contractsData: [
       { name: "ERC721Patronage_v0", alias: "ERC721Patronage" },
-      { name: "WildcardSteward_v0", alias: "WildcardSteward" }
-    ]
+      { name: "WildcardSteward_v0", alias: "WildcardSteward" },
+    ],
   });
 
   await push({ ...options, force: true });
@@ -19,7 +19,7 @@ async function deploy(options, accounts) {
     ...options,
     contractAlias: "ERC721Patronage",
     methodName: "setup",
-    methodArgs: [steward.address, "WildcardsTokens", "WT", accounts[0]]
+    methodArgs: [steward.address, "WildcardsTokens", "WT", accounts[0]],
   });
 }
 
@@ -31,7 +31,7 @@ module.exports = function(deployer, networkName, accounts) {
     }
     const { network, txParams } = await ConfigManager.initNetworkConfiguration({
       network: networkName,
-      from: accounts[0]
+      from: accounts[0],
     });
     await deploy({ network, txParams }, accounts);
   });
