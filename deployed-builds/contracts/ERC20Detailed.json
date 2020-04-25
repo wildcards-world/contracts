@@ -1554,8 +1554,8 @@
     "version": "0.5.16+commit.9c3226ce.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.1.0",
-  "updatedAt": "2020-04-25T19:34:29.130Z",
+  "schemaVersion": "3.0.23",
+  "updatedAt": "2020-04-25T19:55:57.069Z",
   "devdoc": {
     "details": "Optional functions from the ERC20 standard.",
     "methods": {
