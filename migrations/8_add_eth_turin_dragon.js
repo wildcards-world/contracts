@@ -5,6 +5,7 @@ const WildcardSteward_v2 = artifacts.require("WildcardSteward_v2");
 
 const receiptGenerationRate = 11574074074074; // This is just less (rounded down) than one token a day (ie. 10^18 / 86400)
 const tokenId = "13";
+const harbergerTaxRate = "600000000000"; // Harberger tax rate of 60% per year
 
 module.exports = function (deployer, networkName, accounts) {
   deployer.then(async () => {
@@ -30,7 +31,7 @@ module.exports = function (deployer, networkName, accounts) {
     await steward.listNewTokens(
       [tokenId],
       [accounts[0]],
-      [600000000000], // Harberger tax rate of 60% per year
+      [harbergerTaxRate],
       [receiptGenerationRate],
       { from: accounts[0] }
     );
