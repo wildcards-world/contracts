@@ -113,7 +113,35 @@ contract WildcardSteward_v2 is Initializable {
         patronageDenominator = _patronageDenominator;
     }
 
-    // TODO:: add validation that the token that is complient with the "PatronageToken" ERC721 interface extension somehow!
+    // Source:
+    function uintToStr(uint256 _i)
+        internal
+        pure
+        returns (string memory _uintAsString)
+    {
+        if (_i == 0) {
+            return "0";
+        }
+
+        // Determine length of bytes.
+        uint256 j = _i;
+        uint256 len;
+        while (j != 0) {
+            len++;
+            j /= 10;
+        }
+
+        // get each unit of bytes string.
+        bytes memory bstr = new bytes(len);
+        uint256 k = len.sub(1);
+        while (_i != 0) {
+            // ascii codes for digits are 48-57
+            bstr[k--] = bytes1(uint8(48 + (_i % 10)));
+            _i /= 10;
+        }
+        return string(bstr);
+    }
+
     function listNewTokens(
         uint256[] memory tokens,
         address payable[] memory _benefactors,
@@ -126,6 +154,12 @@ contract WildcardSteward_v2 is Initializable {
 
         for (uint8 i = 0; i < tokens.length; ++i) {
             assert(_benefactors[i] != address(0));
+            string memory idString = uintToStr(tokens[i]);
+            string memory tokenUriBase = "https://wildcards.xyz/token/";
+            string memory tokenUri = string(
+                abi.encodePacked(tokenUriBase, idString)
+            );
+            assetToken.mintWithTokenURI(address(this), tokens[i], tokenUri);
             benefactors[tokens[i]] = _benefactors[i];
             state[tokens[i]] = StewardState.Foreclosed; // TODO: Maybe Implement reverse dutch auction on intial sale or other such mechanisms to avoid the deadloss weight of
             patronageNumerator[tokens[i]] = _patronageNumerator[i];
