@@ -1,9 +1,10 @@
-pragma solidity 0.5.16;
+pragma solidity 0.5.15;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721MetadataMintable.sol";
+
 
 // import "./WildcardSteward_v1.sol";
 contract ERC721Patronage_v1 is
@@ -59,5 +60,4 @@ contract ERC721Patronage_v1 is
 
     //     ERC721.transferFrom(from, to, tokenId);
     // }
-
 }
