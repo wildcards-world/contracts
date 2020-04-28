@@ -4,14 +4,14 @@ const {
   ether,
   expectEvent,
   balance,
-  time
+  time,
 } = require("@openzeppelin/test-helpers");
 const {
   waitTillBeginningOfSecond,
   STEWARD_CONTRACT_NAME,
   ERC20_CONTRACT_NAME,
   ERC721_CONTRACT_NAME,
-  MINT_MANAGER_CONTRACT_NAME
+  MINT_MANAGER_CONTRACT_NAME,
 } = require("./helpers");
 
 const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
@@ -21,7 +21,7 @@ const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
 
 // todo: test over/underflows
 
-contract("WildcardSteward owed", accounts => {
+contract("WildcardSteward owed", (accounts) => {
   let erc721;
   let steward;
   let erc20;
@@ -43,10 +43,10 @@ contract("WildcardSteward owed", accounts => {
     steward = await WildcardSteward.new({ from: accounts[0] });
     mintManager = await MintManager.new({ from: accounts[0] });
     erc20 = await ERC20token.new("Wildcards Loyalty Token", "WLT", 18, {
-      from: accounts[0]
+      from: accounts[0],
     });
     await mintManager.initialize(accounts[0], steward.address, erc20.address, {
-      from: accounts[0]
+      from: accounts[0],
     });
     await erc721.setup(
       steward.address,
@@ -55,20 +55,13 @@ contract("WildcardSteward owed", accounts => {
       accounts[0],
       { from: accounts[0] }
     );
+    await erc721.addMinter(steward.address, { from: accounts[0] });
+    await erc721.renounceMinter({ from: accounts[0] });
     await erc20.addMinter(mintManager.address, {
-      from: accounts[0]
+      from: accounts[0],
     });
     await erc20.renounceMinter({ from: accounts[0] });
 
-    await erc721.mintWithTokenURI(steward.address, 0, testTokenURI, {
-      from: accounts[0]
-    });
-    await erc721.mintWithTokenURI(steward.address, 1, testTokenURI, {
-      from: accounts[0]
-    });
-    await erc721.mintWithTokenURI(steward.address, 2, testTokenURI, {
-      from: accounts[0]
-    });
     // TODO: use this to make the contract address of the token deterministic: https://ethereum.stackexchange.com/a/46960/4642
     await steward.initialize(erc721.address, accounts[0], patronageDenominator);
     await steward.updateToV2(mintManager.address, [], []);
@@ -83,7 +76,7 @@ contract("WildcardSteward owed", accounts => {
   it("steward: owed. transfer without steward (fail)", async () => {
     await steward.buy(1, web3.utils.toWei("1", "ether"), {
       from: accounts[2],
-      value: web3.utils.toWei("1", "ether")
+      value: web3.utils.toWei("1", "ether"),
     });
     await expectRevert.unspecified(
       erc721.transferFrom(accounts[2], accounts[1], 42, { from: accounts[2] })
@@ -94,13 +87,13 @@ contract("WildcardSteward owed", accounts => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, web3.utils.toWei("1", "ether"), {
       from: accounts[2],
-      value: web3.utils.toWei("1", "ether")
+      value: web3.utils.toWei("1", "ether"),
     });
 
     const timeLastCollected = await steward.timeLastCollected.call(1);
     await time.increase(1);
     const owed = await steward.patronageOwedWithTimestamp.call(1, {
-      from: accounts[2]
+      from: accounts[2],
     });
 
     // price * (now - timeLastCollected) * patronageNumerator/ patronageDenominator / 365 days;
@@ -118,13 +111,13 @@ contract("WildcardSteward owed", accounts => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, web3.utils.toWei("1", "ether"), {
       from: accounts[2],
-      value: web3.utils.toWei("1", "ether")
+      value: web3.utils.toWei("1", "ether"),
     });
 
     const timeLastCollected = await steward.timeLastCollected.call(1);
     await time.increase(time.duration.days(365));
     const owed = await steward.patronageOwedWithTimestamp.call(1, {
-      from: accounts[2]
+      from: accounts[2],
     });
 
     // price * (now - timeLastCollected) * patronageNumerator/ patronageDenominator / 365 days;
@@ -143,12 +136,12 @@ contract("WildcardSteward owed", accounts => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, web3.utils.toWei("1", "ether"), {
       from: accounts[2],
-      value: web3.utils.toWei("1", "ether")
+      value: web3.utils.toWei("1", "ether"),
     });
 
     await time.increase(time.duration.minutes(10));
     const owed = await steward.patronageOwedWithTimestamp.call(1, {
-      from: accounts[2]
+      from: accounts[2],
     });
     const PatronOwed = await steward.patronageOwedPatronWithTimestamp.call(
       accounts[2],
@@ -169,7 +162,7 @@ contract("WildcardSteward owed", accounts => {
       tokenId: testTokenId.toString(),
       patron: accounts[2],
       remainingDeposit: deposit,
-      amountReceived: totalCollected
+      amountReceived: totalCollected,
     });
     assert.equal(deposit.toString(), calcDeposit.toString());
     assert.equal(benefactorFund.toString(), owed.patronageDue.toString());
@@ -182,17 +175,17 @@ contract("WildcardSteward owed", accounts => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, web3.utils.toWei("1", "ether"), {
       from: accounts[2],
-      value: web3.utils.toWei("1", "ether")
+      value: web3.utils.toWei("1", "ether"),
     });
 
     await time.increase(time.duration.minutes(10));
     const owed = await steward.patronageOwedWithTimestamp.call(1, {
-      from: accounts[2]
+      from: accounts[2],
     });
     await steward._collectPatronage(testTokenId);
     await time.increase(time.duration.minutes(10));
     const owed2 = await steward.patronageOwedWithTimestamp.call(1, {
-      from: accounts[2]
+      from: accounts[2],
     });
     await steward._collectPatronage(testTokenId);
 
@@ -225,12 +218,12 @@ contract("WildcardSteward owed", accounts => {
     // 10min of patronage
     await steward.buy(1, ether("1"), {
       from: accounts[2],
-      value: tenMinPatronageAt1Eth
+      value: tenMinPatronageAt1Eth,
     });
 
     await time.increase(time.duration.minutes(10));
     const owed = await steward.patronageOwedWithTimestamp.call(1, {
-      from: accounts[2]
+      from: accounts[2],
     });
     const { logs } = await steward._collectPatronage(testTokenId); // will foreclose
 
@@ -251,7 +244,7 @@ contract("WildcardSteward owed", accounts => {
 
     expectEvent.inLogs(logs, "Foreclosure", {
       prevOwner: accounts[2],
-      foreclosureTime: timeLastCollected
+      foreclosureTime: timeLastCollected,
     });
     assert.equal(timeHeld.toString(), time.duration.minutes(10).toString());
     assert.equal(currentOwner, steward.address);
@@ -278,7 +271,7 @@ contract("WildcardSteward owed", accounts => {
     // 10min of patronage
     await steward.buy(1, ether("1"), {
       from: accounts[2],
-      value: tenMinPatronageAt1Eth
+      value: tenMinPatronageAt1Eth,
     });
 
     await time.increase(time.duration.minutes(10));
@@ -311,12 +304,12 @@ contract("WildcardSteward owed", accounts => {
 
     await time.increase(time.duration.minutes(10));
     const owed = await steward.patronageOwedWithTimestamp.call(1, {
-      from: accounts[2]
+      from: accounts[2],
     });
     const preTimeBought = await steward.timeAcquired.call(1);
     const { logs } = await steward.buy(1, ether("2"), {
       from: accounts[3],
-      value: totalToBuy
+      value: totalToBuy,
     }); // will foreclose and then buy
 
     const deposit = await steward.deposit.call(accounts[3]);
@@ -364,7 +357,7 @@ contract("WildcardSteward owed", accounts => {
     await steward.buy(1, ether("1"), { from: accounts[2], value: totalToBuy });
     await time.increase(time.duration.minutes(10));
     const owed = await steward.patronageOwedWithTimestamp.call(1, {
-      from: accounts[2]
+      from: accounts[2],
     });
     await steward._collectPatronage(testTokenId); // will foreclose
 
@@ -372,7 +365,7 @@ contract("WildcardSteward owed", accounts => {
 
     const txReceipt = await steward.withdrawBenefactorFunds({
       from: accounts[0],
-      gasPrice: "1000000000"
+      gasPrice: "1000000000",
     }); // 1 gwei gas
     const txCost = new BN(txReceipt.receipt.gasUsed).mul(new BN("1000000000"));
     const calcDiff = totalToBuy.sub(txCost);
@@ -398,7 +391,7 @@ contract("WildcardSteward owed", accounts => {
     const preDeposit = await steward.deposit.call(accounts[2]);
     const preTimeBought = await steward.timeAcquired.call(1);
     const owed = await steward.patronageOwedWithTimestamp.call(1, {
-      from: accounts[2]
+      from: accounts[2],
     });
     await steward._collectPatronage(testTokenId); // will foreclose
 
@@ -444,7 +437,7 @@ contract("WildcardSteward owed", accounts => {
     await steward.depositWei({ from: accounts[2], value: ether("1") });
     await steward.depositWeiPatron(accounts[2], {
       from: accounts[3],
-      value: ether("1")
+      value: ether("1"),
     });
     const deposit = await steward.deposit.call(accounts[2]);
     assert.equal(deposit.toString(), ether("4").toString());
@@ -463,7 +456,7 @@ contract("WildcardSteward owed", accounts => {
     await waitTillBeginningOfSecond();
     await steward.buy(1, ether("1"), { from: accounts[2], value: ether("2") });
     const { logs } = await steward.changePrice(testTokenId, ether("3"), {
-      from: accounts[2]
+      from: accounts[2],
     });
     expectEvent.inLogs(logs, "PriceChange", { newPrice: ether("3") });
     const postPrice = await steward.price.call(1);
@@ -598,7 +591,7 @@ contract("WildcardSteward owed", accounts => {
     await steward.buy(1, ether("1"), {
       from: accounts[3],
       value: ether("2"),
-      gasPrice: "1000000000"
+      gasPrice: "1000000000",
     }); // 1 gwei
 
     // TODO: Add a check in the smart contract, that if it is the only token owned by the Patron, return their deposit. And add the following 3 lines back.
@@ -698,7 +691,7 @@ contract("WildcardSteward owed", accounts => {
     it("an entity that is not the current benefactor should NOT be able to change the benefactor", async () => {
       await expectRevert(
         steward.changeReceivingBenefactor(0, accounts[2], {
-          from: accounts[3]
+          from: accounts[3],
         }),
         "Not benefactor"
       );
@@ -706,13 +699,13 @@ contract("WildcardSteward owed", accounts => {
 
     it("the current organisation should be able to change the benefactor", async () => {
       await steward.changeReceivingBenefactor(0, accounts[3], {
-        from: accounts[0]
+        from: accounts[0],
       });
       const newOwner = await steward.benefactors.call(0);
       assert.equal(newOwner, accounts[3]);
       // return back to the previous owner to make this test isomorphic
       await steward.changeReceivingBenefactor(0, accounts[1], {
-        from: accounts[3]
+        from: accounts[3],
       });
       const prevOwner = await steward.benefactors.call(0);
       assert.equal(prevOwner, accounts[1]);

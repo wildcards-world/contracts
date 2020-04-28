@@ -4,20 +4,20 @@ const {
   ether,
   expectEvent,
   balance,
-  time
+  time,
 } = require("@openzeppelin/test-helpers");
 const {
   STEWARD_CONTRACT_NAME,
   ERC721_CONTRACT_NAME,
   ERC20_CONTRACT_NAME,
-  MINT_MANAGER_CONTRACT_NAME
+  MINT_MANAGER_CONTRACT_NAME,
 } = require("./helpers");
 
 const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
 const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
 const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
 const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
-contract("WildcardSteward", accounts => {
+contract("WildcardSteward", (accounts) => {
   let erc721;
   let steward;
   let mintManager;
@@ -25,17 +25,17 @@ contract("WildcardSteward", accounts => {
   const patronageDenominator = 1;
   const patronageNumerator = 12;
   const tokenGenerationRate = 10; // should depend on token
-  const testTokenURI = "test token uri";
+  const testTokenURI = "https://wildcards.xyz/token/";
 
   beforeEach(async () => {
     erc721 = await ERC721token.new({ from: accounts[0] });
     steward = await WildcardSteward.new({ from: accounts[0] });
     mintManager = await MintManager.new({ from: accounts[0] });
     erc20 = await ERC20token.new("Wildcards Loyalty Token", "WLT", 18, {
-      from: accounts[0]
+      from: accounts[0],
     });
     await mintManager.initialize(accounts[0], steward.address, erc20.address, {
-      from: accounts[0]
+      from: accounts[0],
     });
     await erc721.setup(
       steward.address,
@@ -44,14 +44,13 @@ contract("WildcardSteward", accounts => {
       accounts[0],
       { from: accounts[0] }
     );
+    await erc721.addMinter(steward.address, { from: accounts[0] });
+    await erc721.renounceMinter({ from: accounts[0] });
     await erc20.addMinter(mintManager.address, {
-      from: accounts[0]
+      from: accounts[0],
     });
     await erc20.renounceMinter({ from: accounts[0] });
 
-    await erc721.mintWithTokenURI(steward.address, 0, testTokenURI, {
-      from: accounts[0]
-    });
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
     await steward.initialize(erc721.address, accounts[0], patronageDenominator);
     await steward.updateToV2(mintManager.address, [], []);
@@ -66,7 +65,7 @@ contract("WildcardSteward", accounts => {
   it("steward: init: erc721 minted", async () => {
     const currentOwner = await erc721.ownerOf.call(0);
     const uri = await erc721.tokenURI(0);
-    assert.equal(uri, testTokenURI);
+    assert.equal(uri, testTokenURI + "0");
     assert.equal(steward.address, currentOwner);
   });
 
@@ -76,7 +75,7 @@ contract("WildcardSteward", accounts => {
     await expectRevert(
       steward.depositWei({
         from: accounts[2],
-        value: web3.utils.toWei("1", "ether")
+        value: web3.utils.toWei("1", "ether"),
       }),
       "No tokens owned"
     );
@@ -87,7 +86,7 @@ contract("WildcardSteward", accounts => {
     await expectRevert(
       steward.depositWei({
         from: accounts[2],
-        value: web3.utils.toWei("1", "ether")
+        value: web3.utils.toWei("1", "ether"),
       }),
       "No tokens owned"
     );
@@ -112,7 +111,7 @@ contract("WildcardSteward", accounts => {
     await expectRevert.unspecified(
       steward.buy(1, 1000, {
         from: accounts[2],
-        value: web3.utils.toWei("0", "ether")
+        value: web3.utils.toWei("0", "ether"),
       })
     );
   });
@@ -121,7 +120,7 @@ contract("WildcardSteward", accounts => {
     await expectRevert(
       steward.buy(1, 0, {
         from: accounts[2],
-        value: web3.utils.toWei("1", "ether")
+        value: web3.utils.toWei("1", "ether"),
       }),
       "Price is zero"
     );
@@ -130,7 +129,7 @@ contract("WildcardSteward", accounts => {
   it("steward: init: buy with 2 ether, price of 1 success [price = 1 eth, deposit = 1 eth]", async () => {
     const { logs } = await steward.buy(0, web3.utils.toWei("1", "ether"), {
       from: accounts[2],
-      value: web3.utils.toWei("1", "ether")
+      value: web3.utils.toWei("1", "ether"),
     });
     expectEvent.inLogs(logs, "Buy", { owner: accounts[2], price: ether("1") });
     const deposit = await steward.deposit.call(accounts[2]);
