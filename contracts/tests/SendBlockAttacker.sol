@@ -1,6 +1,7 @@
-pragma solidity 0.5.16;
+pragma solidity 0.5.15;
 
 import "../WildcardSteward_v2.sol";
+
 
 contract SendBlockAttacker {
     function buyOnBehalf(
@@ -8,7 +9,7 @@ contract SendBlockAttacker {
         uint256 tokenId,
         uint256 newPrice
     ) public payable {
-        stewardAddress.buy.value(msg.value)(tokenId, newPrice);
+        stewardAddress.buy.value(msg.value)(tokenId, newPrice, msg.value);
     }
 
     function withdrawDeposit(WildcardSteward_v2 stewardAddress, uint256 amount)

@@ -1,4 +1,4 @@
-pragma solidity 0.5.16;
+pragma solidity 0.5.15;
 import "./ERC721Patronage_v1.sol";
 import "./MintManager_v2.sol";
 
@@ -206,6 +206,10 @@ contract WildcardSteward_v2 is Initializable {
         address payable _newReceivingBenefactor
     ) public onlyReceivingBenefactorOrAdmin(tokenId) {
         address oldBenfactor = benefactors[tokenId];
+        require(
+            oldBenfactor != _newReceivingBenefactor,
+            "Cannot change to same address"
+        );
         benefactors[tokenId] = _newReceivingBenefactor;
         benefactorFunds[_newReceivingBenefactor] = benefactorFunds[oldBenfactor];
         benefactorFunds[oldBenfactor] = 0;
@@ -449,14 +453,19 @@ contract WildcardSteward_v2 is Initializable {
         emit RemainingDepositUpdate(patron, deposit[patron]);
     }
 
-    function buy(uint256 tokenId, uint256 _newPrice)
+    function buy(uint256 tokenId, uint256 _newPrice, uint256 _deposit)
         public
         payable
         collectPatronage(tokenId)
         collectPatronageAddress(msg.sender)
     {
         require(_newPrice > 0, "Price is zero");
-        require(msg.value > price[tokenId], "Not enough"); // >, coz need to have at least something for deposit
+        uint256 remainingValueForDeposit = msg.value.sub(price[tokenId]);
+        // This prevents slipage if someone frontruns this transaction and changes the price unexpectedly.
+        require(
+            remainingValueForDeposit >= _deposit,
+            "The deposit available is < what was stated in the transaction"
+        );
         address currentOwner = assetToken.ownerOf(tokenId);
         address tokenPatron = currentPatron[tokenId];
 
@@ -488,9 +497,7 @@ contract WildcardSteward_v2 is Initializable {
             timeLastCollectedPatron[msg.sender] = now;
         }
 
-        deposit[msg.sender] = deposit[msg.sender].add(
-            msg.value.sub(price[tokenId])
-        );
+        deposit[msg.sender] = deposit[msg.sender].add(remainingValueForDeposit);
         transferAssetTokenTo(
             tokenId,
             currentOwner,

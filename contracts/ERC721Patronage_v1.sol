@@ -1,4 +1,4 @@
-pragma solidity 0.5.16;
+pragma solidity 0.5.15;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol";

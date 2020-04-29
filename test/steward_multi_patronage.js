@@ -82,6 +82,7 @@ contract("WildcardSteward owed", (accounts) => {
     const buyTx1 = await steward.buy(
       testTokenId1,
       web3.utils.toWei("1", "ether"),
+      web3.utils.toWei("1", "ether"),
       { from: accounts[2], value: web3.utils.toWei("1", "ether") }
     );
     const buyTx1BlockTime = (
@@ -141,6 +142,7 @@ contract("WildcardSteward owed", (accounts) => {
     const buyToken2Tx = await steward.buy(
       testTokenId2,
       web3.utils.toWei("2", "ether"),
+      web3.utils.toWei("1", "ether"),
 
       { from: accounts[2], value: web3.utils.toWei("1", "ether") }
     );

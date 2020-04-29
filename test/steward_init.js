@@ -109,7 +109,7 @@ contract("WildcardSteward", (accounts) => {
 
   it("steward: init: buy with zero wei [fail payable]", async () => {
     await expectRevert.unspecified(
-      steward.buy(1, 1000, {
+      steward.buy(1, 1000, web3.utils.toWei("0", "ether"), {
         from: accounts[2],
         value: web3.utils.toWei("0", "ether"),
       })
@@ -118,7 +118,7 @@ contract("WildcardSteward", (accounts) => {
 
   it("steward: init: buy with 1 ether but 0 price [fail on price]", async () => {
     await expectRevert(
-      steward.buy(1, 0, {
+      steward.buy(1, 0, web3.utils.toWei("0", "ether"), {
         from: accounts[2],
         value: web3.utils.toWei("1", "ether"),
       }),
@@ -127,10 +127,15 @@ contract("WildcardSteward", (accounts) => {
   });
 
   it("steward: init: buy with 2 ether, price of 1 success [price = 1 eth, deposit = 1 eth]", async () => {
-    const { logs } = await steward.buy(0, web3.utils.toWei("1", "ether"), {
-      from: accounts[2],
-      value: web3.utils.toWei("1", "ether"),
-    });
+    const { logs } = await steward.buy(
+      0,
+      web3.utils.toWei("1", "ether"),
+      web3.utils.toWei("1", "ether"),
+      {
+        from: accounts[2],
+        value: web3.utils.toWei("1", "ether"),
+      }
+    );
     expectEvent.inLogs(logs, "Buy", { owner: accounts[2], price: ether("1") });
     const deposit = await steward.deposit.call(accounts[2]);
     const price = await steward.price.call(0);
