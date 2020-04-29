@@ -4,7 +4,7 @@ const {
   ether,
   expectEvent,
   balance,
-  time
+  time,
 } = require("@openzeppelin/test-helpers");
 const {
   multiPatronageCalculator,
@@ -12,7 +12,7 @@ const {
   STEWARD_CONTRACT_NAME,
   ERC20_CONTRACT_NAME,
   ERC721_CONTRACT_NAME,
-  MINT_MANAGER_CONTRACT_NAME
+  MINT_MANAGER_CONTRACT_NAME,
 } = require("./helpers");
 
 const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
@@ -21,10 +21,9 @@ const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
 const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
 
 // todo: test over/underflows
-const PATRONAGE_DENOMINATOR = "1";
-const patronageCalculator = multiPatronageCalculator(PATRONAGE_DENOMINATOR);
+const patronageCalculator = multiPatronageCalculator();
 
-contract("WildcardSteward owed", accounts => {
+contract("WildcardSteward owed", (accounts) => {
   let erc721;
   let steward;
   let erc20;
@@ -40,7 +39,7 @@ contract("WildcardSteward owed", accounts => {
     erc20 = await ERC20token.new("Wildcards Loyalty Token", "WLT", 18);
 
     await mintManager.initialize(accounts[0], steward.address, erc20.address, {
-      from: accounts[0]
+      from: accounts[0],
     });
     await erc721.setup(
       steward.address,
@@ -49,28 +48,14 @@ contract("WildcardSteward owed", accounts => {
       accounts[0],
       { from: accounts[0] }
     );
+    await erc721.addMinter(steward.address, { from: accounts[0] });
+    await erc721.renounceMinter({ from: accounts[0] });
+
     await erc20.addMinter(mintManager.address);
     await erc20.renounceMinter({ from: accounts[0] });
 
-    //await erc721.mintWithTokenURI(steward.address, testToken0.id, testTokenURI, { from: accounts[0] })
-    await erc721.mintWithTokenURI(
-      steward.address,
-      testToken1.id,
-      testTokenURI,
-      { from: accounts[0] }
-    );
-    await erc721.mintWithTokenURI(
-      steward.address,
-      testToken2.id,
-      testTokenURI,
-      { from: accounts[0] }
-    );
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(
-      erc721.address,
-      accounts[0],
-      PATRONAGE_DENOMINATOR
-    );
+    await steward.initialize(erc721.address, accounts[0]);
     await steward.updateToV2(mintManager.address, [], []);
     await steward.listNewTokens(
       [testToken1.id, testToken2.id],
@@ -89,11 +74,10 @@ contract("WildcardSteward owed", accounts => {
     testTokenId2 = testToken2.id;
 
     //Buying 1st token and setting selling price to 1 eth. With 1 eth deposit.
-    const buyTx1 = await steward.buy(
-      testTokenId1,
-      web3.utils.toWei("1", "ether"),
-      { from: accounts[2], value: web3.utils.toWei("1", "ether") }
-    );
+    const buyTx1 = await steward.buy(testTokenId1, ether("1"), ether("1"), {
+      from: accounts[2],
+      value: ether("1"),
+    });
     const buyTx1BlockTime = (
       await web3.eth.getBlock(buyTx1.receipt.blockNumber)
     ).timestamp;
@@ -125,8 +109,8 @@ contract("WildcardSteward owed", accounts => {
     const expectedPatronageAfter10min = patronageCalculator("600", [
       {
         patronageNumerator: testToken1.patronageNumerator.toString(),
-        price: priceOfToken1.toString()
-      }
+        price: priceOfToken1.toString(),
+      },
     ]);
     assert.equal(
       patronDepositInitial.toString(),
@@ -150,9 +134,10 @@ contract("WildcardSteward owed", accounts => {
     // Buy a 2nd token
     const buyToken2Tx = await steward.buy(
       testTokenId2,
-      web3.utils.toWei("2", "ether"),
+      ether("2"),
+      ether("1"),
 
-      { from: accounts[2], value: web3.utils.toWei("1", "ether") }
+      { from: accounts[2], value: ether("1") }
     );
     const buyToken2BlockTime = (
       await web3.eth.getBlock(buyToken2Tx.receipt.blockNumber)
@@ -173,8 +158,8 @@ contract("WildcardSteward owed", accounts => {
     const expectedPatronage10MinToken1 = patronageCalculator("600", [
       {
         patronageNumerator: testToken1.patronageNumerator.toString(),
-        price: priceOfToken1.toString()
-      }
+        price: priceOfToken1.toString(),
+      },
     ]);
 
     assert.equal(
@@ -208,12 +193,12 @@ contract("WildcardSteward owed", accounts => {
     const expectedPatronageMulti = patronageCalculator("601", [
       {
         patronageNumerator: testToken1.patronageNumerator.toString(),
-        price: priceOfToken1.toString()
+        price: priceOfToken1.toString(),
       },
       {
         patronageNumerator: testToken2.patronageNumerator.toString(),
-        price: priceOfToken2.toString()
-      }
+        price: priceOfToken2.toString(),
+      },
     ]);
 
     assert.equal(
@@ -233,8 +218,8 @@ contract("WildcardSteward owed", accounts => {
     const expectedTotalPatronageT30Token1 = patronageCalculator("1801", [
       {
         patronageNumerator: testToken1.patronageNumerator.toString(),
-        price: priceOfToken1.toString()
-      }
+        price: priceOfToken1.toString(),
+      },
     ]);
     assert.equal(
       benefactorFundsT30.toString(),
@@ -260,8 +245,8 @@ contract("WildcardSteward owed", accounts => {
     const expectedTotalPatronageT40Token2 = patronageCalculator("1201", [
       {
         patronageNumerator: testToken2.patronageNumerator.toString(),
-        price: priceOfToken2.toString()
-      }
+        price: priceOfToken2.toString(),
+      },
     ]);
     assert.equal(
       benefactor2FundsT40.toString(),
