@@ -37,7 +37,6 @@ contract WildcardSteward_v2 is Initializable {
 
     // 1200% patronage
     mapping(uint256 => uint256) public patronageNumerator;
-    uint256 public patronageDenominator;
 
     enum StewardState {Foreclosed, Owned}
     mapping(uint256 => StewardState) public state;
@@ -106,11 +105,9 @@ contract WildcardSteward_v2 is Initializable {
     function initialize(
         address _assetToken,
         address _admin,
-        uint256 _patronageDenominator
     ) public initializer {
         assetToken = ERC721Patronage_v1(_assetToken);
         admin = _admin;
-        patronageDenominator = _patronageDenominator;
     }
 
     // Source: https://github.com/provable-things/ethereum-api/blob/master/oraclizeAPI_0.5.sol#L1045
@@ -230,7 +227,7 @@ contract WildcardSteward_v2 is Initializable {
             price[tokenId]
                 .mul(now.sub(timeLastCollected[tokenId]))
                 .mul(patronageNumerator[tokenId])
-                .div(patronageDenominator)
+                .div(1000000000000)
                 .div(365 days);
     }
 
@@ -253,7 +250,7 @@ contract WildcardSteward_v2 is Initializable {
         return
             totalPatronOwnedTokenCost[tokenPatron]
                 .mul(now.sub(timeLastCollectedPatron[tokenPatron]))
-                .div(patronageDenominator)
+                .div(1000000000000)
                 .div(365 days);
     }
 
@@ -305,7 +302,7 @@ contract WildcardSteward_v2 is Initializable {
     {
         // patronage per second
         uint256 pps = totalPatronOwnedTokenCost[tokenPatron]
-            .div(patronageDenominator)
+            .div(1000000000000)
             .div(365 days);
         return now.add(depositAbleToWithdraw(tokenPatron).div(pps)); // zero division if price is zero.
     }
@@ -376,7 +373,7 @@ contract WildcardSteward_v2 is Initializable {
                 collection = price[tokenId]
                     .mul(newTimeLastCollected.sub(previousTokenCollection))
                     .mul(patronageNumerator[tokenId])
-                    .div(patronageDenominator)
+                    .div(1000000000000)
                     .div(365 days);
                 deposit[currentOwner] = 0;
                 _foreclose(tokenId);
@@ -384,7 +381,7 @@ contract WildcardSteward_v2 is Initializable {
                 collection = price[tokenId]
                     .mul(now.sub(previousTokenCollection))
                     .mul(patronageNumerator[tokenId])
-                    .div(patronageDenominator)
+                    .div(1000000000000)
                     .div(365 days);
 
                 timeLastCollected[tokenId] = now;
