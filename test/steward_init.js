@@ -22,8 +22,7 @@ contract("WildcardSteward", (accounts) => {
   let steward;
   let mintManager;
   let erc20;
-  const patronageDenominator = 1;
-  const patronageNumerator = 12;
+  const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
   const testTokenURI = "https://wildcards.xyz/token/";
 
@@ -52,7 +51,7 @@ contract("WildcardSteward", (accounts) => {
     await erc20.renounceMinter({ from: accounts[0] });
 
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(erc721.address, accounts[0], patronageDenominator);
+    await steward.initialize(erc721.address, accounts[0]);
     await steward.updateToV2(mintManager.address, [], []);
     await steward.listNewTokens(
       [0],

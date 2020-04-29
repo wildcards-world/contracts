@@ -102,10 +102,10 @@ contract WildcardSteward_v2 is Initializable {
         _;
     }
 
-    function initialize(
-        address _assetToken,
-        address _admin,
-    ) public initializer {
+    function initialize(address _assetToken, address _admin)
+        public
+        initializer
+    {
         assetToken = ERC721Patronage_v1(_assetToken);
         admin = _admin;
     }

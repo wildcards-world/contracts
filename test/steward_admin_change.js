@@ -20,16 +20,14 @@ const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
 const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
 const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
 
-const PATRONAGE_DENOMINATOR = "1";
-const patronageCalculator = multiPatronageCalculator(PATRONAGE_DENOMINATOR);
+const patronageCalculator = multiPatronageCalculator();
 
 contract("WildcardSteward owed", (accounts) => {
   let erc721;
   let steward;
   let erc20;
   const testTokenId1 = 1;
-  const patronageNumerator = 12;
-  const patronageDenominator = 1;
+  const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
   let testTokenURI = "test token uri";
 
@@ -53,7 +51,7 @@ contract("WildcardSteward owed", (accounts) => {
     await erc721.addMinter(steward.address, { from: accounts[0] });
     await erc721.renounceMinter({ from: accounts[0] });
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(erc721.address, accounts[0], patronageDenominator);
+    await steward.initialize(erc721.address, accounts[0]);
     await steward.updateToV2(mintManager.address, [], []);
     await steward.listNewTokens(
       [1],
