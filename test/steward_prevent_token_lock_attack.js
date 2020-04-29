@@ -33,8 +33,7 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
   let mintManager;
   let testTokenURI = "test token uri";
   const testTokenId = 1;
-  const patronageNumerator = 12;
-  const patronageDenominator = 1;
+  const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
   // price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
   const tenMinPatronageAt1Eth = ether("1")
@@ -69,12 +68,9 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
     await erc20.renounceMinter({ from: accounts[0] });
 
     // TODO: use this to make the contract address of the token deterministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(
-      erc721.address,
-      accounts[0],
-      patronageDenominator,
-      { from: accounts[0] }
-    );
+    await steward.initialize(erc721.address, accounts[0], {
+      from: accounts[0],
+    });
     await steward.updateToV2(mintManager.address, [], [], {
       from: accounts[0],
     });
