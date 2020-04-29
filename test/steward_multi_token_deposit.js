@@ -4,7 +4,7 @@ const {
   ether,
   expectEvent,
   balance,
-  time
+  time,
 } = require("@openzeppelin/test-helpers");
 const {
   multiPatronageCalculator,
@@ -12,7 +12,7 @@ const {
   STEWARD_CONTRACT_NAME,
   ERC20_CONTRACT_NAME,
   ERC721_CONTRACT_NAME,
-  MINT_MANAGER_CONTRACT_NAME
+  MINT_MANAGER_CONTRACT_NAME,
 } = require("./helpers");
 
 const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
@@ -25,7 +25,7 @@ const patronageCalculator = multiPatronageCalculator(PATRONAGE_DENOMINATOR);
 
 // todo: test over/underflows
 
-contract("WildcardSteward owed", accounts => {
+contract("WildcardSteward owed", (accounts) => {
   let erc721;
   let steward;
   let erc20;
@@ -40,10 +40,10 @@ contract("WildcardSteward owed", accounts => {
     steward = await WildcardSteward.new({ from: accounts[0] });
     mintManager = await MintManager.new({ from: accounts[0] });
     erc20 = await ERC20token.new("Wildcards Loyalty Token", "WLT", 18, {
-      from: accounts[0]
+      from: accounts[0],
     });
     await mintManager.initialize(accounts[0], steward.address, erc20.address, {
-      from: accounts[0]
+      from: accounts[0],
     });
     await erc721.setup(
       steward.address,
@@ -53,18 +53,18 @@ contract("WildcardSteward owed", accounts => {
       { from: accounts[0] }
     );
     await erc20.addMinter(mintManager.address, {
-      from: accounts[0]
+      from: accounts[0],
     });
     await erc20.renounceMinter({ from: accounts[0] });
 
     await erc721.mintWithTokenURI(steward.address, 0, testTokenURI, {
-      from: accounts[0]
+      from: accounts[0],
     });
     await erc721.mintWithTokenURI(steward.address, 1, testTokenURI, {
-      from: accounts[0]
+      from: accounts[0],
     });
     await erc721.mintWithTokenURI(steward.address, 2, testTokenURI, {
-      from: accounts[0]
+      from: accounts[0],
     });
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
     await steward.initialize(
@@ -85,14 +85,24 @@ contract("WildcardSteward owed", accounts => {
     await waitTillBeginningOfSecond();
 
     //Buying 2 tokens. Setting selling price to 1 and 2 eth respectively. Sending 1 eth each for deposit.
-    await steward.buy(testTokenId1, web3.utils.toWei("1", "ether"), {
-      from: accounts[2],
-      value: web3.utils.toWei("1", "ether")
-    });
-    await steward.buy(testTokenId2, web3.utils.toWei("2", "ether"), {
-      from: accounts[2],
-      value: web3.utils.toWei("1", "ether")
-    });
+    await steward.buy(
+      testTokenId1,
+      web3.utils.toWei("1", "ether"),
+      web3.utils.toWei("1", "ether"),
+      {
+        from: accounts[2],
+        value: web3.utils.toWei("1", "ether"),
+      }
+    );
+    await steward.buy(
+      testTokenId2,
+      web3.utils.toWei("2", "ether"),
+      web3.utils.toWei("1", "ether"),
+      {
+        from: accounts[2],
+        value: web3.utils.toWei("1", "ether"),
+      }
+    );
 
     const priceOftoken1 = await steward.price.call(testTokenId1);
     const priceOftoken2 = await steward.price.call(testTokenId2);
@@ -105,10 +115,15 @@ contract("WildcardSteward owed", accounts => {
       await web3.eth.getBalance(accounts[2])
     );
     // When first token is bought, deposit should remain.
-    await steward.buy(testTokenId1, ether("1"), {
-      from: accounts[3],
-      value: ether("2")
-    });
+    await steward.buy(
+      testTokenId1,
+      ether("1"),
+      web3.utils.toWei("1", "ether"),
+      {
+        from: accounts[3],
+        value: ether("2"),
+      }
+    );
 
     const patronDepositAfterFirstSale = await steward.deposit.call(accounts[2]);
     const balancePatronAfterFirstSale = new BN(
@@ -116,10 +131,15 @@ contract("WildcardSteward owed", accounts => {
     );
 
     //Second token then bought. Deposit should now be added back the patrons balance
-    await steward.buy(testTokenId2, ether("1"), {
-      from: accounts[3],
-      value: ether("3")
-    });
+    await steward.buy(
+      testTokenId2,
+      ether("1"),
+      web3.utils.toWei("1", "ether"),
+      {
+        from: accounts[3],
+        value: ether("3"),
+      }
+    );
 
     const balancePatronAfterSecondSale = new BN(
       await web3.eth.getBalance(accounts[2])
@@ -130,7 +150,7 @@ contract("WildcardSteward owed", accounts => {
 
     const expectedPatronageAfter10min = patronageCalculator("600", [
       { patronageNumerator: "12", price: priceOftoken1.toString() },
-      { patronageNumerator: "12", price: priceOftoken2.toString() }
+      { patronageNumerator: "12", price: priceOftoken2.toString() },
     ]);
 
     assert.equal(
