@@ -79,12 +79,10 @@ contract("WildcardSteward owed", (accounts) => {
     testTokenId2 = testToken2.id;
 
     //Buying 1st token and setting selling price to 1 eth. With 1 eth deposit.
-    const buyTx1 = await steward.buy(
-      testTokenId1,
-      web3.utils.toWei("1", "ether"),
-      web3.utils.toWei("1", "ether"),
-      { from: accounts[2], value: web3.utils.toWei("1", "ether") }
-    );
+    const buyTx1 = await steward.buy(testTokenId1, ether("1"), ether("1"), {
+      from: accounts[2],
+      value: ether("1"),
+    });
     const buyTx1BlockTime = (
       await web3.eth.getBlock(buyTx1.receipt.blockNumber)
     ).timestamp;
@@ -141,10 +139,10 @@ contract("WildcardSteward owed", (accounts) => {
     // Buy a 2nd token
     const buyToken2Tx = await steward.buy(
       testTokenId2,
-      web3.utils.toWei("2", "ether"),
-      web3.utils.toWei("1", "ether"),
+      ether("2"),
+      ether("1"),
 
-      { from: accounts[2], value: web3.utils.toWei("1", "ether") }
+      { from: accounts[2], value: ether("1") }
     );
     const buyToken2BlockTime = (
       await web3.eth.getBlock(buyToken2Tx.receipt.blockNumber)

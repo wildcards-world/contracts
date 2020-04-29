@@ -67,9 +67,9 @@ contract("WildcardSteward owed", (accounts) => {
     await waitTillBeginningOfSecond();
 
     //Buy a token
-    await steward.buy(testTokenId1, web3.utils.toWei("1", "ether"), {
+    await steward.buy(testTokenId1, ether("1"), ether("1"), {
       from: accounts[2],
-      value: web3.utils.toWei("1", "ether"),
+      value: ether("2", "ether"),
     });
     const priceOfToken1 = await steward.price.call(testTokenId1);
 

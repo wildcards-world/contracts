@@ -62,15 +62,6 @@ contract("WildcardSteward owed", (accounts) => {
     });
     await erc20.renounceMinter({ from: accounts[0] });
 
-    await erc721.mintWithTokenURI(steward.address, 0, testTokenURI, {
-      from: accounts[0],
-    });
-    await erc721.mintWithTokenURI(steward.address, 1, testTokenURI, {
-      from: accounts[0],
-    });
-    await erc721.mintWithTokenURI(steward.address, 2, testTokenURI, {
-      from: accounts[0],
-    });
     // TODO: use this to make the contract address of the token deterministic: https://ethereum.stackexchange.com/a/46960/4642
     await steward.initialize(erc721.address, accounts[0], patronageDenominator);
     await steward.updateToV2(mintManager.address, [], []);
@@ -83,15 +74,10 @@ contract("WildcardSteward owed", (accounts) => {
   });
 
   it("steward: owed. transfer without steward (fail)", async () => {
-    await steward.buy(
-      1,
-      web3.utils.toWei("1", "ether"),
-      web3.utils.toWei("1", "ether"),
-      {
-        from: accounts[2],
-        value: web3.utils.toWei("1", "ether"),
-      }
-    );
+    await steward.buy(1, ether("1"), ether("1"), {
+      from: accounts[2],
+      value: ether("1"),
+    });
     await expectRevert.unspecified(
       erc721.transferFrom(accounts[2], accounts[1], 42, { from: accounts[2] })
     );
@@ -99,15 +85,10 @@ contract("WildcardSteward owed", (accounts) => {
 
   it("steward: owed. check patronage owed after 1 second.", async () => {
     await waitTillBeginningOfSecond();
-    await steward.buy(
-      1,
-      web3.utils.toWei("1", "ether"),
-      web3.utils.toWei("1", "ether"),
-      {
-        from: accounts[2],
-        value: web3.utils.toWei("1", "ether"),
-      }
-    );
+    await steward.buy(1, ether("1"), ether("1"), {
+      from: accounts[2],
+      value: ether("1"),
+    });
 
     const timeLastCollected = await steward.timeLastCollected.call(1);
     await time.increase(1);
@@ -128,15 +109,10 @@ contract("WildcardSteward owed", (accounts) => {
 
   it("steward: owed. check patronage owed after 1 year.", async () => {
     await waitTillBeginningOfSecond();
-    await steward.buy(
-      1,
-      web3.utils.toWei("1", "ether"),
-      web3.utils.toWei("1", "ether"),
-      {
-        from: accounts[2],
-        value: web3.utils.toWei("1", "ether"),
-      }
-    );
+    await steward.buy(1, ether("1"), ether("1"), {
+      from: accounts[2],
+      value: ether("1"),
+    });
 
     const timeLastCollected = await steward.timeLastCollected.call(1);
     await time.increase(time.duration.days(365));
@@ -158,15 +134,10 @@ contract("WildcardSteward owed", (accounts) => {
 
   it("steward: owed. collect patronage successfully after 10 minutes.", async () => {
     await waitTillBeginningOfSecond();
-    await steward.buy(
-      1,
-      web3.utils.toWei("1", "ether"),
-      web3.utils.toWei("1", "ether"),
-      {
-        from: accounts[2],
-        value: web3.utils.toWei("1", "ether"),
-      }
-    );
+    await steward.buy(1, ether("1"), ether("1"), {
+      from: accounts[2],
+      value: ether("1"),
+    });
 
     await time.increase(time.duration.minutes(10));
     const owed = await steward.patronageOwedWithTimestamp.call(1, {
@@ -202,15 +173,10 @@ contract("WildcardSteward owed", (accounts) => {
 
   it("steward: owed. collect patronage successfully after 10min and again after 10min.", async () => {
     await waitTillBeginningOfSecond();
-    await steward.buy(
-      1,
-      web3.utils.toWei("1", "ether"),
-      web3.utils.toWei("1", "ether"),
-      {
-        from: accounts[2],
-        value: web3.utils.toWei("1", "ether"),
-      }
-    );
+    await steward.buy(1, ether("1"), ether("1"), {
+      from: accounts[2],
+      value: ether("1"),
+    });
 
     await time.increase(time.duration.minutes(10));
     const owed = await steward.patronageOwedWithTimestamp.call(1, {
@@ -609,8 +575,8 @@ contract("WildcardSteward owed", (accounts) => {
     const price = await steward.price.call(1);
     const state = await steward.state.call(1);
     const currentOwner = await erc721.ownerOf.call(1);
-    assert.equal(deposit, web3.utils.toWei("2", "ether"));
-    assert.equal(price, web3.utils.toWei("1", "ether"));
+    assert.equal(deposit.toString(), ether("2").toString());
+    assert.equal(price.toString(), ether("1").toString());
     assert.equal(state, 1);
     assert.equal(currentOwner, accounts[2]);
     await steward.buy(1, ether("1"), ether("1"), {
@@ -621,8 +587,8 @@ contract("WildcardSteward owed", (accounts) => {
     const price2 = await steward.price.call(1);
     const state2 = await steward.state.call(1);
     const currentOwner2 = await erc721.ownerOf.call(1);
-    assert.equal(deposit2, web3.utils.toWei("1", "ether"));
-    assert.equal(price2, web3.utils.toWei("1", "ether"));
+    assert.equal(deposit2.toString(), ether("1").toString());
+    assert.equal(price2.toString(), ether("1").toString());
     assert.equal(state2, 1);
     assert.equal(currentOwner2, accounts[2]);
   });
@@ -637,8 +603,8 @@ contract("WildcardSteward owed", (accounts) => {
     const price = await steward.price.call(1);
     const state = await steward.state.call(1);
     const currentOwner = await erc721.ownerOf.call(1);
-    assert.equal(deposit, web3.utils.toWei("2", "ether"));
-    assert.equal(price, web3.utils.toWei("1", "ether"));
+    assert.equal(deposit.toString(), ether("2").toString());
+    assert.equal(price.toString(), ether("1").toString());
     assert.equal(state, 1);
     assert.equal(currentOwner, accounts[2]);
     await steward.buy(1, ether("1"), ether("1"), {
@@ -649,8 +615,8 @@ contract("WildcardSteward owed", (accounts) => {
     const price2 = await steward.price.call(1);
     const state2 = await steward.state.call(1);
     const currentOwner2 = await erc721.ownerOf.call(1);
-    assert.equal(deposit2, web3.utils.toWei("1", "ether"));
-    assert.equal(price2, web3.utils.toWei("1", "ether"));
+    assert.equal(deposit2.toString(), ether("1").toString());
+    assert.equal(price2.toString(), ether("1").toString());
     assert.equal(state2, 1);
     assert.equal(currentOwner2, accounts[3]);
   });
@@ -665,8 +631,8 @@ contract("WildcardSteward owed", (accounts) => {
     const price = await steward.price.call(1);
     const state = await steward.state.call(1);
     const currentOwner = await erc721.ownerOf.call(1);
-    assert.equal(deposit, web3.utils.toWei("2", "ether"));
-    assert.equal(price, web3.utils.toWei("1", "ether"));
+    assert.equal(deposit.toString(), ether("2").toString());
+    assert.equal(price.toString(), ether("1").toString());
     assert.equal(state, 1);
     assert.equal(currentOwner, accounts[2]);
     const patronageFor10min = new BN(tenMinPatronageAt1Eth);
@@ -691,8 +657,8 @@ contract("WildcardSteward owed", (accounts) => {
     const price2 = await steward.price.call(1);
     const state2 = await steward.state.call(1);
     const currentOwner2 = await erc721.ownerOf.call(1);
-    assert.equal(deposit2, web3.utils.toWei("1", "ether"));
-    assert.equal(price2, web3.utils.toWei("1", "ether"));
+    assert.equal(deposit2.toString(), ether("1").toString());
+    assert.equal(price2.toString(), ether("1").toString());
     assert.equal(state2, 1);
     assert.equal(currentOwner2, accounts[3]);
   });
@@ -747,7 +713,7 @@ contract("WildcardSteward owed", (accounts) => {
 
     assert.equal(state, 1);
     assert.equal(deposit.toString(), totalToBuy.toString());
-    assert.equal(price, web3.utils.toWei("2", "ether"));
+    assert.equal(price.toString(), ether("2").toString());
     assert.equal(totalCollected.toString(), totalToBuy.toString());
     assert.equal(currentCollected.toString(), "0");
     assert.equal(timeLastCollected.toString(), previousBlockTime.toString());
@@ -783,7 +749,7 @@ contract("WildcardSteward owed", (accounts) => {
 
     assert.equal(state, 1);
     assert.equal(deposit.toString(), totalToBuy.toString());
-    assert.equal(price, web3.utils.toWei("2", "ether"));
+    assert.equal(price.toString(), ether("2").toString());
     assert.equal(totalCollected.toString(), totalToBuy.toString());
     assert.equal(currentCollected.toString(), "0");
     assert.equal(timeLastCollected.toString(), previousBlockTime.toString());

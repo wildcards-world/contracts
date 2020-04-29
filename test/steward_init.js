@@ -71,7 +71,7 @@ contract("WildcardSteward", (accounts) => {
 
   it("steward: listNewTokens: check that listing tokens generates the correct tokenURI", async () => {
     // NOTE: we could use a random number generator here, but we believe doing this by hand is sufficient evidence that this fuctionality works.
-    let tokenIds = [
+    const tokenIds = [
       "26",
       "33324444",
       "1769037077935057",
@@ -85,23 +85,12 @@ contract("WildcardSteward", (accounts) => {
       // 2^256 is about 1.15×10^77
       "11224654786246821497865432975865479321456778185497321954776584625778642653489",
     ];
+    const numberOfTokens = tokenIds.length;
     await steward.listNewTokens(
       tokenIds,
-      [accounts[0], accounts[0], accounts[0], accounts[0], accounts[0]],
-      [
-        patronageNumerator,
-        patronageNumerator,
-        patronageNumerator,
-        patronageNumerator,
-        patronageNumerator,
-      ],
-      [
-        tokenGenerationRate,
-        tokenGenerationRate,
-        tokenGenerationRate,
-        tokenGenerationRate,
-        tokenGenerationRate,
-      ]
+      Array(numberOfTokens).fill(accounts[0]),
+      Array(numberOfTokens).fill(patronageNumerator),
+      Array(numberOfTokens).fill(tokenGenerationRate)
     );
     for (let i = 0; i < tokenIds.length; ++i) {
       const tokenId = tokenIds[i];
@@ -110,10 +99,6 @@ contract("WildcardSteward", (accounts) => {
       assert.equal(uri, testTokenURI + tokenId);
       assert.equal(steward.address, currentOwner);
     }
-    // const currentOwner = await erc721.ownerOf.call(0);
-    // const uri = await erc721.tokenURI(0);
-    // assert.equal(uri, testTokenURI + "0");
-    // assert.equal(steward.address, currentOwner);
   });
 
   // Can they still add deposit if it is foreclose? Since they only technically lose ownership on the
@@ -122,7 +107,7 @@ contract("WildcardSteward", (accounts) => {
     await expectRevert(
       steward.depositWei({
         from: accounts[2],
-        value: web3.utils.toWei("1", "ether"),
+        value: ether("1"),
       }),
       "No tokens owned"
     );
@@ -133,7 +118,7 @@ contract("WildcardSteward", (accounts) => {
     await expectRevert(
       steward.depositWei({
         from: accounts[2],
-        value: web3.utils.toWei("1", "ether"),
+        value: ether("1"),
       }),
       "No tokens owned"
     );
@@ -167,28 +152,23 @@ contract("WildcardSteward", (accounts) => {
     await expectRevert(
       steward.buy(1, 0, web3.utils.toWei("0", "ether"), {
         from: accounts[2],
-        value: web3.utils.toWei("1", "ether"),
+        value: ether("1"),
       }),
       "Price is zero"
     );
   });
 
   it("steward: init: buy with 2 ether, price of 1 success [price = 1 eth, deposit = 1 eth]", async () => {
-    const { logs } = await steward.buy(
-      0,
-      web3.utils.toWei("1", "ether"),
-      web3.utils.toWei("1", "ether"),
-      {
-        from: accounts[2],
-        value: web3.utils.toWei("1", "ether"),
-      }
-    );
+    const { logs } = await steward.buy(0, ether("1"), ether("1"), {
+      from: accounts[2],
+      value: ether("1"),
+    });
     expectEvent.inLogs(logs, "Buy", { owner: accounts[2], price: ether("1") });
     const deposit = await steward.deposit.call(accounts[2]);
     const price = await steward.price.call(0);
     const state = await steward.state.call(0);
-    assert.equal(deposit, web3.utils.toWei("1", "ether"));
-    assert.equal(price, web3.utils.toWei("1", "ether"));
+    assert.equal(deposit.toString(), ether("1").toString());
+    assert.equal(price.toString(), ether("1").toString());
     assert.equal(state, 1);
   });
 });
