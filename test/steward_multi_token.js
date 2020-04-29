@@ -82,14 +82,24 @@ contract("WildcardSteward owed", (accounts) => {
     await waitTillBeginningOfSecond();
 
     // buy 2 tokens, with prices of 1 ether and 2 ether.
-    await steward.buy(testTokenId1, web3.utils.toWei("1", "ether"), {
-      from: accounts[2],
-      value: web3.utils.toWei("1", "ether"),
-    });
-    await steward.buy(testTokenId2, web3.utils.toWei("2", "ether"), {
-      from: accounts[2],
-      value: web3.utils.toWei("1", "ether"),
-    });
+    await steward.buy(
+      testTokenId1,
+      web3.utils.toWei("1", "ether"),
+      web3.utils.toWei("1", "ether"),
+      {
+        from: accounts[2],
+        value: web3.utils.toWei("1", "ether"),
+      }
+    );
+    await steward.buy(
+      testTokenId2,
+      web3.utils.toWei("2", "ether"),
+      web3.utils.toWei("1", "ether"),
+      {
+        from: accounts[2],
+        value: web3.utils.toWei("1", "ether"),
+      }
+    );
 
     await time.increase(time.duration.minutes(10));
     // What the smart contracts say should be owed
@@ -148,14 +158,24 @@ contract("WildcardSteward owed", (accounts) => {
   // buy 2 tokens, with prices of 1 ether and 2 ether.
   it("steward: multi-token. check patronage of two tokens owed by the same patron after 10 minutes one of the tokens gets bought.", async () => {
     await waitTillBeginningOfSecond();
-    await steward.buy(testTokenId1, web3.utils.toWei("1", "ether"), {
-      from: accounts[2],
-      value: web3.utils.toWei("1", "ether"),
-    });
-    await steward.buy(testTokenId2, web3.utils.toWei("2", "ether"), {
-      from: accounts[2],
-      value: web3.utils.toWei("0.1", "ether"),
-    });
+    await steward.buy(
+      testTokenId1,
+      web3.utils.toWei("1", "ether"),
+      web3.utils.toWei("1", "ether"),
+      {
+        from: accounts[2],
+        value: web3.utils.toWei("1", "ether"),
+      }
+    );
+    await steward.buy(
+      testTokenId2,
+      web3.utils.toWei("2", "ether"),
+      web3.utils.toWei("0.1", "ether"),
+      {
+        from: accounts[2],
+        value: web3.utils.toWei("0.1", "ether"),
+      }
+    );
 
     await time.increase(time.duration.minutes(10));
     // What the blockchain calculates
@@ -196,10 +216,15 @@ contract("WildcardSteward owed", (accounts) => {
       },
     ]);
     // Token 1 bought
-    await steward.buy(testTokenId1, ether("0.1"), {
-      from: accounts[3],
-      value: ether("1.1"),
-    });
+    await steward.buy(
+      testTokenId1,
+      ether("0.1"),
+      web3.utils.toWei("0.1", "ether"),
+      {
+        from: accounts[3],
+        value: ether("1.1"),
+      }
+    );
     // Time increases
     await time.increase(time.duration.minutes(10));
 

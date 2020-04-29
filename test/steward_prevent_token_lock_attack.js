@@ -104,10 +104,15 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
     const depositAbleToWithdrawBefore = await steward.depositAbleToWithdraw(
       attacker.address
     );
-    await steward.buy(1, web3.utils.toWei("1", "ether"), {
-      from: accounts[2],
-      value: web3.utils.toWei("1.5", "ether"),
-    });
+    await steward.buy(
+      1,
+      web3.utils.toWei("1", "ether"),
+      web3.utils.toWei("0.5", "ether"),
+      {
+        from: accounts[2],
+        value: web3.utils.toWei("1.5", "ether"),
+      }
+    );
     const depositAbleToWithdrawAfter = await steward.depositAbleToWithdraw(
       attacker.address
     );
@@ -125,6 +130,10 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
 
     const attacker = await Attacker.new();
 
+    await erc721.mintWithTokenURI(steward.address, 3, testTokenURI, {
+      from: accounts[0],
+    });
+
     await steward.listNewTokens(
       [3],
       [attacker.address],
@@ -132,10 +141,15 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
       [tokenGenerationRate]
     );
 
-    await steward.buy(3, web3.utils.toWei("1", "ether"), {
-      from: accounts[2],
-      value: web3.utils.toWei("1", "ether"),
-    });
+    await steward.buy(
+      3,
+      web3.utils.toWei("1", "ether"),
+      web3.utils.toWei("1", "ether"),
+      {
+        from: accounts[2],
+        value: web3.utils.toWei("1", "ether"),
+      }
+    );
 
     await time.increase(time.duration.minutes(10));
 
