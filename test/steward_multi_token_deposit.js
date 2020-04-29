@@ -78,24 +78,14 @@ contract("WildcardSteward owed", (accounts) => {
     await waitTillBeginningOfSecond();
 
     //Buying 2 tokens. Setting selling price to 1 and 2 eth respectively. Sending 1 eth each for deposit.
-    await steward.buy(
-      testTokenId1,
-      web3.utils.toWei("1", "ether"),
-      web3.utils.toWei("1", "ether"),
-      {
-        from: accounts[2],
-        value: web3.utils.toWei("1", "ether"),
-      }
-    );
-    await steward.buy(
-      testTokenId2,
-      web3.utils.toWei("2", "ether"),
-      web3.utils.toWei("1", "ether"),
-      {
-        from: accounts[2],
-        value: web3.utils.toWei("1", "ether"),
-      }
-    );
+    await steward.buy(testTokenId1, ether("1"), ether("1"), {
+      from: accounts[2],
+      value: ether("1"),
+    });
+    await steward.buy(testTokenId2, ether("2"), ether("1"), {
+      from: accounts[2],
+      value: ether("1"),
+    });
 
     const priceOftoken1 = await steward.price.call(testTokenId1);
     const priceOftoken2 = await steward.price.call(testTokenId2);
@@ -108,15 +98,10 @@ contract("WildcardSteward owed", (accounts) => {
       await web3.eth.getBalance(accounts[2])
     );
     // When first token is bought, deposit should remain.
-    await steward.buy(
-      testTokenId1,
-      ether("1"),
-      web3.utils.toWei("1", "ether"),
-      {
-        from: accounts[3],
-        value: ether("2"),
-      }
-    );
+    await steward.buy(testTokenId1, ether("1"), ether("1"), {
+      from: accounts[3],
+      value: ether("2"),
+    });
 
     const patronDepositAfterFirstSale = await steward.deposit.call(accounts[2]);
     const balancePatronAfterFirstSale = new BN(
@@ -124,15 +109,10 @@ contract("WildcardSteward owed", (accounts) => {
     );
 
     //Second token then bought. Deposit should now be added back the patrons balance
-    await steward.buy(
-      testTokenId2,
-      ether("1"),
-      web3.utils.toWei("1", "ether"),
-      {
-        from: accounts[3],
-        value: ether("3"),
-      }
-    );
+    await steward.buy(testTokenId2, ether("1"), ether("1"), {
+      from: accounts[3],
+      value: ether("3"),
+    });
 
     const balancePatronAfterSecondSale = new BN(
       await web3.eth.getBalance(accounts[2])

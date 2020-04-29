@@ -84,28 +84,18 @@ contract("WildcardSteward owed", (accounts) => {
     testTokenId1 = testToken1.id;
     const timeHeld = 100; // In minutes
     // Person buys a token
-    await steward.buy(
-      testTokenId1,
-      web3.utils.toWei("1", "ether"),
-      web3.utils.toWei("1", "ether"),
-      {
-        from: accounts[2],
-        value: web3.utils.toWei("1", "ether"),
-      }
-    );
+    await steward.buy(testTokenId1, ether("1"), ether("1"), {
+      from: accounts[2],
+      value: ether("1"),
+    });
 
     // TIME INCREASES HERE BY timeHeld
     await time.increase(time.duration.minutes(timeHeld));
     // First token bought from patron [Collect patronage will therefore be called]
-    await steward.buy(
-      testTokenId1,
-      ether("1"),
-      web3.utils.toWei("1", "ether"),
-      {
-        from: accounts[3],
-        value: ether("2"),
-      }
-    );
+    await steward.buy(testTokenId1, ether("1"), ether("1"), {
+      from: accounts[3],
+      value: ether("2"),
+    });
 
     const expectedTokens = multiTokenCalculator(
       new BN(timeHeld).mul(new BN(SECONDS_IN_A_MINUTE)).toString(),
@@ -135,47 +125,27 @@ contract("WildcardSteward owed", (accounts) => {
     testTokenId2 = testToken2.id;
     const timeHeld = 100; // In minutes
     // Person buys a token
-    await steward.buy(
-      testTokenId1,
-      web3.utils.toWei("1", "ether"),
-      web3.utils.toWei("1", "ether"),
-      {
-        from: accounts[2],
-        value: web3.utils.toWei("1", "ether"),
-      }
-    );
+    await steward.buy(testTokenId1, ether("1"), ether("1"), {
+      from: accounts[2],
+      value: ether("1"),
+    });
 
-    await steward.buy(
-      testTokenId2,
-      web3.utils.toWei("1", "ether"),
-      web3.utils.toWei("1", "ether"),
-      {
-        from: accounts[2],
-        value: web3.utils.toWei("1", "ether"),
-      }
-    );
+    await steward.buy(testTokenId2, ether("1"), ether("1"), {
+      from: accounts[2],
+      value: ether("1"),
+    });
 
     // TIME INCREASES HERE BY timeHeld
     await time.increase(time.duration.minutes(timeHeld));
     // First token bought from patron [Collect patronage will therefore be called]
-    await steward.buy(
-      testTokenId1,
-      ether("1"),
-      web3.utils.toWei("1", "ether"),
-      {
-        from: accounts[3],
-        value: ether("2"),
-      }
-    );
-    await steward.buy(
-      testTokenId2,
-      ether("1"),
-      web3.utils.toWei("1", "ether"),
-      {
-        from: accounts[3],
-        value: ether("2"),
-      }
-    );
+    await steward.buy(testTokenId1, ether("1"), ether("1"), {
+      from: accounts[3],
+      value: ether("2"),
+    });
+    await steward.buy(testTokenId2, ether("1"), ether("1"), {
+      from: accounts[3],
+      value: ether("2"),
+    });
 
     const expectedTokens = multiTokenCalculator(
       new BN(timeHeld).mul(new BN(SECONDS_IN_A_MINUTE)).toString(),
@@ -254,25 +224,15 @@ contract("WildcardSteward owed", (accounts) => {
     testTokenId1 = testToken1.id;
     const timeHeld = 100;
 
-    await steward.buy(
-      testTokenId1,
-      web3.utils.toWei("1", "ether"),
-      web3.utils.toWei("1", "ether"),
-      {
-        from: accounts[2],
-        value: web3.utils.toWei("1", "ether"),
-      }
-    );
+    await steward.buy(testTokenId1, ether("1"), ether("1"), {
+      from: accounts[2],
+      value: ether("1"),
+    });
     await time.increase(time.duration.minutes(timeHeld));
-    await steward.buy(
-      testTokenId1,
-      ether("1"),
-      web3.utils.toWei("1", "ether"),
-      {
-        from: accounts[7],
-        value: ether("2"),
-      }
-    );
+    await steward.buy(testTokenId1, ether("1"), ether("1"), {
+      from: accounts[7],
+      value: ether("2"),
+    });
 
     const amountToTransfer = 100;
     await erc20.transfer(accounts[3], amountToTransfer, {
