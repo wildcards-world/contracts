@@ -113,7 +113,7 @@ contract WildcardSteward_v2 is Initializable {
         patronageDenominator = _patronageDenominator;
     }
 
-    // Source:
+    // Source: https://github.com/provable-things/ethereum-api/blob/master/oraclizeAPI_0.5.sol#L1045
     function uintToStr(uint256 _i)
         internal
         pure
@@ -133,10 +133,9 @@ contract WildcardSteward_v2 is Initializable {
 
         // get each unit of bytes string.
         bytes memory bstr = new bytes(len);
-        uint256 k = len.sub(1);
         while (_i != 0) {
             // ascii codes for digits are 48-57
-            bstr[k--] = bytes1(uint8(48 + (_i % 10)));
+            bstr[--len] = bytes1(uint8(48 + (_i % 10)));
             _i /= 10;
         }
         return string(bstr);

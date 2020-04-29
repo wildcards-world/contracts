@@ -69,6 +69,53 @@ contract("WildcardSteward", (accounts) => {
     assert.equal(steward.address, currentOwner);
   });
 
+  it("steward: listNewTokens: check that listing tokens generates the correct tokenURI", async () => {
+    // NOTE: we could use a random number generator here, but we believe doing this by hand is sufficient evidence that this fuctionality works.
+    let tokenIds = [
+      "26",
+      "33324444",
+      "1769037077935057",
+      "286700889698437237620075",
+      "18996005233289629730294425308525",
+      "7895270375841100968424756332558931212197",
+      "99882326602754898771367107404518635245937227489",
+      "20670427203223984744762315785080106542564404236226800687",
+      "6721545738199856672125269086653289604269900124564247972084560669",
+      "68034364559224586973560982971221276958307785832542578123533166765643299",
+      // 2^256 is about 1.15×10^77
+      "11224654786246821497865432975865479321456778185497321954776584625778642653489",
+    ];
+    await steward.listNewTokens(
+      tokenIds,
+      [accounts[0], accounts[0], accounts[0], accounts[0], accounts[0]],
+      [
+        patronageNumerator,
+        patronageNumerator,
+        patronageNumerator,
+        patronageNumerator,
+        patronageNumerator,
+      ],
+      [
+        tokenGenerationRate,
+        tokenGenerationRate,
+        tokenGenerationRate,
+        tokenGenerationRate,
+        tokenGenerationRate,
+      ]
+    );
+    for (let i = 0; i < tokenIds.length; ++i) {
+      const tokenId = tokenIds[i];
+      const currentOwner = await erc721.ownerOf.call(tokenId);
+      const uri = await erc721.tokenURI(tokenId);
+      assert.equal(uri, testTokenURI + tokenId);
+      assert.equal(steward.address, currentOwner);
+    }
+    // const currentOwner = await erc721.ownerOf.call(0);
+    // const uri = await erc721.tokenURI(0);
+    // assert.equal(uri, testTokenURI + "0");
+    // assert.equal(steward.address, currentOwner);
+  });
+
   // Can they still add deposit if it is foreclose? Since they only technically lose ownership on the
   // next collect patronage event?
   it("steward: init: deposit wei fail [foreclosed or don't own any tokens]", async () => {
