@@ -1,4 +1,4 @@
-pragma solidity 0.5.16;
+pragma solidity 0.5.15;
 import "./ERC721Patronage_v1.sol";
 import "./MintManager_v2.sol";
 
@@ -37,7 +37,6 @@ contract WildcardSteward_v2 is Initializable {
 
     // 1200% patronage
     mapping(uint256 => uint256) public patronageNumerator;
-    uint256 public patronageDenominator;
 
     enum StewardState {Foreclosed, Owned}
     mapping(uint256 => StewardState) public state;
@@ -103,17 +102,42 @@ contract WildcardSteward_v2 is Initializable {
         _;
     }
 
-    function initialize(
-        address _assetToken,
-        address _admin,
-        uint256 _patronageDenominator
-    ) public initializer {
+    function initialize(address _assetToken, address _admin)
+        public
+        initializer
+    {
         assetToken = ERC721Patronage_v1(_assetToken);
         admin = _admin;
-        patronageDenominator = _patronageDenominator;
     }
 
-    // TODO:: add validation that the token that is complient with the "PatronageToken" ERC721 interface extension somehow!
+    // Source: https://github.com/provable-things/ethereum-api/blob/master/oraclizeAPI_0.5.sol#L1045
+    function uintToStr(uint256 _i)
+        internal
+        pure
+        returns (string memory _uintAsString)
+    {
+        if (_i == 0) {
+            return "0";
+        }
+
+        // Determine length of bytes.
+        uint256 j = _i;
+        uint256 len;
+        while (j != 0) {
+            len++;
+            j /= 10;
+        }
+
+        // get each unit of bytes string.
+        bytes memory bstr = new bytes(len);
+        while (_i != 0) {
+            // ascii codes for digits are 48-57
+            bstr[--len] = bytes1(uint8(48 + (_i % 10)));
+            _i /= 10;
+        }
+        return string(bstr);
+    }
+
     function listNewTokens(
         uint256[] memory tokens,
         address payable[] memory _benefactors,
@@ -126,6 +150,12 @@ contract WildcardSteward_v2 is Initializable {
 
         for (uint8 i = 0; i < tokens.length; ++i) {
             assert(_benefactors[i] != address(0));
+            string memory idString = uintToStr(tokens[i]);
+            string memory tokenUriBase = "https://wildcards.xyz/token/";
+            string memory tokenUri = string(
+                abi.encodePacked(tokenUriBase, idString)
+            );
+            assetToken.mintWithTokenURI(address(this), tokens[i], tokenUri);
             benefactors[tokens[i]] = _benefactors[i];
             state[tokens[i]] = StewardState.Foreclosed; // TODO: Maybe Implement reverse dutch auction on intial sale or other such mechanisms to avoid the deadloss weight of
             patronageNumerator[tokens[i]] = _patronageNumerator[i];
@@ -172,6 +202,10 @@ contract WildcardSteward_v2 is Initializable {
         address payable _newReceivingBenefactor
     ) public onlyReceivingBenefactorOrAdmin(tokenId) {
         address oldBenfactor = benefactors[tokenId];
+        require(
+            oldBenfactor != _newReceivingBenefactor,
+            "Cannot change to same address"
+        );
         benefactors[tokenId] = _newReceivingBenefactor;
         benefactorFunds[_newReceivingBenefactor] = benefactorFunds[oldBenfactor];
         benefactorFunds[oldBenfactor] = 0;
@@ -193,7 +227,7 @@ contract WildcardSteward_v2 is Initializable {
             price[tokenId]
                 .mul(now.sub(timeLastCollected[tokenId]))
                 .mul(patronageNumerator[tokenId])
-                .div(patronageDenominator)
+                .div(1000000000000)
                 .div(365 days);
     }
 
@@ -216,7 +250,7 @@ contract WildcardSteward_v2 is Initializable {
         return
             totalPatronOwnedTokenCost[tokenPatron]
                 .mul(now.sub(timeLastCollectedPatron[tokenPatron]))
-                .div(patronageDenominator)
+                .div(1000000000000)
                 .div(365 days);
     }
 
@@ -268,7 +302,7 @@ contract WildcardSteward_v2 is Initializable {
     {
         // patronage per second
         uint256 pps = totalPatronOwnedTokenCost[tokenPatron]
-            .div(patronageDenominator)
+            .div(1000000000000)
             .div(365 days);
         return now.add(depositAbleToWithdraw(tokenPatron).div(pps)); // zero division if price is zero.
     }
@@ -339,7 +373,7 @@ contract WildcardSteward_v2 is Initializable {
                 collection = price[tokenId]
                     .mul(newTimeLastCollected.sub(previousTokenCollection))
                     .mul(patronageNumerator[tokenId])
-                    .div(patronageDenominator)
+                    .div(1000000000000)
                     .div(365 days);
                 deposit[currentOwner] = 0;
                 _foreclose(tokenId);
@@ -347,7 +381,7 @@ contract WildcardSteward_v2 is Initializable {
                 collection = price[tokenId]
                     .mul(now.sub(previousTokenCollection))
                     .mul(patronageNumerator[tokenId])
-                    .div(patronageDenominator)
+                    .div(1000000000000)
                     .div(365 days);
 
                 timeLastCollected[tokenId] = now;
@@ -415,14 +449,19 @@ contract WildcardSteward_v2 is Initializable {
         emit RemainingDepositUpdate(patron, deposit[patron]);
     }
 
-    function buy(uint256 tokenId, uint256 _newPrice)
+    function buy(uint256 tokenId, uint256 _newPrice, uint256 _deposit)
         public
         payable
         collectPatronage(tokenId)
         collectPatronageAddress(msg.sender)
     {
         require(_newPrice > 0, "Price is zero");
-        require(msg.value > price[tokenId], "Not enough"); // >, coz need to have at least something for deposit
+        uint256 remainingValueForDeposit = msg.value.sub(price[tokenId]);
+        // This prevents slipage if someone frontruns this transaction and changes the price unexpectedly.
+        require(
+            remainingValueForDeposit >= _deposit,
+            "The deposit available is < what was stated in the transaction"
+        );
         address currentOwner = assetToken.ownerOf(tokenId);
         address tokenPatron = currentPatron[tokenId];
 
@@ -454,9 +493,7 @@ contract WildcardSteward_v2 is Initializable {
             timeLastCollectedPatron[msg.sender] = now;
         }
 
-        deposit[msg.sender] = deposit[msg.sender].add(
-            msg.value.sub(price[tokenId])
-        );
+        deposit[msg.sender] = deposit[msg.sender].add(remainingValueForDeposit);
         transferAssetTokenTo(
             tokenId,
             currentOwner,

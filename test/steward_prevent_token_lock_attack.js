@@ -4,7 +4,7 @@ const {
   ether,
   expectEvent,
   balance,
-  time
+  time,
 } = require("@openzeppelin/test-helpers");
 const {
   waitTillBeginningOfSecond,
@@ -12,7 +12,7 @@ const {
   ERC20_CONTRACT_NAME,
   ERC721_CONTRACT_NAME,
   MINT_MANAGER_CONTRACT_NAME,
-  SENT_ATTACKER_CONTRACT_NAME
+  SENT_ATTACKER_CONTRACT_NAME,
 } = require("./helpers");
 
 const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
@@ -26,15 +26,14 @@ const Attacker = artifacts.require(SENT_ATTACKER_CONTRACT_NAME);
 const TEST_ART_TOKEN_ID = "5";
 const TEST_ART_TOKEN_ADDRESS = "0xb2930b35844a230f00e51431acae96fe533b0357";
 
-contract("WildcardSteward owed", accounts => {
+contract("WildcardSteward fallback to pull mechanism", (accounts) => {
   let erc721;
   let steward;
   let erc20;
   let mintManager;
   let testTokenURI = "test token uri";
   const testTokenId = 1;
-  const patronageNumerator = 12;
-  const patronageDenominator = 1;
+  const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
   // price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
   const tenMinPatronageAt1Eth = ether("1")
@@ -48,11 +47,11 @@ contract("WildcardSteward owed", accounts => {
     steward = await WildcardSteward.new({ from: accounts[0] });
     mintManager = await MintManager.new({ from: accounts[0] });
     erc20 = await ERC20token.new("Wildcards Loyalty Token", "WLT", 18, {
-      from: accounts[0]
+      from: accounts[0],
     });
 
     await mintManager.initialize(accounts[0], steward.address, erc20.address, {
-      from: accounts[0]
+      from: accounts[0],
     });
     await erc721.setup(
       steward.address,
@@ -61,30 +60,19 @@ contract("WildcardSteward owed", accounts => {
       accounts[0],
       { from: accounts[0] }
     );
+    await erc721.addMinter(steward.address, { from: accounts[0] });
+    await erc721.renounceMinter({ from: accounts[0] });
     await erc20.addMinter(mintManager.address, {
-      from: accounts[0]
+      from: accounts[0],
     });
     await erc20.renounceMinter({ from: accounts[0] });
 
-    await erc721.mintWithTokenURI(steward.address, 0, testTokenURI, {
-      from: accounts[0]
-    });
-    await erc721.mintWithTokenURI(steward.address, 1, testTokenURI, {
-      from: accounts[0]
-    });
-    await erc721.mintWithTokenURI(steward.address, 2, testTokenURI, {
-      from: accounts[0]
-    });
-
     // TODO: use this to make the contract address of the token deterministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(
-      erc721.address,
-      accounts[0],
-      patronageDenominator,
-      { from: accounts[0] }
-    );
+    await steward.initialize(erc721.address, accounts[0], {
+      from: accounts[0],
+    });
     await steward.updateToV2(mintManager.address, [], [], {
-      from: accounts[0]
+      from: accounts[0],
     });
 
     await steward.listNewTokens(
@@ -99,31 +87,24 @@ contract("WildcardSteward owed", accounts => {
     await waitTillBeginningOfSecond();
 
     const attacker = await Attacker.new();
-    await attacker.buyOnBehalf(
-      steward.address,
-      1,
-      web3.utils.toWei("1", "ether"),
-      {
-        from: accounts[2],
-        value: web3.utils.toWei("1", "ether")
-      }
-    );
+    await attacker.buyOnBehalf(steward.address, 1, ether("1"), {
+      from: accounts[2],
+      value: ether("1"),
+    });
 
     const depositAbleToWithdrawBefore = await steward.depositAbleToWithdraw(
       attacker.address
     );
-    await steward.buy(1, web3.utils.toWei("1", "ether"), {
+    await steward.buy(1, ether("1"), web3.utils.toWei("0.5", "ether"), {
       from: accounts[2],
-      value: web3.utils.toWei("1.5", "ether")
+      value: web3.utils.toWei("1.5", "ether"),
     });
     const depositAbleToWithdrawAfter = await steward.depositAbleToWithdraw(
       attacker.address
     );
 
     assert.equal(
-      depositAbleToWithdrawBefore
-        .add(new BN(web3.utils.toWei("1", "ether")))
-        .toString(),
+      depositAbleToWithdrawBefore.add(new BN(ether("1"))).toString(),
       depositAbleToWithdrawAfter.toString(),
       "The deposit before and after + funds earned from token sale should be the same"
     );
@@ -133,10 +114,6 @@ contract("WildcardSteward owed", accounts => {
 
     const attacker = await Attacker.new();
 
-    await erc721.mintWithTokenURI(steward.address, 3, testTokenURI, {
-      from: accounts[0]
-    });
-
     await steward.listNewTokens(
       [3],
       [attacker.address],
@@ -144,9 +121,9 @@ contract("WildcardSteward owed", accounts => {
       [tokenGenerationRate]
     );
 
-    await steward.buy(3, web3.utils.toWei("1", "ether"), {
+    await steward.buy(3, ether("1"), ether("1"), {
       from: accounts[2],
-      value: web3.utils.toWei("1", "ether")
+      value: ether("1"),
     });
 
     await time.increase(time.duration.minutes(10));
@@ -161,7 +138,7 @@ contract("WildcardSteward owed", accounts => {
 
     await expectRevert(
       steward.withdrawBenefactorFundsTo(attacker.address, {
-        from: accounts[2]
+        from: accounts[2],
       }),
       "Unable to withdraw benefactor funds"
     );
@@ -170,19 +147,14 @@ contract("WildcardSteward owed", accounts => {
     await waitTillBeginningOfSecond();
 
     const attacker = await Attacker.new();
-    await attacker.buyOnBehalf(
-      steward.address,
-      1,
-      web3.utils.toWei("1", "ether"),
-      {
-        from: accounts[2],
-        value: web3.utils.toWei("1", "ether")
-      }
-    );
+    await attacker.buyOnBehalf(steward.address, 1, ether("1"), {
+      from: accounts[2],
+      value: ether("1"),
+    });
 
     await expectRevert(
       attacker.withdrawDeposit(steward.address, "50000", {
-        from: accounts[2]
+        from: accounts[2],
       }),
       "Unable to withdraw deposit"
     );

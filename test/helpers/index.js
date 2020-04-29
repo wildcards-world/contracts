@@ -11,7 +11,7 @@ const SENT_ATTACKER_CONTRACT_NAME = "./tests/SendBlockAttacker.sol";
 // NOTE:: This was inspired by this question and the off by one second errors I was getting:
 // https://ethereum.stackexchange.com/a/74558/4642
 const waitTillBeginningOfSecond = () =>
-  new Promise(resolve => {
+  new Promise((resolve) => {
     const timeTilNextSecond = 1000 - new Date().getMilliseconds();
     setTimeout(resolve, timeTilNextSecond);
   });
@@ -25,17 +25,14 @@ module.exports = {
   waitTillBeginningOfSecond,
 
   //patronage per token = price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
-  multiPatronageCalculator: patronageDenominator => (
-    timeInSeconds,
-    tokenArray
-  ) => {
+  multiPatronageCalculator: () => (timeInSeconds, tokenArray) => {
     const totalPatronage = tokenArray.reduce(
       (totalPatronage, token) =>
         totalPatronage.add(
           new BN(token.price)
             .mul(new BN(timeInSeconds))
             .mul(new BN(token.patronageNumerator))
-            .div(new BN(patronageDenominator))
+            .div(new BN("1000000000000"))
             .div(new BN(NUM_SECONDS_IN_YEAR))
         ),
       new BN("0")
@@ -52,5 +49,5 @@ module.exports = {
       new BN("0")
     );
     return totalTokens;
-  }
+  },
 };

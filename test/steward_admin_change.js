@@ -4,7 +4,7 @@ const {
   ether,
   expectEvent,
   balance,
-  time
+  time,
 } = require("@openzeppelin/test-helpers");
 const {
   multiPatronageCalculator,
@@ -12,7 +12,7 @@ const {
   STEWARD_CONTRACT_NAME,
   ERC20_CONTRACT_NAME,
   ERC721_CONTRACT_NAME,
-  MINT_MANAGER_CONTRACT_NAME
+  MINT_MANAGER_CONTRACT_NAME,
 } = require("./helpers");
 
 const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
@@ -20,16 +20,14 @@ const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
 const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
 const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
 
-const PATRONAGE_DENOMINATOR = "1";
-const patronageCalculator = multiPatronageCalculator(PATRONAGE_DENOMINATOR);
+const patronageCalculator = multiPatronageCalculator();
 
-contract("WildcardSteward owed", accounts => {
+contract("WildcardSteward owed", (accounts) => {
   let erc721;
   let steward;
   let erc20;
   const testTokenId1 = 1;
-  const patronageNumerator = 12;
-  const patronageDenominator = 1;
+  const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
   let testTokenURI = "test token uri";
 
@@ -38,10 +36,10 @@ contract("WildcardSteward owed", accounts => {
     steward = await WildcardSteward.new({ from: accounts[0] });
     mintManager = await MintManager.new({ from: accounts[0] });
     erc20 = await ERC20token.new("Wildcards Loyalty Token", "WLT", 18, {
-      from: accounts[0]
+      from: accounts[0],
     });
     await mintManager.initialize(accounts[0], steward.address, erc20.address, {
-      from: accounts[0]
+      from: accounts[0],
     });
     await erc721.setup(
       steward.address,
@@ -50,11 +48,10 @@ contract("WildcardSteward owed", accounts => {
       accounts[0],
       { from: accounts[0] }
     );
-    await erc721.mintWithTokenURI(steward.address, 1, testTokenURI, {
-      from: accounts[0]
-    });
+    await erc721.addMinter(steward.address, { from: accounts[0] });
+    await erc721.renounceMinter({ from: accounts[0] });
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(erc721.address, accounts[0], patronageDenominator);
+    await steward.initialize(erc721.address, accounts[0]);
     await steward.updateToV2(mintManager.address, [], []);
     await steward.listNewTokens(
       [1],
@@ -68,16 +65,16 @@ contract("WildcardSteward owed", accounts => {
     await waitTillBeginningOfSecond();
 
     //Buy a token
-    await steward.buy(testTokenId1, web3.utils.toWei("1", "ether"), {
+    await steward.buy(testTokenId1, ether("1"), ether("1"), {
       from: accounts[2],
-      value: web3.utils.toWei("1", "ether")
+      value: ether("2", "ether"),
     });
     const priceOfToken1 = await steward.price.call(testTokenId1);
 
     // TEST 1:
     // Checking that when patronage owed is called immediately after a token is bought, nothing returned.
     const owed = await steward.patronageOwed(testTokenId1, {
-      from: accounts[5]
+      from: accounts[5],
     });
     assert.equal(owed, 0);
 
@@ -87,13 +84,13 @@ contract("WildcardSteward owed", accounts => {
     // TEST 2:
     // Checking that the patronage after 10min returns what is expected by the manual calculator.
     const owed10min = await steward.patronageOwed(testTokenId1, {
-      from: accounts[5]
+      from: accounts[5],
     });
     const expectedPatronageAfter10min = patronageCalculator("600", [
       {
         patronageNumerator: patronageNumerator,
-        price: priceOfToken1.toString()
-      }
+        price: priceOfToken1.toString(),
+      },
     ]);
     assert.equal(owed10min.toString(), expectedPatronageAfter10min.toString());
 
@@ -122,7 +119,7 @@ contract("WildcardSteward owed", accounts => {
     // TEST 6:
     // Checking that the patron is not foreclosed if they hold suffcient deposit.
     const result = await steward.foreclosedPatron(accounts[2], {
-      from: accounts[0]
+      from: accounts[0],
     });
     assert.equal(result, false);
   });
