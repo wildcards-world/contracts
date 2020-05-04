@@ -207,7 +207,8 @@ contract WildcardSteward_v2 is Initializable {
             "Cannot change to same address"
         );
         benefactors[tokenId] = _newReceivingBenefactor;
-        benefactorFunds[_newReceivingBenefactor] = benefactorFunds[oldBenfactor];
+        benefactorFunds[_newReceivingBenefactor] = benefactorFunds[_newReceivingBenefactor]
+            .add(benefactorFunds[oldBenfactor]);
         benefactorFunds[oldBenfactor] = 0;
     }
 
