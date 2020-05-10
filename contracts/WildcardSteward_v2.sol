@@ -48,6 +48,8 @@ contract WildcardSteward_v2 is Initializable {
 
     MintManager_v2 public mintManager;
 
+    mapping(uint256 => address) artistAddresses; //mapping from tokenID to the artists address
+
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
     event PriceChange(uint256 indexed tokenId, uint256 newPrice);
     event Foreclosure(address indexed prevOwner, uint256 foreclosureTime);
@@ -467,27 +469,31 @@ contract WildcardSteward_v2 is Initializable {
         address tokenPatron = currentPatron[tokenId];
 
         if (state[tokenId] == StewardState.Owned) {
-            uint256 totalToPayBack = price[tokenId];
-            // NOTE: pay back the deposit only if it is the only token the patron owns.
-            if (
-                totalPatronOwnedTokenCost[tokenPatron] ==
-                price[tokenId].mul(patronageNumerator[tokenId])
-            ) {
-                totalToPayBack = totalToPayBack.add(deposit[tokenPatron]);
-                deposit[tokenPatron] = 0;
-            }
-
-            // pay previous owner their price + deposit back.
-            address payable payableCurrentPatron = address(
-                uint160(tokenPatron)
-            );
-            (bool transferSuccess, ) = payableCurrentPatron
-                .call
-                .gas(2300)
-                .value(totalToPayBack)("");
-            if (!transferSuccess) {
-                deposit[tokenPatron] = deposit[tokenPatron].add(totalToPayBack);
-            }
+            _buy(tokenId, tokenPatron);
+            // uint256 totalToPayBack = price[tokenId];
+            // // NOTE: pay back the deposit only if it is the only token the patron owns.
+            // if (
+            //     totalPatronOwnedTokenCost[tokenPatron] ==
+            //     price[tokenId].mul(patronageNumerator[tokenId])
+            // ) {
+            //     totalToPayBack = totalToPayBack.add(deposit[tokenPatron]);
+            //     deposit[tokenPatron] = 0;
+            //     // pay previous owner their price + deposit back.
+            //     address payable payableCurrentPatron = address(
+            //         uint160(tokenPatron)
+            //     );
+            //     (bool transferSuccess, ) = payableCurrentPatron
+            //         .call
+            //         .gas(2300)
+            //         .value(totalToPayBack)("");
+            //     if (!transferSuccess) {
+            //         deposit[tokenPatron] = deposit[tokenPatron].add(
+            //             totalToPayBack
+            //         );
+            //     }
+            // } else {
+            //     deposit[tokenPatron] = deposit[tokenPatron].add(totalToPayBack);
+            // }
         } else if (state[tokenId] == StewardState.Foreclosed) {
             state[tokenId] = StewardState.Owned;
             timeLastCollected[tokenId] = now;
@@ -503,6 +509,61 @@ contract WildcardSteward_v2 is Initializable {
             _newPrice
         );
         emit Buy(tokenId, msg.sender, _newPrice);
+    }
+
+    function _buy(uint256 tokenId, address tokenPatron) internal {
+        uint256 totalAmount = price[tokenId];
+        uint256 wildcardsAmount = totalAmount.mul(14).div(100);
+        uint256 artistAmount = totalAmount.div(100);
+        uint256 totalToPayBack = totalAmount.sub(wildcardsAmount).sub(
+            artistAmount
+        );
+        // NOTE: pay back the deposit only if it is the only token the patron owns.
+
+        if (
+            totalPatronOwnedTokenCost[tokenPatron] ==
+            price[tokenId].mul(patronageNumerator[tokenId])
+        ) {
+            totalToPayBack = totalToPayBack.add(deposit[tokenPatron]);
+            deposit[tokenPatron] = 0;
+            // pay previous owner their price + deposit back.
+            address payable payableCurrentPatron = address(
+                uint160(tokenPatron)
+            );
+            (bool transferSuccess, ) = payableCurrentPatron
+                .call
+                .gas(2300)
+                .value(totalToPayBack)("");
+            if (!transferSuccess) {
+                deposit[tokenPatron] = deposit[tokenPatron].add(totalToPayBack);
+            }
+        } else {
+            deposit[tokenPatron] = deposit[tokenPatron].add(totalToPayBack);
+        }
+
+        if (artistAddresses[tokenId] != 0) {
+            // Pay the artist
+            address payable payableArtist = address(
+                uint160(artistAddresses[tokenId])
+            );
+            (bool transferSuccessArtist, ) = payableArtist.call.gas(2300).value(
+                artistAmount
+            )("");
+            if (!transferSuccessArtist) {
+                deposit[tokenPatron] = deposit[tokenPatron].add(artistAmount);
+            }
+        } else {
+            wildcardsAmount = wildcardsAmount.add(artistAmount);
+        }
+        // Pay wildcards
+        address payable payableWildcards = address(uint160(admin));
+        (bool transferSuccessWildcards, ) = payableWildcards
+            .call
+            .gas(2300)
+            .value(wildcardsAmount)("");
+        if (!transferSuccessWildcards) {
+            deposit[tokenPatron] = deposit[tokenPatron].add(wildcardsAmount);
+        }
     }
 
     function changePrice(uint256 tokenId, uint256 _newPrice)
