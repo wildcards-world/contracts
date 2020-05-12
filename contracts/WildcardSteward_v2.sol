@@ -479,6 +479,8 @@ contract WildcardSteward_v2 is Initializable {
         auctionLength = _auctionLength;
     }
 
+    // NOTE: Need to distinguish been previously owned and foreclosed vs first sale items.
+    // 
     function _auctionPrice(uint256 tokenId) internal returns (uint256) {
         // HERE we need to be careful. Check whether timeLastCollected[tokenId] is actually now due to collect Patronage modifer being called
         uint256 auctionEnd = timeLastCollected[tokenId].add(auctionLength);
@@ -538,6 +540,7 @@ contract WildcardSteward_v2 is Initializable {
     )
         public
         payable
+        collectPatronage(tokenId)
         collectPatronageAddress(msg.sender)
         priceGreaterThanZero(_newPrice)
         validWildcardsPercentage(wildcardsPercentage)
