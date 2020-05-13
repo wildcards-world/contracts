@@ -480,7 +480,7 @@ contract WildcardSteward_v2 is Initializable {
     }
 
     // NOTE: Need to distinguish been previously owned and foreclosed vs first sale items.
-    // 
+    //
     function _auctionPrice(uint256 tokenId) internal returns (uint256) {
         // HERE we need to be careful. Check whether timeLastCollected[tokenId] is actually now due to collect Patronage modifer being called
         uint256 auctionEnd = timeLastCollected[tokenId].add(auctionLength);
@@ -644,19 +644,21 @@ contract WildcardSteward_v2 is Initializable {
     }
 
     function _payArtistAndWildcards(
-        uint256 tokenId,
-        uint256 artistAmount,
-        uint256 wildcardsAmount
+        uint256 _tokenId,
+        uint256 _artistAmount,
+        uint256 _wildcardsAmount
     ) internal {
-        if (artistAddresses[tokenId] != address(0)) {
+        if (artistAddresses[_tokenId] != address(0)) {
             // Pay the artist
-            deposit[artistAddresses[tokenId]] = deposit[artistAddresses[tokenId]]
-                .add(artistAmount);
+            deposit[artistAddresses[_tokenId]] = deposit[artistAddresses[_tokenId]]
+                .add(_artistAmount);
+            // Pay wildcards
+            deposit[admin] = deposit[admin].add(_wildcardsAmount);
         } else {
-            wildcardsAmount = wildcardsAmount.add(artistAmount);
+            deposit[admin] = deposit[admin].add(_wildcardsAmount).add(
+                _artistAmount
+            );
         }
-        // Pay wildcards
-        deposit[admin] = deposit[admin].add(wildcardsAmount);
     }
 
     function changePrice(uint256 tokenId, uint256 _newPrice)
