@@ -48,6 +48,8 @@ contract WildcardSteward_v2 is Initializable {
 
     MintManager_v2 public mintManager;
 
+    mapping(address => uint256) public totalPatronTokenGenerationRate;
+
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
     event PriceChange(uint256 indexed tokenId, uint256 newPrice);
     event Foreclosure(address indexed prevOwner, uint256 foreclosureTime);
@@ -168,33 +170,28 @@ contract WildcardSteward_v2 is Initializable {
         }
     }
 
-    function addTokenGenerationRateToExistingTokens(
-        uint256[] memory tokens,
-        uint256[] memory _tokenGenerationRate
-    ) internal {
-        assert(tokens.length == _tokenGenerationRate.length);
+    function fixTotalPatronTokenGenerationRate(uint256[] memory tokens)
+        public
+        onlyAdmin
+    {
         for (uint8 i = 0; i < tokens.length; ++i) {
-            assert(tokenGenerationRate[tokens[i]] == 0);
+            uint256 tokenId = tokens[i];
+            address currentOwner = currentPatron[tokenId];
 
-            tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i];
+            // NOTE: for this upgrade we make sure no tokens are foreclosed, or close to foreclosing
+            _collectPatronage(tokenId);
+            uint256 timeSinceLastMint = now.sub(timeLastCollected[tokenId]);
+
+            mintManager.tokenMint(
+                currentOwner,
+                timeSinceLastMint,
+                tokenGenerationRate[tokenId]
+            );
+            emit CollectLoyalty(tokenId, currentOwner, timeSinceLastMint);
+
+            totalPatronTokenGenerationRate[currentOwner] = totalPatronTokenGenerationRate[currentOwner]
+                .add(11574074074074);
         }
-    }
-
-    function setMintManager(address _mintManager) public {
-        require(
-            address(mintManager) == address(0),
-            "Only set on initialisation"
-        ); // This can only be called once!
-        mintManager = MintManager_v2(_mintManager);
-    }
-
-    function updateToV2(
-        address _mintManager,
-        uint256[] memory tokens,
-        uint256[] memory _tokenGenerationRate
-    ) public {
-        setMintManager(_mintManager);
-        addTokenGenerationRateToExistingTokens(tokens, _tokenGenerationRate);
     }
 
     function changeReceivingBenefactor(
@@ -354,7 +351,6 @@ contract WildcardSteward_v2 is Initializable {
             uint256 patronageOwedByTokenPatron = patronageOwedPatron(
                 currentOwner
             );
-            _collectLoyalty(tokenId); // This needs to be called before before the token may be foreclosed next section
             uint256 collection;
 
             // it should foreclose and take stewardship
