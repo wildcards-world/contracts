@@ -70,11 +70,13 @@ contract WildcardSteward_v2 is Initializable {
         uint256 remainingDeposit,
         uint256 amountReceived
     );
+    // Legacy collect loyalty event - only used in the upgrade function; TODO: delete on next upgrade.
     event CollectLoyalty(
         uint256 indexed tokenId,
         address indexed patron,
         uint256 amountRecieved
     );
+    event CollectLoyalty(address indexed patron, uint256 amountRecieved);
 
     modifier onlyPatron(uint256 tokenId) {
         require(msg.sender == currentPatron[tokenId], "Not patron");
@@ -311,35 +313,37 @@ contract WildcardSteward_v2 is Initializable {
     }
 
     /* actions */
-    function _collectLoyalty(uint256 tokenId) internal {
-        // NOTE: this isn't currently implemented optimally. It would be possible to keep track of the total loyalty token generation rate for all the users tokens and use that.
-        // This should be implemented soon (while there are only a small number of tokens), or never.
-        address currentOwner = currentPatron[tokenId];
-        uint256 previousTokenCollection = timeLastCollected[tokenId];
-        uint256 patronageOwedByTokenPatron = patronageOwedPatron(currentOwner);
+    function _collectLoyaltyPatron(address tokenPatron) internal {
+        uint256 patronageOwedByTokenPatron = patronageOwedPatron(tokenPatron);
         uint256 timeSinceLastMint;
+        if (
+            patronageOwedByTokenPatron > 0 &&
+            patronageOwedByTokenPatron >= deposit[tokenPatron]
+        ) {
 
-        if (patronageOwedByTokenPatron >= deposit[currentOwner]) {
-            uint256 newTimeLastCollected = timeLastCollectedPatron[currentOwner]
-                .add(
+                uint256 previousCollectionTime
+             = timeLastCollectedPatron[tokenPatron];
+            // up to when was it actually paid for?
+            uint256 newTimeLastCollected = previousCollectionTime.add(
                 (
-                    (now.sub(timeLastCollectedPatron[currentOwner]))
-                        .mul(deposit[currentOwner])
+                    (now.sub(previousCollectionTime))
+                        .mul(deposit[tokenPatron])
                         .div(patronageOwedByTokenPatron)
                 )
             );
             timeSinceLastMint = (
-                newTimeLastCollected.sub(previousTokenCollection)
+                newTimeLastCollected.sub(previousCollectionTime)
             );
         } else {
-            timeSinceLastMint = now.sub(timeLastCollected[tokenId]);
+            timeSinceLastMint = now.sub(timeLastCollectedPatron[tokenPatron]);
         }
+
         mintManager.tokenMint(
-            currentOwner,
+            tokenPatron,
             timeSinceLastMint,
-            tokenGenerationRate[tokenId]
+            totalPatronTokenGenerationRate[tokenPatron]
         );
-        emit CollectLoyalty(tokenId, currentOwner, timeSinceLastMint);
+        emit CollectLoyalty(tokenPatron, timeSinceLastMint);
     }
 
     // TODO:: think of more efficient ways for recipients to collect patronage for lots of tokens at the same time.0
@@ -408,6 +412,9 @@ contract WildcardSteward_v2 is Initializable {
     // This does accounting without transfering any tokens
     function _collectPatronagePatron(address tokenPatron) public {
         uint256 patronageOwedByTokenPatron = patronageOwedPatron(tokenPatron);
+
+        _collectLoyaltyPatron(tokenPatron);
+
         if (
             patronageOwedByTokenPatron > 0 &&
             patronageOwedByTokenPatron >= deposit[tokenPatron]
