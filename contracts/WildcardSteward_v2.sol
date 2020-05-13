@@ -176,7 +176,8 @@ contract WildcardSteward_v2 is Initializable {
             assetToken.mintWithTokenURI(address(this), tokens[i], tokenUri);
             benefactors[tokens[i]] = _benefactors[i];
             state[tokens[i]] = StewardState.Foreclosed; // TODO: Maybe Implement reverse dutch auction on intial sale or other such mechanisms to avoid the deadloss weight of
-            price[tokens[i]] = 10**17; // set intial price to 0.1 eth
+            // price[tokens[i]] = 10**17; // set by auction
+            timeLastCollected[tokens[i]] = now;
             patronageNumerator[tokens[i]] = _patronageNumerator[i];
             tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i];
             emit AddToken(
@@ -474,6 +475,9 @@ contract WildcardSteward_v2 is Initializable {
         uint256 _auctionEndPrice,
         uint256 _auctionLength
     ) external onlyAdmin {
+        require(_auctionStartPrice>_auctionEndPrice, "Auction value must decrease over time");
+        require(_auctionLength >= 86400), "Auction should last at least day");  
+
         auctionStartPrice = _auctionStartPrice;
         auctionEndPrice = _auctionEndPrice;
         auctionLength = _auctionLength;
@@ -487,9 +491,11 @@ contract WildcardSteward_v2 is Initializable {
         if (now >= auctionEnd) {
             return auctionEndPrice;
         } else {
+            // (y2-y1)/(x2-x1)
             uint256 slope = (auctionEndPrice.sub(auctionStartPrice)).div(
                 auctionLength
             );
+            // c = y - mx
             uint256 intercept = auctionEnd.sub(slope.mul(auctionEndPrice));
             return (slope.mul(now)).add(intercept);
         }
