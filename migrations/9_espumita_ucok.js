@@ -8,6 +8,7 @@ const tokenIdEspumita = "8";
 const tokenIdUcok = "14";
 const laSendaVerdeAddress = "0x6e2a8814bE551B263f9B95A721D32d33877Ee5Ec";
 const darwinAnimalDoctorsAddress = "0x233f9bcb02bfAD03aAcCb6cE40b6C4f83C867603";
+//                        6000000000000
 const harbergerTaxRate = "6000000000000"; // Harberger tax rate of 600% per year
 
 module.exports = function(deployer, networkName, accounts) {
@@ -24,18 +25,20 @@ module.exports = function(deployer, networkName, accounts) {
     );
     const steward = await WildcardSteward_v2.at(steward_v0.address);
 
-    await patronageToken.mintWithTokenURI(
-      steward.address,
-      tokenIdEspumita,
-      "https://wildcards.xyz/token/8",
-      { from: accounts[0] }
-    );
-    await patronageToken.mintWithTokenURI(
-      steward.address,
-      tokenIdUcok,
-      "https://wildcards.xyz/token/14",
-      { from: accounts[0] }
-    );
+    await Promise.all([
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        tokenIdEspumita,
+        "https://wildcards.xyz/token/8",
+        { from: accounts[0], gas: 681877 }
+      ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        tokenIdUcok,
+        "https://wildcards.xyz/token/14",
+        { from: accounts[0], gas: 681877 }
+      ),
+    ]);
 
     /*
       uint256[] memory tokens,
@@ -48,7 +51,7 @@ module.exports = function(deployer, networkName, accounts) {
       [laSendaVerdeAddress, darwinAnimalDoctorsAddress],
       [harbergerTaxRate, harbergerTaxRate],
       [receiptGenerationRate, receiptGenerationRate],
-      { from: accounts[0] }
+      { from: accounts[0], gas: 615225 }
     );
   });
 };
