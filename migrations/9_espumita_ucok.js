@@ -4,9 +4,11 @@ const ERC721Patronage_v1 = artifacts.require("ERC721Patronage_v1");
 const WildcardSteward_v2 = artifacts.require("WildcardSteward_v2");
 
 const receiptGenerationRate = 11574074074074; // This is just less (rounded down) than one token a day (ie. 10^18 / 86400)
-const tokenId = "13";
-const votingContractAddress = "0x03e051b7e42480Cc9D54F1caB525D2Fea2cF4d83";
-const harbergerTaxRate = "600000000000"; // Harberger tax rate of 60% per year
+const tokenIdEspumita = "8";
+const tokenIdUcok = "14";
+const laSendaVerdeAddress = "0x6e2a8814bE551B263f9B95A721D32d33877Ee5Ec";
+const darwinAnimalDoctorsAddress = "0x233f9bcb02bfAD03aAcCb6cE40b6C4f83C867603";
+const harbergerTaxRate = "6000000000000"; // Harberger tax rate of 600% per year
 
 module.exports = function(deployer, networkName, accounts) {
   deployer.then(async () => {
@@ -24,16 +26,28 @@ module.exports = function(deployer, networkName, accounts) {
 
     await patronageToken.mintWithTokenURI(
       steward.address,
-      tokenId,
-      "https://wildcards.xyz/token/13",
+      tokenIdEspumita,
+      "https://wildcards.xyz/token/8",
+      { from: accounts[0] }
+    );
+    await patronageToken.mintWithTokenURI(
+      steward.address,
+      tokenIdUcok,
+      "https://wildcards.xyz/token/14",
       { from: accounts[0] }
     );
 
+    /*
+      uint256[] memory tokens,
+      address payable[] memory _benefactors,
+      uint256[] memory _patronageNumerator,
+      uint256[] memory _tokenGenerationRate
+    */
     await steward.listNewTokens(
-      [tokenId],
-      [accounts[0]],
-      [harbergerTaxRate],
-      [receiptGenerationRate],
+      [tokenIdEspumita, tokenIdUcok],
+      [laSendaVerdeAddress, darwinAnimalDoctorsAddress],
+      [harbergerTaxRate, harbergerTaxRate],
+      [receiptGenerationRate, receiptGenerationRate],
       { from: accounts[0] }
     );
   });

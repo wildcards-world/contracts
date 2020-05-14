@@ -1082,7 +1082,7 @@
   },
   "networks": {},
   "schemaVersion": "3.0.23",
-  "updatedAt": "2020-03-30T11:09:33.302Z",
+  "updatedAt": "2020-04-25T19:55:57.049Z",
   "devdoc": {
     "details": "See https://eips.ethereum.org/EIPS/eip-721",
     "methods": {

@@ -44,7 +44,7 @@ contract WildcardSteward_v2 is Initializable {
 
     address public admin;
 
-    //////////////// NEW ///////////////////
+    //////////////// NEW variables in v2///////////////////
     mapping(uint256 => uint256) public tokenGenerationRate; // we can reuse the patronage denominator
 
     MintManager_v2 public mintManager;
@@ -57,22 +57,18 @@ contract WildcardSteward_v2 is Initializable {
         uint256 remainingDeposit
     );
 
-    // Add token generation rate to this event.
     event AddToken(
         uint256 indexed tokenId,
         uint256 patronageNumerator,
         uint256 tokenGenerationRate
     );
-    // QUESTION: should these two events be combined into one? - they only ever happen at the same time.
-    // event Collection(uint256 indexed tokenId, address indexed payedBy, uint256 collected);
-    // event ERC20Minted(uint256 indexed tokenId, address indexed reciever, uint256 amount);
+    // QUESTION: in future versions, should these two events (CollectPatronage and CollectLoyalty) be combined into one? - they only ever happen at the same time.
     event CollectPatronage(
         uint256 indexed tokenId,
         address indexed patron,
         uint256 remainingDeposit,
         uint256 amountReceived
     );
-    // TODO add events for erc20 mints
     event CollectLoyalty(
         uint256 indexed tokenId,
         address indexed patron,
@@ -88,11 +84,6 @@ contract WildcardSteward_v2 is Initializable {
         require(msg.sender == admin, "Not admin");
         _;
     }
-
-    // modifier onlyAdminOrInternal() {
-    //     require(msg.sender == admin || msg.sender == address(this), "Not admin");
-    //     _;
-    // }
 
     modifier onlyReceivingBenefactorOrAdmin(uint256 tokenId) {
         require(
@@ -136,7 +127,7 @@ contract WildcardSteward_v2 is Initializable {
         for (uint8 i = 0; i < tokens.length; ++i) {
             assert(_benefactors[i] != address(0));
             benefactors[tokens[i]] = _benefactors[i];
-            state[tokens[i]] = StewardState.Foreclosed; // TODO: Maybe Implement reverse dutch auction on intial sale
+            state[tokens[i]] = StewardState.Foreclosed; // TODO: Maybe Implement reverse dutch auction on intial sale or other such mechanisms to avoid the deadloss weight of
             patronageNumerator[tokens[i]] = _patronageNumerator[i];
             tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i];
             emit AddToken(
@@ -222,7 +213,6 @@ contract WildcardSteward_v2 is Initializable {
     {
         if (timeLastCollectedPatron[tokenPatron] == 0) return 0;
 
-        // NOTE/TODO: to cater to different patronage rates, we should include it in the `totalPatronOwnedTokenCost` (and probably rename that variable)
         return
             totalPatronOwnedTokenCost[tokenPatron]
                 .mul(now.sub(timeLastCollectedPatron[tokenPatron]))
@@ -271,10 +261,6 @@ contract WildcardSteward_v2 is Initializable {
         }
     }
 
-    /*
-    now + deposit/patronage per second 
-    now + depositAbleToWithdraw/(price*nume/denom/365).
-    */
     function foreclosureTimePatron(address tokenPatron)
         public
         view
@@ -292,7 +278,10 @@ contract WildcardSteward_v2 is Initializable {
         return foreclosureTimePatron(tokenPatron);
     }
 
+    /* actions */
     function _collectLoyalty(uint256 tokenId) internal {
+        // NOTE: this isn't currently implemented optimally. It would be possible to keep track of the total loyalty token generation rate for all the users tokens and use that.
+        // This should be implemented soon (while there are only a small number of tokens), or never.
         address currentOwner = currentPatron[tokenId];
         uint256 previousTokenCollection = timeLastCollected[tokenId];
         uint256 patronageOwedByTokenPatron = patronageOwedPatron(currentOwner);
@@ -321,8 +310,7 @@ contract WildcardSteward_v2 is Initializable {
         emit CollectLoyalty(tokenId, currentOwner, timeSinceLastMint);
     }
 
-    /* actions */
-    // TODO:: think of more efficient ways for recipients to collect patronage for lots of tokens at the same time.
+    // TODO:: think of more efficient ways for recipients to collect patronage for lots of tokens at the same time.0
     function _collectPatronage(uint256 tokenId) public {
         // determine patronage to pay
         if (state[tokenId] == StewardState.Owned) {
@@ -333,7 +321,8 @@ contract WildcardSteward_v2 is Initializable {
             );
             _collectLoyalty(tokenId); // This needs to be called before before the token may be foreclosed next section
             uint256 collection;
-            // should foreclose and stake stewardship
+
+            // it should foreclose and take stewardship
             if (patronageOwedByTokenPatron >= deposit[currentOwner]) {
 
                     uint256 newTimeLastCollected
@@ -562,7 +551,6 @@ contract WildcardSteward_v2 is Initializable {
         address _newOwner,
         uint256 _newPrice
     ) internal {
-        // TODO: add the patronage rate as a multiplier here: https://github.com/wild-cards/contracts/issues/7
         totalPatronOwnedTokenCost[_newOwner] = totalPatronOwnedTokenCost[_newOwner]
             .add(_newPrice.mul(patronageNumerator[tokenId]));
         totalPatronOwnedTokenCost[_currentPatron] = totalPatronOwnedTokenCost[_currentPatron]
