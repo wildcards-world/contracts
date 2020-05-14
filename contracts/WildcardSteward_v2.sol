@@ -172,16 +172,16 @@ contract WildcardSteward_v2 is Initializable {
         }
     }
 
-    function fixTotalPatronTokenGenerationRate(uint256[] memory tokens)
-        public
-        onlyAdmin
-    {
+    function fixTotalPatronTokenGenerationRate(
+        uint256[] memory tokens,
+    ) public onlyAdmin {
         for (uint8 i = 0; i < tokens.length; ++i) {
             uint256 tokenId = tokens[i];
             address currentOwner = currentPatron[tokenId];
 
             // NOTE: for this upgrade we make sure no tokens are foreclosed, or close to foreclosing
             _collectPatronage(tokenId);
+
             uint256 timeSinceLastMint = now.sub(timeLastCollected[tokenId]);
 
             mintManager.tokenMint(
