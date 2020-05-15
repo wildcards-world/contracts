@@ -59,13 +59,16 @@ contract("WildcardSteward owed", (accounts) => {
       [patronageNumerator],
       [tokenGenerationRate]
     );
+    await steward.changeAuctionParameters(ether("1"), ether("0.05"), 86400, {
+      from: accounts[0],
+    });
   });
 
   it("steward: admin-change. On admin change, check that only the admin can change the admin address. Also checking withdraw benfactor funds can be called", async () => {
     await waitTillBeginningOfSecond();
 
     //Buy a token
-    await steward.buy(testTokenId1, ether("1"), ether("1"), {
+    await steward.buyAuction(testTokenId1, ether("1"), 500, {
       from: accounts[2],
       value: ether("2", "ether"),
     });
