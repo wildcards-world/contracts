@@ -67,17 +67,20 @@ contract("WildcardSteward owed", (accounts) => {
       [patronageNumerator, patronageNumerator, patronageNumerator],
       [tokenGenerationRate, tokenGenerationRate, tokenGenerationRate]
     );
+    await steward.changeAuctionParameters(ether("0"), ether("0"), 86400, {
+      from: accounts[0],
+    });
   });
 
   it("steward: multi-token-deposit. On token buy, check that the remaining deposit is sent back to patron only if it is their only token", async () => {
     await waitTillBeginningOfSecond();
 
     //Buying 2 tokens. Setting selling price to 1 and 2 eth respectively. Sending 1 eth each for deposit.
-    await steward.buy(testTokenId1, ether("1"), ether("1"), {
+    await steward.buyAuction(testTokenId1, ether("1"), 500, {
       from: accounts[2],
       value: ether("1"),
     });
-    await steward.buy(testTokenId2, ether("2"), ether("1"), {
+    await steward.buyAuction(testTokenId2, ether("2"), 500, {
       from: accounts[2],
       value: ether("1"),
     });
@@ -93,7 +96,7 @@ contract("WildcardSteward owed", (accounts) => {
       await web3.eth.getBalance(accounts[2])
     );
     // When first token is bought, deposit should remain.
-    await steward.buy(testTokenId1, ether("1"), ether("1"), {
+    await steward.buy(testTokenId1, ether("1"), ether("1"), 500, {
       from: accounts[3],
       value: ether("2"),
     });
@@ -104,7 +107,7 @@ contract("WildcardSteward owed", (accounts) => {
     );
 
     //Second token then bought. Deposit should now be added back the patrons balance
-    await steward.buy(testTokenId2, ether("1"), ether("1"), {
+    await steward.buy(testTokenId2, ether("1"), ether("1"), 500, {
       from: accounts[3],
       value: ether("3"),
     });
@@ -117,27 +120,31 @@ contract("WildcardSteward owed", (accounts) => {
     );
 
     const expectedPatronageAfter10min = patronageCalculator("600", [
-      { patronageNumerator: "12", price: priceOftoken1.toString() },
-      { patronageNumerator: "12", price: priceOftoken2.toString() },
+      { patronageNumerator: "12000000000000", price: priceOftoken1.toString() },
+      { patronageNumerator: "12000000000000", price: priceOftoken2.toString() },
     ]);
 
     assert.equal(
-      patronDepositBeforeSale.toString(),
-      patronDepositAfterFirstSale.add(expectedPatronageAfter10min).toString()
+      patronDepositAfterFirstSale.toString(),
+      patronDepositBeforeSale
+        .sub(expectedPatronageAfter10min)
+        .add(ether("0.94")) //since now you would recieve 0.94 ether from the sale to your deposit instead
+        //  0.05 wildcards and 0.01 artist commision
+        .toString()
     );
 
     //Checking once no more tokens are owned, the deposit is set to zero
     assert.equal(patronDepositAfterSecondSale.toString(), "0");
-    //Checking that the balance after selling 1 token has increased by only the amount recieved.
+    // This should now be the same, as only the deposit should increase
     assert.equal(
-      balancePatronBeforeSale.add(ether("1")).toString(),
+      balancePatronBeforeSale.toString(),
       balancePatronAfterFirstSale.toString()
     );
     //Checking owner gets deposit back on sale of final token plus sale price too.
     assert.equal(
       balancePatronAfterSecondSale.toString(),
       balancePatronAfterFirstSale
-        .add(ether("2"))
+        .add(ether("1.88"))
         .add(patronDepositAfterFirstSale)
         .toString()
     );
