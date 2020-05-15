@@ -258,7 +258,7 @@ contract WildcardSteward_v2 is Initializable {
         uint256 _auctionLength
     ) external onlyAdmin {
         require(
-            _auctionStartPrice > _auctionEndPrice,
+            _auctionStartPrice >= _auctionEndPrice,
             "Auction value must decrease over time"
         );
         require(_auctionLength >= 86400, "Auction should last at least day");
