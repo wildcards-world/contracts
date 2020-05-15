@@ -9,7 +9,7 @@ contract SendBlockAttacker {
         uint256 tokenId,
         uint256 newPrice
     ) public payable {
-        stewardAddress.buy.value(msg.value)(tokenId, newPrice, msg.value, 500);
+        stewardAddress.buyAuction.value(msg.value)(tokenId, newPrice, 500);
     }
 
     function withdrawDeposit(WildcardSteward_v2 stewardAddress, uint256 amount)
