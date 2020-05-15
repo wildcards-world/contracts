@@ -193,13 +193,13 @@ contract("WildcardSteward", (accounts) => {
   });
 
   it("steward: init: buy with 2 ether, price of 1 success [price = 1 eth, deposit = 1 eth]", async () => {
-    await steward.changeAuctionParameters(ether("1"), ether("0.05"), 86400, {
+    await steward.changeAuctionParameters(ether("0"), ether("0"), 86400, {
       from: accounts[0],
     });
 
     const { logs } = await steward.buyAuction(0, ether("1"), 500, {
       from: accounts[2],
-      value: ether("2"),
+      value: ether("1"),
     });
     expectEvent.inLogs(logs, "Buy", { owner: accounts[2], price: ether("1") });
     const deposit = await steward.deposit.call(accounts[2]);

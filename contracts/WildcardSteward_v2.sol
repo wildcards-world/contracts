@@ -119,7 +119,7 @@ contract WildcardSteward_v2 is Initializable {
     ) {
         require(
             wildcardsPercentage >= 500 &&
-                wildcardsPercentage <= (10000 - artistPercentages[tokenID]),
+                wildcardsPercentage <= (10000 - artistPercentages[tokenID]), // not sub safemath. Is this okay?
             "Minimum 5% (500) commission, max 100% (10000) commission."
         );
         _;
