@@ -53,6 +53,7 @@ contract WildcardSteward_v2 is Initializable {
 
     mapping(uint256 => address) artistAddresses; //mapping from tokenID to the artists address
     mapping(uint256 => uint256) wildcardsPercentages; // mapping from tokenID to the percentage sale cut of wildcards for each token
+    mapping(uint256 => uint256) artistPercentages; // tokenId to artist percetages. To make it configurable. 10 000 = 100%
 
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
     event PriceChange(uint256 indexed tokenId, uint256 newPrice);
@@ -112,9 +113,13 @@ contract WildcardSteward_v2 is Initializable {
         require(_newPrice > 0, "Price is zero");
         _;
     }
-    modifier validWildcardsPercentage(uint256 wildcardsPercentage) {
+    modifier validWildcardsPercentage(
+        uint256 wildcardsPercentage,
+        uint256 tokenID
+    ) {
         require(
-            wildcardsPercentage >= 500 && wildcardsPercentage <= 10000,
+            wildcardsPercentage >= 500 &&
+                wildcardsPercentage <= (10000 - artistPercentages[tokenID]),
             "Minimum 5% (500) commission, max 100% (10000) commission."
         );
         _;
@@ -128,7 +133,6 @@ contract WildcardSteward_v2 is Initializable {
         admin = _admin;
     }
 
-    // Source: https://github.com/provable-things/ethereum-api/blob/master/oraclizeAPI_0.5.sol#L1045
     function uintToStr(uint256 _i)
         internal
         pure
@@ -138,7 +142,6 @@ contract WildcardSteward_v2 is Initializable {
             return "0";
         }
 
-        // Determine length of bytes.
         uint256 j = _i;
         uint256 len;
         while (j != 0) {
@@ -146,10 +149,8 @@ contract WildcardSteward_v2 is Initializable {
             j /= 10;
         }
 
-        // get each unit of bytes string.
         bytes memory bstr = new bytes(len);
         while (_i != 0) {
-            // ascii codes for digits are 48-57
             bstr[--len] = bytes1(uint8(48 + (_i % 10)));
             _i /= 10;
         }
@@ -175,8 +176,8 @@ contract WildcardSteward_v2 is Initializable {
             );
             assetToken.mintWithTokenURI(address(this), tokens[i], tokenUri);
             benefactors[tokens[i]] = _benefactors[i];
-            state[tokens[i]] = StewardState.Foreclosed; // TODO: Maybe Implement reverse dutch auction on intial sale or other such mechanisms to avoid the deadloss weight of
-            // price[tokens[i]] = 10**17; // set by auction
+            state[tokens[i]] = StewardState.Foreclosed;
+            artistPercentages[tokens[i]] = 100;
             timeLastCollected[tokens[i]] = now;
             patronageNumerator[tokens[i]] = _patronageNumerator[i];
             tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i];
@@ -204,7 +205,7 @@ contract WildcardSteward_v2 is Initializable {
         require(
             address(mintManager) == address(0),
             "Only set on initialisation"
-        ); // This can only be called once!
+        );
         mintManager = MintManager_v2(_mintManager);
     }
 
@@ -236,7 +237,37 @@ contract WildcardSteward_v2 is Initializable {
         admin = _admin;
     }
 
-    /* public view functions */
+    function setArtCommission(uint256 tokenId, uint256 percentage)
+        external
+        onlyAdmin
+    {
+        require(percentage <= 2000, "Cannot be more than 20%");
+        artistPercentages[tokenId] = percentage;
+    }
+
+    function setArtistAddress(uint256 tokenId, address artistAddress)
+        external
+        onlyAdmin
+    {
+        artistAddresses[tokenId] = artistAddress;
+    }
+
+    function changeAuctionParamters(
+        uint256 _auctionStartPrice,
+        uint256 _auctionEndPrice,
+        uint256 _auctionLength
+    ) external onlyAdmin {
+        require(
+            _auctionStartPrice > _auctionEndPrice,
+            "Auction value must decrease over time"
+        );
+        require(_auctionLength >= 86400, "Auction should last at least day");
+
+        auctionStartPrice = _auctionStartPrice;
+        auctionEndPrice = _auctionEndPrice;
+        auctionLength = _auctionLength;
+    }
+
     function patronageOwed(uint256 tokenId)
         public
         view
@@ -260,7 +291,6 @@ contract WildcardSteward_v2 is Initializable {
         return (patronageOwed(tokenId), now);
     }
 
-    // TODO: make a version of this function that is for patronage owed by token rather than by tokenPatron like it is now.
     function patronageOwedPatron(address tokenPatron)
         public
         view
@@ -284,9 +314,6 @@ contract WildcardSteward_v2 is Initializable {
     }
 
     function foreclosedPatron(address tokenPatron) public view returns (bool) {
-        // returns whether it is in foreclosed state or not
-        // depending on whether deposit covers patronage due
-        // useful helper function when price should be zero, but contract doesn't reflect it yet.
         if (patronageOwedPatron(tokenPatron) >= deposit[tokenPatron]) {
             return true;
         } else {
@@ -295,14 +322,10 @@ contract WildcardSteward_v2 is Initializable {
     }
 
     function foreclosed(uint256 tokenId) public view returns (bool) {
-        // returns whether it is in foreclosed state or not
-        // depending on whether deposit covers patronage due
-        // useful helper function when price should be zero, but contract doesn't reflect it yet.
         address tokenPatron = currentPatron[tokenId];
         return foreclosedPatron(tokenPatron);
     }
 
-    // same function as above, basically
     function depositAbleToWithdraw(address tokenPatron)
         public
         view
@@ -321,11 +344,10 @@ contract WildcardSteward_v2 is Initializable {
         view
         returns (uint256)
     {
-        // patronage per second
         uint256 pps = totalPatronOwnedTokenCost[tokenPatron]
             .div(1000000000000)
             .div(365 days);
-        return now.add(depositAbleToWithdraw(tokenPatron).div(pps)); // zero division if price is zero.
+        return now.add(depositAbleToWithdraw(tokenPatron).div(pps));
     }
 
     function foreclosureTime(uint256 tokenId) public view returns (uint256) {
@@ -333,10 +355,7 @@ contract WildcardSteward_v2 is Initializable {
         return foreclosureTimePatron(tokenPatron);
     }
 
-    /* actions */
     function _collectLoyalty(uint256 tokenId) internal {
-        // NOTE: this isn't currently implemented optimally. It would be possible to keep track of the total loyalty token generation rate for all the users tokens and use that.
-        // This should be implemented soon (while there are only a small number of tokens), or never.
         address currentOwner = currentPatron[tokenId];
         uint256 previousTokenCollection = timeLastCollected[tokenId];
         uint256 patronageOwedByTokenPatron = patronageOwedPatron(currentOwner);
@@ -365,19 +384,16 @@ contract WildcardSteward_v2 is Initializable {
         emit CollectLoyalty(tokenId, currentOwner, timeSinceLastMint);
     }
 
-    // TODO:: think of more efficient ways for recipients to collect patronage for lots of tokens at the same time.0
     function _collectPatronage(uint256 tokenId) public {
-        // determine patronage to pay
         if (state[tokenId] == StewardState.Owned) {
             address currentOwner = currentPatron[tokenId];
             uint256 previousTokenCollection = timeLastCollected[tokenId];
             uint256 patronageOwedByTokenPatron = patronageOwedPatron(
                 currentOwner
             );
-            _collectLoyalty(tokenId); // This needs to be called before before the token may be foreclosed next section
+            _collectLoyalty(tokenId);
             uint256 collection;
 
-            // it should foreclose and take stewardship
             if (patronageOwedByTokenPatron >= deposit[currentOwner]) {
 
                     uint256 newTimeLastCollected
@@ -419,7 +435,6 @@ contract WildcardSteward_v2 is Initializable {
             benefactorFunds[benefactor] = benefactorFunds[benefactor].add(
                 collection
             );
-            // if foreclosed, tokens are minted and sent to the steward since _foreclose is already called.
             emit CollectPatronage(
                 tokenId,
                 currentOwner,
@@ -429,7 +444,6 @@ contract WildcardSteward_v2 is Initializable {
         }
     }
 
-    // This does accounting without transfering any tokens
     function _collectPatronagePatron(address tokenPatron) public {
         uint256 patronageOwedByTokenPatron = patronageOwedPatron(tokenPatron);
         if (
@@ -439,7 +453,6 @@ contract WildcardSteward_v2 is Initializable {
 
                 uint256 previousCollectionTime
              = timeLastCollectedPatron[tokenPatron];
-            // up to when was it actually paid for?
             uint256 newTimeLastCollected = previousCollectionTime.add(
                 (
                     (now.sub(previousCollectionTime))
@@ -459,7 +472,6 @@ contract WildcardSteward_v2 is Initializable {
         emit RemainingDepositUpdate(tokenPatron, deposit[tokenPatron]);
     }
 
-    // note: anyone can deposit
     function depositWei() public payable {
         depositWeiPatron(msg.sender);
     }
@@ -470,37 +482,27 @@ contract WildcardSteward_v2 is Initializable {
         emit RemainingDepositUpdate(patron, deposit[patron]);
     }
 
-    function changeAuctionParamters(
-        uint256 _auctionStartPrice,
-        uint256 _auctionEndPrice,
-        uint256 _auctionLength
-    ) external onlyAdmin {
-        require(
-            _auctionStartPrice > _auctionEndPrice,
-            "Auction value must decrease over time"
-        );
-        require(_auctionLength >= 86400, "Auction should last at least day");
-
-        auctionStartPrice = _auctionStartPrice;
-        auctionEndPrice = _auctionEndPrice;
-        auctionLength = _auctionLength;
-    }
-
-    // NOTE: Need to distinguish been previously owned and foreclosed vs first sale items.
-    //
-    function _auctionPrice(uint256 tokenId) internal returns (uint256) {
-        // HERE we need to be careful. Check whether timeLastCollected[tokenId] is actually now due to collect Patronage modifer being called
+    function _auctionPrice(uint256 tokenId) internal view returns (uint256) {
         uint256 auctionEnd = timeLastCollected[tokenId].add(auctionLength);
+        // If it is not brand new and foreclosed, use the foreclosre auction price.
+        uint256 _auctionStartPrice;
+        if (price[tokenId] != 0 && price[tokenId] > auctionEndPrice) {
+            _auctionStartPrice = price[tokenId];
+        } else {
+            // Otherwise use starting auction price
+            _auctionStartPrice = auctionStartPrice;
+        }
+
         if (now >= auctionEnd) {
             return auctionEndPrice;
         } else {
-            // (y2-y1)/(x2-x1)
-            uint256 slope = (auctionEndPrice.sub(auctionStartPrice)).div(
-                auctionLength
-            );
-            // c = y - mx
-            uint256 intercept = auctionEnd.sub(slope.mul(auctionEndPrice));
-            return (slope.mul(now)).add(intercept);
+            // startPrice - ( ( (startPrice - endPrice) * howLongThisAuctionBeenGoing ) / auctionLength )
+            return
+                _auctionStartPrice.sub(
+                    (_auctionStartPrice.sub(auctionEndPrice))
+                        .mul(now.sub(timeLastCollected[tokenId]))
+                        .div(auctionLength)
+                );
         }
     }
 
@@ -515,33 +517,32 @@ contract WildcardSteward_v2 is Initializable {
         collectPatronage(tokenId)
         collectPatronageAddress(msg.sender)
         priceGreaterThanZero(_newPrice)
-        validWildcardsPercentage(wildcardsPercentage)
+        validWildcardsPercentage(wildcardsPercentage, tokenId)
     {
         require(
             state[tokenId] == StewardState.Owned,
             "Cannot buy foreclosed token using this function"
         );
         uint256 remainingValueForDeposit = msg.value.sub(price[tokenId]);
-        // This prevents slipage if someone frontruns this transaction and changes the price unexpectedly.
         require(
             remainingValueForDeposit >= _deposit,
             "The deposit available is < what was stated in the transaction"
         );
-        address currentOwner = assetToken.ownerOf(tokenId);
-        address tokenPatron = currentPatron[tokenId];
 
-        _buy(tokenId, tokenPatron, wildcardsPercentage);
-        _handleBuy(
+        _distributePurchaseProceeds(tokenId);
+
+        wildcardsPercentages[tokenId] = wildcardsPercentage;
+        deposit[msg.sender] = deposit[msg.sender].add(remainingValueForDeposit);
+        transferAssetTokenTo(
             tokenId,
-            wildcardsPercentage,
-            remainingValueForDeposit,
-            currentOwner,
-            tokenPatron,
+            assetToken.ownerOf(tokenId),
+            currentPatron[tokenId],
+            msg.sender,
             _newPrice
         );
+        emit Buy(tokenId, msg.sender, _newPrice);
     }
 
-    // Check possible issues with collectPatronage(tokenId) [probably leave out since no patronage to collect on forecolsed token!?]
     function buyAuction(
         uint256 tokenId,
         uint256 _newPrice,
@@ -552,103 +553,91 @@ contract WildcardSteward_v2 is Initializable {
         collectPatronage(tokenId)
         collectPatronageAddress(msg.sender)
         priceGreaterThanZero(_newPrice)
-        validWildcardsPercentage(wildcardsPercentage)
+        validWildcardsPercentage(wildcardsPercentage, tokenId)
     {
         require(
             state[tokenId] == StewardState.Foreclosed,
             "Can only buy foreclosed tokens useing this function"
         );
-        // Calculate auction price for the token and replace price[tokenId] below
         uint256 auctionTokenPrice = _auctionPrice(tokenId);
-
-        // Note: We need to calculate the requisite value on our front end using same function
         uint256 remainingValueForDeposit = msg.value.sub(auctionTokenPrice);
 
-        address currentOwner = assetToken.ownerOf(tokenId);
-        address tokenPatron = currentPatron[tokenId];
+        _distributeAuctionProceeds(tokenId);
 
-        _buyAuction(tokenId);
-        _handleBuy(
-            tokenId,
-            wildcardsPercentage,
-            remainingValueForDeposit,
-            currentOwner,
-            tokenPatron,
-            _newPrice
-        );
-    }
+        state[tokenId] = StewardState.Owned;
+        timeLastCollected[tokenId] = now;
+        timeLastCollectedPatron[msg.sender] = now;
 
-    function _handleBuy(
-        uint256 tokenId,
-        uint256 wildcardsPercentage,
-        uint256 remainingValueForDeposit,
-        address currentOwner,
-        address tokenPatron,
-        uint256 _newPrice
-    ) internal {
-        wildcardsPercentages[tokenId] = wildcardsPercentage; //Set the percentage wildcards will recieve on next sale
+        wildcardsPercentages[tokenId] = wildcardsPercentage;
         deposit[msg.sender] = deposit[msg.sender].add(remainingValueForDeposit);
         transferAssetTokenTo(
             tokenId,
-            currentOwner,
-            tokenPatron,
+            assetToken.ownerOf(tokenId),
+            currentPatron[tokenId],
             msg.sender,
             _newPrice
         );
         emit Buy(tokenId, msg.sender, _newPrice);
     }
 
-    // NB to check that the msg.value is greater tgat
-    function _buyAuction(uint256 tokenId) internal {
+    function _distributeAuctionProceeds(uint256 tokenId) internal {
         uint256 totalAmount = price[tokenId];
-        uint256 artistAmount = totalAmount.mul(100).div(10000); //1% hard coded at the moment
+        if (artistPercentages[tokenId] == 0) {
+            artistPercentages[tokenId] = 100;
+        }
+        uint256 artistAmount = totalAmount.mul(artistPercentages[tokenId]).div(
+            10000
+        );
         uint256 wildcardsAmount = totalAmount.sub(artistAmount);
-
         _payArtistAndWildcards(tokenId, artistAmount, wildcardsAmount);
-
-        state[tokenId] = StewardState.Owned;
-        timeLastCollected[tokenId] = now;
-        timeLastCollectedPatron[msg.sender] = now;
     }
 
-    function _buy(
-        uint256 tokenId,
-        address tokenPatron,
-        uint256 wildcardsPercentage
-    ) internal {
+    function _distributePurchaseProceeds(uint256 tokenId) internal {
         uint256 totalAmount = price[tokenId];
+        address tokenPatron = currentPatron[tokenId];
+        // Wildcards percentage calc
         if (wildcardsPercentages[tokenId] == 0) {
-            wildcardsPercentages[tokenId] = 500; // 5% default for existing tokens. Thought this was easier than adding commission rates to existing tokens?
+            wildcardsPercentages[tokenId] = 500;
         }
         uint256 wildcardsAmount = totalAmount
             .mul(wildcardsPercentages[tokenId])
             .div(10000);
-        uint256 artistAmount = totalAmount.mul(100).div(10000); //1% hard coded at the moment
-        uint256 totalToPayBack = totalAmount.sub(wildcardsAmount).sub(
-            artistAmount
+
+        // Artist percentage calc
+        if (artistPercentages[tokenId] == 0) {
+            artistPercentages[tokenId] = 100;
+        }
+        uint256 artistAmount = totalAmount.mul(artistPercentages[tokenId]).div(
+            10000
         );
-        // NOTE: pay back the deposit only if it is the only token the patron owns.
+        uint256 previousOwnerProceedsFromSale = totalAmount
+            .sub(wildcardsAmount)
+            .sub(artistAmount);
         if (
             totalPatronOwnedTokenCost[tokenPatron] ==
             price[tokenId].mul(patronageNumerator[tokenId])
         ) {
-            totalToPayBack = totalToPayBack.add(deposit[tokenPatron]);
+            previousOwnerProceedsFromSale = previousOwnerProceedsFromSale.add(
+                deposit[tokenPatron]
+            );
             deposit[tokenPatron] = 0;
-            // pay previous owner their price + deposit back.
             address payable payableCurrentPatron = address(
                 uint160(tokenPatron)
             );
             (bool transferSuccess, ) = payableCurrentPatron
                 .call
                 .gas(2300)
-                .value(totalToPayBack)("");
+                .value(previousOwnerProceedsFromSale)("");
             if (!transferSuccess) {
-                deposit[tokenPatron] = deposit[tokenPatron].add(totalToPayBack);
+                deposit[tokenPatron] = deposit[tokenPatron].add(
+                    previousOwnerProceedsFromSale
+                );
             }
         } else {
-            deposit[tokenPatron] = deposit[tokenPatron].add(totalToPayBack);
+            deposit[tokenPatron] = deposit[tokenPatron].add(
+                previousOwnerProceedsFromSale
+            );
         }
-
         _payArtistAndWildcards(tokenId, artistAmount, wildcardsAmount);
     }
 
@@ -658,10 +647,8 @@ contract WildcardSteward_v2 is Initializable {
         uint256 _wildcardsAmount
     ) internal {
         if (artistAddresses[_tokenId] != address(0)) {
-            // Pay the artist
             deposit[artistAddresses[_tokenId]] = deposit[artistAddresses[_tokenId]]
                 .add(_artistAmount);
-            // Pay wildcards
             deposit[admin] = deposit[admin].add(_wildcardsAmount);
         } else {
             deposit[admin] = deposit[admin].add(_wildcardsAmount).add(
@@ -716,14 +703,11 @@ contract WildcardSteward_v2 is Initializable {
         _withdrawDeposit(deposit[msg.sender]);
     }
 
-    /* internal */
     function _withdrawDeposit(uint256 _wei) internal {
-        // note: can withdraw whole deposit, which puts it in immediate to be foreclosed state.
         require(deposit[msg.sender] >= _wei, "Withdrawing too much");
 
         deposit[msg.sender] = deposit[msg.sender].sub(_wei);
 
-        // msg.sender == patron
         (bool transferSuccess, ) = msg.sender.call.gas(2300).value(_wei)("");
         if (!transferSuccess) {
             revert("Unable to withdraw deposit");
@@ -731,7 +715,6 @@ contract WildcardSteward_v2 is Initializable {
     }
 
     function _foreclose(uint256 tokenId) internal {
-        // become steward of assetToken (aka foreclose)
         address currentOwner = assetToken.ownerOf(tokenId);
         address tokenPatron = currentPatron[tokenId];
         transferAssetTokenTo(
@@ -739,7 +722,7 @@ contract WildcardSteward_v2 is Initializable {
             currentOwner,
             tokenPatron,
             address(this),
-            10**17
+            price[tokenId]
         );
         state[tokenId] = StewardState.Foreclosed;
         currentCollected[tokenId] = 0;
@@ -759,7 +742,6 @@ contract WildcardSteward_v2 is Initializable {
         totalPatronOwnedTokenCost[_currentPatron] = totalPatronOwnedTokenCost[_currentPatron]
             .sub(price[tokenId].mul(patronageNumerator[tokenId]));
 
-        // note: it would also tabulate time held in stewardship by smart contract
         timeHeld[tokenId][_currentPatron] = timeHeld[tokenId][_currentPatron]
             .add((timeLastCollected[tokenId].sub(timeAcquired[tokenId])));
         assetToken.transferFrom(_currentOwner, _newOwner, tokenId);
