@@ -70,17 +70,20 @@ contract("WildcardSteward owed", (accounts) => {
       ],
       [tokenGenerationRate, tokenGenerationRate, tokenGenerationRate]
     );
+    await steward.changeAuctionParameters(ether("0"), ether("0"), 86400, {
+      from: accounts[0],
+    });
   });
 
   it("steward: multi-token. check patronage of two tokens owed by the same patron after 10 minutes.", async () => {
     await waitTillBeginningOfSecond();
 
     // buy 2 tokens, with prices of 1 ether and 2 ether.
-    await steward.buy(testTokenId1, ether("1"), ether("1"), {
+    await steward.buyAuction(testTokenId1, ether("1"), 500, {
       from: accounts[2],
       value: ether("1"),
     });
-    await steward.buy(testTokenId2, ether("2"), ether("1"), {
+    await steward.buyAuction(testTokenId2, ether("2"), 500, {
       from: accounts[2],
       value: ether("1"),
     });
@@ -142,19 +145,14 @@ contract("WildcardSteward owed", (accounts) => {
   // buy 2 tokens, with prices of 1 ether and 2 ether.
   it("steward: multi-token. check patronage of two tokens owed by the same patron after 10 minutes one of the tokens gets bought.", async () => {
     await waitTillBeginningOfSecond();
-    await steward.buy(testTokenId1, ether("1"), ether("1"), {
+    await steward.buyAuction(testTokenId1, ether("1"), 500, {
       from: accounts[2],
       value: ether("1"),
     });
-    await steward.buy(
-      testTokenId2,
-      ether("2"),
-      web3.utils.toWei("0.1", "ether"),
-      {
-        from: accounts[2],
-        value: web3.utils.toWei("0.1", "ether"),
-      }
-    );
+    await steward.buyAuction(testTokenId2, ether("2"), 500, {
+      from: accounts[2],
+      value: web3.utils.toWei("0.1", "ether"),
+    });
 
     await time.increase(time.duration.minutes(10));
     // What the blockchain calculates
@@ -199,6 +197,7 @@ contract("WildcardSteward owed", (accounts) => {
       testTokenId1,
       ether("0.1"),
       web3.utils.toWei("0.1", "ether"),
+      500,
       {
         from: accounts[3],
         value: ether("1.1"),

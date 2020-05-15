@@ -81,6 +81,9 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
       [patronageNumerator, patronageNumerator, patronageNumerator],
       [tokenGenerationRate, tokenGenerationRate, tokenGenerationRate]
     );
+    await steward.changeAuctionParameters(ether("0"), ether("0"), 86400, {
+      from: accounts[0],
+    });
   });
 
   it("steward: buy. Performing payout to the previous owner of deposit, or payment cannot block the transaction.", async () => {
@@ -95,7 +98,7 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
     const depositAbleToWithdrawBefore = await steward.depositAbleToWithdraw(
       attacker.address
     );
-    await steward.buy(1, ether("1"), web3.utils.toWei("0.5", "ether"), {
+    await steward.buy(1, ether("1"), web3.utils.toWei("0.5", "ether"), 500, {
       from: accounts[2],
       value: web3.utils.toWei("1.5", "ether"),
     });
@@ -104,7 +107,7 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
     );
 
     assert.equal(
-      depositAbleToWithdrawBefore.add(new BN(ether("1"))).toString(),
+      depositAbleToWithdrawBefore.add(ether("0.94")).toString(), //6% artist and wildcards default cut
       depositAbleToWithdrawAfter.toString(),
       "The deposit before and after + funds earned from token sale should be the same"
     );
@@ -121,7 +124,7 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
       [tokenGenerationRate]
     );
 
-    await steward.buy(3, ether("1"), ether("1"), {
+    await steward.buyAuction(3, ether("1"), 500, {
       from: accounts[2],
       value: ether("1"),
     });
