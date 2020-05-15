@@ -252,7 +252,7 @@ contract WildcardSteward_v2 is Initializable {
         artistAddresses[tokenId] = artistAddress;
     }
 
-    function changeAuctionParamters(
+    function changeAuctionParameters(
         uint256 _auctionStartPrice,
         uint256 _auctionEndPrice,
         uint256 _auctionLength

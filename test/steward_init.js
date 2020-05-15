@@ -138,18 +138,9 @@ contract("WildcardSteward", (accounts) => {
     assert.equal(totalBefore.toString(), totalAfter.toString());
   });
 
-  it("steward: init: buy with zero wei [fail payable]", async () => {
-    await expectRevert.unspecified(
-      steward.buy(1, 1000, web3.utils.toWei("0", "ether"), {
-        from: accounts[2],
-        value: web3.utils.toWei("0", "ether"),
-      })
-    );
-  });
-
   it("steward: init: buy with 1 ether but 0 price [fail on price]", async () => {
     await expectRevert(
-      steward.buy(1, 0, web3.utils.toWei("0", "ether"), {
+      steward.buy(0, 0, web3.utils.toWei("0", "ether"), 500, {
         from: accounts[2],
         value: ether("1"),
       }),
@@ -157,10 +148,58 @@ contract("WildcardSteward", (accounts) => {
     );
   });
 
-  it("steward: init: buy with 2 ether, price of 1 success [price = 1 eth, deposit = 1 eth]", async () => {
-    const { logs } = await steward.buy(0, ether("1"), ether("1"), {
+  // This doesn't fail if you don't set the auction price!
+  // But this should never be an issue as intial token price should never be 0
+  // and therefore safemath will prevent this. See next test.
+  it("steward: init: buyAuction with zero wei [fail payable]", async () => {
+    await steward.buyAuction(0, 1000, 500, {
       from: accounts[2],
-      value: ether("1"),
+      value: web3.utils.toWei("0", "ether"),
+    });
+  });
+
+  it("steward: init: buyAuction with zero wei [fail payable]", async () => {
+    await steward.changeAuctionParameters(ether("1"), ether("0.05"), 86400, {
+      from: accounts[0],
+    });
+
+    await expectRevert(
+      steward.buyAuction(0, 1000, 500, {
+        from: accounts[2],
+        value: web3.utils.toWei("0", "ether"),
+      }),
+      "SafeMath: subtraction overflow."
+    );
+  });
+
+  it("steward: init: buyAuction with 1 ether but 0 price [fail on price]", async () => {
+    await expectRevert(
+      steward.buyAuction(0, 0, 500, {
+        from: accounts[2],
+        value: ether("1"),
+      }),
+      "Price is zero"
+    );
+  });
+
+  it("steward: init: Cannot buy foreclosed token using normal buy function", async () => {
+    await expectRevert(
+      steward.buy(0, ether("1"), ether("1"), 500, {
+        from: accounts[2],
+        value: ether("1"),
+      }),
+      "Cannot buy foreclosed token using this function"
+    );
+  });
+
+  it("steward: init: buy with 2 ether, price of 1 success [price = 1 eth, deposit = 1 eth]", async () => {
+    await steward.changeAuctionParameters(ether("1"), ether("0.05"), 86400, {
+      from: accounts[0],
+    });
+
+    const { logs } = await steward.buyAuction(0, ether("1"), 500, {
+      from: accounts[2],
+      value: ether("2"),
     });
     expectEvent.inLogs(logs, "Buy", { owner: accounts[2], price: ether("1") });
     const deposit = await steward.deposit.call(accounts[2]);
@@ -169,5 +208,18 @@ contract("WildcardSteward", (accounts) => {
     assert.equal(deposit.toString(), ether("1").toString());
     assert.equal(price.toString(), ether("1").toString());
     assert.equal(state, 1);
+  });
+
+  it("steward: init: cannot buy nonexistent token", async () => {
+    await steward.changeAuctionParameters(ether("1"), ether("0.05"), 86400, {
+      from: accounts[0],
+    });
+    await expectRevert(
+      steward.buyAuction(5, ether("1"), 500, {
+        from: accounts[2],
+        value: ether("2"),
+      }),
+      "owner query for nonexistent token"
+    );
   });
 });
