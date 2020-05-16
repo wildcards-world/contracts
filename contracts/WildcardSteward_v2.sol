@@ -172,10 +172,10 @@ contract WildcardSteward_v2 is Initializable {
         }
     }
 
-    function fixTotalPatronTokenGenerationRate(
-        uint256[] memory tokens,
-        address[] memory tokenPatrons
-    ) public onlyAdmin {
+    function fixTotalPatronTokenGenerationRate(uint256[] memory tokens)
+        public
+        onlyAdmin
+    {
         for (uint8 i = 0; i < tokens.length; ++i) {
             uint256 tokenId = tokens[i];
             address currentOwner = currentPatron[tokenId];
@@ -195,14 +195,35 @@ contract WildcardSteward_v2 is Initializable {
             totalPatronTokenGenerationRate[currentOwner] = totalPatronTokenGenerationRate[currentOwner]
                 .add(11574074074074);
         }
-        for (uint8 i = 0; i < tokenPatrons.length; ++i) {
-            address tokenPatron = tokenPatrons[i];
+    }
 
-            timeLastCollectedPatron[tokenPatron] = now;
-            deposit[tokenPatron] = deposit[tokenPatron].sub(
-                patronageOwedPatron(tokenPatron)
-            );
+    function addTokenGenerationRateToExistingTokens(
+        uint256[] memory tokens,
+        uint256[] memory _tokenGenerationRate
+    ) internal {
+        assert(tokens.length == _tokenGenerationRate.length);
+        for (uint8 i = 0; i < tokens.length; ++i) {
+            assert(tokenGenerationRate[tokens[i]] == 0);
+
+            tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i];
         }
+    }
+
+    function setMintManager(address _mintManager) public {
+        require(
+            address(mintManager) == address(0),
+            "Only set on initialisation"
+        ); // This can only be called once!
+        mintManager = MintManager_v2(_mintManager);
+    }
+
+    function updateToV2(
+        address _mintManager,
+        uint256[] memory tokens,
+        uint256[] memory _tokenGenerationRate
+    ) public {
+        setMintManager(_mintManager);
+        addTokenGenerationRateToExistingTokens(tokens, _tokenGenerationRate);
     }
 
     function changeReceivingBenefactor(
