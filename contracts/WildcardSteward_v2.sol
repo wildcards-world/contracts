@@ -2,6 +2,8 @@ pragma solidity 0.5.15;
 import "./ERC721Patronage_v1.sol";
 import "./MintManager_v2.sol";
 
+import "@nomiclabs/buidler/console.sol";
+
 
 contract WildcardSteward_v2 is Initializable {
     /*
@@ -426,6 +428,7 @@ contract WildcardSteward_v2 is Initializable {
             uint256 patronageOwedByTokenPatron = patronageOwedPatron(
                 currentOwner
             );
+            _collectLoyaltyPatron(currentOwner);
 
             uint256 collection;
 
@@ -482,12 +485,12 @@ contract WildcardSteward_v2 is Initializable {
     function _collectPatronagePatron(address tokenPatron) public {
         uint256 patronageOwedByTokenPatron = patronageOwedPatron(tokenPatron);
 
-        _collectLoyaltyPatron(tokenPatron);
-
         if (
             patronageOwedByTokenPatron > 0 &&
             patronageOwedByTokenPatron >= deposit[tokenPatron]
         ) {
+            _collectLoyaltyPatron(tokenPatron);
+
 
                 uint256 previousCollectionTime
              = timeLastCollectedPatron[tokenPatron];
@@ -755,13 +758,7 @@ contract WildcardSteward_v2 is Initializable {
     function _foreclose(uint256 tokenId) internal {
         address currentOwner = assetToken.ownerOf(tokenId);
         address tokenPatron = currentPatron[tokenId];
-        transferAssetTokenTo(
-            tokenId,
-            currentOwner,
-            tokenPatron,
-            address(this),
-            price[tokenId]
-        );
+        resetTokenOnForeclosure(tokenId, currentOwner, tokenPatron);
         state[tokenId] = StewardState.Foreclosed;
         currentCollected[tokenId] = 0;
 
@@ -777,8 +774,15 @@ contract WildcardSteward_v2 is Initializable {
     ) internal {
         totalPatronOwnedTokenCost[_newOwner] = totalPatronOwnedTokenCost[_newOwner]
             .add(_newPrice.mul(patronageNumerator[tokenId]));
-        totalPatronOwnedTokenCost[_currentPatron] = totalPatronOwnedTokenCost[_currentPatron]
-            .sub(price[tokenId].mul(patronageNumerator[tokenId]));
+        totalPatronTokenGenerationRate[_newOwner] = totalPatronTokenGenerationRate[_newOwner]
+            .add(tokenGenerationRate[tokenId]);
+        if (_currentPatron != address(this) && _currentPatron != address(0)) {
+            totalPatronOwnedTokenCost[_currentPatron] = totalPatronOwnedTokenCost[_currentPatron]
+                .sub(price[tokenId].mul(patronageNumerator[tokenId]));
+
+            totalPatronTokenGenerationRate[_currentPatron] = totalPatronTokenGenerationRate[_currentPatron]
+                .sub((tokenGenerationRate[tokenId]));
+        }
 
         timeHeld[tokenId][_currentPatron] = timeHeld[tokenId][_currentPatron]
             .add((timeLastCollected[tokenId].sub(timeAcquired[tokenId])));
@@ -788,5 +792,22 @@ contract WildcardSteward_v2 is Initializable {
         price[tokenId] = _newPrice;
         timeAcquired[tokenId] = now;
         patrons[tokenId][_newOwner] = true;
+    }
+
+    function resetTokenOnForeclosure(
+        uint256 tokenId,
+        address _currentOwner,
+        address _currentPatron
+    ) internal {
+        totalPatronOwnedTokenCost[_currentPatron] = totalPatronOwnedTokenCost[_currentPatron]
+            .sub(price[tokenId].mul(patronageNumerator[tokenId]));
+
+        totalPatronTokenGenerationRate[_currentPatron] = totalPatronTokenGenerationRate[_currentPatron]
+            .sub((tokenGenerationRate[tokenId]));
+
+        timeHeld[tokenId][_currentPatron] = timeHeld[tokenId][_currentPatron]
+            .add((timeLastCollected[tokenId].sub(timeAcquired[tokenId])));
+        assetToken.transferFrom(_currentOwner, address(this), tokenId);
+        currentPatron[tokenId] = address(this);
     }
 }
