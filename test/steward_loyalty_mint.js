@@ -29,7 +29,7 @@ const tenMinPatronageAt1Eth = ether("1")
   .div(new BN("1"))
   .div(new BN("31536000"));
 
-contract("WildcardSteward owed", (accounts) => {
+contract("WildcardSteward loyalty token", (accounts) => {
   let erc721;
   let steward;
   let erc20;
@@ -78,6 +78,7 @@ contract("WildcardSteward owed", (accounts) => {
 
   it("steward: loyalty-mint. Checking correct number of tokens are received after holding a token for  100min", async () => {
     await waitTillBeginningOfSecond();
+
     testTokenId1 = testToken1.id;
     const timeHeld = 100; // In minutes
     // Person buys a token
