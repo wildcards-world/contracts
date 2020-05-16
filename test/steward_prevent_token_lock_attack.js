@@ -87,8 +87,6 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
   });
 
   it("steward: buy. Performing payout to the previous owner of deposit, or payment cannot block the transaction.", async () => {
-    await waitTillBeginningOfSecond();
-
     const attacker = await Attacker.new();
     await attacker.buyOnBehalf(steward.address, 1, ether("1"), {
       from: accounts[2],
@@ -113,8 +111,6 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
     );
   });
   it("steward: withdrawBenefactorFundsTo. if the benefactor has blocked receiving eth, the transaction should revert.", async () => {
-    await waitTillBeginningOfSecond();
-
     const attacker = await Attacker.new();
 
     await steward.listNewTokens(
@@ -139,7 +135,7 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
       "the benefactor must have more than 0 wei available to withdraw"
     );
 
-    await expectRevert(
+    await expectRevert.unspecified(
       steward.withdrawBenefactorFundsTo(attacker.address, {
         from: accounts[2],
       }),
@@ -147,15 +143,13 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
     );
   });
   it("steward: withdrawDeposit. if the benefactor has blocked receiving eth, the transaction should revert.", async () => {
-    await waitTillBeginningOfSecond();
-
     const attacker = await Attacker.new();
     await attacker.buyOnBehalf(steward.address, 1, ether("1"), {
       from: accounts[2],
       value: ether("1"),
     });
 
-    await expectRevert(
+    await expectRevert.unspecified(
       attacker.withdrawDeposit(steward.address, "50000", {
         from: accounts[2],
       }),

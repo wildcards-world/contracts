@@ -72,7 +72,6 @@ contract("WildcardSteward owed", (accounts) => {
     ///////////////////  TIME = 0 ////////////////////
     //////////////////////////////////////////////////
     //////////////////////////////////////////////////
-    await waitTillBeginningOfSecond();
     testTokenId1 = testToken1.id;
     testTokenId2 = testToken2.id;
 
@@ -185,7 +184,6 @@ contract("WildcardSteward owed", (accounts) => {
     //////////////////////////////////////////////////
     await time.increase(time.duration.minutes(10));
     // This adds an extra second to the test, but is needed since this test is long off by one second errors should be avoided.
-    await waitTillBeginningOfSecond();
 
     await steward._collectPatronage(testTokenId1);
 

@@ -76,8 +76,6 @@ contract("WildcardSteward owed", (accounts) => {
   });
 
   it("steward: multi-token. check patronage of two tokens owed by the same patron after 10 minutes.", async () => {
-    await waitTillBeginningOfSecond();
-
     // buy 2 tokens, with prices of 1 ether and 2 ether.
     await steward.buyAuction(testTokenId1, ether("1"), 500, {
       from: accounts[2],
@@ -144,7 +142,6 @@ contract("WildcardSteward owed", (accounts) => {
 
   // buy 2 tokens, with prices of 1 ether and 2 ether.
   it("steward: multi-token. check patronage of two tokens owed by the same patron after 10 minutes one of the tokens gets bought.", async () => {
-    await waitTillBeginningOfSecond();
     await steward.buyAuction(testTokenId1, ether("1"), 500, {
       from: accounts[2],
       value: ether("1"),

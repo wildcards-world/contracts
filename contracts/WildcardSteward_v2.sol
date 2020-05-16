@@ -82,12 +82,12 @@ contract WildcardSteward_v2 is Initializable {
     );
 
     modifier onlyPatron(uint256 tokenId) {
-        require(msg.sender == currentPatron[tokenId], "Not patron");
+        require(msg.sender == currentPatron[tokenId], "");
         _;
     }
 
     modifier onlyAdmin() {
-        require(msg.sender == admin, "Not admin");
+        require(msg.sender == admin, "");
         _;
     }
 
@@ -199,10 +199,7 @@ contract WildcardSteward_v2 is Initializable {
     }
 
     function setMintManager(address _mintManager) public {
-        require(
-            address(mintManager) == address(0),
-            "Only set on initialisation"
-        );
+        require(address(mintManager) == address(0), "");
         mintManager = MintManager_v2(_mintManager);
     }
 

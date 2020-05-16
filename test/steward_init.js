@@ -103,7 +103,7 @@ contract("WildcardSteward", (accounts) => {
   // Can they still add deposit if it is foreclose? Since they only technically lose ownership on the
   // next collect patronage event?
   it("steward: init: deposit wei fail [foreclosed or don't own any tokens]", async () => {
-    await expectRevert(
+    await expectRevert.unspecified(
       steward.depositWei({
         from: accounts[2],
         value: ether("1"),
@@ -114,7 +114,7 @@ contract("WildcardSteward", (accounts) => {
 
   it("steward: init: wait time. deposit wei fail [foreclosed]", async () => {
     await time.increase(1000); // 1000 seconds, arbitrary
-    await expectRevert(
+    await expectRevert.unspecified(
       steward.depositWei({
         from: accounts[2],
         value: ether("1"),
@@ -124,7 +124,7 @@ contract("WildcardSteward", (accounts) => {
   });
 
   it("steward: init: change price fail [not patron]", async () => {
-    await expectRevert(
+    await expectRevert.unspecified(
       steward.changePrice(0, 500, { from: accounts[2] }),
       "Not patron"
     );
@@ -139,7 +139,7 @@ contract("WildcardSteward", (accounts) => {
   });
 
   it("steward: init: buy with 1 ether but 0 price [fail on price]", async () => {
-    await expectRevert(
+    await expectRevert.unspecified(
       steward.buy(0, 0, web3.utils.toWei("0", "ether"), 500, {
         from: accounts[2],
         value: ether("1"),
@@ -163,7 +163,7 @@ contract("WildcardSteward", (accounts) => {
       from: accounts[0],
     });
 
-    await expectRevert(
+    await expectRevert.unspecified(
       steward.buyAuction(0, 1000, 500, {
         from: accounts[2],
         value: web3.utils.toWei("0", "ether"),
@@ -173,7 +173,7 @@ contract("WildcardSteward", (accounts) => {
   });
 
   it("steward: init: buyAuction with 1 ether but 0 price [fail on price]", async () => {
-    await expectRevert(
+    await expectRevert.unspecified(
       steward.buyAuction(0, 0, 500, {
         from: accounts[2],
         value: ether("1"),
@@ -183,7 +183,7 @@ contract("WildcardSteward", (accounts) => {
   });
 
   it("steward: init: Cannot buy foreclosed token using normal buy function", async () => {
-    await expectRevert(
+    await expectRevert.unspecified(
       steward.buy(0, ether("1"), ether("1"), 500, {
         from: accounts[2],
         value: ether("1"),
@@ -214,7 +214,7 @@ contract("WildcardSteward", (accounts) => {
     await steward.changeAuctionParameters(ether("1"), ether("0.05"), 86400, {
       from: accounts[0],
     });
-    await expectRevert(
+    await expectRevert.unspecified(
       steward.buyAuction(5, ether("1"), 500, {
         from: accounts[2],
         value: ether("2"),

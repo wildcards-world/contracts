@@ -210,7 +210,7 @@ contract("WildcardSteward loyalty token", (accounts) => {
   });
 
   it("steward: loyalty-mint. Checking MintManager cannot be altered after intial set up.", async () => {
-    await expectRevert(
+    await expectRevert.unspecified(
       steward.setMintManager(accounts[5], { from: accounts[5] }),
       "a"
     );

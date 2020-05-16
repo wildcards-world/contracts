@@ -73,8 +73,6 @@ contract("WildcardSteward owed", (accounts) => {
   });
 
   it("steward: multi-token-deposit. On token buy, check that the remaining deposit is sent back to patron only if it is their only token", async () => {
-    await waitTillBeginningOfSecond();
-
     //Buying 2 tokens. Setting selling price to 1 and 2 eth respectively. Sending 1 eth each for deposit.
     await steward.buyAuction(testTokenId1, ether("1"), 500, {
       from: accounts[2],
