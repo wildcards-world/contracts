@@ -6,6 +6,8 @@ const {
   balance,
   time,
 } = require("@openzeppelin/test-helpers");
+const { promisify } = require("util");
+
 const {
   multiPatronageCalculator,
   waitTillBeginningOfSecond,
@@ -74,25 +76,43 @@ contract("WildcardSteward owed", (accounts) => {
 
   it("steward: multi-token-deposit. On token buy, check that the remaining deposit is sent back to patron only if it is their only token", async () => {
     //Buying 2 tokens. Setting selling price to 1 and 2 eth respectively. Sending 1 eth each for deposit.
-    await steward.buyAuction(testTokenId1, ether("1"), 500, {
+    await promisify(web3.currentProvider.send.bind(web3.currentProvider))({
+      jsonrpc: "2.0",
+      method: "evm_setNextBlockTimestamp",
+      params: [1600000000],
+      // id: new Date().getTime() + "2",
+    });
+    let res = await steward.buyAuction(testTokenId1, ether("1"), 500, {
       from: accounts[2],
       value: ether("1"),
     });
-    await steward.buyAuction(testTokenId2, ether("2"), 500, {
+    await promisify(web3.currentProvider.send.bind(web3.currentProvider))({
+      jsonrpc: "2.0",
+      method: "evm_setNextBlockTimestamp",
+      params: [1600000005],
+      // id: new Date().getTime() + "1",
+    });
+    let res2 = await steward.buyAuction(testTokenId2, ether("2"), 500, {
       from: accounts[2],
       value: ether("1"),
     });
+
+    console.log(
+      await web3.eth.getBlock(res.receipt.blockNumber),
+      await web3.eth.getBlock(res2.receipt.blockNumber)
+    );
 
     const priceOftoken1 = await steward.price.call(testTokenId1);
     const priceOftoken2 = await steward.price.call(testTokenId2);
 
     // TIME INCREASES HERE BY 10 MIN
-    await time.increase(time.duration.minutes(10));
+    await time.increase(time.duration.minutes(10) - 1);
 
     const patronDepositBeforeSale = await steward.deposit.call(accounts[2]);
     const balancePatronBeforeSale = new BN(
       await web3.eth.getBalance(accounts[2])
     );
+
     // When first token is bought, deposit should remain.
     await steward.buy(testTokenId1, ether("1"), ether("1"), 500, {
       from: accounts[3],

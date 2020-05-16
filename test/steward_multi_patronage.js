@@ -239,7 +239,7 @@ contract("WildcardSteward owed", (accounts) => {
     /////////////////// TIME = 40 ////////////////////
     //////////////////////////////////////////////////
     //////////////////////////////////////////////////
-    await time.increase(time.duration.minutes(10));
+    await time.increase(time.duration.minutes(10) - 2);
 
     await steward._collectPatronage(testTokenId2);
 
