@@ -1,4 +1,4 @@
-pragma solidity 0.5.15;
+pragma solidity 0.5.17;
 import "./ERC721Patronage_v1.sol";
 import "./MintManager_v2.sol";
 

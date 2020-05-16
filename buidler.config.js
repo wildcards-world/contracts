@@ -9,4 +9,8 @@ task("accounts", "Prints the list of accounts", async () => {
   }
 });
 
-module.exports = {};
+module.exports = {
+  solc: {
+    version: "0.5.17",
+  },
+};
