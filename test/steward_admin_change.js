@@ -22,7 +22,7 @@ const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
 
 const patronageCalculator = multiPatronageCalculator();
 
-contract("WildcardSteward owed", (accounts) => {
+contract("WildcardSteward admin change", (accounts) => {
   let erc721;
   let steward;
   let erc20;
@@ -41,6 +41,10 @@ contract("WildcardSteward owed", (accounts) => {
     await mintManager.initialize(accounts[0], steward.address, erc20.address, {
       from: accounts[0],
     });
+    await erc20.addMinter(mintManager.address, {
+      from: accounts[0],
+    });
+    await erc20.renounceMinter({ from: accounts[0] });
     await erc721.setup(
       steward.address,
       "ALWAYSFORSALETestToken",
@@ -63,12 +67,14 @@ contract("WildcardSteward owed", (accounts) => {
 
   it("steward: admin-change. On admin change, check that only the admin can change the admin address. Also checking withdraw benfactor funds can be called", async () => {
     await waitTillBeginningOfSecond();
+    console.log("first");
 
     //Buy a token
     await steward.buy(testTokenId1, ether("1"), ether("1"), {
       from: accounts[2],
       value: ether("2", "ether"),
     });
+    console.log("second");
     const priceOfToken1 = await steward.price.call(testTokenId1);
 
     // TEST 1:
