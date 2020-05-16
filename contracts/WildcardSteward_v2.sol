@@ -174,6 +174,7 @@ contract WildcardSteward_v2 is Initializable {
 
     function fixTotalPatronTokenGenerationRate(
         uint256[] memory tokens,
+        address[] memory tokenPatrons
     ) public onlyAdmin {
         for (uint8 i = 0; i < tokens.length; ++i) {
             uint256 tokenId = tokens[i];
@@ -193,6 +194,14 @@ contract WildcardSteward_v2 is Initializable {
 
             totalPatronTokenGenerationRate[currentOwner] = totalPatronTokenGenerationRate[currentOwner]
                 .add(11574074074074);
+        }
+        for (uint8 i = 0; i < tokenPatrons.length; ++i) {
+            address tokenPatron = tokenPatrons[i];
+
+            timeLastCollectedPatron[tokenPatron] = now;
+            deposit[tokenPatron] = deposit[tokenPatron].sub(
+                patronageOwedPatron(tokenPatron)
+            );
         }
     }
 
