@@ -29,7 +29,7 @@ const tenMinPatronageAt1Eth = ether("1")
   .div(new BN("1"))
   .div(new BN("31536000"));
 
-contract("WildcardSteward owed", (accounts) => {
+contract("WildcardSteward loyalty token", (accounts) => {
   let erc721;
   let steward;
   let erc20;
@@ -77,7 +77,6 @@ contract("WildcardSteward owed", (accounts) => {
   });
 
   it("steward: loyalty-mint. Checking correct number of tokens are received after holding a token for  100min", async () => {
-    await waitTillBeginningOfSecond();
     testTokenId1 = testToken1.id;
     const timeHeld = 100; // In minutes
     // Person buys a token
@@ -87,7 +86,7 @@ contract("WildcardSteward owed", (accounts) => {
     });
 
     // TIME INCREASES HERE BY timeHeld
-    await time.increase(time.duration.minutes(timeHeld));
+    await time.increase(time.duration.minutes(timeHeld) - 1);
     // First token bought from patron [Collect patronage will therefore be called]
     await steward.buy(testTokenId1, ether("1"), ether("1"), 500, {
       from: accounts[3],
@@ -117,23 +116,23 @@ contract("WildcardSteward owed", (accounts) => {
   });
 
   it("steward: loyalty-mint. Checking correct number of tokens received after holding 2 different token for  100min", async () => {
-    await waitTillBeginningOfSecond();
     testTokenId1 = testToken1.id;
     testTokenId2 = testToken2.id;
     const timeHeld = 100; // In minutes
     // Person buys a token
-    await steward.buyAuction(testTokenId1, ether("1"), 500, {
-      from: accounts[2],
-      value: ether("2"),
-    });
-
-    await steward.buyAuction(testTokenId2, ether("1"), 500, {
-      from: accounts[2],
-      value: ether("2"),
-    });
+    await Promise.all([
+      steward.buyAuction(testTokenId1, ether("1"), 500, {
+        from: accounts[2],
+        value: ether("2"),
+      }),
+      steward.buyAuction(testTokenId2, ether("1"), 500, {
+        from: accounts[2],
+        value: ether("2"),
+      }),
+    ]);
 
     // TIME INCREASES HERE BY timeHeld
-    await time.increase(time.duration.minutes(timeHeld));
+    await time.increase(time.duration.minutes(timeHeld) - 2);
     // First token bought from patron [Collect patronage will therefore be called]
     await steward.buy(testTokenId1, ether("1"), ether("1"), 500, {
       from: accounts[3],
@@ -170,7 +169,6 @@ contract("WildcardSteward owed", (accounts) => {
   });
 
   it("steward: loyalty-mint. Checking correct number of tokens are recieved/minted after foreclosure.", async () => {
-    await waitTillBeginningOfSecond();
     testTokenId1 = testToken1.id;
     const timeHeld = 10; // In minutes
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
@@ -184,7 +182,7 @@ contract("WildcardSteward owed", (accounts) => {
       value: totalToBuy,
     });
 
-    await time.increase(time.duration.minutes(15));
+    await time.increase(time.duration.minutes(15) - 1);
     // foreclosure should happen here (since patraonge was only for 10min)
     await steward._collectPatronage(testTokenId1, { from: accounts[2] });
 
@@ -212,16 +210,13 @@ contract("WildcardSteward owed", (accounts) => {
   });
 
   it("steward: loyalty-mint. Checking MintManager cannot be altered after intial set up.", async () => {
-    await waitTillBeginningOfSecond();
-
     await expectRevert(
       steward.setMintManager(accounts[5], { from: accounts[5] }),
-      "Only set on initialisation"
+      "a"
     );
   });
 
   it("steward: loyalty-mint. Checking Minted erc20's can be sent between parties for sanity.", async () => {
-    await waitTillBeginningOfSecond();
     testTokenId1 = testToken1.id;
     const timeHeld = 100;
 
@@ -229,7 +224,7 @@ contract("WildcardSteward owed", (accounts) => {
       from: accounts[2],
       value: ether("2"),
     });
-    await time.increase(time.duration.minutes(timeHeld));
+    await time.increase(time.duration.minutes(timeHeld) - 1);
     await steward.buy(testTokenId1, ether("1"), ether("1"), 500, {
       from: accounts[7],
       value: ether("2"),

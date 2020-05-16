@@ -92,10 +92,7 @@ contract WildcardSteward_v2 is Initializable {
     }
 
     modifier onlyReceivingBenefactorOrAdmin(uint256 tokenId) {
-        require(
-            msg.sender == benefactors[tokenId] || msg.sender == admin,
-            "Not benefactor or admin"
-        );
+        require(msg.sender == benefactors[tokenId] || msg.sender == admin, "");
         _;
     }
 
@@ -110,7 +107,7 @@ contract WildcardSteward_v2 is Initializable {
     }
 
     modifier priceGreaterThanZero(uint256 _newPrice) {
-        require(_newPrice > 0, "Price is zero");
+        require(_newPrice > 0, "");
         _;
     }
     modifier validWildcardsPercentage(
@@ -223,10 +220,7 @@ contract WildcardSteward_v2 is Initializable {
         address payable _newReceivingBenefactor
     ) public onlyReceivingBenefactorOrAdmin(tokenId) {
         address oldBenfactor = benefactors[tokenId];
-        require(
-            oldBenfactor != _newReceivingBenefactor,
-            "Cannot change to same address"
-        );
+        require(oldBenfactor != _newReceivingBenefactor, "");
         benefactors[tokenId] = _newReceivingBenefactor;
         benefactorFunds[_newReceivingBenefactor] = benefactorFunds[_newReceivingBenefactor]
             .add(benefactorFunds[oldBenfactor]);
@@ -241,7 +235,7 @@ contract WildcardSteward_v2 is Initializable {
         external
         onlyAdmin
     {
-        require(percentage <= 2000, "Cannot be more than 20%");
+        require(percentage <= 2000, "");
         artistPercentages[tokenId] = percentage;
     }
 
@@ -257,11 +251,8 @@ contract WildcardSteward_v2 is Initializable {
         uint256 _auctionEndPrice,
         uint256 _auctionLength
     ) external onlyAdmin {
-        require(
-            _auctionStartPrice >= _auctionEndPrice,
-            "Auction value must decrease over time"
-        );
-        require(_auctionLength >= 86400, "Auction should last at least day");
+        require(_auctionStartPrice >= _auctionEndPrice, "");
+        require(_auctionLength >= 86400, "");
 
         auctionStartPrice = _auctionStartPrice;
         auctionEndPrice = _auctionEndPrice;
@@ -477,7 +468,7 @@ contract WildcardSteward_v2 is Initializable {
     }
 
     function depositWeiPatron(address patron) public payable {
-        require(totalPatronOwnedTokenCost[patron] > 0, "No tokens owned");
+        require(totalPatronOwnedTokenCost[patron] > 0, "");
         deposit[patron] = deposit[patron].add(msg.value);
         emit RemainingDepositUpdate(patron, deposit[patron]);
     }
@@ -519,15 +510,9 @@ contract WildcardSteward_v2 is Initializable {
         priceGreaterThanZero(_newPrice)
         validWildcardsPercentage(wildcardsPercentage, tokenId)
     {
-        require(
-            state[tokenId] == StewardState.Owned,
-            "Cannot buy foreclosed token using this function"
-        );
+        require(state[tokenId] == StewardState.Owned, "");
         uint256 remainingValueForDeposit = msg.value.sub(price[tokenId]);
-        require(
-            remainingValueForDeposit >= _deposit,
-            "The deposit available is < what was stated in the transaction"
-        );
+        require(remainingValueForDeposit >= _deposit, "");
 
         _distributePurchaseProceeds(tokenId);
 
@@ -555,10 +540,7 @@ contract WildcardSteward_v2 is Initializable {
         priceGreaterThanZero(_newPrice)
         validWildcardsPercentage(wildcardsPercentage, tokenId)
     {
-        require(
-            state[tokenId] == StewardState.Foreclosed,
-            "Can only buy foreclosed tokens useing this function"
-        );
+        require(state[tokenId] == StewardState.Foreclosed, "");
         uint256 auctionTokenPrice = _auctionPrice(tokenId);
         uint256 remainingValueForDeposit = msg.value.sub(auctionTokenPrice);
 
@@ -613,6 +595,7 @@ contract WildcardSteward_v2 is Initializable {
         uint256 previousOwnerProceedsFromSale = totalAmount
             .sub(wildcardsAmount)
             .sub(artistAmount);
+        bool transferSuccess;
         if (
             totalPatronOwnedTokenCost[tokenPatron] ==
             price[tokenId].mul(patronageNumerator[tokenId])
@@ -624,20 +607,16 @@ contract WildcardSteward_v2 is Initializable {
             address payable payableCurrentPatron = address(
                 uint160(tokenPatron)
             );
-            (bool transferSuccess, ) = payableCurrentPatron
-                .call
-                .gas(2300)
-                .value(previousOwnerProceedsFromSale)("");
-            if (!transferSuccess) {
-                deposit[tokenPatron] = deposit[tokenPatron].add(
-                    previousOwnerProceedsFromSale
-                );
-            }
-        } else {
+            (transferSuccess, ) = payableCurrentPatron.call.gas(2300).value(
+                previousOwnerProceedsFromSale
+            )("");
+        }
+        if (!transferSuccess) {
             deposit[tokenPatron] = deposit[tokenPatron].add(
                 previousOwnerProceedsFromSale
             );
         }
+
         _payArtistAndWildcards(tokenId, artistAmount, wildcardsAmount);
     }
 
@@ -662,8 +641,8 @@ contract WildcardSteward_v2 is Initializable {
         onlyPatron(tokenId)
         collectPatronage(tokenId)
     {
-        require(state[tokenId] != StewardState.Foreclosed, "Foreclosed");
-        require(_newPrice != 0, "Incorrect Price");
+        require(state[tokenId] != StewardState.Foreclosed, "");
+        require(_newPrice != 0, "");
 
         totalPatronOwnedTokenCost[msg.sender] = totalPatronOwnedTokenCost[msg
             .sender]
@@ -687,7 +666,7 @@ contract WildcardSteward_v2 is Initializable {
     }
 
     function withdrawBenefactorFundsTo(address payable benefactor) public {
-        require(benefactorFunds[benefactor] > 0, "No funds available");
+        require(benefactorFunds[benefactor] > 0, "");
         uint256 amountToWithdraw = benefactorFunds[benefactor];
         benefactorFunds[benefactor] = 0;
 
@@ -704,13 +683,13 @@ contract WildcardSteward_v2 is Initializable {
     }
 
     function _withdrawDeposit(uint256 _wei) internal {
-        require(deposit[msg.sender] >= _wei, "Withdrawing too much");
+        require(deposit[msg.sender] >= _wei, "");
 
         deposit[msg.sender] = deposit[msg.sender].sub(_wei);
 
         (bool transferSuccess, ) = msg.sender.call.gas(2300).value(_wei)("");
         if (!transferSuccess) {
-            revert("Unable to withdraw deposit");
+            revert("");
         }
     }
 
