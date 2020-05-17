@@ -35,6 +35,7 @@ contract("WildcardSteward loyalty token", (accounts) => {
   let erc20;
   const testToken1 = { id: 1, tokenGenerationRate: 1 };
   const testToken2 = { id: 2, tokenGenerationRate: 2 };
+  const testToken3 = { id: 3, tokenGenerationRate: 3 };
   const patronageNumerator = "12000000000000";
   const testTokenURI = "test token uri";
 
@@ -67,10 +68,14 @@ contract("WildcardSteward loyalty token", (accounts) => {
       from: accounts[0],
     });
     await steward.listNewTokens(
-      [testToken1.id, testToken2.id],
-      [accounts[0], accounts[0]],
-      [patronageNumerator, patronageNumerator],
-      [testToken1.tokenGenerationRate, testToken2.tokenGenerationRate]
+      [testToken1.id, testToken2.id, testToken3.id],
+      [accounts[0], accounts[0], accounts[0]],
+      [patronageNumerator, patronageNumerator, patronageNumerator],
+      [
+        testToken1.tokenGenerationRate,
+        testToken2.tokenGenerationRate,
+        testToken3.tokenGenerationRate,
+      ]
     );
     await steward.changeAuctionParameters(ether("1"), ether("0.05"), 86400, {
       from: accounts[0],
@@ -196,6 +201,64 @@ contract("WildcardSteward loyalty token", (accounts) => {
       [
         {
           tokenGenerationRate: testToken1.tokenGenerationRate.toString(),
+        },
+      ]
+    );
+    const amountOfToken = await erc20.balanceOf(accounts[2]);
+
+    const amountOfTreasuryToken = await erc20.balanceOf(accounts[0]); // stewards account
+    const expectedTreasuryToken = new BN(expectedTokens)
+      .mul(new BN(TREASURY_NUMERATOR))
+      .div(new BN(TREASURY_DENOMINATOR));
+
+    assert.equal(amountOfToken.toString(), expectedTokens.toString());
+    assert.equal(
+      amountOfTreasuryToken.toString(),
+      expectedTreasuryToken.toString()
+    );
+  });
+
+  it("steward: loyalty-mint. Checking that loyalty tokens are minted for all tokens owned by the current owner.", async () => {
+    await waitTillBeginningOfSecond();
+    testTokenId1 = testToken1.id;
+    testTokenId2 = testToken2.id;
+    testTokenId3 = testToken3.id;
+    const timeHeld = 10; // In minutes
+    const totalToBuy = new BN(tenMinPatronageAt1Eth);
+
+    await steward.changeAuctionParameters(ether("0"), ether("0"), 86400, {
+      from: accounts[0],
+    });
+
+    await steward.buyAuction(testTokenId1, ether("1"), 500, {
+      from: accounts[2],
+      value: totalToBuy,
+    });
+    await steward.buyAuction(testTokenId2, ether("1"), 500, {
+      from: accounts[2],
+      value: totalToBuy,
+    });
+    await steward.buyAuction(testTokenId3, ether("1"), 500, {
+      from: accounts[2],
+      value: totalToBuy,
+    });
+
+    await time.increase(time.duration.minutes(15));
+    // foreclosure should happen here (since patraonge was only for 10min)
+    await steward._collectPatronage(testTokenId1, { from: accounts[2] });
+
+    // should only receive 10min of tokens
+    const expectedTokens = multiTokenCalculator(
+      new BN(timeHeld).mul(new BN(SECONDS_IN_A_MINUTE)).toString(),
+      [
+        {
+          tokenGenerationRate: testToken1.tokenGenerationRate.toString(),
+        },
+        {
+          tokenGenerationRate: testToken2.tokenGenerationRate.toString(),
+        },
+        {
+          tokenGenerationRate: testToken3.tokenGenerationRate.toString(),
         },
       ]
     );
