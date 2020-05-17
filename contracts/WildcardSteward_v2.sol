@@ -82,7 +82,11 @@ contract WildcardSteward_v2 is Initializable {
     );
 
     modifier onlyPatron(uint256 tokenId) {
+        // This fails in Buidler:
         require(msg.sender == currentPatron[tokenId], "");
+
+        // This causes this contract to not deploy in Buidler:
+        // require(msg.sender == currentPatron[tokenId], "SOME MESSAGE");
         _;
     }
 

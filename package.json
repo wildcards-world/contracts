@@ -23,6 +23,7 @@
     "@openzeppelin/upgrades": "^2.8.0",
     "@truffle/hdwallet-provider": "^1.0.35",
     "chai": "^4.2.0",
+    "eth-gas-reporter": "^0.2.17",
     "solidity-coverage": "^0.7.5",
     "truffle": "^5.1.26",
     "web3": "^1.2.7"

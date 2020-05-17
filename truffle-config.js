@@ -47,19 +47,20 @@ module.exports = {
       port: 8545, // Standard Ethereum port (default: none)
       network_id: "*", // Any network (default: none)
       gasPrice: 1000000000, // 1 gwei
-      gas: 9500000,
+      gas: 95000000,
+      blockGasLimit: 95000000,
     },
   },
-  // mocha: {
-  //   // reporter: "eth-gas-reporter",
-  //   reporterOptions: {
-  //     currency: "USD",
-  //     gasPrice: 5, //in gwei
-  //   },
-  // },
+  mocha: {
+    reporter: "eth-gas-reporter",
+    reporterOptions: {
+      currency: "USD",
+      gasPrice: 5, //in gwei
+    },
+  },
   compilers: {
     solc: {
-      version: "0.5.15",
+      version: "0.5.17",
       settings: {
         optimizer: {
           enabled: true,
