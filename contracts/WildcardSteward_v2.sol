@@ -129,12 +129,14 @@ contract WildcardSteward_v2 is Initializable {
         _;
     }
 
-    function initialize(address _assetToken, address _admin)
-        public
-        initializer
-    {
+    function initialize(
+        address _assetToken,
+        address _admin,
+        address _mintManager
+    ) public initializer {
         assetToken = ERC721Patronage_v1(_assetToken);
         admin = _admin;
+        mintManager = MintManager_v2(_mintManager);
     }
 
     function uintToStr(uint256 _i)
@@ -243,35 +245,6 @@ contract WildcardSteward_v2 is Initializable {
             totalPatronTokenGenerationRate[currentOwner] = totalPatronTokenGenerationRate[currentOwner]
                 .add(11574074074074);
         }
-    }
-
-    function addTokenGenerationRateToExistingTokens(
-        uint256[] memory tokens,
-        uint256[] memory _tokenGenerationRate
-    ) internal {
-        assert(tokens.length == _tokenGenerationRate.length);
-        for (uint8 i = 0; i < tokens.length; ++i) {
-            assert(tokenGenerationRate[tokens[i]] == 0);
-
-            tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i];
-        }
-    }
-
-    function setMintManager(address _mintManager) public {
-        require(
-            address(mintManager) == address(0),
-            "Only set on initialisation"
-        );
-        mintManager = MintManager_v2(_mintManager);
-    }
-
-    function updateToV2(
-        address _mintManager,
-        uint256[] memory tokens,
-        uint256[] memory _tokenGenerationRate
-    ) public {
-        setMintManager(_mintManager);
-        addTokenGenerationRateToExistingTokens(tokens, _tokenGenerationRate);
     }
 
     function changeReceivingBenefactor(
@@ -779,13 +752,7 @@ contract WildcardSteward_v2 is Initializable {
     function _foreclose(uint256 tokenId) internal {
         address currentOwner = assetToken.ownerOf(tokenId);
         address tokenPatron = currentPatron[tokenId];
-        transferAssetTokenTo(
-            tokenId,
-            currentOwner,
-            tokenPatron,
-            address(this),
-            price[tokenId]
-        );
+        resetTokenOnForeclosure(tokenId, currentOwner, tokenPatron);
         state[tokenId] = StewardState.Foreclosed;
         currentCollected[tokenId] = 0;
 
@@ -801,8 +768,15 @@ contract WildcardSteward_v2 is Initializable {
     ) internal {
         totalPatronOwnedTokenCost[_newOwner] = totalPatronOwnedTokenCost[_newOwner]
             .add(_newPrice.mul(patronageNumerator[tokenId]));
-        totalPatronOwnedTokenCost[_currentPatron] = totalPatronOwnedTokenCost[_currentPatron]
-            .sub(price[tokenId].mul(patronageNumerator[tokenId]));
+        totalPatronTokenGenerationRate[_newOwner] = totalPatronTokenGenerationRate[_newOwner]
+            .add(tokenGenerationRate[tokenId]);
+        if (_currentPatron != address(this) && _currentPatron != address(0)) {
+            totalPatronOwnedTokenCost[_currentPatron] = totalPatronOwnedTokenCost[_currentPatron]
+                .sub(price[tokenId].mul(patronageNumerator[tokenId]));
+
+            totalPatronTokenGenerationRate[_currentPatron] = totalPatronTokenGenerationRate[_currentPatron]
+                .sub((tokenGenerationRate[tokenId]));
+        }
 
         timeHeld[tokenId][_currentPatron] = timeHeld[tokenId][_currentPatron]
             .add((timeLastCollected[tokenId].sub(timeAcquired[tokenId])));
@@ -812,5 +786,22 @@ contract WildcardSteward_v2 is Initializable {
         price[tokenId] = _newPrice;
         timeAcquired[tokenId] = now;
         patrons[tokenId][_newOwner] = true;
+    }
+
+    function resetTokenOnForeclosure(
+        uint256 tokenId,
+        address _currentOwner,
+        address _currentPatron
+    ) internal {
+        totalPatronOwnedTokenCost[_currentPatron] = totalPatronOwnedTokenCost[_currentPatron]
+            .sub(price[tokenId].mul(patronageNumerator[tokenId]));
+
+        totalPatronTokenGenerationRate[_currentPatron] = totalPatronTokenGenerationRate[_currentPatron]
+            .sub((tokenGenerationRate[tokenId]));
+
+        timeHeld[tokenId][_currentPatron] = timeHeld[tokenId][_currentPatron]
+            .add((timeLastCollected[tokenId].sub(timeAcquired[tokenId])));
+        assetToken.transferFrom(_currentOwner, address(this), tokenId);
+        currentPatron[tokenId] = address(this);
     }
 }
