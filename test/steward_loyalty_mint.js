@@ -39,21 +39,15 @@ contract("WildcardSteward loyalty token", (accounts) => {
   const testTokenURI = "test token uri";
 
   beforeEach(async () => {
-    console.log(1);
     erc721 = await ERC721token.new({ from: accounts[0] });
-    console.log(2);
     steward = await WildcardSteward.new({ from: accounts[0] });
-    console.log(3);
     mintManager = await MintManager.new({ from: accounts[0] });
-    console.log(4);
     erc20 = await ERC20token.new("Wildcards Loyalty Token", "WLT", 18, {
       from: accounts[0],
     });
-    console.log(5);
     await mintManager.initialize(accounts[0], steward.address, erc20.address, {
       from: accounts[0],
     });
-    console.log(6);
     await erc721.setup(
       steward.address,
       "ALWAYSFORSALETestToken",
@@ -61,21 +55,17 @@ contract("WildcardSteward loyalty token", (accounts) => {
       accounts[0],
       { from: accounts[0] }
     );
-    console.log(7);
     await erc721.addMinter(steward.address, { from: accounts[0] });
-    console.log(8);
     await erc721.renounceMinter({ from: accounts[0] });
-    console.log(9);
     await erc20.addMinter(mintManager.address, {
       from: accounts[0],
     });
-    console.log(10);
     await erc20.renounceMinter({ from: accounts[0] });
-    console.log(11);
 
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(erc721.address, accounts[0]);
-    await steward.updateToV2(mintManager.address, [], []);
+    await steward.initialize(erc721.address, accounts[0], mintManager.address, {
+      from: accounts[0],
+    });
     await steward.listNewTokens(
       [testToken1.id, testToken2.id],
       [accounts[0], accounts[0]],
@@ -88,26 +78,23 @@ contract("WildcardSteward loyalty token", (accounts) => {
   });
 
   it("steward: loyalty-mint. Checking correct number of tokens are received after holding a token for  100min", async () => {
-    // await waitTillBeginningOfSecond();
-    console.log("1");
+    await waitTillBeginningOfSecond();
 
     testTokenId1 = testToken1.id;
     const timeHeld = 100; // In minutes
     // Person buys a token
-    // await steward.buyAuction(testTokenId1, ether("1"), 500, {
-    //   from: accounts[2],
-    //   value: ether("2"),
-    // });
-    console.log("2");
+    await steward.buyAuction(testTokenId1, ether("1"), 500, {
+      from: accounts[2],
+      value: ether("2"),
+    });
 
     // TIME INCREASES HERE BY timeHeld
     await time.increase(time.duration.minutes(timeHeld));
     // First token bought from patron [Collect patronage will therefore be called]
-    // await steward.buy(testTokenId1, ether("1"), ether("1"), 500, {
-    //   from: accounts[3],
-    //   value: ether("2"),
-    // });
-    console.log("3");
+    await steward.buy(testTokenId1, ether("1"), ether("1"), 500, {
+      from: accounts[3],
+      value: ether("2"),
+    });
 
     const expectedTokens = multiTokenCalculator(
       new BN(timeHeld).mul(new BN(SECONDS_IN_A_MINUTE)).toString(),
@@ -223,15 +210,6 @@ contract("WildcardSteward loyalty token", (accounts) => {
     assert.equal(
       amountOfTreasuryToken.toString(),
       expectedTreasuryToken.toString()
-    );
-  });
-
-  it("steward: loyalty-mint. Checking MintManager cannot be altered after intial set up.", async () => {
-    await waitTillBeginningOfSecond();
-
-    await expectRevert(
-      steward.setMintManager(accounts[5], { from: accounts[5] }),
-      "Only set on initialisation"
     );
   });
 
