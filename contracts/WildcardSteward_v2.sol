@@ -202,16 +202,43 @@ contract WildcardSteward_v2 is Initializable {
             address currentOwner = currentPatron[tokenId];
 
             // NOTE: for this upgrade we make sure no tokens are foreclosed, or close to foreclosing
-            _collectPatronage(tokenId);
+            // _collectPatronage(tokenId);
 
-            uint256 timeSinceLastMint = now.sub(timeLastCollected[tokenId]);
+            // uint256 previousTokenCollection = timeLastCollected[tokenId];
 
-            mintManager.tokenMint(
-                currentOwner,
-                timeSinceLastMint,
-                tokenGenerationRate[tokenId]
+            uint256 collection = price[tokenId]
+                .mul(now.sub(timeLastCollected[tokenId]))
+                .mul(patronageNumerator[tokenId])
+                .div(1000000000000)
+                .div(365 days);
+
+            // uint256 timeSinceLastMint = now.sub(timeLastCollected[tokenId]);
+
+            timeLastCollected[tokenId] = now;
+            timeLastCollectedPatron[currentOwner] = now;
+            currentCollected[tokenId] = currentCollected[tokenId].add(
+                collection
             );
-            emit CollectLoyalty(tokenId, currentOwner, timeSinceLastMint);
+            deposit[currentOwner] = deposit[currentOwner].sub(
+                patronageOwedPatron(currentOwner)
+            );
+
+            totalCollected[tokenId] = totalCollected[tokenId].add(collection);
+
+            benefactorFunds[benefactors[tokenId]] = benefactorFunds[benefactors[tokenId]]
+                .add(collection);
+
+            emit CollectPatronage(
+                tokenId,
+                currentOwner,
+                deposit[currentOwner],
+                collection
+            );
+
+            _collectLoyaltyPatron(
+                currentOwner,
+                now.sub(timeLastCollected[tokenId])
+            );
 
             totalPatronTokenGenerationRate[currentOwner] = totalPatronTokenGenerationRate[currentOwner]
                 .add(11574074074074);
@@ -385,32 +412,10 @@ contract WildcardSteward_v2 is Initializable {
     }
 
     /* actions */
-    function _collectLoyaltyPatron(address tokenPatron) internal {
-        uint256 patronageOwedByTokenPatron = patronageOwedPatron(tokenPatron);
-
-        uint256 timeSinceLastMint;
-        if (
-            patronageOwedByTokenPatron > 0 &&
-            patronageOwedByTokenPatron >= deposit[tokenPatron]
-        ) {
-
-                uint256 previousCollectionTime
-             = timeLastCollectedPatron[tokenPatron];
-            // up to when was it actually paid for?
-            uint256 newTimeLastCollected = previousCollectionTime.add(
-                (
-                    (now.sub(previousCollectionTime))
-                        .mul(deposit[tokenPatron])
-                        .div(patronageOwedByTokenPatron)
-                )
-            );
-            timeSinceLastMint = (
-                newTimeLastCollected.sub(previousCollectionTime)
-            );
-        } else {
-            timeSinceLastMint = now.sub(timeLastCollectedPatron[tokenPatron]);
-        }
-
+    function _collectLoyaltyPatron(
+        address tokenPatron,
+        uint256 timeSinceLastMint
+    ) internal {
         mintManager.tokenMint(
             tokenPatron,
             timeSinceLastMint,
@@ -441,6 +446,13 @@ contract WildcardSteward_v2 is Initializable {
                 );
 
                 timeLastCollected[tokenId] = newTimeLastCollected;
+                _collectLoyaltyPatron(
+                    currentOwner,
+                    newTimeLastCollected.sub(
+                        timeLastCollectedPatron[currentOwner]
+                    )
+                );
+
                 timeLastCollectedPatron[currentOwner] = newTimeLastCollected;
                 collection = price[tokenId]
                     .mul(newTimeLastCollected.sub(previousTokenCollection))
@@ -448,6 +460,7 @@ contract WildcardSteward_v2 is Initializable {
                     .div(1000000000000)
                     .div(365 days);
                 deposit[currentOwner] = 0;
+
                 _foreclose(tokenId);
             } else {
                 collection = price[tokenId]
@@ -455,6 +468,11 @@ contract WildcardSteward_v2 is Initializable {
                     .mul(patronageNumerator[tokenId])
                     .div(1000000000000)
                     .div(365 days);
+
+                _collectLoyaltyPatron(
+                    currentOwner,
+                    now.sub(timeLastCollectedPatron[currentOwner])
+                );
 
                 timeLastCollected[tokenId] = now;
                 timeLastCollectedPatron[currentOwner] = now;
@@ -470,6 +488,7 @@ contract WildcardSteward_v2 is Initializable {
             benefactorFunds[benefactor] = benefactorFunds[benefactor].add(
                 collection
             );
+
             emit CollectPatronage(
                 tokenId,
                 currentOwner,
@@ -482,7 +501,7 @@ contract WildcardSteward_v2 is Initializable {
     function _collectPatronagePatron(address tokenPatron) public {
         uint256 patronageOwedByTokenPatron = patronageOwedPatron(tokenPatron);
 
-        _collectLoyaltyPatron(tokenPatron);
+        uint256 timeSinceLastMint;
 
         if (
             patronageOwedByTokenPatron > 0 &&
@@ -500,13 +519,18 @@ contract WildcardSteward_v2 is Initializable {
             );
             timeLastCollectedPatron[tokenPatron] = newTimeLastCollected;
             deposit[tokenPatron] = 0;
+            timeSinceLastMint = (
+                newTimeLastCollected.sub(previousCollectionTime)
+            );
         } else {
+            timeSinceLastMint = now.sub(timeLastCollectedPatron[tokenPatron]);
             timeLastCollectedPatron[tokenPatron] = now;
             deposit[tokenPatron] = deposit[tokenPatron].sub(
                 patronageOwedByTokenPatron
             );
         }
 
+        _collectLoyaltyPatron(tokenPatron, timeSinceLastMint);
         emit RemainingDepositUpdate(tokenPatron, deposit[tokenPatron]);
     }
 
