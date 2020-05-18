@@ -21,7 +21,7 @@ contract WildcardSteward_v2 is Initializable {
 
     mapping(uint256 => uint256) public totalCollected; // all patronage ever collected
     mapping(uint256 => uint256) public currentCollected; // amount currently collected for patron
-    mapping(uint256 => uint256) public timeLastCollected;
+    mapping(uint256 => uint256) public timeLastCollected; // THIS VARIABLE IS DEPRECATED.
     mapping(address => uint256) public timeLastCollectedPatron;
     mapping(address => uint256) public deposit;
     mapping(address => uint256) public totalPatronOwnedTokenCost;
@@ -55,7 +55,9 @@ contract WildcardSteward_v2 is Initializable {
     mapping(uint256 => uint256) wildcardsPercentages; // mapping from tokenID to the percentage sale cut of wildcards for each token
     mapping(uint256 => uint256) artistPercentages; // tokenId to artist percetages. To make it configurable. 10 000 = 100%
 
-    mapping(address => uint256) public totalPatronTokenGenerationRate;
+    mapping(address => uint256) public totalPatronTokenGenerationRate; // The total token generation rate for all the tokens of the given address.
+    mapping(address => uint256) public benefactorTotalTokenNumerator;
+    uint256 public globalBenefactorDailyWithdrawalLimit;
 
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
     event PriceChange(uint256 indexed tokenId, uint256 newPrice);
@@ -70,6 +72,7 @@ contract WildcardSteward_v2 is Initializable {
         uint256 patronageNumerator,
         uint256 tokenGenerationRate
     );
+
     // QUESTION: in future versions, should these two events (CollectPatronage and CollectLoyalty) be combined into one? - they only ever happen at the same time.
     event CollectPatronage(
         uint256 indexed tokenId,
@@ -195,18 +198,12 @@ contract WildcardSteward_v2 is Initializable {
         }
     }
 
-    function fixTotalPatronTokenGenerationRate(uint256[] memory tokens)
-        public
-        onlyAdmin
-    {
+    function upgradeToV3(uint256[] memory tokens) public onlyAdmin {
         for (uint8 i = 0; i < tokens.length; ++i) {
             uint256 tokenId = tokens[i];
             address currentOwner = currentPatron[tokenId];
 
             // NOTE: for this upgrade we make sure no tokens are foreclosed, or close to foreclosing
-            // _collectPatronage(tokenId);
-
-            // uint256 previousTokenCollection = timeLastCollected[tokenId];
 
             uint256 collection = price[tokenId]
                 .mul(now.sub(timeLastCollected[tokenId]))
@@ -214,9 +211,7 @@ contract WildcardSteward_v2 is Initializable {
                 .div(1000000000000)
                 .div(365 days);
 
-            // uint256 timeSinceLastMint = now.sub(timeLastCollected[tokenId]);
-
-            timeLastCollected[tokenId] = now;
+            // timeLastCollected[tokenId] = now; // This variable is depricated, no need to update it.
             timeLastCollectedPatron[currentOwner] = now;
             currentCollected[tokenId] = currentCollected[tokenId].add(
                 collection
@@ -244,6 +239,11 @@ contract WildcardSteward_v2 is Initializable {
 
             totalPatronTokenGenerationRate[currentOwner] = totalPatronTokenGenerationRate[currentOwner]
                 .add(11574074074074);
+
+            address tokenBenefactor = benefactors[tokenId];
+
+            benefactorTotalTokenNumerator[tokenBenefactor] = benefactorTotalTokenNumerator[tokenBenefactor]
+                .add(price[tokenId].mul(patronageNumerator[tokenId]));
         }
     }
 
@@ -264,6 +264,13 @@ contract WildcardSteward_v2 is Initializable {
 
     function changeAdmin(address _admin) public onlyAdmin {
         admin = _admin;
+    }
+
+    function setGlobal(uint256 _globalBenefactorDailyWithdrawalLimit)
+        external
+        onlyAdmin
+    {
+        globalBenefactorDailyWithdrawalLimit = _globalBenefactorDailyWithdrawalLimit;
     }
 
     function setArtCommission(uint256 tokenId, uint256 percentage)
@@ -399,75 +406,7 @@ contract WildcardSteward_v2 is Initializable {
 
     function _collectPatronage(uint256 tokenId) public {
         if (state[tokenId] == StewardState.Owned) {
-            address currentOwner = currentPatron[tokenId];
-            uint256 previousTokenCollection = timeLastCollected[tokenId];
-            uint256 patronageOwedByTokenPatron = patronageOwedPatron(
-                currentOwner
-            );
-
-            uint256 collection;
-
-            if (patronageOwedByTokenPatron >= deposit[currentOwner]) {
-
-                    uint256 newTimeLastCollected
-                 = timeLastCollectedPatron[currentOwner].add(
-                    (
-                        (now.sub(timeLastCollectedPatron[currentOwner]))
-                            .mul(deposit[currentOwner])
-                            .div(patronageOwedByTokenPatron)
-                    )
-                );
-
-                timeLastCollected[tokenId] = newTimeLastCollected;
-                _collectLoyaltyPatron(
-                    currentOwner,
-                    newTimeLastCollected.sub(
-                        timeLastCollectedPatron[currentOwner]
-                    )
-                );
-
-                timeLastCollectedPatron[currentOwner] = newTimeLastCollected;
-                collection = price[tokenId]
-                    .mul(newTimeLastCollected.sub(previousTokenCollection))
-                    .mul(patronageNumerator[tokenId])
-                    .div(1000000000000)
-                    .div(365 days);
-                deposit[currentOwner] = 0;
-
-                _foreclose(tokenId);
-            } else {
-                collection = price[tokenId]
-                    .mul(now.sub(previousTokenCollection))
-                    .mul(patronageNumerator[tokenId])
-                    .div(1000000000000)
-                    .div(365 days);
-
-                _collectLoyaltyPatron(
-                    currentOwner,
-                    now.sub(timeLastCollectedPatron[currentOwner])
-                );
-
-                timeLastCollected[tokenId] = now;
-                timeLastCollectedPatron[currentOwner] = now;
-                currentCollected[tokenId] = currentCollected[tokenId].add(
-                    collection
-                );
-                deposit[currentOwner] = deposit[currentOwner].sub(
-                    patronageOwedByTokenPatron
-                );
-            }
-            totalCollected[tokenId] = totalCollected[tokenId].add(collection);
-            address benefactor = benefactors[tokenId];
-            benefactorFunds[benefactor] = benefactorFunds[benefactor].add(
-                collection
-            );
-
-            emit CollectPatronage(
-                tokenId,
-                currentOwner,
-                deposit[currentOwner],
-                collection
-            );
+            _collectPatronagePatron(currentPatron[tokenId]);
         }
     }
 
@@ -700,10 +639,20 @@ contract WildcardSteward_v2 is Initializable {
         require(state[tokenId] != StewardState.Foreclosed, "Foreclosed");
         require(_newPrice != 0, "Incorrect Price");
 
+        uint256 oldPriceScaled = price[tokenId].mul(
+            patronageNumerator[tokenId]
+        );
+        uint256 newPriceScaled = newPrice.mul(patronageNumerator[tokenId]);
+        address tokenBenefactor = benefactors[tokenId];
+
         totalPatronOwnedTokenCost[msg.sender] = totalPatronOwnedTokenCost[msg
             .sender]
-            .sub(price[tokenId].mul(patronageNumerator[tokenId]))
-            .add(_newPrice.mul(patronageNumerator[tokenId]));
+            .sub(oldPriceScaled)
+            .add(newPriceScaled);
+
+        benefactorTotalTokenNumerator[tokenBenefactor] = benefactorTotalTokenNumerator[tokenBenefactor]
+            .sub(oldPriceScaled)
+            .add(newPriceScaled);
 
         price[tokenId] = _newPrice;
         emit PriceChange(tokenId, price[tokenId]);
@@ -766,16 +715,29 @@ contract WildcardSteward_v2 is Initializable {
         address _newOwner,
         uint256 _newPrice
     ) internal {
+        uint256 scaledOldPrice = price[tokenId].mul(
+            patronageNumerator[tokenId]
+        );
+        uint256 scaledNewPrice = _newPrice.mul(patronageNumerator[tokenId]);
+
         totalPatronOwnedTokenCost[_newOwner] = totalPatronOwnedTokenCost[_newOwner]
-            .add(_newPrice.mul(patronageNumerator[tokenId]));
+            .add(scaledNewPrice);
         totalPatronTokenGenerationRate[_newOwner] = totalPatronTokenGenerationRate[_newOwner]
             .add(tokenGenerationRate[tokenId]);
+
+        address tokenBenefactor = benefactors[tokenId];
+        benefactorTotalTokenNumerator[tokenBenefactor] = benefactorTotalTokenNumerator[tokenBenefactor]
+            .add(scaledNewPrice);
+
         if (_currentPatron != address(this) && _currentPatron != address(0)) {
             totalPatronOwnedTokenCost[_currentPatron] = totalPatronOwnedTokenCost[_currentPatron]
-                .sub(price[tokenId].mul(patronageNumerator[tokenId]));
+                .sub(scaledOldPrice);
 
             totalPatronTokenGenerationRate[_currentPatron] = totalPatronTokenGenerationRate[_currentPatron]
                 .sub((tokenGenerationRate[tokenId]));
+
+            benefactorTotalTokenNumerator[tokenBenefactor] = benefactorTotalTokenNumerator[tokenBenefactor]
+                .sub(scaledOldPrice);
         }
 
         timeHeld[tokenId][_currentPatron] = timeHeld[tokenId][_currentPatron]
@@ -793,11 +755,17 @@ contract WildcardSteward_v2 is Initializable {
         address _currentOwner,
         address _currentPatron
     ) internal {
+        uint256 scaledPrice = price[tokenId].mul(patronageNumerator[tokenId]);
+
         totalPatronOwnedTokenCost[_currentPatron] = totalPatronOwnedTokenCost[_currentPatron]
-            .sub(price[tokenId].mul(patronageNumerator[tokenId]));
+            .sub(scaledPrice);
 
         totalPatronTokenGenerationRate[_currentPatron] = totalPatronTokenGenerationRate[_currentPatron]
             .sub((tokenGenerationRate[tokenId]));
+
+        address tokenBenefactor = benefactors[tokenId];
+        benefactorTotalTokenNumerator[tokenBenefactor] = benefactorTotalTokenNumerator[tokenBenefactor]
+            .sub(scaledPrice);
 
         timeHeld[tokenId][_currentPatron] = timeHeld[tokenId][_currentPatron]
             .add((timeLastCollected[tokenId].sub(timeAcquired[tokenId])));
