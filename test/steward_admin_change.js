@@ -61,7 +61,8 @@ contract("WildcardSteward owed", (accounts) => {
       [patronageNumerator],
       [tokenGenerationRate],
       [artistAddress],
-      [artistCommission]
+      [artistCommission],
+      [0]
     );
     await steward.changeAuctionParameters(ether("1"), ether("0.05"), 86400, {
       from: accounts[0],

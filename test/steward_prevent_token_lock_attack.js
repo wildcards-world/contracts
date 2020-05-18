@@ -83,7 +83,8 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
       [patronageNumerator, patronageNumerator, patronageNumerator],
       [tokenGenerationRate, tokenGenerationRate, tokenGenerationRate],
       [artistAddress, artistAddress, artistAddress],
-      [artistCommission, artistCommission, artistCommission]
+      [artistCommission, artistCommission, artistCommission],
+      [0, 0, 0]
     );
     await steward.changeAuctionParameters(ether("0"), ether("0"), 86400, {
       from: accounts[0],
@@ -127,7 +128,8 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
       [patronageNumerator],
       [tokenGenerationRate],
       [artistAddress],
-      [artistCommission]
+      [artistCommission],
+      [0]
     );
 
     await steward.buyAuction(3, ether("1"), 500, {

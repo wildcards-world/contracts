@@ -82,8 +82,13 @@ contract("WildcardSteward owed", (accounts) => {
         tokenGenerationRate,
         tokenGenerationRate,
         tokenGenerationRate,
-      ], [artistAddress, artistAddress, artistAddress, artistAddress],
-      [artistCommission, artistCommission, artistCommission, artistCommission]
+      ], 
+      [artistAddress, artistAddress, artistAddress, artistAddress],
+      [artistCommission, artistCommission, artistCommission, artistCommission],
+      [0,0,0,Date.now()+86400] 
+      //1704067200
+      //Is equivalent to:
+      //01/01/2024 @ 12:00am (UTC)
     );
     await steward.changeAuctionParameters(ether("1"), ether("0"), 86400, {
       from: accounts[0],
@@ -282,6 +287,46 @@ contract("WildcardSteward owed", (accounts) => {
       from: accounts[3],
       value: msgValue,
     });
+
+    let remainingDepositCalc = msgValue.sub(costOfToken1);
+    let actualDeposit = await steward.deposit.call(accounts[3]);
+    assert.isTrue(
+      Math.abs(actualDeposit.sub(remainingDepositCalc)) <= oneSecondTolerance
+    );
+  });
+
+  it("steward: auction. Cannot buy till on sale", async () => {
+    await steward.changeAuctionParameters(ether("1"), ether("0.5"), 86400, { 
+      from: accounts[0],
+    });
+    await expectRevert(steward.buyAuction(3, ether("0.2"), 500, {
+      from: accounts[2],
+      value: ether("1").add(tenMinPatronageAt1Eth),
+    }), "Token is not yet released");
+
+    await time.increase(time.duration.seconds(86400));
+    // should foreclose
+    let oneSecondTolerance = auctionCalculator(
+      ether("1"), // since starting price should be 2
+      ether("0.5"),
+      "86400",
+      "86399"
+    );
+    
+    let costOfToken1 = auctionCalculator(
+      ether("1"),
+      ether("0.5"),
+      "86400",
+      "30000" // say 20 000 seconds elapse.
+      );
+      
+      await time.increase(time.duration.seconds(30000));
+      
+      let msgValue = ether("2");
+      await steward.buyAuction(0, ether("2"), 500, {
+        from: accounts[3],
+        value: msgValue,
+      });
 
     let remainingDepositCalc = msgValue.sub(costOfToken1);
     let actualDeposit = await steward.deposit.call(accounts[3]);
