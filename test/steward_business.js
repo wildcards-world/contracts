@@ -32,8 +32,8 @@ contract("WildcardSteward owed", (accounts) => {
   const testTokenId2 = 2;
   const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
-  const artistAddress = accounts[9];
-  const artistCommission = 0;
+  const artistAddress = accounts[9]; // Artist is account 9
+  const artistCommission = 100; // 1%
   let testTokenURI = "test token uri";
 
   beforeEach(async () => {
@@ -80,10 +80,6 @@ contract("WildcardSteward owed", (accounts) => {
   it("steward: multi-token-deposit. On token buy, check that the remaining deposit is sent back to patron only if it is their only token", async () => {
     await waitTillBeginningOfSecond();
 
-    let artCommission = 200;
-
-    //await steward.setArtCommission;
-
     //Buying 2 tokens. Setting selling price to 1 and 2 eth respectively. Sending 1 eth each for deposit.
     // 5% wildcards commission
     await steward.buyAuction(testTokenId1, ether("1"), 500, {
@@ -99,57 +95,100 @@ contract("WildcardSteward owed", (accounts) => {
     const priceOftoken1 = await steward.price.call(testTokenId1);
     const priceOftoken2 = await steward.price.call(testTokenId2);
 
-    //   const patronDepositBeforeSale = await steward.deposit.call(accounts[2]);
-    //   const balancePatronBeforeSale = new BN(
-    //     await web3.eth.getBalance(accounts[2])
-    //   );
-    //   // When first token is bought, deposit should remain.
-    //   await steward.buy(testTokenId1, ether("1"), ether("1"), 500, {
-    //     from: accounts[3],
-    //     value: ether("2"),
-    //   });
+    const patronDepositBeforeSale = await steward.deposit.call(accounts[2]);
+    const balancePatronBeforeSale = new BN(
+      await web3.eth.getBalance(accounts[2])
+    );
+    // When first token is bought, deposit should remain.
+    await steward.buy(testTokenId1, ether("1"), ether("1"), 500, {
+      from: accounts[3],
+      value: ether("2"),
+    });
 
-    //   const patronDepositAfterFirstSale = await steward.deposit.call(accounts[2]);
-    //   const balancePatronAfterFirstSale = new BN(
-    //     await web3.eth.getBalance(accounts[2])
-    //   );
+    const patronDepositAfterFirstSale = await steward.deposit.call(accounts[2]);
+    const balancePatronAfterFirstSale = new BN(
+      await web3.eth.getBalance(accounts[2])
+    );
 
-    //   //Second token then bought. Deposit should now be added back the patrons balance
-    //   await steward.buy(testTokenId2, ether("1"), ether("1"), 500, {
-    //     from: accounts[3],
-    //     value: ether("3"),
-    //   });
+    // 1% to artist and 5% to wildcards on this token.
+    assert.equal(
+      patronDepositAfterFirstSale.toString(),
+      patronDepositBeforeSale.add(ether("0.94")).toString()
+    );
 
-    //   const balancePatronAfterSecondSale = new BN(
-    //     await web3.eth.getBalance(accounts[2])
-    //   );
-    //   const patronDepositAfterSecondSale = await steward.deposit.call(
-    //     accounts[2]
-    //   );
+    assert.equal(
+      balancePatronBeforeSale.toString(),
+      balancePatronAfterFirstSale.toString()
+    );
 
-    //   assert.equal(
-    //     patronDepositAfterFirstSale.toString(),
-    //     patronDepositBeforeSale
-    //       .sub(expectedPatronageAfter10min)
-    //       .add(ether("0.94")) //since now you would recieve 0.94 ether from the sale to your deposit instead
-    //       //  0.05 wildcards and 0.01 artist commision
-    //       .toString()
-    //   );
+    const artistDepositAfterFirstSale = await steward.deposit.call(accounts[9]);
+    assert.equal(
+      artistDepositAfterFirstSale.toString(),
+      ether("0.01").toString()
+    );
 
-    //   //Checking once no more tokens are owned, the deposit is set to zero
-    //   assert.equal(patronDepositAfterSecondSale.toString(), "0");
-    //   // This should now be the same, as only the deposit should increase
-    //   assert.equal(
-    //     balancePatronBeforeSale.toString(),
-    //     balancePatronAfterFirstSale.toString()
-    //   );
-    //   //Checking owner gets deposit back on sale of final token plus sale price too.
-    //   assert.equal(
-    //     balancePatronAfterSecondSale.toString(),
-    //     balancePatronAfterFirstSale
-    //       .add(ether("1.88"))
-    //       .add(patronDepositAfterFirstSale)
-    //       .toString()
-    //   );
+    const wildcardsDepositAfterFirstSale = await steward.deposit.call(
+      accounts[0]
+    );
+    assert.equal(
+      wildcardsDepositAfterFirstSale.toString(),
+      ether("0.05").toString()
+    );
+
+    //Second token then bought. Deposit should now be added back the patrons balance
+    await steward.buy(testTokenId2, ether("1"), ether("1"), 500, {
+      from: accounts[3],
+      value: ether("3"),
+    });
+
+    const balancePatronAfterSecondSale = new BN(
+      await web3.eth.getBalance(accounts[2])
+    );
+    const patronDepositAfterSecondSale = await steward.deposit.call(
+      accounts[2]
+    );
+
+    //Checking once no more tokens are owned, the deposit is set to zero
+    assert.equal(patronDepositAfterSecondSale.toString(), "0");
+    //Checking owner gets deposit back on sale of final token plus sale price too.
+    assert.equal(
+      balancePatronAfterSecondSale.toString(),
+      balancePatronAfterFirstSale
+        .add(ether("1.78"))
+        .add(patronDepositAfterFirstSale)
+        .toString()
+    );
+
+    const balanceArtistBeforeWithdraw = new BN(
+      await web3.eth.getBalance(accounts[9])
+    );
+    const artistDepositAfterSecondSale = await steward.deposit.call(
+      accounts[9]
+    );
+    assert.equal(
+      artistDepositAfterSecondSale.toString(),
+      ether("0.03").toString()
+    );
+
+    let depositWithdrawAmount = await steward.depositAbleToWithdraw(
+      accounts[9]
+    );
+    await steward.withdrawDeposit(depositWithdrawAmount, { from: accounts[9] });
+
+    const balanceArtistAfterWithdraw = new BN(
+      await web3.eth.getBalance(accounts[9])
+    );
+    assert.equal(
+      balanceArtistBeforeWithdraw.toString(),
+      balanceArtistAfterWithdraw.sub(ether("0.03")).toString()
+    );
+
+    const wildcardsDepositAfterSecondSale = await steward.deposit.call(
+      accounts[0]
+    );
+    assert.equal(
+      wildcardsDepositAfterSecondSale.toString(),
+      ether("0.25").toString()
+    );
   });
 });
