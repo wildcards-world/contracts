@@ -72,7 +72,8 @@ contract("WildcardSteward owed", (accounts) => {
       ],
       [tokenGenerationRate, tokenGenerationRate, tokenGenerationRate],
       [artistAddress, artistAddress, artistAddress],
-      [artistCommission, artistCommission, artistCommission]
+      [artistCommission, artistCommission, artistCommission],
+      [0,0,0]
     );
     await steward.changeAuctionParameters(ether("0"), ether("0"), 86400, {
       from: accounts[0],

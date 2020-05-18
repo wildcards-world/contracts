@@ -61,7 +61,8 @@ contract("WildcardSteward", (accounts) => {
       [patronageNumerator],
       [tokenGenerationRate],
       [artistAddress],
-      [artistCommission]
+      [artistCommission],
+      [0]
     );
   });
 
@@ -95,7 +96,8 @@ contract("WildcardSteward", (accounts) => {
       Array(numberOfTokens).fill(patronageNumerator),
       Array(numberOfTokens).fill(tokenGenerationRate),
       Array(numberOfTokens).fill(artistAddress),
-      Array(numberOfTokens).fill(artistCommission)
+      Array(numberOfTokens).fill(artistCommission),
+      Array(numberOfTokens).fill(0),
     );
     for (let i = 0; i < tokenIds.length; ++i) {
       const tokenId = tokenIds[i];
