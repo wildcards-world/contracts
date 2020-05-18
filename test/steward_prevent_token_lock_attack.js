@@ -36,6 +36,8 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
   const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
   // price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
+  const artistAddress = accounts[9]
+  const artistCommission = 0;
   const tenMinPatronageAt1Eth = ether("1")
     .mul(new BN("600"))
     .mul(new BN("12"))
@@ -79,7 +81,9 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
       [0, 1, 2],
       [accounts[0], accounts[0], accounts[0]],
       [patronageNumerator, patronageNumerator, patronageNumerator],
-      [tokenGenerationRate, tokenGenerationRate, tokenGenerationRate]
+      [tokenGenerationRate, tokenGenerationRate, tokenGenerationRate],
+      [artistAddress, artistAddress, artistAddress],
+      [artistCommission, artistCommission, artistCommission]
     );
     await steward.changeAuctionParameters(ether("0"), ether("0"), 86400, {
       from: accounts[0],
@@ -107,7 +111,7 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
     );
 
     assert.equal(
-      depositAbleToWithdrawBefore.add(ether("0.94")).toString(), //6% artist and wildcards default cut
+      depositAbleToWithdrawBefore.add(ether("0.95")).toString(), //6% artist and wildcards default cut
       depositAbleToWithdrawAfter.toString(),
       "The deposit before and after + funds earned from token sale should be the same"
     );
@@ -121,7 +125,9 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
       [3],
       [attacker.address],
       [patronageNumerator],
-      [tokenGenerationRate]
+      [tokenGenerationRate],
+      [artistAddress],
+      [artistCommission]
     );
 
     await steward.buyAuction(3, ether("1"), 500, {

@@ -81,6 +81,12 @@ contract WildcardSteward_v2 is Initializable {
         uint256 amountRecieved
     );
 
+    event ArtistCommission(
+        uint256 indexed tokenId,
+        address artist,
+        uint256 artistCommission
+    );
+
     modifier onlyPatron(uint256 tokenId) {
         require(msg.sender == currentPatron[tokenId], "Not patron");
         _;
@@ -161,11 +167,15 @@ contract WildcardSteward_v2 is Initializable {
         uint256[] memory tokens,
         address payable[] memory _benefactors,
         uint256[] memory _patronageNumerator,
-        uint256[] memory _tokenGenerationRate
+        uint256[] memory _tokenGenerationRate,
+        address[] memory _artists,
+        uint256[] memory _artistCommission
     ) public onlyAdmin {
         assert(tokens.length == _benefactors.length);
         assert(tokens.length == _patronageNumerator.length);
         assert(tokens.length == _tokenGenerationRate.length);
+        assert(tokens.length == _artists.length);
+        assert(tokens.length == _artistCommission.length);
 
         for (uint8 i = 0; i < tokens.length; ++i) {
             assert(_benefactors[i] != address(0));
@@ -177,7 +187,6 @@ contract WildcardSteward_v2 is Initializable {
             assetToken.mintWithTokenURI(address(this), tokens[i], tokenUri);
             benefactors[tokens[i]] = _benefactors[i];
             state[tokens[i]] = StewardState.Foreclosed;
-            artistPercentages[tokens[i]] = 100;
             timeLastCollected[tokens[i]] = now;
             patronageNumerator[tokens[i]] = _patronageNumerator[i];
             tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i];
@@ -185,6 +194,12 @@ contract WildcardSteward_v2 is Initializable {
                 tokens[i],
                 _patronageNumerator[i],
                 _tokenGenerationRate[i]
+            );
+            // Adding this after the add token emit, so graph can first capture the token before processing the change artist things
+            changeArtistAddressAndCommission(
+                tokens[i],
+                _artists[i],
+                _artistCommission[i]
             );
         }
     }
@@ -237,19 +252,15 @@ contract WildcardSteward_v2 is Initializable {
         admin = _admin;
     }
 
-    function setArtCommission(uint256 tokenId, uint256 percentage)
-        external
-        onlyAdmin
-    {
+    function changeArtistAddressAndCommission(
+        uint256 tokenId,
+        address artistAddress,
+        uint256 percentage
+    ) public onlyAdmin {
         require(percentage <= 2000, "Cannot be more than 20%");
         artistPercentages[tokenId] = percentage;
-    }
-
-    function setArtistAddress(uint256 tokenId, address artistAddress)
-        external
-        onlyAdmin
-    {
         artistAddresses[tokenId] = artistAddress;
+        emit ArtistCommission(tokenId, artistAddress, percentage);
     }
 
     function changeAuctionParameters(
@@ -582,14 +593,19 @@ contract WildcardSteward_v2 is Initializable {
 
     function _distributeAuctionProceeds(uint256 tokenId) internal {
         uint256 totalAmount = price[tokenId];
+        uint256 artistAmount;
         if (artistPercentages[tokenId] == 0) {
-            artistPercentages[tokenId] = 100;
+            artistAmount = 0;
+        } else {
+            artistAmount = totalAmount.mul(artistPercentages[tokenId]).div(
+                10000
+            );
         }
-        uint256 artistAmount = totalAmount.mul(artistPercentages[tokenId]).div(
-            10000
-        );
         uint256 wildcardsAmount = totalAmount.sub(artistAmount);
-        _payArtistAndWildcards(tokenId, artistAmount, wildcardsAmount);
+        //_payArtistAndWildcards(tokenId, artistAmount, wildcardsAmount);
+        deposit[artistAddresses[tokenId]] = deposit[artistAddresses[tokenId]]
+            .add(artistAmount);
+        deposit[admin] = deposit[admin].add(wildcardsAmount);
     }
 
     function _distributePurchaseProceeds(uint256 tokenId) internal {
@@ -604,12 +620,15 @@ contract WildcardSteward_v2 is Initializable {
             .div(10000);
 
         // Artist percentage calc
+        uint256 artistAmount;
         if (artistPercentages[tokenId] == 0) {
-            artistPercentages[tokenId] = 100;
+            artistAmount = 0;
+        } else {
+            artistAmount = totalAmount.mul(artistPercentages[tokenId]).div(
+                10000
+            );
         }
-        uint256 artistAmount = totalAmount.mul(artistPercentages[tokenId]).div(
-            10000
-        );
+
         uint256 previousOwnerProceedsFromSale = totalAmount
             .sub(wildcardsAmount)
             .sub(artistAmount);
@@ -638,23 +657,11 @@ contract WildcardSteward_v2 is Initializable {
                 previousOwnerProceedsFromSale
             );
         }
-        _payArtistAndWildcards(tokenId, artistAmount, wildcardsAmount);
-    }
+        //_payArtistAndWildcards(tokenId, artistAmount, wildcardsAmount);
 
-    function _payArtistAndWildcards(
-        uint256 _tokenId,
-        uint256 _artistAmount,
-        uint256 _wildcardsAmount
-    ) internal {
-        if (artistAddresses[_tokenId] != address(0)) {
-            deposit[artistAddresses[_tokenId]] = deposit[artistAddresses[_tokenId]]
-                .add(_artistAmount);
-            deposit[admin] = deposit[admin].add(_wildcardsAmount);
-        } else {
-            deposit[admin] = deposit[admin].add(_wildcardsAmount).add(
-                _artistAmount
-            );
-        }
+        deposit[artistAddresses[tokenId]] = deposit[artistAddresses[tokenId]]
+            .add(artistAmount);
+        deposit[admin] = deposit[admin].add(wildcardsAmount);
     }
 
     function changePrice(uint256 tokenId, uint256 _newPrice)

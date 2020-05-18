@@ -29,6 +29,8 @@ contract("WildcardSteward owed", (accounts) => {
   let erc20;
   const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
+  const artistAddress = accounts[9];
+  const artistCommission = 0;
   const testToken1 = { id: 1, patronageNumerator: 12 };
   const testToken2 = { id: 2, patronageNumerator: 12 };
   testTokenId1 = testToken1.id;
@@ -80,7 +82,8 @@ contract("WildcardSteward owed", (accounts) => {
         tokenGenerationRate,
         tokenGenerationRate,
         tokenGenerationRate,
-      ]
+      ], [artistAddress, artistAddress, artistAddress, artistAddress],
+      [artistCommission, artistCommission, artistCommission, artistCommission]
     );
     await steward.changeAuctionParameters(ether("1"), ether("0"), 86400, {
       from: accounts[0],
@@ -198,6 +201,81 @@ contract("WildcardSteward owed", (accounts) => {
     );
 
     await time.increase(time.duration.seconds(20000));
+    let msgValue = ether("2");
+
+    await steward.buyAuction(0, ether("2"), 500, {
+      from: accounts[3],
+      value: msgValue,
+    });
+
+    let remainingDepositCalc = msgValue.sub(costOfToken1);
+    let actualDeposit = await steward.deposit.call(accounts[3]);
+    assert.isTrue(
+      Math.abs(actualDeposit.sub(remainingDepositCalc)) <= oneSecondTolerance
+    );
+  });
+
+  it("steward: auction. Check ming price returned after auction finished", async () => {
+    await steward.changeAuctionParameters(ether("1"), ether("0.5"), 86400, {
+      from: accounts[0],
+    });
+    await steward.buyAuction(0, ether("2"), 500, {
+      from: accounts[2],
+      value: ether("1").add(tenMinPatronageAt1Eth),
+    });
+
+    await time.increase(time.duration.minutes(5));
+    // should foreclose
+    let oneSecondTolerance = auctionCalculator(
+      ether("1"), // since starting price should be 2
+      ether("0.5"),
+      "86400",
+      "86399"
+    );
+
+    let costOfToken1 = ether("0.5");
+
+    await time.increase(time.duration.seconds(90000));
+    let msgValue = ether("2");
+
+    await steward.buyAuction(0, ether("2"), 500, {
+      from: accounts[3],
+      value: msgValue,
+    });
+
+    let remainingDepositCalc = msgValue.sub(costOfToken1);
+    let actualDeposit = await steward.deposit.call(accounts[3]);
+    assert.isTrue(
+      Math.abs(actualDeposit.sub(remainingDepositCalc)) <= oneSecondTolerance
+    );
+  });
+
+  it("steward: auction. Price set below auction min won't induce custome auction", async () => {
+    await steward.changeAuctionParameters(ether("1"), ether("0.5"), 86400, {
+      from: accounts[0],
+    });
+    await steward.buyAuction(0, ether("0.2"), 500, {
+      from: accounts[2],
+      value: ether("1").add(tenMinPatronageAt1Eth),
+    });
+
+    await time.increase(time.duration.minutes(50));
+    // should foreclose
+    let oneSecondTolerance = auctionCalculator(
+      ether("1"), // since starting price should be 2
+      ether("0.5"),
+      "86400",
+      "86399"
+    );
+
+    let costOfToken1 = auctionCalculator(
+      ether("1"),
+      ether("0.5"),
+      "86400",
+      "30000" // say 20 000 seconds elapse.
+    );
+
+    await time.increase(time.duration.seconds(30000));
     let msgValue = ether("2");
 
     await steward.buyAuction(0, ether("2"), 500, {
