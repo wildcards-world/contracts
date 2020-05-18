@@ -47,6 +47,7 @@ contract WildcardSteward_v2 is Initializable {
     mapping(uint256 => uint256) public tokenGenerationRate; // we can reuse the patronage denominator
 
     MintManager_v2 public mintManager;
+    //////////////// NEW variables in v3 ///////////////////
     uint256 public auctionStartPrice;
     uint256 public auctionEndPrice;
     uint256 public auctionLength;
@@ -57,6 +58,8 @@ contract WildcardSteward_v2 is Initializable {
 
     mapping(address => uint256) public totalPatronTokenGenerationRate; // The total token generation rate for all the tokens of the given address.
     mapping(address => uint256) public benefactorTotalTokenNumerator;
+    mapping(address => uint256) public benefactorLastTimeCollected;
+    mapping(address => uint256) public benefactorCredit;
     uint256 public globalBenefactorDailyWithdrawalLimit;
 
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
@@ -74,6 +77,7 @@ contract WildcardSteward_v2 is Initializable {
     );
 
     // QUESTION: in future versions, should these two events (CollectPatronage and CollectLoyalty) be combined into one? - they only ever happen at the same time.
+    // NOTE: this event is deprecated - it is only here for the upgrade function.
     event CollectPatronage(
         uint256 indexed tokenId,
         address indexed patron,
@@ -190,6 +194,7 @@ contract WildcardSteward_v2 is Initializable {
             timeLastCollected[tokens[i]] = now;
             patronageNumerator[tokens[i]] = _patronageNumerator[i];
             tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i];
+
             emit AddToken(
                 tokens[i],
                 _patronageNumerator[i],
@@ -244,6 +249,10 @@ contract WildcardSteward_v2 is Initializable {
 
             benefactorTotalTokenNumerator[tokenBenefactor] = benefactorTotalTokenNumerator[tokenBenefactor]
                 .add(price[tokenId].mul(patronageNumerator[tokenId]));
+
+            if (benefactorLastTimeCollected[tokenBenefactor] == 0) {
+                benefactorLastTimeCollected[tokenBenefactor] = now;
+            }
         }
     }
 
@@ -341,6 +350,20 @@ contract WildcardSteward_v2 is Initializable {
                 .div(365 days);
     }
 
+    function unclaimedPayoutDueForOrganisation(address benefactor)
+        public
+        view
+        returns (uint256 payoutDue)
+    {
+        if (benefactorLastTimeCollected[benefactor] == 0) return 0;
+
+        return
+            benefactorTotalTokenNumerator[benefactor]
+                .mul(now.sub(benefactorLastTimeCollected[benefactor]))
+                .div(1000000000000)
+                .div(365 days);
+    }
+
     function patronageOwedPatronWithTimestamp(address tokenPatron)
         public
         view
@@ -405,9 +428,144 @@ contract WildcardSteward_v2 is Initializable {
     }
 
     function _collectPatronage(uint256 tokenId) public {
+        // TODO: lots of this code is duplicated in the `_collectPatronagePatron` function. Refactor accordingly.
         if (state[tokenId] == StewardState.Owned) {
-            _collectPatronagePatron(currentPatron[tokenId]);
+            address tokenPatron = currentPatron[tokenId];
+
+            // _collectPatronagePatron(currentPatron[tokenId]);
+            uint256 patronageOwedByTokenPatron = patronageOwedPatron(
+                tokenPatron
+            );
+
+            uint256 timeSinceLastMint;
+
+            if (
+                patronageOwedByTokenPatron > 0 &&
+                patronageOwedByTokenPatron >= deposit[tokenPatron]
+            ) {
+
+                    uint256 previousCollectionTime
+                 = timeLastCollectedPatron[tokenPatron];
+                uint256 newTimeLastCollected = previousCollectionTime.add(
+                    (
+                        (now.sub(previousCollectionTime))
+                            .mul(deposit[tokenPatron])
+                            .div(patronageOwedByTokenPatron)
+                    )
+                );
+                timeLastCollectedPatron[tokenPatron] = newTimeLastCollected;
+                deposit[tokenPatron] = 0;
+                timeSinceLastMint = (
+                    newTimeLastCollected.sub(previousCollectionTime)
+                );
+
+                // The bellow line is the only real difference between this function and the `_collectPatronagePatron` function.
+                _foreclose(tokenId);
+
+                address benefactor = benefactors[tokenId];
+
+                // If the organisation collected their patronage after this token was foreclosed, then record the credit they have been given.
+                if (
+                    benefactorLastTimeCollected[benefactor] >
+                    newTimeLastCollected
+                ) {
+                    uint256 amountOverPaidToBenefactorOnToken = price[tokenId]
+                        .mul(
+                        benefactorLastTimeCollected[benefactor].sub(
+                            newTimeLastCollected
+                        )
+                    )
+                        .mul(patronageNumerator[tokenId])
+                        .div(1000000000000)
+                        .div(365 days);
+
+                    if (
+                        amountOverPaidToBenefactorOnToken >
+                        benefactorFunds[benefactor]
+                    ) {
+                        benefactorCredit[benefactor] = amountOverPaidToBenefactorOnToken;
+                    } else {
+                        benefactorFunds[benefactor] = benefactorFunds[benefactor]
+                            .sub(amountOverPaidToBenefactorOnToken);
+                    }
+                }
+            } else {
+                timeSinceLastMint = now.sub(
+                    timeLastCollectedPatron[tokenPatron]
+                );
+                timeLastCollectedPatron[tokenPatron] = now;
+                deposit[tokenPatron] = deposit[tokenPatron].sub(
+                    patronageOwedByTokenPatron
+                );
+            }
+
+            _collectLoyaltyPatron(tokenPatron, timeSinceLastMint);
+            emit RemainingDepositUpdate(tokenPatron, deposit[tokenPatron]);
         }
+    }
+
+    function safeSend(uint256 _wei, address recipient)
+        internal
+        returns (bool transferSuccess)
+    {
+        (transferSuccess, ) = recipient.call.gas(2300).value(_wei)("");
+    }
+
+    function withdrawBenefactorFundsTo(address payable benefactor) public {
+        require(
+            benefactorLastTimeCollected[benefactor].add(1 days) > now,
+            "Cannot call this function more than once a day"
+        );
+
+        uint256 unclaimedPayoutAvailable = unclaimedPayoutDueForOrganisation(
+            benefactor
+        );
+
+        if (unclaimedPayoutAvailable > 0) {
+            if (
+                unclaimedPayoutAvailable.add(benefactorFunds[benefactor]) <
+                benefactorCredit[benefactor]
+            ) {
+                // Here there is nothing left extra to pay the organisation, everything goes to paying of debt.
+                benefactorCredit[benefactor] = benefactorCredit[benefactor].sub(
+                    unclaimedPayoutAvailable.add(benefactorFunds[benefactor])
+                );
+            } else {
+                uint256 availableToWithdraw = unclaimedPayoutAvailable
+                    .add(benefactorFunds[benefactor])
+                    .sub(benefactorCredit[benefactor]);
+
+                benefactorCredit[benefactor] = 0;
+
+                if (
+                    availableToWithdraw > globalBenefactorDailyWithdrawalLimit
+                ) {
+                    if (
+                        safeSend(
+                            globalBenefactorDailyWithdrawalLimit,
+                            benefactor
+                        )
+                    ) {
+                        benefactorFunds[benefactor] = availableToWithdraw.sub(
+                            globalBenefactorDailyWithdrawalLimit
+                        );
+                    } else {
+                        benefactorFunds[benefactor] = availableToWithdraw;
+                    }
+                } else {
+                    if (
+                        safeSend(
+                            globalBenefactorDailyWithdrawalLimit,
+                            benefactor
+                        )
+                    ) {
+                        benefactorFunds[benefactor] = 0;
+                    } else {
+                        benefactorFunds[benefactor] = availableToWithdraw;
+                    }
+                }
+            }
+        } else {}
     }
 
     function _collectPatronagePatron(address tokenPatron) public {
@@ -642,7 +800,7 @@ contract WildcardSteward_v2 is Initializable {
         uint256 oldPriceScaled = price[tokenId].mul(
             patronageNumerator[tokenId]
         );
-        uint256 newPriceScaled = newPrice.mul(patronageNumerator[tokenId]);
+        uint256 newPriceScaled = _newPrice.mul(patronageNumerator[tokenId]);
         address tokenBenefactor = benefactors[tokenId];
 
         totalPatronOwnedTokenCost[msg.sender] = totalPatronOwnedTokenCost[msg
@@ -668,19 +826,6 @@ contract WildcardSteward_v2 is Initializable {
 
     function withdrawBenefactorFunds() public {
         withdrawBenefactorFundsTo(msg.sender);
-    }
-
-    function withdrawBenefactorFundsTo(address payable benefactor) public {
-        require(benefactorFunds[benefactor] > 0, "No funds available");
-        uint256 amountToWithdraw = benefactorFunds[benefactor];
-        benefactorFunds[benefactor] = 0;
-
-        (bool transferSuccess, ) = benefactor.call.gas(2300).value(
-            amountToWithdraw
-        )("");
-        if (!transferSuccess) {
-            revert("Unable to withdraw benefactor funds");
-        }
     }
 
     function exit() public collectPatronageAddress(msg.sender) {
