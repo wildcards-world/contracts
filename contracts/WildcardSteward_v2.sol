@@ -194,7 +194,7 @@ contract WildcardSteward_v2 is Initializable {
             timeLastCollected[tokens[i]] = now;
             patronageNumerator[tokens[i]] = _patronageNumerator[i];
             tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i];
-            if (_releaseDate[i] == 0) {
+            if (_releaseDate[i] < now) {
                 tokenAuctionBeginTimestamp[i] = now;
             } else {
                 tokenAuctionBeginTimestamp[i] = _releaseDate[i];
