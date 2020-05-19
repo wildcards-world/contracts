@@ -30,6 +30,8 @@ contract("WildcardSteward owed", (accounts) => {
   const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
   let testTokenURI = "test token uri";
+  const artistAddress = accounts[9];
+  const artistCommission = 0;
 
   beforeEach(async () => {
     erc721 = await ERC721token.new({ from: accounts[0] });
@@ -57,15 +59,21 @@ contract("WildcardSteward owed", (accounts) => {
       [1],
       [accounts[9]],
       [patronageNumerator],
-      [tokenGenerationRate]
+      [tokenGenerationRate],
+      [artistAddress],
+      [artistCommission],
+      [0]
     );
+    await steward.changeAuctionParameters(ether("1"), ether("0.05"), 86400, {
+      from: accounts[0],
+    });
   });
 
   it("steward: admin-change. On admin change, check that only the admin can change the admin address. Also checking withdraw benfactor funds can be called", async () => {
     await waitTillBeginningOfSecond();
 
     //Buy a token
-    await steward.buy(testTokenId1, ether("1"), ether("1"), {
+    await steward.buyAuction(testTokenId1, ether("1"), 500, {
       from: accounts[2],
       value: ether("2", "ether"),
     });

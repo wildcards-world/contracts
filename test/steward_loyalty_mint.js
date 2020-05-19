@@ -37,6 +37,8 @@ contract("WildcardSteward owed", (accounts) => {
   const testToken2 = { id: 2, tokenGenerationRate: 2 };
   const patronageNumerator = "12000000000000";
   const testTokenURI = "test token uri";
+  const artistAddress = accounts[9];
+  const artistCommission = 0;
 
   beforeEach(async () => {
     erc721 = await ERC721token.new({ from: accounts[0] });
@@ -69,8 +71,14 @@ contract("WildcardSteward owed", (accounts) => {
       [testToken1.id, testToken2.id],
       [accounts[0], accounts[0]],
       [patronageNumerator, patronageNumerator],
-      [testToken1.tokenGenerationRate, testToken2.tokenGenerationRate]
+      [testToken1.tokenGenerationRate, testToken2.tokenGenerationRate],
+      [artistAddress, artistAddress],
+      [artistCommission, artistCommission],
+      [0,0]
     );
+    await steward.changeAuctionParameters(ether("1"), ether("0.05"), 86400, {
+      from: accounts[0],
+    });
   });
 
   it("steward: loyalty-mint. Checking correct number of tokens are received after holding a token for  100min", async () => {
@@ -78,15 +86,15 @@ contract("WildcardSteward owed", (accounts) => {
     testTokenId1 = testToken1.id;
     const timeHeld = 100; // In minutes
     // Person buys a token
-    await steward.buy(testTokenId1, ether("1"), ether("1"), {
+    await steward.buyAuction(testTokenId1, ether("1"), 500, {
       from: accounts[2],
-      value: ether("1"),
+      value: ether("2"),
     });
 
     // TIME INCREASES HERE BY timeHeld
     await time.increase(time.duration.minutes(timeHeld));
     // First token bought from patron [Collect patronage will therefore be called]
-    await steward.buy(testTokenId1, ether("1"), ether("1"), {
+    await steward.buy(testTokenId1, ether("1"), ether("1"), 500, {
       from: accounts[3],
       value: ether("2"),
     });
@@ -119,24 +127,24 @@ contract("WildcardSteward owed", (accounts) => {
     testTokenId2 = testToken2.id;
     const timeHeld = 100; // In minutes
     // Person buys a token
-    await steward.buy(testTokenId1, ether("1"), ether("1"), {
+    await steward.buyAuction(testTokenId1, ether("1"), 500, {
       from: accounts[2],
-      value: ether("1"),
+      value: ether("2"),
     });
 
-    await steward.buy(testTokenId2, ether("1"), ether("1"), {
+    await steward.buyAuction(testTokenId2, ether("1"), 500, {
       from: accounts[2],
-      value: ether("1"),
+      value: ether("2"),
     });
 
     // TIME INCREASES HERE BY timeHeld
     await time.increase(time.duration.minutes(timeHeld));
     // First token bought from patron [Collect patronage will therefore be called]
-    await steward.buy(testTokenId1, ether("1"), ether("1"), {
+    await steward.buy(testTokenId1, ether("1"), ether("1"), 500, {
       from: accounts[3],
       value: ether("2"),
     });
-    await steward.buy(testTokenId2, ether("1"), ether("1"), {
+    await steward.buy(testTokenId2, ether("1"), ether("1"), 500, {
       from: accounts[3],
       value: ether("2"),
     });
@@ -172,7 +180,11 @@ contract("WildcardSteward owed", (accounts) => {
     const timeHeld = 10; // In minutes
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
 
-    await steward.buy(testTokenId1, ether("1"), totalToBuy, {
+    await steward.changeAuctionParameters(ether("0"), ether("0"), 86400, {
+      from: accounts[0],
+    });
+
+    await steward.buyAuction(testTokenId1, ether("1"), 500, {
       from: accounts[2],
       value: totalToBuy,
     });
@@ -218,12 +230,12 @@ contract("WildcardSteward owed", (accounts) => {
     testTokenId1 = testToken1.id;
     const timeHeld = 100;
 
-    await steward.buy(testTokenId1, ether("1"), ether("1"), {
+    await steward.buyAuction(testTokenId1, ether("1"), 500, {
       from: accounts[2],
-      value: ether("1"),
+      value: ether("2"),
     });
     await time.increase(time.duration.minutes(timeHeld));
-    await steward.buy(testTokenId1, ether("1"), ether("1"), {
+    await steward.buy(testTokenId1, ether("1"), ether("1"), 500, {
       from: accounts[7],
       value: ether("2"),
     });
