@@ -120,6 +120,12 @@ contract WildcardSteward_v2 is Initializable {
         _;
     }
 
+    // This modifier MUST be called anytime before the `benefactorTotalTokenNumerator[benefactor]` value changes.
+    modifier updateBenefactorBalance(address benefactor) {
+        _updateBenefactorBalance(benefactor);
+        _;
+    }
+
     modifier priceGreaterThanZero(uint256 _newPrice) {
         require(_newPrice > 0, "Price is zero");
         _;
@@ -469,25 +475,32 @@ contract WildcardSteward_v2 is Initializable {
                     benefactorLastTimeCollected[benefactor] >
                     newTimeLastCollected
                 ) {
-                    uint256 amountOverPaidToBenefactorOnToken = price[tokenId]
-                        .mul(
+                    benefactorCredit[benefactor] = price[tokenId].mul(
                         benefactorLastTimeCollected[benefactor].sub(
                             newTimeLastCollected
                         )
-                    )
-                        .mul(patronageNumerator[tokenId])
-                        .div(1000000000000)
-                        .div(365 days);
+                    );
 
-                    if (
-                        amountOverPaidToBenefactorOnToken >
-                        benefactorFunds[benefactor]
-                    ) {
-                        benefactorCredit[benefactor] = amountOverPaidToBenefactorOnToken;
-                    } else {
-                        benefactorFunds[benefactor] = benefactorFunds[benefactor]
-                            .sub(amountOverPaidToBenefactorOnToken);
-                    }
+                    // // NOTE: the below code is slightly more involved, but effectively should do the same thing as the above line that updates the `benefactorCredit[benefactor]`
+                    // uint256 amountOverPaidToBenefactorOnToken = price[tokenId]
+                    //     .mul(
+                    //     benefactorLastTimeCollected[benefactor].sub(
+                    //         newTimeLastCollected
+                    //     )
+                    // )
+                    //     .mul(patronageNumerator[tokenId])
+                    //     .div(1000000000000)
+                    //     .div(365 days);
+
+                    // if (
+                    //     amountOverPaidToBenefactorOnToken >
+                    //     benefactorFunds[benefactor]
+                    // ) {
+                    //     benefactorCredit[benefactor] = amountOverPaidToBenefactorOnToken;
+                    // } else {
+                    //     benefactorFunds[benefactor] = benefactorFunds[benefactor]
+                    //         .sub(amountOverPaidToBenefactorOnToken);
+                    // }
                 }
             } else {
                 timeSinceLastMint = now.sub(
@@ -511,7 +524,7 @@ contract WildcardSteward_v2 is Initializable {
         (transferSuccess, ) = recipient.call.gas(2300).value(_wei)("");
     }
 
-    function updateBenefactorBalance(address payable benefactor) internal {
+    function _updateBenefactorBalance(address benefactor) internal {
         uint256 unclaimedPayoutAvailable = unclaimedPayoutDueForOrganisation(
             benefactor
         );
@@ -541,11 +554,11 @@ contract WildcardSteward_v2 is Initializable {
             "Cannot call this function more than once a day"
         );
 
-        updateBenefactorBalance(benefactor);
+        _updateBenefactorBalance(benefactor);
 
         uint256 availableToWithdraw = benefactorFunds[benefactor];
 
-        if (avaalableToWithdraw > 0) {
+        if (availableToWithdraw > 0) {
             if (availableToWithdraw > globalBenefactorDailyWithdrawalLimit) {
                 if (
                     safeSend(globalBenefactorDailyWithdrawalLimit, benefactor)
@@ -576,7 +589,33 @@ contract WildcardSteward_v2 is Initializable {
         bytes32 r,
         bytes32 s
     ) public {
-        // require(ecrecover(/* TODO */, v, r, s) == benefactor);
+        // require(ecrecover(/* TODO */, v, r, s) == benefactor, "No permission to withdraw");
+
+        _updateBenefactorBalance(benefactor);
+
+        uint256 availableToWithdraw = benefactorFunds[benefactor];
+
+        if (availableToWithdraw > 0) {
+            if (availableToWithdraw > maxAmount) {
+                if (
+                    safeSend(globalBenefactorDailyWithdrawalLimit, benefactor)
+                ) {
+                    benefactorFunds[benefactor] = availableToWithdraw.sub(
+                        globalBenefactorDailyWithdrawalLimit
+                    );
+                } else {
+                    benefactorFunds[benefactor] = availableToWithdraw;
+                }
+            } else {
+                if (
+                    safeSend(globalBenefactorDailyWithdrawalLimit, benefactor)
+                ) {
+                    benefactorFunds[benefactor] = 0;
+                } else {
+                    benefactorFunds[benefactor] = availableToWithdraw;
+                }
+            }
+        }
     }
 
     function _collectPatronagePatron(address tokenPatron) public {
@@ -658,6 +697,7 @@ contract WildcardSteward_v2 is Initializable {
         public
         payable
         collectPatronage(tokenId)
+        updateBenefactorBalance(benefactors[tokenId])
         collectPatronageAddress(msg.sender)
         priceGreaterThanZero(_newPrice)
         validWildcardsPercentage(wildcardsPercentage, tokenId)
@@ -683,7 +723,6 @@ contract WildcardSteward_v2 is Initializable {
             msg.sender,
             _newPrice
         );
-        updateBenefactorBalance(benefactors[tokenId]);
         emit Buy(tokenId, msg.sender, _newPrice);
     }
 
@@ -695,6 +734,7 @@ contract WildcardSteward_v2 is Initializable {
         public
         payable
         collectPatronage(tokenId)
+        updateBenefactorBalance(benefactors[tokenId])
         collectPatronageAddress(msg.sender)
         priceGreaterThanZero(_newPrice)
         validWildcardsPercentage(wildcardsPercentage, tokenId)
@@ -721,7 +761,6 @@ contract WildcardSteward_v2 is Initializable {
             msg.sender,
             _newPrice
         );
-        updateBenefactorBalance(benefactors[tokenId]);
         emit Buy(tokenId, msg.sender, _newPrice);
     }
 
@@ -806,6 +845,7 @@ contract WildcardSteward_v2 is Initializable {
         public
         onlyPatron(tokenId)
         collectPatronage(tokenId)
+        updateBenefactorBalance(benefactors[tokenId])
     {
         require(state[tokenId] != StewardState.Foreclosed, "Foreclosed");
         require(_newPrice != 0, "Incorrect Price");
@@ -860,7 +900,6 @@ contract WildcardSteward_v2 is Initializable {
         address currentOwner = assetToken.ownerOf(tokenId);
         address tokenPatron = currentPatron[tokenId];
         resetTokenOnForeclosure(tokenId, currentOwner, tokenPatron);
-        updateBenefactorBalance(benefactors[tokenId]);
         state[tokenId] = StewardState.Foreclosed;
         currentCollected[tokenId] = 0;
 
