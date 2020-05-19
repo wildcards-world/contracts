@@ -501,16 +501,8 @@ contract WildcardSteward_v2 is Initializable {
                     newTimeLastCollected.sub(previousCollectionTime)
                 );
 
-                // The bellow line is the only real difference between this function and the `_collectPatronagePatron` function.
+                // The bellow 2 lines are the main difference between this function and the `_collectPatronagePatron` function.
                 tokenAuctionBeginTimestamp[tokenId] = newTimeLastCollected;
-                timeLastCollectedPatron[currentOwner] = newTimeLastCollected;
-                collection = price[tokenId]
-                    .mul(newTimeLastCollected.sub(previousTokenCollection))
-                    .mul(patronageNumerator[tokenId])
-                    .div(1000000000000)
-                    .div(365 days);
-                deposit[currentOwner] = 0;
-
                 _foreclose(tokenId);
 
                 address benefactor = benefactors[tokenId];
