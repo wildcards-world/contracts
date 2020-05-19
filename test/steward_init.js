@@ -25,6 +25,8 @@ contract("WildcardSteward", (accounts) => {
   const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
   const testTokenURI = "https://wildcards.xyz/token/";
+  const artistAddress = accounts[9];
+  const artistCommission = 0;
 
   beforeEach(async () => {
     erc721 = await ERC721token.new({ from: accounts[0] });
@@ -56,7 +58,10 @@ contract("WildcardSteward", (accounts) => {
       [0],
       [accounts[0]],
       [patronageNumerator],
-      [tokenGenerationRate]
+      [tokenGenerationRate],
+      [artistAddress],
+      [artistCommission],
+      [0]
     );
   });
 
@@ -88,7 +93,10 @@ contract("WildcardSteward", (accounts) => {
       tokenIds,
       Array(numberOfTokens).fill(accounts[0]),
       Array(numberOfTokens).fill(patronageNumerator),
-      Array(numberOfTokens).fill(tokenGenerationRate)
+      Array(numberOfTokens).fill(tokenGenerationRate),
+      Array(numberOfTokens).fill(artistAddress),
+      Array(numberOfTokens).fill(artistCommission),
+      Array(numberOfTokens).fill(0),
     );
     for (let i = 0; i < tokenIds.length; ++i) {
       const tokenId = tokenIds[i];
@@ -188,6 +196,24 @@ contract("WildcardSteward", (accounts) => {
         value: ether("1"),
       }),
       "Cannot buy foreclosed token using this function"
+    );
+  });
+
+  it("steward: init: Cannot buy normal token using foreclosed buy function", async () => {
+    await steward.changeAuctionParameters(ether("0"), ether("0"), 86400, {
+      from: accounts[0],
+    });
+    await steward.buyAuction(0, ether("1"), 500, {
+      from: accounts[2],
+      value: ether("1"),
+    });
+
+    await expectRevert(
+      steward.buyAuction(0, ether("1"), 500, {
+        from: accounts[2],
+        value: ether("2"),
+      }),
+      "Can only buy foreclosed tokens useing this function"
     );
   });
 
