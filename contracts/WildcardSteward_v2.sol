@@ -1,4 +1,5 @@
 pragma solidity 0.5.17;
+
 import "./ERC721Patronage_v1.sol";
 import "./MintManager_v2.sol";
 
@@ -61,6 +62,7 @@ contract WildcardSteward_v2 is Initializable {
     mapping(address => uint256) public benefactorLastTimeCollected;
     mapping(address => uint256) public benefactorCredit;
     uint256 public globalBenefactorDailyWithdrawalLimit;
+    address public withdrawCheckerAdmin;
 
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
     event PriceChange(uint256 indexed tokenId, uint256 newPrice);
@@ -209,7 +211,13 @@ contract WildcardSteward_v2 is Initializable {
         }
     }
 
-    function upgradeToV3(uint256[] memory tokens) public onlyAdmin {
+    function upgradeToV3(uint256[] memory tokens, address _withdrawCheckerAdmin)
+        public
+        onlyAdmin
+    {
+        require(withdrawCheckerAdmin == address(0));
+        withdrawCheckerAdmin = _withdrawCheckerAdmin;
+
         for (uint8 i = 0; i < tokens.length; ++i) {
             uint256 tokenId = tokens[i];
             address currentOwner = currentPatron[tokenId];
@@ -279,6 +287,13 @@ contract WildcardSteward_v2 is Initializable {
 
     function changeAdmin(address _admin) public onlyAdmin {
         admin = _admin;
+    }
+
+    function changeWithdrawCheckerAdmin(address _withdrawCheckerAdmin)
+        public
+        onlyAdmin
+    {
+        withdrawCheckerAdmin = _withdrawCheckerAdmin;
     }
 
     function setGlobal(uint256 _globalBenefactorDailyWithdrawalLimit)
@@ -589,7 +604,7 @@ contract WildcardSteward_v2 is Initializable {
         bytes32 r,
         bytes32 s
     ) public {
-        // require(ecrecover(/* TODO */, v, r, s) == benefactor, "No permission to withdraw");
+        // require(ecrecover(/* TODO */, v, r, s) == withdrawCheckerAdmin, "No permission to withdraw");
 
         _updateBenefactorBalance(benefactor);
 
