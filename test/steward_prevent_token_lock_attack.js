@@ -36,6 +36,8 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
   const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
   // price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
+  const artistAddress = accounts[9]
+  const artistCommission = 0;
   const tenMinPatronageAt1Eth = ether("1")
     .mul(new BN("600"))
     .mul(new BN("12"))
@@ -79,8 +81,14 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
       [0, 1, 2],
       [accounts[0], accounts[0], accounts[0]],
       [patronageNumerator, patronageNumerator, patronageNumerator],
-      [tokenGenerationRate, tokenGenerationRate, tokenGenerationRate]
+      [tokenGenerationRate, tokenGenerationRate, tokenGenerationRate],
+      [artistAddress, artistAddress, artistAddress],
+      [artistCommission, artistCommission, artistCommission],
+      [0, 0, 0]
     );
+    await steward.changeAuctionParameters(ether("0"), ether("0"), 86400, {
+      from: accounts[0],
+    });
   });
 
   it("steward: buy. Performing payout to the previous owner of deposit, or payment cannot block the transaction.", async () => {
@@ -95,7 +103,7 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
     const depositAbleToWithdrawBefore = await steward.depositAbleToWithdraw(
       attacker.address
     );
-    await steward.buy(1, ether("1"), web3.utils.toWei("0.5", "ether"), {
+    await steward.buy(1, ether("1"), web3.utils.toWei("0.5", "ether"), 500, {
       from: accounts[2],
       value: web3.utils.toWei("1.5", "ether"),
     });
@@ -104,7 +112,7 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
     );
 
     assert.equal(
-      depositAbleToWithdrawBefore.add(new BN(ether("1"))).toString(),
+      depositAbleToWithdrawBefore.add(ether("0.95")).toString(), //6% artist and wildcards default cut
       depositAbleToWithdrawAfter.toString(),
       "The deposit before and after + funds earned from token sale should be the same"
     );
@@ -118,10 +126,13 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
       [3],
       [attacker.address],
       [patronageNumerator],
-      [tokenGenerationRate]
+      [tokenGenerationRate],
+      [artistAddress],
+      [artistCommission],
+      [0]
     );
 
-    await steward.buy(3, ether("1"), ether("1"), {
+    await steward.buyAuction(3, ether("1"), 500, {
       from: accounts[2],
       value: ether("1"),
     });
