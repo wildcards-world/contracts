@@ -619,7 +619,6 @@ contract WildcardSteward_v2 is Initializable {
             );
         }
         uint256 wildcardsAmount = totalAmount.sub(artistAmount);
-        //_payArtistAndWildcards(tokenId, artistAmount, wildcardsAmount);
         deposit[artistAddresses[tokenId]] = deposit[artistAddresses[tokenId]]
             .add(artistAmount);
         deposit[admin] = deposit[admin].add(wildcardsAmount);
@@ -674,7 +673,6 @@ contract WildcardSteward_v2 is Initializable {
                 previousOwnerProceedsFromSale
             );
         }
-        //_payArtistAndWildcards(tokenId, artistAmount, wildcardsAmount);
 
         deposit[artistAddresses[tokenId]] = deposit[artistAddresses[tokenId]]
             .add(artistAmount);
