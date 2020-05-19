@@ -70,13 +70,17 @@ contract("WildcardSteward loyalty token", (accounts) => {
       from: accounts[0],
     });
     await steward.listNewTokens(
-      [testToken1.id, testToken2.id],
-      [accounts[0], accounts[0]],
-      [patronageNumerator, patronageNumerator],
-      [testToken1.tokenGenerationRate, testToken2.tokenGenerationRate],
-      [artistAddress, artistAddress],
-      [artistCommission, artistCommission],
-      [0,0]
+      [testToken1.id, testToken2.id, testToken3.id],
+      [accounts[0], accounts[0], accounts[0]],
+      [patronageNumerator, patronageNumerator, patronageNumerator],
+      [
+        testToken1.tokenGenerationRate,
+        testToken2.tokenGenerationRate,
+        testToken3.tokenGenerationRate,
+      ],
+      [artistAddress, artistAddress, artistAddress],
+      [artistCommission, artistCommission, artistCommission],
+      [0, 0, 0]
     );
     await steward.changeAuctionParameters(ether("1"), ether("0.05"), 86400, {
       from: accounts[0],
