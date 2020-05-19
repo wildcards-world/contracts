@@ -5,9 +5,10 @@ const WildcardSteward_v2 = artifacts.require("WildcardSteward_v2");
 
 const receiptGenerationRate = 11574074074074; // This is just less (rounded down) than one token a day (ie. 10^18 / 86400)
 const tokenId = "13";
+const votingContractAddress = "0x03e051b7e42480Cc9D54F1caB525D2Fea2cF4d83";
 const harbergerTaxRate = "600000000000"; // Harberger tax rate of 60% per year
 
-module.exports = function (deployer, networkName, accounts) {
+module.exports = function(deployer, networkName, accounts) {
   deployer.then(async () => {
     // Don't try to deploy/migrate the contracts for tests
     if (networkName === "test") {
