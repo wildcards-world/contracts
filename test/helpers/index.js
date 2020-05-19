@@ -40,6 +40,19 @@ module.exports = {
     return totalPatronage;
   },
 
+  // startPrice - ( ( (startPrice - endPrice) * howLongThisAuctionBeenGoing ) / auctionLength )
+  auctionCalculator: (
+    auctionStartPrice,
+    auctionEndPrice,
+    auctionLength,
+    howLongThisAuctionBeenGoing
+  ) => {
+    let diff = auctionStartPrice.sub(auctionEndPrice);
+    return auctionStartPrice.sub(
+      diff.mul(new BN(howLongThisAuctionBeenGoing)).div(new BN(auctionLength))
+    );
+  },
+
   multiTokenCalculator: (timeInSeconds, tokenArray) => {
     const totalTokens = tokenArray.reduce(
       (totalTokens, token) =>
