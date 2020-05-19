@@ -37,6 +37,8 @@ contract("WildcardSteward owed", (accounts) => {
   const testToken2 = { id: 2, tokenGenerationRate: 2 };
   const patronageNumerator = "12000000000000";
   const testTokenURI = "test token uri";
+  const artistAddress = accounts[9];
+  const artistCommission = 0;
 
   beforeEach(async () => {
     erc721 = await ERC721token.new({ from: accounts[0] });
@@ -69,7 +71,10 @@ contract("WildcardSteward owed", (accounts) => {
       [testToken1.id, testToken2.id],
       [accounts[0], accounts[0]],
       [patronageNumerator, patronageNumerator],
-      [testToken1.tokenGenerationRate, testToken2.tokenGenerationRate]
+      [testToken1.tokenGenerationRate, testToken2.tokenGenerationRate],
+      [artistAddress, artistAddress],
+      [artistCommission, artistCommission],
+      [0,0]
     );
     await steward.changeAuctionParameters(ether("1"), ether("0.05"), 86400, {
       from: accounts[0],
