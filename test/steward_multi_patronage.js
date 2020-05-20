@@ -30,7 +30,7 @@ contract("WildcardSteward owed", (accounts) => {
   const testToken1 = { id: 1, patronageNumerator: 12 };
   const testToken2 = { id: 2, patronageNumerator: 24 };
   const tokenGenerationRate = 10; // should depend on token
-  const artistAddress = accounts[9];
+  const artistAddress = accounts[7];
   const artistCommission = 0;
 
   beforeEach(async () => {
@@ -56,7 +56,12 @@ contract("WildcardSteward owed", (accounts) => {
     await erc20.renounceMinter({ from: accounts[0] });
 
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(erc721.address, accounts[0], mintManager.address);
+    await steward.initialize(
+      erc721.address,
+      accounts[0],
+      mintManager.address,
+      0 /*Set to zero for testing purposes*/
+    );
     await steward.listNewTokens(
       [testToken1.id, testToken2.id],
       [accounts[8], accounts[9]],
@@ -244,25 +249,6 @@ contract("WildcardSteward owed", (accounts) => {
     //////////////////////////////////////////////////
     await time.increase(time.duration.minutes(10));
 
-    /*
-    // DEBUG CODE
-    const benefactor = accounts[9];
-    const lastCollected = await steward.benefactorLastTimeCollected.call(
-      benefactor
-    );
-    const timestamp = await steward.nowTime.call();
-    const timeChange = timestamp.sub(lastCollected);
-    const benefactorTotalTokenNumerator = await steward.benefactorTotalTokenNumerator.call(
-      benefactor
-    );
-    console.log(
-      lastCollected.toString(),
-      timestamp.toString(),
-      timeChange.toString(),
-      benefactorTotalTokenNumerator.toString()
-    );
-    */
-
     const benefactor2FundsT40Unclaimed = await steward.unclaimedPayoutDueForOrganisation.call(
       accounts[9]
     );
@@ -271,21 +257,13 @@ contract("WildcardSteward owed", (accounts) => {
     );
 
     // TODO: this might be a BUG!! Why is this value 2402 not 1201??
-    const expectedTotalPatronageT40Token2 = patronageCalculator("2402", [
+    const expectedTotalPatronageT40Token2 = patronageCalculator("1201", [
       {
         patronageNumerator: testToken2.patronageNumerator.toString(),
         price: priceOfToken2.toString(),
       },
     ]);
-    // console.log(
-    //   expectedTotalPatronageT40Token2.toString(),
-    //   benefactor2FundsT40Unclaimed
-    //     .add(benefactor2FundsT40AlreadyClaimed)
-    //     .toString(),
-    //   "And others",
-    //   benefactor2FundsT40Unclaimed.toString(),
-    //   benefactor2FundsT40AlreadyClaimed.toString()
-    // );
+
     assert.equal(
       expectedTotalPatronageT40Token2.toString(),
       benefactor2FundsT40Unclaimed

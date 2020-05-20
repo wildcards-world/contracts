@@ -69,9 +69,15 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
     await erc20.renounceMinter({ from: accounts[0] });
 
     // TODO: use this to make the contract address of the token deterministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(erc721.address, accounts[0], mintManager.address, {
-      from: accounts[0],
-    });
+    await steward.initialize(
+      erc721.address,
+      accounts[0],
+      mintManager.address,
+      0,
+      {
+        from: accounts[0],
+      }
+    );
 
     await steward.listNewTokens(
       [0, 1, 2],
@@ -113,7 +119,7 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
       "The deposit before and after + funds earned from token sale should be the same"
     );
   });
-  it("steward: withdrawBenefactorFundsTo. if the benefactor has blocked receiving eth, the transaction should revert.", async () => {
+  it("steward: withdrawBenefactorFundsTo. if the benefactor has blocked receiving eth, the transaction should go through but the balance should be added to the benefactorFunds.", async () => {
     await waitTillBeginningOfSecond();
 
     const attacker = await Attacker.new();
@@ -136,6 +142,7 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
     await time.increase(time.duration.minutes(10));
 
     await steward._collectPatronage(3);
+    await steward._updateBenefactorBalance(attacker.address);
 
     const benefactorFunds = await steward.benefactorFunds(attacker.address);
     assert(
@@ -143,13 +150,20 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
       "the benefactor must have more than 0 wei available to withdraw"
     );
 
-    await expectRevert(
-      steward.withdrawBenefactorFundsTo(attacker.address, {
-        from: accounts[2],
-      }),
-      "Unable to withdraw benefactor funds"
+    await steward.withdrawBenefactorFundsTo(attacker.address, {
+      from: accounts[2],
+    });
+    const benefactorFundsAfter = await steward.benefactorFunds(
+      attacker.address
+    );
+
+    assert.equal(
+      benefactorFunds.toString(),
+      benefactorFundsAfter.toString(),
+      "benefactor funds should be unchanged"
     );
   });
+
   it("steward: withdrawDeposit. if the benefactor has blocked receiving eth, the transaction should revert.", async () => {
     await waitTillBeginningOfSecond();
 

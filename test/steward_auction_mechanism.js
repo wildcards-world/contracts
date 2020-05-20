@@ -65,7 +65,12 @@ contract("WildcardSteward owed", (accounts) => {
     });
     await erc20.renounceMinter({ from: accounts[0] });
 
-    await steward.initialize(erc721.address, accounts[0], mintManager.address);
+    await steward.initialize(
+      erc721.address,
+      accounts[0],
+      mintManager.address,
+      0 /*Set to zero for testing purposes*/
+    );
     await steward.listNewTokens(
       [0, testTokenId1, testTokenId2, 3],
       [accounts[0], accounts[0], accounts[0], accounts[0]],
