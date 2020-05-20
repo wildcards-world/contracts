@@ -32,7 +32,6 @@ contract("WildcardSteward owed", (accounts) => {
   const testTokenId2 = 2;
   const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
-  let testTokenURI = "test token uri";
   const artistAddress = accounts[9];
   const artistCommission = 0;
 
@@ -69,7 +68,7 @@ contract("WildcardSteward owed", (accounts) => {
       [tokenGenerationRate, tokenGenerationRate, tokenGenerationRate],
       [artistAddress, artistAddress, artistAddress],
       [artistCommission, artistCommission, artistCommission],
-      [0,0,0]
+      [0, 0, 0]
     );
     await steward.changeAuctionParameters(ether("0"), ether("0"), 86400, {
       from: accounts[0],

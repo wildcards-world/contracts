@@ -32,7 +32,6 @@ contract("WildcardSteward owed", (accounts) => {
   const tokenGenerationRate = 10; // should depend on token
   const artistAddress = accounts[9]; // Artist is account 9
   const artistCommission = 100; // 1%
-  let testTokenURI = "test token uri";
 
   beforeEach(async () => {
     erc721 = await ERC721token.new({ from: accounts[0] });
@@ -58,9 +57,7 @@ contract("WildcardSteward owed", (accounts) => {
     });
     await erc20.renounceMinter({ from: accounts[0] });
 
-    // TODO: use this to make the contract address of the token determinitstic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(erc721.address, accounts[0]);
-    await steward.updateToV2(mintManager.address, [], []);
+    await steward.initialize(erc721.address, accounts[0], mintManager.address);
     await steward.listNewTokens(
       [0, 1, 2],
       [accounts[0], accounts[0], accounts[0]],
@@ -112,12 +109,10 @@ contract("WildcardSteward owed", (accounts) => {
     );
 
     // 1% to artist and 5% to wildcards on this token.
-    assert.isTrue(
-      Math.abs(
-        patronDepositAfterFirstSale.sub(
-          patronDepositBeforeSale.add(ether("0.94"))
-        )
-      ) < tolerance
+    assert.equal(
+      patronDepositAfterFirstSale.toString(),
+      patronDepositBeforeSale.add(ether("0.94")).toString(),
+      "Deposit should be 94% of original, since 5% + 1% went to wildcards and the artist respectively."
     );
 
     assert.equal(
@@ -134,8 +129,10 @@ contract("WildcardSteward owed", (accounts) => {
     const wildcardsDepositAfterFirstSale = await steward.deposit.call(
       accounts[0]
     );
-    assert.isTrue(
-      wildcardsDepositAfterFirstSale.sub(ether("0.05")) < tolerance
+    assert.equal(
+      wildcardsDepositAfterFirstSale.toString(),
+      ether("0.05").toString(),
+      "wildcards deposit should be 5% of the sale"
     );
 
     //Second token then bought. Deposit should now be added back the patrons balance
@@ -154,12 +151,13 @@ contract("WildcardSteward owed", (accounts) => {
     //Checking once no more tokens are owned, the deposit is set to zero
     assert.equal(patronDepositAfterSecondSale.toString(), "0");
     //Checking owner gets deposit back on sale of final token plus sale price too.
-    assert.isTrue(
-      balancePatronAfterSecondSale.sub(
-        balancePatronAfterFirstSale
-          .add(ether("1.78"))
-          .add(patronDepositAfterFirstSale)
-      ) < tolerance
+    assert.equal(
+      balancePatronAfterSecondSale.toString(),
+      balancePatronAfterFirstSale
+        .add(ether("1.78"))
+        .add(patronDepositAfterFirstSale)
+        .toString(),
+      "The user should get back their full deposit + sale price on last token sale."
     );
 
     const balanceArtistBeforeWithdraw = new BN(
@@ -174,28 +172,29 @@ contract("WildcardSteward owed", (accounts) => {
       ether("0.03").toString()
     );
 
-    // let depositWithdrawAmount = await steward.depositAbleToWithdraw(
-    //   accounts[9]
-    // );
-    await steward.withdrawDeposit(ether("0.03"), { from: accounts[9] });
+    await steward.withdrawDeposit(ether("0.03"), {
+      from: accounts[9],
+      gasPrice: 0,
+    });
 
     const balanceArtistAfterWithdraw = new BN(
       await web3.eth.getBalance(accounts[9])
     );
 
-    // roughly a 0.00005 error here. Gas costs?
-    assert.isTrue(
-      balanceArtistBeforeWithdraw.sub(
-        balanceArtistAfterWithdraw.sub(ether("0.03"))
-      ) < tolerance
+    assert.equal(
+      balanceArtistBeforeWithdraw.toString(),
+      balanceArtistAfterWithdraw.sub(ether("0.03")).toString(),
+      "Artist should have received their 1% of the sales and be able to withdraw it."
     );
 
     const wildcardsDepositAfterSecondSale = await steward.deposit.call(
       accounts[0]
     );
 
-    assert.isTrue(
-      wildcardsDepositAfterSecondSale.sub(ether("0.25")) < tolerance
+    assert.equal(
+      wildcardsDepositAfterSecondSale.toString(),
+      ether("0.25").toString(),
+      "Deposit for wildcards is incorrect after the first sale."
     );
   });
 });

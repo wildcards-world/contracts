@@ -16,5 +16,12 @@ module.exports = {
       blockGasLimit: 95000000,
     },
   },
-  solc: { version: "0.5.17" },
+  solc: {
+    version: "0.5.17",
+    optimizer: {
+      enabled: true,
+      runs: 200,
+    },
+    evmVersion: "constantinople",
+  },
 };
