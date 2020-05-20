@@ -181,7 +181,7 @@ contract("WildcardSteward loyalty token", (accounts) => {
     );
   });
 
-  it("steward: loyalty-mint. Checking correct number of tokens are recieved/minted after foreclosure.", async () => {
+  it("steward: loyalty-mint. Checking correct number of tokens are received/minted after foreclosure.", async () => {
     await waitTillBeginningOfSecond();
     testTokenId1 = testToken1.id;
     const timeHeld = 10; // In minutes
@@ -216,10 +216,15 @@ contract("WildcardSteward loyalty token", (accounts) => {
       .mul(new BN(TREASURY_NUMERATOR))
       .div(new BN(TREASURY_DENOMINATOR));
 
-    assert.equal(amountOfToken.toString(), expectedTokens.toString());
+    assert.equal(
+      amountOfToken.toString(),
+      expectedTokens.toString(),
+      "the correct amount of tokens should be minted for the patron"
+    );
     assert.equal(
       amountOfTreasuryToken.toString(),
-      expectedTreasuryToken.toString()
+      expectedTreasuryToken.toString(),
+      "the correct amount of tokens should be minted for wildcards"
     );
   });
 

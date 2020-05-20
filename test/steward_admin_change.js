@@ -29,7 +29,6 @@ contract("WildcardSteward admin change", (accounts) => {
   const testTokenId1 = 1;
   const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
-  let testTokenURI = "test token uri";
   const artistAddress = accounts[9];
   const artistCommission = 0;
 

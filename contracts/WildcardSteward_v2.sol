@@ -3,6 +3,8 @@ pragma solidity 0.5.17;
 import "./ERC721Patronage_v1.sol";
 import "./MintManager_v2.sol";
 
+import "@nomiclabs/buidler/console.sol";
+
 
 contract WildcardSteward_v2 is Initializable {
     /*
@@ -203,6 +205,7 @@ contract WildcardSteward_v2 is Initializable {
         assert(tokens.length == _releaseDate.length);
 
         for (uint8 i = 0; i < tokens.length; ++i) {
+            address benefactor = _benefactors[i];
             assert(_benefactors[i] != address(0));
             string memory idString = uintToStr(tokens[i]);
             string memory tokenUriBase = "https://wildcards.xyz/token/";
@@ -233,6 +236,10 @@ contract WildcardSteward_v2 is Initializable {
                 _artists[i],
                 _artistCommission[i]
             );
+
+            if (benefactorLastTimeCollected[benefactor] == 0) {
+                benefactorLastTimeCollected[benefactor] = now;
+            }
         }
     }
 
@@ -392,13 +399,15 @@ contract WildcardSteward_v2 is Initializable {
                 .div(365 days);
     }
 
+    function nowTime() public view returns (uint256) {
+        return now;
+    }
+
     function unclaimedPayoutDueForOrganisation(address benefactor)
         public
         view
         returns (uint256 payoutDue)
     {
-        if (benefactorLastTimeCollected[benefactor] == 0) return 0;
-
         return
             benefactorTotalTokenNumerator[benefactor]
                 .mul(now.sub(benefactorLastTimeCollected[benefactor]))
@@ -470,8 +479,10 @@ contract WildcardSteward_v2 is Initializable {
     }
 
     function _collectPatronage(uint256 tokenId) public {
+        console.log("collect patronage");
         // TODO: lots of this code is duplicated in the `_collectPatronagePatron` function. Refactor accordingly.
         if (state[tokenId] == StewardState.Owned) {
+            console.log(" token is owned!");
             address tokenPatron = currentPatron[tokenId];
 
             // _collectPatronagePatron(currentPatron[tokenId]);
@@ -501,7 +512,8 @@ contract WildcardSteward_v2 is Initializable {
                     newTimeLastCollected.sub(previousCollectionTime)
                 );
 
-                // The bellow 2 lines are the main difference between this function and the `_collectPatronagePatron` function.
+                // The bellow 3 lines are the main difference between this function and the `_collectPatronagePatron` function.
+                _collectLoyaltyPatron(tokenPatron, timeSinceLastMint); // NOTE: you have to call collectLoyaltyPatron before collecting your deposit.
                 tokenAuctionBeginTimestamp[tokenId] = newTimeLastCollected;
                 _foreclose(tokenId);
 
@@ -540,6 +552,7 @@ contract WildcardSteward_v2 is Initializable {
                     // }
                 }
             } else {
+                console.log(" token is still owned");
                 timeSinceLastMint = now.sub(
                     timeLastCollectedPatron[tokenPatron]
                 );
@@ -547,9 +560,9 @@ contract WildcardSteward_v2 is Initializable {
                 deposit[tokenPatron] = deposit[tokenPatron].sub(
                     patronageOwedByTokenPatron
                 );
+                _collectLoyaltyPatron(tokenPatron, timeSinceLastMint);
             }
 
-            _collectLoyaltyPatron(tokenPatron, timeSinceLastMint);
             emit RemainingDepositUpdate(tokenPatron, deposit[tokenPatron]);
         }
     }
@@ -587,7 +600,8 @@ contract WildcardSteward_v2 is Initializable {
 
     function withdrawBenefactorFundsTo(address payable benefactor) public {
         require(
-            benefactorLastTimeCollected[benefactor].add(1 days) > now,
+            // QUESTION? Should this 1 day throttle limit be configurable?
+            benefactorLastTimeCollected[benefactor].add(1 days) < now,
             "Cannot call this function more than once a day"
         );
 
@@ -595,25 +609,21 @@ contract WildcardSteward_v2 is Initializable {
 
         uint256 availableToWithdraw = benefactorFunds[benefactor];
 
-        if (availableToWithdraw > 0) {
-            if (availableToWithdraw > globalBenefactorDailyWithdrawalLimit) {
-                if (
-                    safeSend(globalBenefactorDailyWithdrawalLimit, benefactor)
-                ) {
-                    benefactorFunds[benefactor] = availableToWithdraw.sub(
-                        globalBenefactorDailyWithdrawalLimit
-                    );
-                } else {
-                    benefactorFunds[benefactor] = availableToWithdraw;
-                }
+        require(availableToWithdraw > 0, "No funds available");
+
+        if (availableToWithdraw > globalBenefactorDailyWithdrawalLimit) {
+            if (safeSend(globalBenefactorDailyWithdrawalLimit, benefactor)) {
+                benefactorFunds[benefactor] = availableToWithdraw.sub(
+                    globalBenefactorDailyWithdrawalLimit
+                );
             } else {
-                if (
-                    safeSend(globalBenefactorDailyWithdrawalLimit, benefactor)
-                ) {
-                    benefactorFunds[benefactor] = 0;
-                } else {
-                    benefactorFunds[benefactor] = availableToWithdraw;
-                }
+                benefactorFunds[benefactor] = availableToWithdraw;
+            }
+        } else {
+            if (safeSend(globalBenefactorDailyWithdrawalLimit, benefactor)) {
+                benefactorFunds[benefactor] = 0;
+            } else {
+                benefactorFunds[benefactor] = availableToWithdraw;
             }
         }
     }

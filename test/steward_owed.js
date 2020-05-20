@@ -26,14 +26,13 @@ contract("WildcardSteward owed", (accounts) => {
   let steward;
   let erc20;
   let mintManager;
-  let testTokenURI = "test token uri";
   const testTokenId = 1;
   const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
   // price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
   const artistAddress = accounts[9];
   const artistCommission = 0;
-  
+
   const tenMinPatronageAt1Eth = ether("1")
     .mul(new BN("600"))
     .mul(new BN("12"))
@@ -73,7 +72,7 @@ contract("WildcardSteward owed", (accounts) => {
       [tokenGenerationRate, tokenGenerationRate, tokenGenerationRate],
       [artistAddress, artistAddress, artistAddress],
       [artistCommission, artistCommission, artistCommission],
-      [0,0,0]
+      [0, 0, 0]
     );
     await steward.changeAuctionParameters(ether("0"), ether("0"), 86400, {
       from: accounts[0],
