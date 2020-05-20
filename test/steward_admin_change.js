@@ -56,7 +56,12 @@ contract("WildcardSteward admin change", (accounts) => {
     await erc721.addMinter(steward.address, { from: accounts[0] });
     await erc721.renounceMinter({ from: accounts[0] });
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(erc721.address, accounts[0], mintManager.address);
+    await steward.initialize(
+      erc721.address,
+      accounts[0],
+      mintManager.address,
+      0 /*Set to zero for testing purposes*/
+    );
     await steward.listNewTokens(
       [1],
       [accounts[9]],
