@@ -1,5 +1,7 @@
 const { BN } = require("@openzeppelin/test-helpers");
 
+const { promisify } = require("util");
+
 const NUM_SECONDS_IN_YEAR = "31536000";
 
 const STEWARD_CONTRACT_NAME = "./WildcardSteward_v2.sol";
@@ -16,6 +18,29 @@ const waitTillBeginningOfSecond = () =>
     setTimeout(resolve, timeTilNextSecond);
   });
 
+const setupTimeManager = async (web3) => {
+  const setNextTxTimestamp = async (timeIncrease) => {
+    if (timeIncrease.lt(new BN("1"))) {
+      throw "timeIncrease must be positive";
+    }
+    const timestamp = parseInt(
+      new BN(
+        (await web3.eth.getBlock(await web3.eth.getBlockNumber())).timestamp
+      )
+        .add(timeIncrease)
+        .toString()
+    );
+
+    await promisify(web3.currentProvider.send.bind(web3.currentProvider))({
+      jsonrpc: "2.0",
+      method: "evm_setNextBlockTimestamp",
+      params: [timestamp],
+    });
+  };
+
+  return { setNextTxTimestamp };
+};
+
 module.exports = {
   STEWARD_CONTRACT_NAME,
   ERC721_CONTRACT_NAME,
@@ -23,6 +48,7 @@ module.exports = {
   MINT_MANAGER_CONTRACT_NAME,
   SENT_ATTACKER_CONTRACT_NAME,
   waitTillBeginningOfSecond,
+  setupTimeManager,
 
   //patronage per token = price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
   multiPatronageCalculator: () => (timeInSeconds, tokenArray) => {
