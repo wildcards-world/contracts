@@ -159,12 +159,14 @@ contract WildcardSteward_v2 is Initializable {
         address _assetToken,
         address _admin,
         address _mintManager,
-        uint256 _benefactorWithdrawalThrottle
+        uint256 _benefactorWithdrawalThrottle,
+        uint256 _globalBenefactorDailyWithdrawalLimit
     ) public initializer {
         assetToken = ERC721Patronage_v1(_assetToken);
         admin = _admin;
         mintManager = MintManager_v2(_mintManager);
         benefactorWithdrawalThrottle = _benefactorWithdrawalThrottle;
+        globalBenefactorDailyWithdrawalLimit = _globalBenefactorDailyWithdrawalLimit;
     }
 
     function uintToStr(uint256 _i)
@@ -250,7 +252,8 @@ contract WildcardSteward_v2 is Initializable {
     function upgradeToV3(
         uint256[] memory tokens,
         address _withdrawCheckerAdmin,
-        uint256 _benefactorWithdrawalThrottle
+        uint256 _benefactorWithdrawalThrottle,
+        uint256 _globalBenefactorDailyWithdrawalLimit
     ) public onlyAdmin {
         require(withdrawCheckerAdmin == address(0));
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
@@ -303,6 +306,7 @@ contract WildcardSteward_v2 is Initializable {
         }
 
         benefactorWithdrawalThrottle = _benefactorWithdrawalThrottle;
+        globalBenefactorDailyWithdrawalLimit = _globalBenefactorDailyWithdrawalLimit;
     }
 
     function changeReceivingBenefactor(
@@ -389,7 +393,6 @@ contract WildcardSteward_v2 is Initializable {
             .mul(patronageNumerator[tokenId])
             .div(1000000000000)
             .div(365 days);
-        console.log(owed, "due - owed");
 
         return owed;
     }
@@ -427,6 +430,8 @@ contract WildcardSteward_v2 is Initializable {
         view
         returns (uint256 payoutDue)
     {
+        uint256 timePassed = now.sub(benefactorLastTimeCollected[benefactor]);
+
         return
             benefactorTotalTokenNumerator[benefactor]
                 .mul(now.sub(benefactorLastTimeCollected[benefactor]))
@@ -498,10 +503,8 @@ contract WildcardSteward_v2 is Initializable {
     }
 
     function _collectPatronage(uint256 tokenId) public {
-        // console.log("collect patronage");
         // TODO: lots of this code is duplicated in the `_collectPatronagePatron` function. Refactor accordingly.
         if (state[tokenId] == StewardState.Owned) {
-            // console.log(" token is owned!");
             address tokenPatron = currentPatron[tokenId];
 
             // _collectPatronagePatron(currentPatron[tokenId]);
@@ -571,15 +574,10 @@ contract WildcardSteward_v2 is Initializable {
                     // }
                 }
             } else {
-                // console.log(" token is still owned");
                 timeSinceLastMint = now.sub(
                     timeLastCollectedPatron[tokenPatron]
                 );
                 timeLastCollectedPatron[tokenPatron] = now;
-                console.log(
-                    "patronageOwedByTokenPatron",
-                    patronageOwedByTokenPatron
-                );
                 deposit[tokenPatron] = deposit[tokenPatron].sub(
                     patronageOwedByTokenPatron
                 );
@@ -590,7 +588,7 @@ contract WildcardSteward_v2 is Initializable {
         }
     }
 
-    function safeSend(uint256 _wei, address recipient)
+    function safeSend(uint256 _wei, address payable recipient)
         internal
         returns (bool transferSuccess)
     {
@@ -621,10 +619,6 @@ contract WildcardSteward_v2 is Initializable {
             }
         }
 
-        // console.log("UPDATE THE BENEFACTOR BALANCE");
-        // console.log("UPDATE THE BENEFACTOR BALANCE");
-        // console.log("UPDATE THE BENEFACTOR BALANCE");
-        // console.log(now, benefactor);
         benefactorLastTimeCollected[benefactor] = now;
     }
 
@@ -652,7 +646,7 @@ contract WildcardSteward_v2 is Initializable {
                 benefactorFunds[benefactor] = availableToWithdraw;
             }
         } else {
-            if (safeSend(globalBenefactorDailyWithdrawalLimit, benefactor)) {
+            if (safeSend(availableToWithdraw, benefactor)) {
                 benefactorFunds[benefactor] = 0;
             } else {
                 benefactorFunds[benefactor] = availableToWithdraw;
@@ -820,7 +814,6 @@ contract WildcardSteward_v2 is Initializable {
         priceGreaterThanZero(_newPrice)
         validWildcardsPercentage(wildcardsPercentage, tokenId)
     {
-        // console.log("new price", _newPrice, "of token", tokenId);
         require(
             state[tokenId] == StewardState.Foreclosed,
             "Can only buy foreclosed tokens useing this function"
@@ -1023,8 +1016,6 @@ contract WildcardSteward_v2 is Initializable {
         currentPatron[tokenId] = _newOwner;
 
         price[tokenId] = _newPrice;
-        // console.log("SET THE NEW PRICE for token:", tokenId);
-        // console.log(price[tokenId]);
         timeAcquired[tokenId] = now;
         patrons[tokenId][_newOwner] = true;
     }
