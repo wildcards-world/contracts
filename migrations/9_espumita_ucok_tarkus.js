@@ -10,6 +10,8 @@ const laSendaVerdeAddress = "0x6e2a8814bE551B263f9B95A721D32d33877Ee5Ec";
 const darwinAnimalDoctorsAddress = "0x233f9bcb02bfAD03aAcCb6cE40b6C4f83C867603";
 //                        6000000000000
 const harbergerTaxRate = "6000000000000"; // Harberger tax rate of 600% per year
+const tokenIdTarkus = "15";
+const harbergerTaxRateTarkus = "2400000000000"; // Harberger tax rate of 240% per year
 
 module.exports = function(deployer, networkName, accounts) {
   deployer.then(async () => {
@@ -51,6 +53,23 @@ module.exports = function(deployer, networkName, accounts) {
       [laSendaVerdeAddress, darwinAnimalDoctorsAddress],
       [harbergerTaxRate, harbergerTaxRate],
       [receiptGenerationRate, receiptGenerationRate],
+      { from: accounts[0], gas: 615225 }
+    );
+
+    let tx = await patronageToken.mintWithTokenURI(
+      steward.address,
+      tokenIdTarkus,
+      "https://wildcards.xyz/token/15",
+      { from: accounts[0], gas: 681877 }
+    );
+
+    console.log(tx);
+
+    await steward.listNewTokens(
+      [tokenIdTarkus],
+      [laSendaVerdeAddress],
+      [harbergerTaxRateTarkus],
+      [receiptGenerationRate],
       { from: accounts[0], gas: 615225 }
     );
   });
