@@ -151,4 +151,76 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
 
     assert.equal((await balTrack.delta()).toString(), due.toString());
   });
+
+  it("steward: benefactor withdrawal. A token is owned for 1 year.", async () => {
+    const { setNextTxTimestamp } = await setupTimeManager(web3);
+    const tokenPrice = ether("0.01");
+    const deposit = ether("0.5");
+    await steward.buyAuction(1, tokenPrice, 500, {
+      from: accounts[2],
+      value: deposit,
+    });
+
+    let timestampBefore = (
+      await web3.eth.getBlock(await web3.eth.getBlockNumber())
+    ).timestamp;
+
+    const balTrack = await balance.tracker(benefactor1);
+    await setNextTxTimestamp(time.duration.days(365));
+
+    await steward.withdrawBenefactorFunds({
+      from: benefactor1,
+      gasPrice: "0", // Set gas price to 0 for simplicity
+    });
+
+    let timestampAfter = (
+      await web3.eth.getBlock(await web3.eth.getBlockNumber())
+    ).timestamp;
+
+    // price * (now - timeLastCollected) * patronageNumerator/ patronageDenominator / 365 days;
+    const due = tokenPrice
+      .mul(time.duration.days(365))
+      .mul(new BN(patronageNumerator))
+      .div(new BN(patronageDenominator))
+      .div(time.duration.days(365));
+
+    assert.equal((await balTrack.delta()).toString(), due.toString());
+  });
+
+  describe("steward: benefactor withdrawal with token foreclosure", async () => {
+    it("steward: benefactor withdrawal. A token is owned for 2 days, but forecloses after 1 day. The organisation withdraws their after 2 days, token foreclosed after 2 days.", async () => {
+      const { setNextTxTimestamp } = await setupTimeManager(web3);
+      const tokenPrice = ether("0.01");
+      const deposit = ether("0.5");
+      await steward.buyAuction(1, tokenPrice, 500, {
+        from: accounts[2],
+        value: deposit,
+      });
+
+      let timestampBefore = (
+        await web3.eth.getBlock(await web3.eth.getBlockNumber())
+      ).timestamp;
+
+      const balTrack = await balance.tracker(benefactor1);
+      await setNextTxTimestamp(time.duration.days(365));
+
+      await steward.withdrawBenefactorFunds({
+        from: benefactor1,
+        gasPrice: "0", // Set gas price to 0 for simplicity
+      });
+
+      let timestampAfter = (
+        await web3.eth.getBlock(await web3.eth.getBlockNumber())
+      ).timestamp;
+
+      // price * (now - timeLastCollected) * patronageNumerator/ patronageDenominator / 365 days;
+      const due = tokenPrice
+        .mul(time.duration.days(365))
+        .mul(new BN(patronageNumerator))
+        .div(new BN(patronageDenominator))
+        .div(time.duration.days(365));
+
+      assert.equal((await balTrack.delta()).toString(), due.toString());
+    });
+  });
 });
