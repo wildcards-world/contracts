@@ -46,6 +46,17 @@ contract WildcardSteward_v2 is Initializable {
 
     address public admin;
 
+    /*
+
+t*rate*p
+
+rate = patronageNumerator/patronageDenominator
+
+t*(rate1*p1)+t*(rate2*p2)=(t*(rate1*p1+rate2*p2))
+
+d-new = d-old - (t*(rate1*p1+rate2*p2))
+
+*/
     //////////////// NEW variables in v2///////////////////
     mapping(uint256 => uint256) public tokenGenerationRate; // we can reuse the patronage denominator
 
