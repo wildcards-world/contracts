@@ -6,6 +6,13 @@ import "./MintManager_v2.sol";
 import "@nomiclabs/buidler/console.sol";
 
 
+/*
+31536000 seconds = 365 days
+
+divisor = 365 days * 1000000000000
+        = 31536000000000000000
+*/
+
 contract WildcardSteward_v2 is Initializable {
     /*
     This smart contract collects patronage from current owner through a Harberger tax model and 
@@ -445,7 +452,7 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
 
         return
             benefactorTotalTokenNumerator[benefactor]
-                .mul(now.sub(benefactorLastTimeCollected[benefactor]))
+                .mul(timePassed)
                 .div(1000000000000)
                 .div(365 days);
     }
@@ -557,33 +564,19 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
                     benefactorLastTimeCollected[benefactor] >
                     newTimeLastCollected
                 ) {
-                    benefactorCredit[benefactor] = price[tokenId].mul(
-                        benefactorLastTimeCollected[benefactor].sub(
-                            newTimeLastCollected
+                    benefactorCredit[benefactor] = benefactorCredit[benefactor]
+                        .add(
+                        price[tokenId]
+                            .mul(
+                            (
+                                benefactorLastTimeCollected[benefactor].sub(
+                                    newTimeLastCollected
+                                )
+                            )
                         )
+                            .mul(patronageNumerator[tokenId])
+                            .div(31536000000000000000) // 365 days * 1000000000000
                     );
-
-                    // // NOTE: the below code is slightly more involved, but effectively should do the same thing as the above line that updates the `benefactorCredit[benefactor]`
-                    // uint256 amountOverPaidToBenefactorOnToken = price[tokenId]
-                    //     .mul(
-                    //     benefactorLastTimeCollected[benefactor].sub(
-                    //         newTimeLastCollected
-                    //     )
-                    // )
-                    //     .mul(patronageNumerator[tokenId])
-                    //     .div(1000000000000)
-                    //     .div(365 days);
-
-                    // if (
-                    //     amountOverPaidToBenefactorOnToken >
-                    //     benefactorFunds[benefactor]
-                    // ) {
-                    //     benefactorCredit[benefactor] = amountOverPaidToBenefactorOnToken;
-                    // } else {
-                    //     benefactorFunds[benefactor] = benefactorFunds[benefactor]
-                    //         .sub(amountOverPaidToBenefactorOnToken);
-                    // }
-                }
             } else {
                 timeSinceLastMint = now.sub(
                     timeLastCollectedPatron[tokenPatron]
