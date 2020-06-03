@@ -3,7 +3,6 @@ const { BN } = require("@openzeppelin/test-helpers");
 const { promisify } = require("util");
 
 const NUM_SECONDS_IN_YEAR = "31536000";
-
 const STEWARD_CONTRACT_NAME = "./WildcardSteward_v2.sol";
 const ERC721_CONTRACT_NAME = "./ERC721Patronage_v1.sol";
 const ERC20_CONTRACT_NAME = "./ERC20PatronageReceipt_v2.sol";
@@ -24,10 +23,16 @@ const setupTimeManager = async (web3) => {
       (await web3.eth.getBlock(await web3.eth.getBlockNumber())).timestamp
     );
   };
-  const timeSinceTimestamp = async (timestampInThePast) => {
-    const timeSince = (await getCurrentTimestamp()).sub(timestampInThePast);
-
+  const txTimestamp = async (transaction) => {
+    const tx = await transaction;
+    return new BN((await web3.eth.getBlock(tx.receipt.blockNumber)).timestamp);
+  };
+  const timeSince = async (timestampInThePast, tillTimestamp) => {
+    const timeSince = tillTimestamp.sub(timestampInThePast);
     return timeSince;
+  };
+  const timeSinceTimestamp = async (timestampInThePast) => {
+    return await timeSince(timestampInThePast, await getCurrentTimestamp());
   };
   const setNextTxTimestamp = async (timeIncrease) => {
     if (timeIncrease.lt(new BN("1"))) {
@@ -46,7 +51,13 @@ const setupTimeManager = async (web3) => {
     return new BN(timestamp);
   };
 
-  return { setNextTxTimestamp, timeSinceTimestamp, getCurrentTimestamp };
+  return {
+    setNextTxTimestamp,
+    timeSinceTimestamp,
+    timeSince,
+    getCurrentTimestamp,
+    txTimestamp,
+  };
 };
 
 module.exports = {
@@ -74,7 +85,7 @@ module.exports = {
     return totalPatronage;
   },
 
-  patronageDue: () => (tokenArray) => {
+  patronageDue: (tokenArray) => {
     const totalPatronage = tokenArray.reduce(
       (totalPatronage, token) =>
         totalPatronage.add(
