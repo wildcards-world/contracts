@@ -9,6 +9,7 @@ const {
 const {
   waitTillBeginningOfSecond,
   setupTimeManager,
+  patronageDue,
   STEWARD_CONTRACT_NAME,
   ERC20_CONTRACT_NAME,
   ERC721_CONTRACT_NAME,
@@ -46,10 +47,13 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
   const benefactor2 = accounts[2];
   const patron1 = accounts[3];
   const patron2 = accounts[4];
-  let setNextTimestamp;
+  let setNextTimestamp, timeSinceTimestamp, getCurrentTimestamp;
 
   before(async () => {
-    setNextTxTimestamp = (await setupTimeManager(web3)).setNextTxTimestamp;
+    const timeManager = await setupTimeManager(web3);
+    setNextTxTimestamp = timeManager.setNextTxTimestamp; // takes in duration
+    timeSinceTimestamp = timeManager.timeSinceTimestamp; // takes in old timestamp, returns current time
+    getCurrentTimestamp = timeManager.getCurrentTimestamp; // returns current time
   });
 
   beforeEach(async () => {
@@ -185,23 +189,21 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
     it("steward: benefactor withdrawal. A token is owned for 20 minutes, but forecloses after 10 minutes. The organisation withdraws their after 20 minutes.", async () => {
       const tokenPrice = ether("1");
       const deposit = tenMinPatronageAt1Eth;
-      await steward.buyAuction(1, tokenPrice, 500, {
+      const result = await steward.buyAuction(1, tokenPrice, 500, {
         from: patron2,
         value: deposit.mul(new BN(10)),
       });
+      console.log("RESULT", result);
 
       await steward.buyAuction(0, tokenPrice, 500, {
         from: patron1,
         value: deposit,
       });
 
-      let timestampBefore = (
-        await web3.eth.getBlock(await web3.eth.getBlockNumber())
-      ).timestamp;
-
       const balTrack = await balance.tracker(benefactor1);
-      await setNextTxTimestamp(time.duration.minutes(20));
-
+      const withdrawBenefactorFundstimestamp = await setNextTxTimestamp(
+        time.duration.minutes(20)
+      );
       await steward.withdrawBenefactorFunds({
         from: benefactor1,
         gasPrice: "0", // Set gas price to 0 for simplicity
@@ -220,6 +222,13 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
         .mul(new BN(patronageNumerator))
         .div(new BN(patronageDenominator))
         .div(time.duration.days(365));
+
+      // const totalDue = patronageDue([
+
+      //   {price: tokenPrice,
+      //     timeHeld: timeSinceTimestamp(),
+      //     patronageNumerator}
+      //   ])
 
       console.log("");
       assert.equal(

@@ -577,6 +577,7 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
                             .mul(patronageNumerator[tokenId])
                             .div(31536000000000000000) // 365 days * 1000000000000
                     );
+                }
             } else {
                 timeSinceLastMint = now.sub(
                     timeLastCollectedPatron[tokenPatron]
