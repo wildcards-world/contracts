@@ -19,16 +19,22 @@ const waitTillBeginningOfSecond = () =>
   });
 
 const setupTimeManager = async (web3) => {
+  const getCurrentTimestamp = async () => {
+    return new BN(
+      (await web3.eth.getBlock(await web3.eth.getBlockNumber())).timestamp
+    );
+  };
+  const timeSinceTimestamp = async (timestampInThePast) => {
+    const timeSince = (await getCurrentTimestamp()).sub(timestampInThePast);
+
+    return timeSince;
+  };
   const setNextTxTimestamp = async (timeIncrease) => {
     if (timeIncrease.lt(new BN("1"))) {
       throw "timeIncrease must be positive";
     }
     const timestamp = parseInt(
-      new BN(
-        (await web3.eth.getBlock(await web3.eth.getBlockNumber())).timestamp
-      )
-        .add(timeIncrease)
-        .toString()
+      (await getCurrentTimestamp()).add(timeIncrease).toString()
     );
 
     await promisify(web3.currentProvider.send.bind(web3.currentProvider))({
@@ -36,9 +42,11 @@ const setupTimeManager = async (web3) => {
       method: "evm_setNextBlockTimestamp",
       params: [timestamp],
     });
+
+    return new BN(timestamp);
   };
 
-  return { setNextTxTimestamp };
+  return { setNextTxTimestamp, timeSinceTimestamp, getCurrentTimestamp };
 };
 
 module.exports = {
@@ -60,6 +68,20 @@ module.exports = {
             .mul(new BN(token.patronageNumerator))
             .div(new BN("1000000000000"))
             .div(new BN(NUM_SECONDS_IN_YEAR))
+        ),
+      new BN("0")
+    );
+    return totalPatronage;
+  },
+
+  patronageDue: () => (tokenArray) => {
+    const totalPatronage = tokenArray.reduce(
+      (totalPatronage, token) =>
+        totalPatronage.add(
+          new BN(token.price)
+            .mul(new BN(token.timeHeld))
+            .mul(new BN(token.patronageNumerator))
+            .div(new BN("31536000000000000000")) // = 1 year * patronageDenominator = 365 days * 1000000000000
         ),
       new BN("0")
     );
