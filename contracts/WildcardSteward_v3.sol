@@ -13,7 +13,7 @@ divisor = 365 days * 1000000000000
         = 31536000000000000000
 */
 
-contract WildcardSteward_v2 is Initializable {
+contract WildcardSteward_v3 is Initializable {
     /*
     This smart contract collects patronage from current owner through a Harberger tax model and 
     takes stewardship of the asset token if the patron can't pay anymore.
@@ -276,7 +276,7 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
     ) public onlyAdmin {
         require(withdrawCheckerAdmin == address(0));
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
-
+        // For each token
         for (uint8 i = 0; i < tokens.length; ++i) {
             uint256 tokenId = tokens[i];
             address currentOwner = currentPatron[tokenId];
@@ -289,16 +289,22 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
                 .div(1000000000000)
                 .div(365 days);
 
+            // set the timeLastCollectedPatron for that tokens owner to 'now'.
             // timeLastCollected[tokenId] = now; // This variable is depricated, no need to update it.
-            timeLastCollectedPatron[currentOwner] = now;
+            if (timeLastCollectedPatron[currentOwner] < now) {
+                timeLastCollectedPatron[currentOwner] = now;
+            }
 
+            // set subtract patronage owed for the Patron from their deposit.
             deposit[currentOwner] = deposit[currentOwner].sub(
                 patronageOwedPatron(currentOwner)
             );
 
+            // Add the amount collected for current token to the benefactorFunds.
             benefactorFunds[benefactors[tokenId]] = benefactorFunds[benefactors[tokenId]]
                 .add(collection);
 
+            // Emit an event for the graph to pickup this action (the last time this event will ever be emited)
             emit CollectPatronage(
                 tokenId,
                 currentOwner,
@@ -306,19 +312,22 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
                 collection
             );
 
+            // Collect the due loyalty tokens for the user
             _collectLoyaltyPatron(
                 currentOwner,
                 now.sub(timeLastCollected[tokenId])
             );
 
+            // Add the tokens generation rate to the totalPatronTokenGenerationRate of the current owner
             totalPatronTokenGenerationRate[currentOwner] = totalPatronTokenGenerationRate[currentOwner]
                 .add(11574074074074);
 
             address tokenBenefactor = benefactors[tokenId];
-
+            // add the scaled tokens price to the `benefactorTotalTokenNumerator`
             benefactorTotalTokenNumerator[tokenBenefactor] = benefactorTotalTokenNumerator[tokenBenefactor]
                 .add(price[tokenId].mul(patronageNumerator[tokenId]));
 
+            // add the scaled tokens price to the `benefactorTotalTokenNumerator`
             if (benefactorLastTimeCollected[tokenBenefactor] == 0) {
                 benefactorLastTimeCollected[tokenBenefactor] = now;
             }

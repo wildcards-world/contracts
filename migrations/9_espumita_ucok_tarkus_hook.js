@@ -15,6 +15,7 @@ const tempWhaleConservancyAccount =
 //                        6000000000000
 const harbergerTaxRate = "6000000000000"; // Harberger tax rate of 600% per year
 const harbergerTaxRateTarkus = "2400000000000"; // Harberger tax rate of 240% per year
+const harbergerTaxRateHook = "2400000000000";
 
 module.exports = function(deployer, networkName, accounts) {
   deployer.then(async () => {
@@ -80,8 +81,6 @@ module.exports = function(deployer, networkName, accounts) {
       "https://wildcards.xyz/token/16",
       { from: accounts[0], gas: 681877 }
     );
-
-    console.log(tx);
 
     /*
       uint256[] memory tokens,
