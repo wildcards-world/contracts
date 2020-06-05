@@ -8,6 +8,7 @@ const tokenIdEspumita = "8";
 const tokenIdUcok = "14";
 const tokenIdTarkus = "15";
 const tokenIdHook = "16";
+const tokenIdMijungla = "17";
 const laSendaVerdeAddress = "0x6e2a8814bE551B263f9B95A721D32d33877Ee5Ec";
 const darwinAnimalDoctorsAddress = "0x233f9bcb02bfAD03aAcCb6cE40b6C4f83C867603";
 const tempWhaleConservancyAccount =
@@ -16,6 +17,7 @@ const tempWhaleConservancyAccount =
 const harbergerTaxRate = "6000000000000"; // Harberger tax rate of 600% per year
 const harbergerTaxRateTarkus = "2400000000000"; // Harberger tax rate of 240% per year
 const harbergerTaxRateHook = "2400000000000";
+const harbergerTaxRateMijungla = "6000000000000";
 
 module.exports = function(deployer, networkName, accounts) {
   deployer.then(async () => {
@@ -88,6 +90,21 @@ module.exports = function(deployer, networkName, accounts) {
       uint256[] memory _patronageNumerator,
       uint256[] memory _tokenGenerationRate
     */
+
+    await steward.listNewTokens(
+      [tokenIdMijungla],
+      [laSendaVerdeAddress],
+      [harbergerTaxRateMijungla],
+      [receiptGenerationRate],
+      { from: accounts[0], gas: 615225 }
+    );
+
+    await patronageToken.mintWithTokenURI(
+      steward.address,
+      tokenIdMijungla,
+      "https://wildcards.xyz/token/17",
+      { from: accounts[0], gas: 681877 }
+    );
 
     await steward.listNewTokens(
       [tokenIdHook],
