@@ -16,22 +16,39 @@ contract MintManager_v2 is Initializable {
         _;
     }
 
-    function initialize(address _admin, address _steward, address _token)
-        public
-        initializer
-    {
+    function initialize(
+        address _admin,
+        address _steward,
+        address _token
+    ) public initializer {
         admin = _admin;
         steward = _steward;
         token = IERC20Mintable(_token);
     }
 
-    function tokenMint(address receiverOfTokens, uint256 time, uint256 mintRate)
-        external
-        onlySteward
-    {
+    function tokenMint(
+        address receiverOfTokens,
+        uint256 time,
+        uint256 mintRate
+    ) external onlySteward {
         uint256 amountToMintForUser = time.mul(mintRate);
         uint256 amountToMintForTreasury = amountToMintForUser.mul(20).div(100);
         token.mint(receiverOfTokens, amountToMintForUser);
         token.mint(admin, amountToMintForTreasury);
     }
+    /*
+
+        function mint(address account, uint256 amount) public onlyMinter returns (bool) {
+        _mint(account, amount);
+        return true;
+    }
+
+        function _mint(address account, uint256 amount) internal {
+        require(account != address(0), "ERC20: mint to the zero address");
+
+        _totalSupply = _totalSupply.add(amount);
+        _balances[account] = _balances[account].add(amount);
+        emit Transfer(address(0), account, amount);
+    }
+    */
 }
