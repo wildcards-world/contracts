@@ -53,17 +53,6 @@ contract WildcardSteward_v3 is Initializable {
 
     address public admin;
 
-    /*
-
-t*rate*p
-
-rate = patronageNumerator/patronageDenominator
-
-t*(rate1*p1)+t*(rate2*p2)=(t*(rate1*p1+rate2*p2))
-
-d-new = d-old - (t*(rate1*p1+rate2*p2))
-
-*/
     //////////////// NEW variables in v2///////////////////
     mapping(uint256 => uint256) public tokenGenerationRate; // we can reuse the patronage denominator
 
@@ -273,16 +262,16 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
         address _withdrawCheckerAdmin,
         uint256 _benefactorWithdrawalThrottle,
         uint256 _globalBenefactorPeriodicWithdrawalLimit
-    ) public onlyAdmin {
+    ) public {
+        // This function effectively needs to call both _collectPatronage and _collectPatronagePatron from the v2 contract.
         require(withdrawCheckerAdmin == address(0));
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
         // For each token
         for (uint8 i = 0; i < tokens.length; ++i) {
             uint256 tokenId = tokens[i];
-            address currentOwner = currentPatron[tokenId];
+            address currentOwner = currentPatron[tokenId]; // One of these is probably zero and doesn't exist
 
             // NOTE: for this upgrade we make sure no tokens are foreclosed, or close to foreclosing
-
             uint256 collection = price[tokenId]
                 .mul(now.sub(timeLastCollected[tokenId]))
                 .mul(patronageNumerator[tokenId])
@@ -313,10 +302,12 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
             );
 
             // Collect the due loyalty tokens for the user
-            _collectLoyaltyPatron(
-                currentOwner,
-                now.sub(timeLastCollected[tokenId])
-            );
+            if (currentOwner != address(0)) {
+                _collectLoyaltyPatron(
+                    currentOwner,
+                    now.sub(timeLastCollected[tokenId])
+                );
+            }
 
             // Add the tokens generation rate to the totalPatronTokenGenerationRate of the current owner
             totalPatronTokenGenerationRate[currentOwner] = totalPatronTokenGenerationRate[currentOwner]
