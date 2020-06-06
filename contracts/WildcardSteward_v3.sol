@@ -112,6 +112,10 @@ contract WildcardSteward_v3 is Initializable {
         address artist,
         uint256 artistCommission
     );
+    event WithdrawBenefactorFunds();(
+        address indexed benefactor,
+        uint256 withdrawAmount
+    );
 
     modifier onlyPatron(uint256 tokenId) {
         require(msg.sender == currentPatron[tokenId], "Not patron");
@@ -648,6 +652,7 @@ contract WildcardSteward_v3 is Initializable {
                     globalBenefactorPeriodicWithdrawalLimit
                 );
                 benefactorLastTimeWithdrawal[benefactor] = now;
+                WithdrawBenefactorFunds(benefactor, globalBenefactorPeriodicWithdrawalLimit);
             } else {
                 benefactorFunds[benefactor] = availableToWithdraw;
             }
@@ -655,6 +660,7 @@ contract WildcardSteward_v3 is Initializable {
             if (safeSend(availableToWithdraw, benefactor)) {
                 benefactorFunds[benefactor] = 0;
                 benefactorLastTimeWithdrawal[benefactor] = now;
+                WithdrawBenefactorFunds(benefactor, availableToWithdraw);
             } else {
                 benefactorFunds[benefactor] = availableToWithdraw;
             }
