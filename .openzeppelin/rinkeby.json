@@ -50,34 +50,6 @@
     ],
     "wildcards-contracts/MintManager": [
       {
-        "address": "0xD1c8FC18cdE1Cc82807bdBBdF46b3Ef7abC593Ac",
-        "version": "0.1.0",
-        "implementation": "0x7128141ac96cbF70dF5f6D1dbB146193f7d33d60",
-        "admin": "0x61bdCDA3c30c65F68118Da02891f2337CA427ec8",
-        "kind": "Upgradeable"
-      },
-      {
-        "address": "0xB1fC2bc2dD2150445A3dcaB630497DaFF35eC7E5",
-        "version": "0.1.0",
-        "implementation": "0x7128141ac96cbF70dF5f6D1dbB146193f7d33d60",
-        "admin": "0x61bdCDA3c30c65F68118Da02891f2337CA427ec8",
-        "kind": "Upgradeable"
-      },
-      {
-        "address": "0x0f5ce3476A0E67E10Bdf2D8183E65616D408a34d",
-        "version": "0.1.0",
-        "implementation": "0x7128141ac96cbF70dF5f6D1dbB146193f7d33d60",
-        "admin": "0x61bdCDA3c30c65F68118Da02891f2337CA427ec8",
-        "kind": "Upgradeable"
-      },
-      {
-        "address": "0x398352Bc149F0D127743fCe3a6AdABd14D1A923A",
-        "version": "0.1.0",
-        "implementation": "0x7128141ac96cbF70dF5f6D1dbB146193f7d33d60",
-        "admin": "0x61bdCDA3c30c65F68118Da02891f2337CA427ec8",
-        "kind": "Upgradeable"
-      },
-      {
         "address": "0x8490710B09Af9d5B8560eE2E151BbaeAF83c0f83",
         "version": "0.1.0",
         "implementation": "0x7128141ac96cbF70dF5f6D1dbB146193f7d33d60",
