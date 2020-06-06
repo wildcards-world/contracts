@@ -70,7 +70,6 @@ contract WildcardSteward_v3 is Initializable {
     mapping(address => uint256) public totalPatronTokenGenerationRate; // The total token generation rate for all the tokens of the given address.
     mapping(address => uint256) public benefactorTotalTokenNumerator;
     mapping(address => uint256) public benefactorLastTimeCollected;
-    mapping(address => uint256) public benefactorLastTimeWithdrawal;
     mapping(address => uint256) public benefactorCredit;
     uint256 public globalBenefactorPeriodicWithdrawalLimit;
     address public withdrawCheckerAdmin;
@@ -112,7 +111,11 @@ contract WildcardSteward_v3 is Initializable {
         address artist,
         uint256 artistCommission
     );
-    event WithdrawBenefactorFunds();(
+    event WithdrawBenefactorFundsWithSafetyDelay(
+        address indexed benefactor,
+        uint256 withdrawAmount
+    );
+    event WithdrawBenefactorFunds(
         address indexed benefactor,
         uint256 withdrawAmount
     );
@@ -405,13 +408,13 @@ contract WildcardSteward_v3 is Initializable {
         returns (uint256 patronageDue)
     {
 
-            uint256 timeLastCollected
+            uint256 tokenTimeLastCollectedPatron
          = timeLastCollectedPatron[currentPatron[tokenId]];
 
-        if (timeLastCollected == 0) return 0;
+        if (tokenTimeLastCollectedPatron == 0) return 0;
 
         uint256 owed = price[tokenId]
-            .mul(now.sub(timeLastCollected))
+            .mul(now.sub(tokenTimeLastCollectedPatron))
             .mul(patronageNumerator[tokenId])
             .div(1000000000000)
             .div(365 days);
@@ -631,51 +634,75 @@ contract WildcardSteward_v3 is Initializable {
         benefactorLastTimeCollected[benefactor] = now;
     }
 
-    function withdrawBenefactorFundsTo(address payable benefactor) public {
-        require(
-            // QUESTION? Should this 1 day throttle limit be configurable?
-            benefactorLastTimeWithdrawal[benefactor].add(
-                benefactorWithdrawalThrottle
-            ) <= now,
-            "Cannot call this function more than once a day"
-        );
+    function fundsDueForActionPeriodAtCurrentRate(address benefactor)
+        internal
+        view
+        returns (uint256)
+    {
+        return
+            benefactorTotalTokenNumerator[benefactor].mul(auctionLength).div(
+                31536000000000000000
+            ); // 365 days * 1000000000000
+    }
 
+    function withdrawBenefactorFundsTo(address payable benefactor) public {
         _updateBenefactorBalance(benefactor);
 
         uint256 availableToWithdraw = benefactorFunds[benefactor];
 
-        require(availableToWithdraw > 0, "No funds available");
 
-        if (availableToWithdraw > globalBenefactorPeriodicWithdrawalLimit) {
-            if (safeSend(globalBenefactorPeriodicWithdrawalLimit, benefactor)) {
-                benefactorFunds[benefactor] = availableToWithdraw.sub(
-                    globalBenefactorPeriodicWithdrawalLimit
-                );
-                benefactorLastTimeWithdrawal[benefactor] = now;
-                WithdrawBenefactorFunds(benefactor, globalBenefactorPeriodicWithdrawalLimit);
-            } else {
-                benefactorFunds[benefactor] = availableToWithdraw;
-            }
-        } else {
-            if (safeSend(availableToWithdraw, benefactor)) {
-                benefactorFunds[benefactor] = 0;
-                benefactorLastTimeWithdrawal[benefactor] = now;
-                WithdrawBenefactorFunds(benefactor, availableToWithdraw);
-            } else {
-                benefactorFunds[benefactor] = availableToWithdraw;
-            }
+            uint256 benefactorWithdrawalSafetyDiscount
+         = fundsDueForActionPeriodAtCurrentRate(benefactor);
+        require(
+            availableToWithdraw > benefactorWithdrawalSafetyDiscount,
+            "No funds available"
+        );
+
+        // NOTE: no need for safe-maths, above require prevents issues.
+        uint256 amountToWithdraw = availableToWithdraw -
+            benefactorWithdrawalSafetyDiscount;
+
+        if (safeSend(amountToWithdraw, benefactor)) {
+            benefactorFunds[benefactor] = benefactorWithdrawalSafetyDiscount;
+            emit WithdrawBenefactorFundsWithSafetyDelay(
+                benefactor,
+                amountToWithdraw
+            );
         }
+    }
+
+    function hasher(
+        address benefactor,
+        uint256 maxAmount,
+        uint256 expiry
+    ) public view returns (bytes32) {
+        // In ethereum you have to prepend all signature hashes with this message (supposedly to prevent people from)
+        return
+            keccak256(
+                abi.encodePacked(
+                    "\x19Ethereum Signed Message:\n32",
+                    keccak256(abi.encodePacked(benefactor, maxAmount, expiry))
+                )
+            );
     }
 
     function withdrawBenefactorFundsToValidated(
         address payable benefactor,
         uint256 maxAmount,
         uint256 expiry,
+        bytes32 hash,
         uint8 v,
         bytes32 r,
         bytes32 s
     ) public {
-        // require(ecrecover(/* TODO */, v, r, s) == withdrawCheckerAdmin, "No permission to withdraw");
+        require(
+            ecrecover(hash, v, r, s) == withdrawCheckerAdmin,
+            "No permission to withdraw"
+        );
+        require(
+            hash == hasher(benefactor, maxAmount, expiry),
+            "Incorrect parameters"
+        );
 
         _updateBenefactorBalance(benefactor);
 
@@ -692,6 +719,10 @@ contract WildcardSteward_v3 is Initializable {
                     benefactorFunds[benefactor] = availableToWithdraw.sub(
                         globalBenefactorPeriodicWithdrawalLimit
                     );
+                    emit WithdrawBenefactorFunds(
+                        benefactor,
+                        availableToWithdraw
+                    );
                 } else {
                     benefactorFunds[benefactor] = availableToWithdraw;
                 }
@@ -703,6 +734,10 @@ contract WildcardSteward_v3 is Initializable {
                     )
                 ) {
                     benefactorFunds[benefactor] = 0;
+                    emit WithdrawBenefactorFunds(
+                        benefactor,
+                        availableToWithdraw
+                    );
                 } else {
                     benefactorFunds[benefactor] = availableToWithdraw;
                 }
