@@ -60,7 +60,12 @@ contract("WildcardSteward owed", (accounts) => {
     await erc20.renounceMinter({ from: accounts[0] });
 
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(erc721.address, accounts[0], mintManager.address);
+    await steward.initialize(
+      erc721.address,
+      accounts[0],
+      mintManager.address,
+      0 /*Set to zero for testing purposes*/
+    );
     await steward.listNewTokens(
       [0, testTokenId1, testTokenId2],
       [accounts[0], accounts[0], accounts[0]],
@@ -72,7 +77,7 @@ contract("WildcardSteward owed", (accounts) => {
       [tokenGenerationRate, tokenGenerationRate, tokenGenerationRate],
       [artistAddress, artistAddress, artistAddress],
       [artistCommission, artistCommission, artistCommission],
-      [0,0,0]
+      [0, 0, 0]
     );
     await steward.changeAuctionParameters(ether("0"), ether("0"), 86400, {
       from: accounts[0],
@@ -256,6 +261,10 @@ contract("WildcardSteward owed", (accounts) => {
     assert.equal(
       owed2Second.patronageDue.toString(),
       expectedPatronageAfter20minToken2.toString()
+    );
+    console.log(
+      owed1Second.patronageDue.toString(),
+      expectedPatronageAfter20minToken1.toString()
     );
     assert.equal(
       owed1Second.patronageDue.toString(),
