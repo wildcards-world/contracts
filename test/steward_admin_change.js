@@ -22,14 +22,13 @@ const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
 
 const patronageCalculator = multiPatronageCalculator();
 
-contract("WildcardSteward owed", (accounts) => {
+contract("WildcardSteward admin change", (accounts) => {
   let erc721;
   let steward;
   let erc20;
   const testTokenId1 = 1;
   const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
-  let testTokenURI = "test token uri";
   const artistAddress = accounts[9];
   const artistCommission = 0;
 
@@ -43,6 +42,10 @@ contract("WildcardSteward owed", (accounts) => {
     await mintManager.initialize(accounts[0], steward.address, erc20.address, {
       from: accounts[0],
     });
+    await erc20.addMinter(mintManager.address, {
+      from: accounts[0],
+    });
+    await erc20.renounceMinter({ from: accounts[0] });
     await erc721.setup(
       steward.address,
       "ALWAYSFORSALETestToken",
@@ -53,8 +56,12 @@ contract("WildcardSteward owed", (accounts) => {
     await erc721.addMinter(steward.address, { from: accounts[0] });
     await erc721.renounceMinter({ from: accounts[0] });
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(erc721.address, accounts[0]);
-    await steward.updateToV2(mintManager.address, [], []);
+    await steward.initialize(
+      erc721.address,
+      accounts[0],
+      mintManager.address,
+      0 /*Set to zero for testing purposes*/
+    );
     await steward.listNewTokens(
       [1],
       [accounts[9]],

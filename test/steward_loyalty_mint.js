@@ -29,12 +29,13 @@ const tenMinPatronageAt1Eth = ether("1")
   .div(new BN("1"))
   .div(new BN("31536000"));
 
-contract("WildcardSteward owed", (accounts) => {
+contract("WildcardSteward loyalty token", (accounts) => {
   let erc721;
   let steward;
   let erc20;
   const testToken1 = { id: 1, tokenGenerationRate: 1 };
   const testToken2 = { id: 2, tokenGenerationRate: 2 };
+  const testToken3 = { id: 3, tokenGenerationRate: 3 };
   const patronageNumerator = "12000000000000";
   const testTokenURI = "test token uri";
   const artistAddress = accounts[9];
@@ -65,16 +66,21 @@ contract("WildcardSteward owed", (accounts) => {
     await erc20.renounceMinter({ from: accounts[0] });
 
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(erc721.address, accounts[0]);
-    await steward.updateToV2(mintManager.address, [], []);
+    await steward.initialize(erc721.address, accounts[0], mintManager.address, {
+      from: accounts[0],
+    });
     await steward.listNewTokens(
-      [testToken1.id, testToken2.id],
-      [accounts[0], accounts[0]],
-      [patronageNumerator, patronageNumerator],
-      [testToken1.tokenGenerationRate, testToken2.tokenGenerationRate],
-      [artistAddress, artistAddress],
-      [artistCommission, artistCommission],
-      [0,0]
+      [testToken1.id, testToken2.id, testToken3.id],
+      [accounts[0], accounts[0], accounts[0]],
+      [patronageNumerator, patronageNumerator, patronageNumerator],
+      [
+        testToken1.tokenGenerationRate,
+        testToken2.tokenGenerationRate,
+        testToken3.tokenGenerationRate,
+      ],
+      [artistAddress, artistAddress, artistAddress],
+      [artistCommission, artistCommission, artistCommission],
+      [0, 0, 0]
     );
     await steward.changeAuctionParameters(ether("1"), ether("0.05"), 86400, {
       from: accounts[0],
@@ -83,6 +89,7 @@ contract("WildcardSteward owed", (accounts) => {
 
   it("steward: loyalty-mint. Checking correct number of tokens are received after holding a token for  100min", async () => {
     await waitTillBeginningOfSecond();
+
     testTokenId1 = testToken1.id;
     const timeHeld = 100; // In minutes
     // Person buys a token
@@ -174,7 +181,7 @@ contract("WildcardSteward owed", (accounts) => {
     );
   });
 
-  it("steward: loyalty-mint. Checking correct number of tokens are recieved/minted after foreclosure.", async () => {
+  it("steward: loyalty-mint. Checking correct number of tokens are received/minted after foreclosure.", async () => {
     await waitTillBeginningOfSecond();
     testTokenId1 = testToken1.id;
     const timeHeld = 10; // In minutes
@@ -209,19 +216,73 @@ contract("WildcardSteward owed", (accounts) => {
       .mul(new BN(TREASURY_NUMERATOR))
       .div(new BN(TREASURY_DENOMINATOR));
 
+    assert.equal(
+      amountOfToken.toString(),
+      expectedTokens.toString(),
+      "the correct amount of tokens should be minted for the patron"
+    );
+    assert.equal(
+      amountOfTreasuryToken.toString(),
+      expectedTreasuryToken.toString(),
+      "the correct amount of tokens should be minted for wildcards"
+    );
+  });
+
+  it("steward: loyalty-mint. Checking that loyalty tokens are minted for all tokens owned by the current owner.", async () => {
+    await waitTillBeginningOfSecond();
+    testTokenId1 = testToken1.id;
+    testTokenId2 = testToken2.id;
+    testTokenId3 = testToken3.id;
+    const timeHeld = 10; // In minutes
+    const totalToBuy = new BN(tenMinPatronageAt1Eth);
+
+    await steward.changeAuctionParameters(ether("0"), ether("0"), 86400, {
+      from: accounts[0],
+    });
+
+    await steward.buyAuction(testTokenId1, ether("1"), 500, {
+      from: accounts[2],
+      value: totalToBuy,
+    });
+    await steward.buyAuction(testTokenId2, ether("1"), 500, {
+      from: accounts[2],
+      value: totalToBuy,
+    });
+    await steward.buyAuction(testTokenId3, ether("1"), 500, {
+      from: accounts[2],
+      value: totalToBuy,
+    });
+
+    await time.increase(time.duration.minutes(15));
+    // foreclosure should happen here (since patraonge was only for 10min)
+    await steward._collectPatronage(testTokenId1, { from: accounts[2] });
+
+    // should only receive 10min of tokens
+    const expectedTokens = multiTokenCalculator(
+      new BN(timeHeld).mul(new BN(SECONDS_IN_A_MINUTE)).toString(),
+      [
+        {
+          tokenGenerationRate: testToken1.tokenGenerationRate.toString(),
+        },
+        {
+          tokenGenerationRate: testToken2.tokenGenerationRate.toString(),
+        },
+        {
+          tokenGenerationRate: testToken3.tokenGenerationRate.toString(),
+        },
+      ]
+    );
+    const amountOfToken = await erc20.balanceOf(accounts[2]);
+
+    const amountOfTreasuryToken = await erc20.balanceOf(accounts[0]); // stewards account
+    const expectedTreasuryToken = new BN(expectedTokens)
+      .mul(new BN(TREASURY_NUMERATOR))
+      .div(new BN(TREASURY_DENOMINATOR));
+
     assert.equal(amountOfToken.toString(), expectedTokens.toString());
     assert.equal(
       amountOfTreasuryToken.toString(),
       expectedTreasuryToken.toString()
-    );
-  });
-
-  it("steward: loyalty-mint. Checking MintManager cannot be altered after intial set up.", async () => {
-    await waitTillBeginningOfSecond();
-
-    await expectRevert(
-      steward.setMintManager(accounts[5], { from: accounts[5] }),
-      "Only set on initialisation"
     );
   });
 

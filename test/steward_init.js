@@ -53,8 +53,12 @@ contract("WildcardSteward", (accounts) => {
     await erc20.renounceMinter({ from: accounts[0] });
 
     // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(erc721.address, accounts[0]);
-    await steward.updateToV2(mintManager.address, [], []);
+    await steward.initialize(
+      erc721.address,
+      accounts[0],
+      mintManager.address,
+      0 /*Set to zero for testing purposes*/
+    );
     await steward.listNewTokens(
       [0],
       [accounts[0]],
@@ -97,7 +101,7 @@ contract("WildcardSteward", (accounts) => {
       Array(numberOfTokens).fill(tokenGenerationRate),
       Array(numberOfTokens).fill(artistAddress),
       Array(numberOfTokens).fill(artistCommission),
-      Array(numberOfTokens).fill(0),
+      Array(numberOfTokens).fill(0)
     );
     for (let i = 0; i < tokenIds.length; ++i) {
       const tokenId = tokenIds[i];

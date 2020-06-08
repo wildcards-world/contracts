@@ -9,4 +9,19 @@ task("accounts", "Prints the list of accounts", async () => {
   }
 });
 
-module.exports = {};
+module.exports = {
+  networks: {
+    buidlerevm: {
+      gas: 95000000,
+      blockGasLimit: 95000000,
+    },
+  },
+  solc: {
+    version: "0.5.17",
+    optimizer: {
+      enabled: true,
+      runs: 200,
+    },
+    evmVersion: "constantinople",
+  },
+};

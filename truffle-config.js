@@ -46,7 +46,7 @@ module.exports = {
       host: blockchainNodeHost, // Localhost (default: none)
       port: 8545, // Standard Ethereum port (default: none)
       network_id: "*", // Any network (default: none)
-      gasPrice: 1000000000, // 1 gwei
+      gasPrice: 100000000, // 1 gwei
     },
   },
   mocha: {
@@ -58,7 +58,7 @@ module.exports = {
   },
   compilers: {
     solc: {
-      version: "0.5.15",
+      version: "0.5.17",
       settings: {
         optimizer: {
           enabled: true,
