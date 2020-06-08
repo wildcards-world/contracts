@@ -356,7 +356,7 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
       assert.equal(
         patronScaledCostBefore.toString(),
         tokenPrice.mul(new BN(patronageNumerator)).toString(),
-        "benefactor funds should stay zero"
+        "The scaled token price is incorrect before the withdrawal"
       );
       assert.equal(
         benefactorFundsAfter.toString(),
