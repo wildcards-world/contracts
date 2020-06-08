@@ -3,7 +3,7 @@ const { BN } = require("@openzeppelin/test-helpers");
 const { promisify } = require("util");
 
 const NUM_SECONDS_IN_YEAR = "31536000";
-const STEWARD_CONTRACT_NAME = "./WildcardSteward_v2.sol";
+const STEWARD_CONTRACT_NAME = "./WildcardSteward_v3.sol";
 const ERC721_CONTRACT_NAME = "./ERC721Patronage_v1.sol";
 const ERC20_CONTRACT_NAME = "./ERC20PatronageReceipt_v2.sol";
 const MINT_MANAGER_CONTRACT_NAME = "./MintManager_v2.sol";

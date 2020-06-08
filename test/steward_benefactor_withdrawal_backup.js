@@ -18,7 +18,6 @@ const {
 } = require("./helpers");
 // TODO: switch to the ethersjs version, for future typescript support? https://www.npmjs.com/package/@ethersproject/abi
 const abi = require("ethereumjs-abi");
-const ethUtil = require("ethereumjs-util");
 
 const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
 const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
@@ -27,59 +26,69 @@ const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
 
 // todo: test over/underflows
 
-const withdrawBenefactorFundsAll = async (
-  steward,
-  web3,
-  withdrawCheckerAdmin,
-  benefactor,
-  maxAmount,
-  expiry
-) => {
-  const hash =
-    "0x" +
-    abi
-      .soliditySHA3(
-        ["address", "uint256", "uint256"],
-        [benefactor, maxAmount, expiry]
-      )
-      .toString("hex");
+// const withdrawBenefactorFundsAll = async (
+//   steward,
+//   web3,
+//   withdrawCheckerAdmin,
+//   benefactor,
+//   maxAmount,
+//   expiry
+// ) => {
+//   //   function withdrawBenefactorFundsToValidated(
+//   //     address payable benefactor,
+//   //     uint256 maxAmount,
+//   //     uint256 expiry,
+//   //     bytes32 hash,
+//   //     uint8 v,
+//   //     bytes32 r,
+//   //     bytes32 s
+//   // ) public {
 
-  const signature = await web3.eth.sign(hash, withdrawCheckerAdmin);
+//   // // returns the encoded binary (as a Buffer) data to be sent
+//   // var encoded = abi.rawEncode([ "address" ], [ "0x0000000000000000000000000000000000000000" ])
 
-  const { r, s, v } = ethUtil.fromRpcSig(signature);
-  // NOTE: The below 3 lines do the same thing as the above line, kept for reference.
-  // const r = signature.slice(0, 66);
-  // const s = "0x" + signature.slice(66, 130);
-  // const v = web3.utils.toDecimal("0x" + signature.slice(130, 132));
+//   // recipient is the address that should be paid.
+//   // amount, in wei, specifies how much ether should be sent.
+//   // nonce can be any unique number to prevent replay attacks
+//   // contractAddress is used to prevent cross-contract replay attacks
+//   const hash =
+//     "0x" +
+//     abi
+//       .soliditySHA3(
+//         ["address", "uint256", "uint256"],
+//         [benefactor, maxAmount, expiry]
+//       )
+//       .toString("hex");
 
-  // this prefix is required by the `ecrecover` builtin solidity function (other than that it is pretty arbitrary)
-  const prefix = "\x19Ethereum Signed Message:\n32";
-  const prefixedBytes = web3.utils.fromAscii(prefix) + hash.slice(2);
-  const prefixedHash = web3.utils.sha3(prefixedBytes, { encoding: "hex" });
+//   const signature = await promisify(
+//     web3.eth.personal.sign(hash, withdrawCheckerAdmin)
+//   );
 
-  // // For reforence, how to recover a signature with javascript.
-  // const recoveredPub = ethUtil.ecrecover(
-  //   ethUtil.toBuffer(prefixedHash),
-  //   sigDecoded.v,
-  //   sigDecoded.r,
-  //   sigDecoded.s
-  // );
-  // const recoveredAddress = ethUtil.pubToAddress(recoveredPub).toString("hex");
+//   console.log("signature", { signature });
 
-  await steward.withdrawBenefactorFundsToValidated(
-    benefactor,
-    maxAmount,
-    expiry,
-    prefixedHash,
-    v,
-    r,
-    s,
-    {
-      from: benefactor,
-      gasPrice: "0", // Set gas price to 0 for simplicity
-    }
-  );
-};
+//   const r = signature.slice(0, 66);
+//   const s = "0x" + signature.slice(66, 130);
+//   const v = web3.toDecimal("0x" + signature.slice(130, 132)) + 27;
+
+//   // this prefix is required by the `ecrecover` builtin solidity function (other than that it is pretty arbitrary)
+//   const prefix = "\x19Ethereum Signed Message:\n32";
+//   const prefixedBytes = web3.fromAscii(prefix) + hash.slice(2);
+//   const prefixedHash = web3.sha3(prefixedBytes, { encoding: "hex" });
+
+//   await steward.withdrawBenefactorFundsToValidated(
+//     benefactor,
+//     maxAmount,
+//     expiry,
+//     prefixedHash,
+//     v,
+//     r,
+//     s,
+//     {
+//       from: benefactor,
+//       gasPrice: "0", // Set gas price to 0 for simplicity
+//     }
+//   );
+// };
 
 contract("WildcardSteward Benefactor collection", (accounts) => {
   let erc721;
@@ -110,7 +119,6 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
     getCurrentTimestamp,
     timeSince,
     txTimestamp;
-  let withdrawMaxPermissioned;
 
   before(async () => {
     const timeManager = await setupTimeManager(web3);
@@ -119,15 +127,6 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
     getCurrentTimestamp = timeManager.getCurrentTimestamp; // returns current time
     timeSince = timeManager.timeSince; // returns interval between two timestamps
     txTimestamp = timeManager.txTimestamp; // returns current time
-    withdrawMaxPermissioned = async (benefactor) =>
-      withdrawBenefactorFundsAll(
-        steward,
-        web3,
-        withdrawCheckerAdmin,
-        benefactor,
-        ether("100").toString(),
-        new BN(await getCurrentTimestamp()).add(new BN(1000)).toString()
-      );
   });
 
   beforeEach(async () => {
@@ -159,7 +158,6 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
       erc721.address,
       admin,
       mintManager.address,
-      withdrawCheckerAdmin,
       0 /* auction start price: Set to zero for testing purposes*/,
       ether("0") /* auction end price: set this too high for the tests */,
       time.duration.days(
@@ -220,7 +218,22 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
     const balTrack = await balance.tracker(benefactor1);
     await setNextTxTimestamp(time.duration.days(365));
 
-    await withdrawMaxPermissioned(benefactor1);
+    // await steward.withdrawBenefactorFundsAll(
+    //   steward,
+    //   web3,
+    //   withdrawCheckerAdmin,
+    //   benefactor,
+    //   ether(100),
+    //   new BN(timestampBefore).add(new BN(1000)),
+    //   {
+    //     from: benefactor1,
+    //     gasPrice: "0", // Set gas price to 0 for simplicity
+    //   }
+    // );
+    await steward.withdrawBenefactorFunds({
+      from: benefactor1,
+      gasPrice: "0", // Set gas price to 0 for simplicity
+    });
     // price * (now - timeLastCollected) * patronageNumerator/ patronageDenominator / 365 days;
     const due = tokenPrice
       .mul(time.duration.days(365))
@@ -290,7 +303,10 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
       const withdrawBenefactorFundstimestamp = await setNextTxTimestamp(
         time.duration.minutes(20)
       );
-      await withdrawMaxPermissioned(benefactor1);
+      await steward.withdrawBenefactorFunds({
+        from: benefactor1,
+        gasPrice: "0", // Set gas price to 0 for simplicity
+      });
 
       // price * (now - timeLastCollected) * patronageNumerator/ patronageDenominator / 365 days;
       // TODO: create a function
@@ -387,7 +403,10 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
 
       // the error is the available to withdraw is at 1826484018264840 (8 * tenMinPatronageAt1Eth)
       // Since the foreclosure of token 1 is not Recognized here.
-      await withdrawMaxPermissioned(benefactor1);
+      await steward.withdrawBenefactorFunds({
+        from: benefactor1,
+        gasPrice: "0", // Set gas price to 0 for simplicity
+      });
 
       const amountDueForToken2inSecondWithdrawal = patronageDue([
         {
