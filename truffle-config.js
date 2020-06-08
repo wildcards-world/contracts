@@ -46,7 +46,7 @@ module.exports = {
       host: blockchainNodeHost, // Localhost (default: none)
       port: 8545, // Standard Ethereum port (default: none)
       network_id: "*", // Any network (default: none)
-      gasPrice: 1000000000, // 1 gwei
+      gasPrice: 100000000, // 1 gwei
     },
   },
   mocha: {
