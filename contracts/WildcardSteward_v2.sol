@@ -3,6 +3,8 @@ pragma solidity 0.5.17;
 import "./ERC721Patronage_v1.sol";
 import "./MintManager_v2.sol";
 
+import "@nomiclabs/buidler/console.sol";
+
 
 contract WildcardSteward_v2 is Initializable {
     /*
@@ -20,9 +22,9 @@ contract WildcardSteward_v2 is Initializable {
     mapping(uint256 => uint256) public price; //in wei
     ERC721Patronage_v1 public assetToken; // ERC721 NFT.
 
-    mapping(uint256 => uint256) public totalCollected; // all patronage ever collected
-    mapping(uint256 => uint256) public currentCollected; // amount currently collected for patron
-    mapping(uint256 => uint256) public timeLastCollected; // THIS VARIABLE IS DEPRECATED.
+    mapping(uint256 => uint256) public totalCollected; // THIS VALUE IS DEPRECATED
+    mapping(uint256 => uint256) public currentCollected; // THIS VALUE IS DEPRECATED
+    mapping(uint256 => uint256) public timeLastCollected; // THIS VALUE IS DEPRECATED.
     mapping(address => uint256) public timeLastCollectedPatron;
     mapping(address => uint256) public deposit;
     mapping(address => uint256) public totalPatronOwnedTokenCost;
@@ -64,6 +66,7 @@ contract WildcardSteward_v2 is Initializable {
     mapping(address => uint256) public benefactorCredit;
     uint256 public globalBenefactorDailyWithdrawalLimit;
     address public withdrawCheckerAdmin;
+    uint256 public benefactorWithdrawalThrottle;
 
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
     event PriceChange(uint256 indexed tokenId, uint256 newPrice);
@@ -155,11 +158,13 @@ contract WildcardSteward_v2 is Initializable {
     function initialize(
         address _assetToken,
         address _admin,
-        address _mintManager
+        address _mintManager,
+        uint256 _benefactorWithdrawalThrottle
     ) public initializer {
         assetToken = ERC721Patronage_v1(_assetToken);
         admin = _admin;
         mintManager = MintManager_v2(_mintManager);
+        benefactorWithdrawalThrottle = _benefactorWithdrawalThrottle;
     }
 
     function uintToStr(uint256 _i)
@@ -203,6 +208,7 @@ contract WildcardSteward_v2 is Initializable {
         assert(tokens.length == _releaseDate.length);
 
         for (uint8 i = 0; i < tokens.length; ++i) {
+            address benefactor = _benefactors[i];
             assert(_benefactors[i] != address(0));
             string memory idString = uintToStr(tokens[i]);
             string memory tokenUriBase = "https://wildcards.xyz/token/";
@@ -233,13 +239,19 @@ contract WildcardSteward_v2 is Initializable {
                 _artists[i],
                 _artistCommission[i]
             );
+
+            // // No need to initialize this.
+            // if (benefactorLastTimeCollected[benefactor] == 0) {
+            //     benefactorLastTimeCollected[benefactor] = now;
+            // }
         }
     }
 
-    function upgradeToV3(uint256[] memory tokens, address _withdrawCheckerAdmin)
-        public
-        onlyAdmin
-    {
+    function upgradeToV3(
+        uint256[] memory tokens,
+        address _withdrawCheckerAdmin,
+        uint256 _benefactorWithdrawalThrottle
+    ) public onlyAdmin {
         require(withdrawCheckerAdmin == address(0));
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
 
@@ -257,14 +269,10 @@ contract WildcardSteward_v2 is Initializable {
 
             // timeLastCollected[tokenId] = now; // This variable is depricated, no need to update it.
             timeLastCollectedPatron[currentOwner] = now;
-            currentCollected[tokenId] = currentCollected[tokenId].add(
-                collection
-            );
+
             deposit[currentOwner] = deposit[currentOwner].sub(
                 patronageOwedPatron(currentOwner)
             );
-
-            totalCollected[tokenId] = totalCollected[tokenId].add(collection);
 
             benefactorFunds[benefactors[tokenId]] = benefactorFunds[benefactors[tokenId]]
                 .add(collection);
@@ -293,6 +301,8 @@ contract WildcardSteward_v2 is Initializable {
                 benefactorLastTimeCollected[tokenBenefactor] = now;
             }
         }
+
+        benefactorWithdrawalThrottle = _benefactorWithdrawalThrottle;
     }
 
     function changeReceivingBenefactor(
@@ -312,6 +322,13 @@ contract WildcardSteward_v2 is Initializable {
 
     function changeAdmin(address _admin) public onlyAdmin {
         admin = _admin;
+    }
+
+    // This is a backdoor to prevent organisation withdrawal. Must be monitored and thrown away eventually.
+    function changeBenefactorWithdrawalThrottle(
+        uint256 _benefactorWithdrawalThrottle
+    ) public onlyAdmin {
+        benefactorWithdrawalThrottle = _benefactorWithdrawalThrottle;
     }
 
     function changeWithdrawCheckerAdmin(address _withdrawCheckerAdmin)
@@ -355,21 +372,29 @@ contract WildcardSteward_v2 is Initializable {
         auctionLength = _auctionLength;
     }
 
+    // TODO: this function needs to be deprecated - only used in the tests
     function patronageOwed(uint256 tokenId)
         public
         view
         returns (uint256 patronageDue)
     {
-        if (timeLastCollected[tokenId] == 0) return 0;
 
-        return
-            price[tokenId]
-                .mul(now.sub(timeLastCollected[tokenId]))
-                .mul(patronageNumerator[tokenId])
-                .div(1000000000000)
-                .div(365 days);
+            uint256 timeLastCollected
+         = timeLastCollectedPatron[currentPatron[tokenId]];
+
+        if (timeLastCollected == 0) return 0;
+
+        uint256 owed = price[tokenId]
+            .mul(now.sub(timeLastCollected))
+            .mul(patronageNumerator[tokenId])
+            .div(1000000000000)
+            .div(365 days);
+        console.log(owed, "due - owed");
+
+        return owed;
     }
 
+    // TODO: this function needs to be deprecated - only used in the tests
     function patronageOwedWithTimestamp(uint256 tokenId)
         public
         view
@@ -392,13 +417,16 @@ contract WildcardSteward_v2 is Initializable {
                 .div(365 days);
     }
 
+    // Purely for debugging
+    function nowTime() public view returns (uint256) {
+        return now;
+    }
+
     function unclaimedPayoutDueForOrganisation(address benefactor)
         public
         view
         returns (uint256 payoutDue)
     {
-        if (benefactorLastTimeCollected[benefactor] == 0) return 0;
-
         return
             benefactorTotalTokenNumerator[benefactor]
                 .mul(now.sub(benefactorLastTimeCollected[benefactor]))
@@ -470,8 +498,10 @@ contract WildcardSteward_v2 is Initializable {
     }
 
     function _collectPatronage(uint256 tokenId) public {
+        // console.log("collect patronage");
         // TODO: lots of this code is duplicated in the `_collectPatronagePatron` function. Refactor accordingly.
         if (state[tokenId] == StewardState.Owned) {
+            // console.log(" token is owned!");
             address tokenPatron = currentPatron[tokenId];
 
             // _collectPatronagePatron(currentPatron[tokenId]);
@@ -501,7 +531,8 @@ contract WildcardSteward_v2 is Initializable {
                     newTimeLastCollected.sub(previousCollectionTime)
                 );
 
-                // The bellow 2 lines are the main difference between this function and the `_collectPatronagePatron` function.
+                // The bellow 3 lines are the main difference between this function and the `_collectPatronagePatron` function.
+                _collectLoyaltyPatron(tokenPatron, timeSinceLastMint); // NOTE: you have to call collectLoyaltyPatron before collecting your deposit.
                 tokenAuctionBeginTimestamp[tokenId] = newTimeLastCollected;
                 _foreclose(tokenId);
 
@@ -540,16 +571,21 @@ contract WildcardSteward_v2 is Initializable {
                     // }
                 }
             } else {
+                // console.log(" token is still owned");
                 timeSinceLastMint = now.sub(
                     timeLastCollectedPatron[tokenPatron]
                 );
                 timeLastCollectedPatron[tokenPatron] = now;
+                console.log(
+                    "patronageOwedByTokenPatron",
+                    patronageOwedByTokenPatron
+                );
                 deposit[tokenPatron] = deposit[tokenPatron].sub(
                     patronageOwedByTokenPatron
                 );
+                _collectLoyaltyPatron(tokenPatron, timeSinceLastMint);
             }
 
-            _collectLoyaltyPatron(tokenPatron, timeSinceLastMint);
             emit RemainingDepositUpdate(tokenPatron, deposit[tokenPatron]);
         }
     }
@@ -561,7 +597,8 @@ contract WildcardSteward_v2 is Initializable {
         (transferSuccess, ) = recipient.call.gas(2300).value(_wei)("");
     }
 
-    function _updateBenefactorBalance(address benefactor) internal {
+    // Think carefully if it is a risk to make this public?
+    function _updateBenefactorBalance(address benefactor) public {
         uint256 unclaimedPayoutAvailable = unclaimedPayoutDueForOrganisation(
             benefactor
         );
@@ -583,11 +620,20 @@ contract WildcardSteward_v2 is Initializable {
                 benefactorCredit[benefactor] = 0;
             }
         }
+
+        // console.log("UPDATE THE BENEFACTOR BALANCE");
+        // console.log("UPDATE THE BENEFACTOR BALANCE");
+        // console.log("UPDATE THE BENEFACTOR BALANCE");
+        // console.log(now, benefactor);
+        benefactorLastTimeCollected[benefactor] = now;
     }
 
     function withdrawBenefactorFundsTo(address payable benefactor) public {
         require(
-            benefactorLastTimeCollected[benefactor].add(1 days) > now,
+            // QUESTION? Should this 1 day throttle limit be configurable?
+            benefactorLastTimeCollected[benefactor].add(
+                benefactorWithdrawalThrottle
+            ) <= now,
             "Cannot call this function more than once a day"
         );
 
@@ -595,25 +641,21 @@ contract WildcardSteward_v2 is Initializable {
 
         uint256 availableToWithdraw = benefactorFunds[benefactor];
 
-        if (availableToWithdraw > 0) {
-            if (availableToWithdraw > globalBenefactorDailyWithdrawalLimit) {
-                if (
-                    safeSend(globalBenefactorDailyWithdrawalLimit, benefactor)
-                ) {
-                    benefactorFunds[benefactor] = availableToWithdraw.sub(
-                        globalBenefactorDailyWithdrawalLimit
-                    );
-                } else {
-                    benefactorFunds[benefactor] = availableToWithdraw;
-                }
+        require(availableToWithdraw > 0, "No funds available");
+
+        if (availableToWithdraw > globalBenefactorDailyWithdrawalLimit) {
+            if (safeSend(globalBenefactorDailyWithdrawalLimit, benefactor)) {
+                benefactorFunds[benefactor] = availableToWithdraw.sub(
+                    globalBenefactorDailyWithdrawalLimit
+                );
             } else {
-                if (
-                    safeSend(globalBenefactorDailyWithdrawalLimit, benefactor)
-                ) {
-                    benefactorFunds[benefactor] = 0;
-                } else {
-                    benefactorFunds[benefactor] = availableToWithdraw;
-                }
+                benefactorFunds[benefactor] = availableToWithdraw;
+            }
+        } else {
+            if (safeSend(globalBenefactorDailyWithdrawalLimit, benefactor)) {
+                benefactorFunds[benefactor] = 0;
+            } else {
+                benefactorFunds[benefactor] = availableToWithdraw;
             }
         }
     }
@@ -778,6 +820,7 @@ contract WildcardSteward_v2 is Initializable {
         priceGreaterThanZero(_newPrice)
         validWildcardsPercentage(wildcardsPercentage, tokenId)
     {
+        // console.log("new price", _newPrice, "of token", tokenId);
         require(
             state[tokenId] == StewardState.Foreclosed,
             "Can only buy foreclosed tokens useing this function"
@@ -938,7 +981,6 @@ contract WildcardSteward_v2 is Initializable {
         address tokenPatron = currentPatron[tokenId];
         resetTokenOnForeclosure(tokenId, currentOwner, tokenPatron);
         state[tokenId] = StewardState.Foreclosed;
-        currentCollected[tokenId] = 0;
 
         emit Foreclosure(currentOwner, timeLastCollected[tokenId]);
     }
@@ -981,6 +1023,8 @@ contract WildcardSteward_v2 is Initializable {
         currentPatron[tokenId] = _newOwner;
 
         price[tokenId] = _newPrice;
+        // console.log("SET THE NEW PRICE for token:", tokenId);
+        // console.log(price[tokenId]);
         timeAcquired[tokenId] = now;
         patrons[tokenId][_newOwner] = true;
     }
