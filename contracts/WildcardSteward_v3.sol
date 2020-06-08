@@ -172,12 +172,14 @@ contract WildcardSteward_v3 is Initializable {
         address _assetToken,
         address _admin,
         address _mintManager,
+        address _withdrawCheckerAdmin,
         uint256 _auctionStartPrice,
         uint256 _auctionEndPrice,
         uint256 _auctionLength
     ) public initializer {
         assetToken = ERC721Patronage_v1(_assetToken);
         admin = _admin;
+        withdrawCheckerAdmin = _withdrawCheckerAdmin;
         mintManager = MintManager_v2(_mintManager);
         _changeAuctionParameters(
             _auctionStartPrice,
@@ -449,11 +451,6 @@ contract WildcardSteward_v3 is Initializable {
                 .div(365 days);
     }
 
-    // Purely for debugging
-    function nowTime() public view returns (uint256) {
-        return now;
-    }
-
     function unclaimedPayoutDueForOrganisation(address benefactor)
         public
         view
@@ -699,6 +696,8 @@ contract WildcardSteward_v3 is Initializable {
         bytes32 r,
         bytes32 s
     ) public {
+        console.log("ecrecover(hash, v, r, s)");
+        console.log(ecrecover(hash, v, r, s));
         require(
             ecrecover(hash, v, r, s) == withdrawCheckerAdmin,
             "No permission to withdraw"
