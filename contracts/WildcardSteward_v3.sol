@@ -71,9 +71,7 @@ contract WildcardSteward_v3 is Initializable {
     mapping(address => uint256) public benefactorTotalTokenNumerator;
     mapping(address => uint256) public benefactorLastTimeCollected;
     mapping(address => uint256) public benefactorCredit;
-    uint256 public globalBenefactorPeriodicWithdrawalLimit;
     address public withdrawCheckerAdmin;
-    uint256 public benefactorWithdrawalThrottle;
 
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
     event PriceChange(uint256 indexed tokenId, uint256 newPrice);
@@ -174,14 +172,18 @@ contract WildcardSteward_v3 is Initializable {
         address _assetToken,
         address _admin,
         address _mintManager,
-        uint256 _benefactorWithdrawalThrottle,
-        uint256 _globalBenefactorPeriodicWithdrawalLimit
+        uint256 _auctionStartPrice,
+        uint256 _auctionEndPrice,
+        uint256 _auctionLength
     ) public initializer {
         assetToken = ERC721Patronage_v1(_assetToken);
         admin = _admin;
         mintManager = MintManager_v2(_mintManager);
-        benefactorWithdrawalThrottle = _benefactorWithdrawalThrottle;
-        globalBenefactorPeriodicWithdrawalLimit = _globalBenefactorPeriodicWithdrawalLimit;
+        _changeAuctionParameters(
+            _auctionStartPrice,
+            _auctionEndPrice,
+            _auctionLength
+        );
     }
 
     function uintToStr(uint256 _i)
@@ -267,8 +269,9 @@ contract WildcardSteward_v3 is Initializable {
     function upgradeToV3(
         uint256[] memory tokens,
         address _withdrawCheckerAdmin,
-        uint256 _benefactorWithdrawalThrottle,
-        uint256 _globalBenefactorPeriodicWithdrawalLimit
+        uint256 _auctionStartPrice,
+        uint256 _auctionEndPrice,
+        uint256 _auctionLength
     ) public {
         // This function effectively needs to call both _collectPatronage and _collectPatronagePatron from the v2 contract.
         require(withdrawCheckerAdmin == address(0));
@@ -330,9 +333,11 @@ contract WildcardSteward_v3 is Initializable {
                 benefactorLastTimeCollected[tokenBenefactor] = now;
             }
         }
-
-        benefactorWithdrawalThrottle = _benefactorWithdrawalThrottle;
-        globalBenefactorPeriodicWithdrawalLimit = _globalBenefactorPeriodicWithdrawalLimit;
+        _changeAuctionParameters(
+            _auctionStartPrice,
+            _auctionEndPrice,
+            _auctionLength
+        );
     }
 
     function changeReceivingBenefactor(
@@ -354,24 +359,11 @@ contract WildcardSteward_v3 is Initializable {
         admin = _admin;
     }
 
-    // This is a backdoor to prevent organisation withdrawal. Must be monitored and thrown away eventually.
-    function changeBenefactorWithdrawalThrottle(
-        uint256 _benefactorWithdrawalThrottle
-    ) public onlyAdmin {
-        benefactorWithdrawalThrottle = _benefactorWithdrawalThrottle;
-    }
-
     function changeWithdrawCheckerAdmin(address _withdrawCheckerAdmin)
         public
         onlyAdmin
     {
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
-    }
-
-    function setGlobalWithdrawalLimit(
-        uint256 _globalBenefactorPeriodicWithdrawalLimit
-    ) external onlyAdmin {
-        globalBenefactorPeriodicWithdrawalLimit = _globalBenefactorPeriodicWithdrawalLimit;
     }
 
     function changeArtistAddressAndCommission(
@@ -385,11 +377,11 @@ contract WildcardSteward_v3 is Initializable {
         emit ArtistCommission(tokenId, artistAddress, percentage);
     }
 
-    function changeAuctionParameters(
+    function _changeAuctionParameters(
         uint256 _auctionStartPrice,
         uint256 _auctionEndPrice,
         uint256 _auctionLength
-    ) external onlyAdmin {
+    ) internal {
         require(
             _auctionStartPrice >= _auctionEndPrice,
             "Auction value must decrease over time"
@@ -399,6 +391,18 @@ contract WildcardSteward_v3 is Initializable {
         auctionStartPrice = _auctionStartPrice;
         auctionEndPrice = _auctionEndPrice;
         auctionLength = _auctionLength;
+    }
+
+    function changeAuctionParameters(
+        uint256 _auctionStartPrice,
+        uint256 _auctionEndPrice,
+        uint256 _auctionLength
+    ) external onlyAdmin {
+        _changeAuctionParameters(
+            _auctionStartPrice,
+            _auctionEndPrice,
+            _auctionLength
+        );
     }
 
     // TODO: this function needs to be deprecated - only used in the tests
@@ -710,14 +714,9 @@ contract WildcardSteward_v3 is Initializable {
 
         if (availableToWithdraw > 0) {
             if (availableToWithdraw > maxAmount) {
-                if (
-                    safeSend(
-                        globalBenefactorPeriodicWithdrawalLimit,
-                        benefactor
-                    )
-                ) {
+                if (safeSend(maxAmount, benefactor)) {
                     benefactorFunds[benefactor] = availableToWithdraw.sub(
-                        globalBenefactorPeriodicWithdrawalLimit
+                        maxAmount
                     );
                     emit WithdrawBenefactorFunds(
                         benefactor,
@@ -727,12 +726,7 @@ contract WildcardSteward_v3 is Initializable {
                     benefactorFunds[benefactor] = availableToWithdraw;
                 }
             } else {
-                if (
-                    safeSend(
-                        globalBenefactorPeriodicWithdrawalLimit,
-                        benefactor
-                    )
-                ) {
+                if (safeSend(availableToWithdraw, benefactor)) {
                     benefactorFunds[benefactor] = 0;
                     emit WithdrawBenefactorFunds(
                         benefactor,
