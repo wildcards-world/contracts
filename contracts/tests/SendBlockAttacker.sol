@@ -1,18 +1,18 @@
 pragma solidity 0.5.17;
 
-import "../WildcardSteward_v2.sol";
+import "../WildcardSteward_v3.sol";
 
 
 contract SendBlockAttacker {
     function buyOnBehalf(
-        WildcardSteward_v2 stewardAddress,
+        WildcardSteward_v3 stewardAddress,
         uint256 tokenId,
         uint256 newPrice
     ) public payable {
         stewardAddress.buyAuction.value(msg.value)(tokenId, newPrice, 500);
     }
 
-    function withdrawDeposit(WildcardSteward_v2 stewardAddress, uint256 amount)
+    function withdrawDeposit(WildcardSteward_v3 stewardAddress, uint256 amount)
         public
     {
         stewardAddress.withdrawDeposit(amount);

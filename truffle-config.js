@@ -1,4 +1,5 @@
 const path = require("path");
+// This gives very strange errors in development, so keep these values null unless you require infura etc.
 const HDWalletProvider = require("@truffle/hdwallet-provider");
 const {
   mnemonic,
@@ -6,6 +7,8 @@ const {
   rinkebyProviderUrl,
   goerliProviderUrl,
 } = require("./secretsManager.js");
+// let HDWalletProvider = function(mnemonic, providerUrl, index) {};
+// let mnemonic, mainnetProviderUrl, rinkebyProviderUrl, goerliProviderUrl;
 
 const blockchainNodeHost = process.env.BLOCKCHAIN_NODE_HOST || "localhost";
 

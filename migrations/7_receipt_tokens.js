@@ -12,8 +12,8 @@ async function deploy(options, accounts, erc20PatronageReceipt_v2) {
   add({
     contractsData: [
       { name: "WildcardSteward_v2", alias: "WildcardSteward" },
-      { name: "MintManager_v2", alias: "MintManager" }
-    ]
+      { name: "MintManager_v2", alias: "MintManager" },
+    ],
   });
 
   console.log("2");
@@ -30,47 +30,49 @@ async function deploy(options, accounts, erc20PatronageReceipt_v2) {
         methodArgs: [
           accounts[0],
           stewardAddress,
-          erc20PatronageReceipt_v2.address
-        ]
+          erc20PatronageReceipt_v2.address,
+        ],
       },
       options
     )
   );
   await erc20PatronageReceipt_v2.addMinter(mintManager.address);
-  erc20PatronageReceipt_v2.renounceMinter({ from: accounts[0] });
+  await erc20PatronageReceipt_v2.renounceMinter({ from: accounts[0] });
 
-  console.log("5");
-  await update(
-    Object.assign(
-      {
-        contractAlias: "WildcardSteward",
-        methodName: "updateToV2",
-        methodArgs: [
-          mintManager.address,
-          [0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 42],
-          [
-            receiptGenerationRate,
-            receiptGenerationRate,
-            receiptGenerationRate,
-            receiptGenerationRate,
+  console.log("5", options);
+  // throw "RESULT";
 
-            receiptGenerationRate,
-            receiptGenerationRate,
-            receiptGenerationRate,
-            receiptGenerationRate,
+  await update({
+    ...options,
+    txParams: {
+      ...options.txParams,
+      gas: 9700000,
+    },
+    contractAlias: "WildcardSteward",
+    methodName: "updateToV2",
+    methodArgs: [
+      mintManager.address,
+      [0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 42],
+      [
+        receiptGenerationRate,
+        receiptGenerationRate,
+        receiptGenerationRate,
+        receiptGenerationRate,
 
-            receiptGenerationRate,
-            receiptGenerationRate,
-            receiptGenerationRate,
-            receiptGenerationRate,
+        receiptGenerationRate,
+        receiptGenerationRate,
+        receiptGenerationRate,
+        receiptGenerationRate,
 
-            receiptGenerationRate
-          ]
-        ]
-      },
-      options
-    )
-  );
+        receiptGenerationRate,
+        receiptGenerationRate,
+        receiptGenerationRate,
+        receiptGenerationRate,
+
+        receiptGenerationRate,
+      ],
+    ],
+  });
 }
 
 module.exports = function(deployer, networkName, accounts) {
@@ -90,7 +92,7 @@ module.exports = function(deployer, networkName, accounts) {
 
     const { network, txParams } = await ConfigManager.initNetworkConfiguration({
       network: networkName,
-      from: accounts[0]
+      from: accounts[0],
     });
     await deploy({ network, txParams }, accounts, erc20PatronageReceipt_v2);
   });
