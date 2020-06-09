@@ -698,8 +698,6 @@ contract WildcardSteward_v3 is Initializable {
         bytes32 r,
         bytes32 s
     ) public {
-        console.log("ecrecover(hash, v, r, s)");
-        console.log(ecrecover(hash, v, r, s));
         require(
             ecrecover(hash, v, r, s) == withdrawCheckerAdmin,
             "No permission to withdraw"
@@ -707,6 +705,10 @@ contract WildcardSteward_v3 is Initializable {
         require(
             hash == hasher(benefactor, maxAmount, expiry),
             "Incorrect parameters"
+        );
+        require(
+            now < expiry,
+            "coupon has expired"
         );
 
         _updateBenefactorBalance(benefactor);
@@ -723,8 +725,6 @@ contract WildcardSteward_v3 is Initializable {
                         benefactor,
                         availableToWithdraw
                     );
-                } else {
-                    benefactorFunds[benefactor] = availableToWithdraw;
                 }
             } else {
                 if (safeSend(availableToWithdraw, benefactor)) {
@@ -733,8 +733,6 @@ contract WildcardSteward_v3 is Initializable {
                         benefactor,
                         availableToWithdraw
                     );
-                } else {
-                    benefactorFunds[benefactor] = availableToWithdraw;
                 }
             }
         }
