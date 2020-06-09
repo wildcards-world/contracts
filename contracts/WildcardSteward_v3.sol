@@ -323,6 +323,8 @@ contract WildcardSteward_v3 is Initializable {
 
             // Add the tokens generation rate to the totalPatronTokenGenerationRate of the current owner
             totalPatronTokenGenerationRate[currentOwner] = totalPatronTokenGenerationRate[currentOwner]
+            // 11574074074074 = 10^18 / 86400 This is just less (rounded down) than one token a day.
+            //       - this can be done since all tokens have the exact same tokenGenerationRate - and hardcoding saves gas.
                 .add(11574074074074);
 
             address tokenBenefactor = benefactors[tokenId];
@@ -969,6 +971,7 @@ contract WildcardSteward_v3 is Initializable {
     {
         require(state[tokenId] != StewardState.Foreclosed, "Foreclosed");
         require(_newPrice != 0, "Incorrect Price");
+        require(_newPrice < 10000 ether, "exceeded max price");
 
         uint256 oldPriceScaled = price[tokenId].mul(
             patronageNumerator[tokenId]
@@ -1032,6 +1035,8 @@ contract WildcardSteward_v3 is Initializable {
         address _newOwner,
         uint256 _newPrice
     ) internal {
+        require(_newPrice < 10000 ether, "exceeded max price");
+
         uint256 scaledOldPrice = price[tokenId].mul(
             patronageNumerator[tokenId]
         );
