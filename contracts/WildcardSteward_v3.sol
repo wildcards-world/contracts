@@ -13,7 +13,7 @@ divisor = 365 days * 1000000000000
         = 31536000000000000000
 */
 
-contract WildcardSteward_v2 is Initializable {
+contract WildcardSteward_v3 is Initializable {
     /*
     This smart contract collects patronage from current owner through a Harberger tax model and 
     takes stewardship of the asset token if the patron can't pay anymore.
@@ -53,17 +53,6 @@ contract WildcardSteward_v2 is Initializable {
 
     address public admin;
 
-    /*
-
-t*rate*p
-
-rate = patronageNumerator/patronageDenominator
-
-t*(rate1*p1)+t*(rate2*p2)=(t*(rate1*p1+rate2*p2))
-
-d-new = d-old - (t*(rate1*p1+rate2*p2))
-
-*/
     //////////////// NEW variables in v2///////////////////
     mapping(uint256 => uint256) public tokenGenerationRate; // we can reuse the patronage denominator
 
@@ -81,11 +70,8 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
     mapping(address => uint256) public totalPatronTokenGenerationRate; // The total token generation rate for all the tokens of the given address.
     mapping(address => uint256) public benefactorTotalTokenNumerator;
     mapping(address => uint256) public benefactorLastTimeCollected;
-    mapping(address => uint256) public benefactorLastTimeWithdrawal;
     mapping(address => uint256) public benefactorCredit;
-    uint256 public globalBenefactorPeriodicWithdrawalLimit;
     address public withdrawCheckerAdmin;
-    uint256 public benefactorWithdrawalThrottle;
 
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
     event PriceChange(uint256 indexed tokenId, uint256 newPrice);
@@ -122,6 +108,14 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
         uint256 indexed tokenId,
         address artist,
         uint256 artistCommission
+    );
+    event WithdrawBenefactorFundsWithSafetyDelay(
+        address indexed benefactor,
+        uint256 withdrawAmount
+    );
+    event WithdrawBenefactorFunds(
+        address indexed benefactor,
+        uint256 withdrawAmount
     );
 
     modifier onlyPatron(uint256 tokenId) {
@@ -178,14 +172,20 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
         address _assetToken,
         address _admin,
         address _mintManager,
-        uint256 _benefactorWithdrawalThrottle,
-        uint256 _globalBenefactorPeriodicWithdrawalLimit
+        address _withdrawCheckerAdmin,
+        uint256 _auctionStartPrice,
+        uint256 _auctionEndPrice,
+        uint256 _auctionLength
     ) public initializer {
         assetToken = ERC721Patronage_v1(_assetToken);
         admin = _admin;
+        withdrawCheckerAdmin = _withdrawCheckerAdmin;
         mintManager = MintManager_v2(_mintManager);
-        benefactorWithdrawalThrottle = _benefactorWithdrawalThrottle;
-        globalBenefactorPeriodicWithdrawalLimit = _globalBenefactorPeriodicWithdrawalLimit;
+        _changeAuctionParameters(
+            _auctionStartPrice,
+            _auctionEndPrice,
+            _auctionLength
+        );
     }
 
     function uintToStr(uint256 _i)
@@ -271,34 +271,41 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
     function upgradeToV3(
         uint256[] memory tokens,
         address _withdrawCheckerAdmin,
-        uint256 _benefactorWithdrawalThrottle,
-        uint256 _globalBenefactorPeriodicWithdrawalLimit
-    ) public onlyAdmin {
+        uint256 _auctionStartPrice,
+        uint256 _auctionEndPrice,
+        uint256 _auctionLength
+    ) public {
+        // This function effectively needs to call both _collectPatronage and _collectPatronagePatron from the v2 contract.
         require(withdrawCheckerAdmin == address(0));
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
-
+        // For each token
         for (uint8 i = 0; i < tokens.length; ++i) {
             uint256 tokenId = tokens[i];
-            address currentOwner = currentPatron[tokenId];
+            address currentOwner = currentPatron[tokenId]; // One of these is probably zero and doesn't exist
 
             // NOTE: for this upgrade we make sure no tokens are foreclosed, or close to foreclosing
-
             uint256 collection = price[tokenId]
                 .mul(now.sub(timeLastCollected[tokenId]))
                 .mul(patronageNumerator[tokenId])
                 .div(1000000000000)
                 .div(365 days);
 
+            // set the timeLastCollectedPatron for that tokens owner to 'now'.
             // timeLastCollected[tokenId] = now; // This variable is depricated, no need to update it.
-            timeLastCollectedPatron[currentOwner] = now;
+            if (timeLastCollectedPatron[currentOwner] < now) {
+                timeLastCollectedPatron[currentOwner] = now;
+            }
 
+            // set subtract patronage owed for the Patron from their deposit.
             deposit[currentOwner] = deposit[currentOwner].sub(
                 patronageOwedPatron(currentOwner)
             );
 
+            // Add the amount collected for current token to the benefactorFunds.
             benefactorFunds[benefactors[tokenId]] = benefactorFunds[benefactors[tokenId]]
                 .add(collection);
 
+            // Emit an event for the graph to pickup this action (the last time this event will ever be emited)
             emit CollectPatronage(
                 tokenId,
                 currentOwner,
@@ -306,26 +313,35 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
                 collection
             );
 
-            _collectLoyaltyPatron(
-                currentOwner,
-                now.sub(timeLastCollected[tokenId])
-            );
+            // Collect the due loyalty tokens for the user
+            if (currentOwner != address(0)) {
+                _collectLoyaltyPatron(
+                    currentOwner,
+                    now.sub(timeLastCollected[tokenId])
+                );
+            }
 
+            // Add the tokens generation rate to the totalPatronTokenGenerationRate of the current owner
             totalPatronTokenGenerationRate[currentOwner] = totalPatronTokenGenerationRate[currentOwner]
+            // 11574074074074 = 10^18 / 86400 This is just less (rounded down) than one token a day.
+            //       - this can be done since all tokens have the exact same tokenGenerationRate - and hardcoding saves gas.
                 .add(11574074074074);
 
             address tokenBenefactor = benefactors[tokenId];
-
+            // add the scaled tokens price to the `benefactorTotalTokenNumerator`
             benefactorTotalTokenNumerator[tokenBenefactor] = benefactorTotalTokenNumerator[tokenBenefactor]
                 .add(price[tokenId].mul(patronageNumerator[tokenId]));
 
+            // add the scaled tokens price to the `benefactorTotalTokenNumerator`
             if (benefactorLastTimeCollected[tokenBenefactor] == 0) {
                 benefactorLastTimeCollected[tokenBenefactor] = now;
             }
         }
-
-        benefactorWithdrawalThrottle = _benefactorWithdrawalThrottle;
-        globalBenefactorPeriodicWithdrawalLimit = _globalBenefactorPeriodicWithdrawalLimit;
+        _changeAuctionParameters(
+            _auctionStartPrice,
+            _auctionEndPrice,
+            _auctionLength
+        );
     }
 
     function changeReceivingBenefactor(
@@ -347,24 +363,11 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
         admin = _admin;
     }
 
-    // This is a backdoor to prevent organisation withdrawal. Must be monitored and thrown away eventually.
-    function changeBenefactorWithdrawalThrottle(
-        uint256 _benefactorWithdrawalThrottle
-    ) public onlyAdmin {
-        benefactorWithdrawalThrottle = _benefactorWithdrawalThrottle;
-    }
-
     function changeWithdrawCheckerAdmin(address _withdrawCheckerAdmin)
         public
         onlyAdmin
     {
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
-    }
-
-    function setGlobalWithdrawalLimit(
-        uint256 _globalBenefactorPeriodicWithdrawalLimit
-    ) external onlyAdmin {
-        globalBenefactorPeriodicWithdrawalLimit = _globalBenefactorPeriodicWithdrawalLimit;
     }
 
     function changeArtistAddressAndCommission(
@@ -378,11 +381,11 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
         emit ArtistCommission(tokenId, artistAddress, percentage);
     }
 
-    function changeAuctionParameters(
+    function _changeAuctionParameters(
         uint256 _auctionStartPrice,
         uint256 _auctionEndPrice,
         uint256 _auctionLength
-    ) external onlyAdmin {
+    ) internal {
         require(
             _auctionStartPrice >= _auctionEndPrice,
             "Auction value must decrease over time"
@@ -394,6 +397,18 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
         auctionLength = _auctionLength;
     }
 
+    function changeAuctionParameters(
+        uint256 _auctionStartPrice,
+        uint256 _auctionEndPrice,
+        uint256 _auctionLength
+    ) external onlyAdmin {
+        _changeAuctionParameters(
+            _auctionStartPrice,
+            _auctionEndPrice,
+            _auctionLength
+        );
+    }
+
     // TODO: this function needs to be deprecated - only used in the tests
     function patronageOwed(uint256 tokenId)
         public
@@ -401,13 +416,13 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
         returns (uint256 patronageDue)
     {
 
-            uint256 timeLastCollected
+            uint256 tokenTimeLastCollectedPatron
          = timeLastCollectedPatron[currentPatron[tokenId]];
 
-        if (timeLastCollected == 0) return 0;
+        if (tokenTimeLastCollectedPatron == 0) return 0;
 
         uint256 owed = price[tokenId]
-            .mul(now.sub(timeLastCollected))
+            .mul(now.sub(tokenTimeLastCollectedPatron))
             .mul(patronageNumerator[tokenId])
             .div(1000000000000)
             .div(365 days);
@@ -436,11 +451,6 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
                 .mul(now.sub(timeLastCollectedPatron[tokenPatron]))
                 .div(1000000000000)
                 .div(365 days);
-    }
-
-    // Purely for debugging
-    function nowTime() public view returns (uint256) {
-        return now;
     }
 
     function unclaimedPayoutDueForOrganisation(address benefactor)
@@ -627,49 +637,79 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
         benefactorLastTimeCollected[benefactor] = now;
     }
 
-    function withdrawBenefactorFundsTo(address payable benefactor) public {
-        require(
-            // QUESTION? Should this 1 day throttle limit be configurable?
-            benefactorLastTimeWithdrawal[benefactor].add(
-                benefactorWithdrawalThrottle
-            ) <= now,
-            "Cannot call this function more than once a day"
-        );
+    function fundsDueForActionPeriodAtCurrentRate(address benefactor)
+        internal
+        view
+        returns (uint256)
+    {
+        return
+            benefactorTotalTokenNumerator[benefactor].mul(auctionLength).div(
+                31536000000000000000
+            ); // 365 days * 1000000000000
+    }
 
+    function withdrawBenefactorFundsTo(address payable benefactor) public {
         _updateBenefactorBalance(benefactor);
 
         uint256 availableToWithdraw = benefactorFunds[benefactor];
 
-        require(availableToWithdraw > 0, "No funds available");
 
-        if (availableToWithdraw > globalBenefactorPeriodicWithdrawalLimit) {
-            if (safeSend(globalBenefactorPeriodicWithdrawalLimit, benefactor)) {
-                benefactorFunds[benefactor] = availableToWithdraw.sub(
-                    globalBenefactorPeriodicWithdrawalLimit
-                );
-                benefactorLastTimeWithdrawal[benefactor] = now;
-            } else {
-                benefactorFunds[benefactor] = availableToWithdraw;
-            }
-        } else {
-            if (safeSend(availableToWithdraw, benefactor)) {
-                benefactorFunds[benefactor] = 0;
-                benefactorLastTimeWithdrawal[benefactor] = now;
-            } else {
-                benefactorFunds[benefactor] = availableToWithdraw;
-            }
+            uint256 benefactorWithdrawalSafetyDiscount
+         = fundsDueForActionPeriodAtCurrentRate(benefactor);
+        require(
+            availableToWithdraw > benefactorWithdrawalSafetyDiscount,
+            "No funds available"
+        );
+
+        // NOTE: no need for safe-maths, above require prevents issues.
+        uint256 amountToWithdraw = availableToWithdraw -
+            benefactorWithdrawalSafetyDiscount;
+
+        if (safeSend(amountToWithdraw, benefactor)) {
+            benefactorFunds[benefactor] = benefactorWithdrawalSafetyDiscount;
+            emit WithdrawBenefactorFundsWithSafetyDelay(
+                benefactor,
+                amountToWithdraw
+            );
         }
+    }
+
+    function hasher(
+        address benefactor,
+        uint256 maxAmount,
+        uint256 expiry
+    ) public view returns (bytes32) {
+        // In ethereum you have to prepend all signature hashes with this message (supposedly to prevent people from)
+        return
+            keccak256(
+                abi.encodePacked(
+                    "\x19Ethereum Signed Message:\n32",
+                    keccak256(abi.encodePacked(benefactor, maxAmount, expiry))
+                )
+            );
     }
 
     function withdrawBenefactorFundsToValidated(
         address payable benefactor,
         uint256 maxAmount,
         uint256 expiry,
+        bytes32 hash,
         uint8 v,
         bytes32 r,
         bytes32 s
     ) public {
-        // require(ecrecover(/* TODO */, v, r, s) == withdrawCheckerAdmin, "No permission to withdraw");
+        require(
+            ecrecover(hash, v, r, s) == withdrawCheckerAdmin,
+            "No permission to withdraw"
+        );
+        require(
+            hash == hasher(benefactor, maxAmount, expiry),
+            "Incorrect parameters"
+        );
+        require(
+            now < expiry,
+            "coupon has expired"
+        );
 
         _updateBenefactorBalance(benefactor);
 
@@ -677,28 +717,22 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
 
         if (availableToWithdraw > 0) {
             if (availableToWithdraw > maxAmount) {
-                if (
-                    safeSend(
-                        globalBenefactorPeriodicWithdrawalLimit,
-                        benefactor
-                    )
-                ) {
+                if (safeSend(maxAmount, benefactor)) {
                     benefactorFunds[benefactor] = availableToWithdraw.sub(
-                        globalBenefactorPeriodicWithdrawalLimit
+                        maxAmount
                     );
-                } else {
-                    benefactorFunds[benefactor] = availableToWithdraw;
+                    emit WithdrawBenefactorFunds(
+                        benefactor,
+                        availableToWithdraw
+                    );
                 }
             } else {
-                if (
-                    safeSend(
-                        globalBenefactorPeriodicWithdrawalLimit,
-                        benefactor
-                    )
-                ) {
+                if (safeSend(availableToWithdraw, benefactor)) {
                     benefactorFunds[benefactor] = 0;
-                } else {
-                    benefactorFunds[benefactor] = availableToWithdraw;
+                    emit WithdrawBenefactorFunds(
+                        benefactor,
+                        availableToWithdraw
+                    );
                 }
             }
         }
@@ -935,6 +969,7 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
     {
         require(state[tokenId] != StewardState.Foreclosed, "Foreclosed");
         require(_newPrice != 0, "Incorrect Price");
+        require(_newPrice < 10000 ether, "exceeded max price");
 
         uint256 oldPriceScaled = price[tokenId].mul(
             patronageNumerator[tokenId]
@@ -998,6 +1033,8 @@ d-new = d-old - (t*(rate1*p1+rate2*p2))
         address _newOwner,
         uint256 _newPrice
     ) internal {
+        require(_newPrice < 10000 ether, "exceeded max price");
+
         uint256 scaledOldPrice = price[tokenId].mul(
             patronageNumerator[tokenId]
         );
