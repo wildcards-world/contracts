@@ -146,9 +146,9 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
     const timeManager = await setupTimeManager(web3);
     setNextTxTimestamp = timeManager.setNextTxTimestamp; // takes in duration
     timeSinceTimestamp = timeManager.timeSinceTimestamp; // takes in old timestamp, returns current time
-    getCurrentTimestamp = timeManager.getCurrentTimestamp; // returns current time
+    getCurrentTimestamp = timeManager.getCurrentTimestamp; // returns timestamp of a given transaction
     timeSince = timeManager.timeSince; // returns interval between two timestamps
-    txTimestamp = timeManager.txTimestamp; // returns current time
+    txTimestamp = timeManager.txTimestamp; // returns timestamp of a given transaction
   });
 
   beforeEach(async () => {
