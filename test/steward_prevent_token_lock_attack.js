@@ -21,9 +21,6 @@ const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
 const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
 const Attacker = artifacts.require(SENT_ATTACKER_CONTRACT_NAME);
 
-const TEST_ART_TOKEN_ID = "5";
-const TEST_ART_TOKEN_ADDRESS = "0xb2930b35844a230f00e51431acae96fe533b0357";
-
 contract("WildcardSteward fallback to pull mechanism", (accounts) => {
   let erc721;
   let steward;
