@@ -19,8 +19,6 @@ const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
 const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
 const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
 
-// todo: test over/underflows
-
 contract("WildcardSteward owed", (accounts) => {
   let erc721;
   let steward;
