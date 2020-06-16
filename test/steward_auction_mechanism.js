@@ -19,7 +19,6 @@ const patronageCalculator = multiPatronageCalculator();
 
 contract("WildcardSteward owed", (accounts) => {
   let steward;
-  const testTokenId1 = 1;
   const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
   const benefactorAddress = accounts[8];
@@ -52,6 +51,12 @@ contract("WildcardSteward owed", (accounts) => {
     getCurrentTimestamp,
     timeSince,
     txTimestamp;
+  const tenMinPatronageAt1Eth = patronageCalculator("600", [
+    {
+      patronageNumerator,
+      price: ether("1"),
+    },
+  ]);
 
   before(async () => {
     const timeManager = await setupTimeManager(web3);
@@ -73,12 +78,6 @@ contract("WildcardSteward owed", (accounts) => {
     );
     steward = result.steward;
   });
-  const tenMinPatronageAt1Eth = patronageCalculator("600", [
-    {
-      patronageNumerator,
-      price: ether("1"),
-    },
-  ]);
 
   it("steward: auction. Checking cannot change to wrong permutations of auction", async () => {
     await expectRevert(

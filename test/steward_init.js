@@ -6,68 +6,51 @@ const {
   balance,
   time,
 } = require("@openzeppelin/test-helpers");
-const {
-  STEWARD_CONTRACT_NAME,
-  ERC721_CONTRACT_NAME,
-  ERC20_CONTRACT_NAME,
-  MINT_MANAGER_CONTRACT_NAME,
-} = require("./helpers");
+const { initialize } = require("./helpers");
 
-const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
-const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
-const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
-const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
 contract("WildcardSteward", (accounts) => {
   let erc721;
   let steward;
-  let mintManager;
-  let erc20;
+
   const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
   const testTokenURI = "https://wildcards.xyz/token/";
   const artistAddress = accounts[9];
   const artistCommission = 0;
 
-  beforeEach(async () => {
-    erc721 = await ERC721token.new({ from: accounts[0] });
-    steward = await WildcardSteward.new({ from: accounts[0] });
-    mintManager = await MintManager.new({ from: accounts[0] });
-    erc20 = await ERC20token.new("Wildcards Loyalty Token", "WLT", 18, {
-      from: accounts[0],
-    });
-    await mintManager.initialize(accounts[0], steward.address, erc20.address, {
-      from: accounts[0],
-    });
-    await erc721.setup(
-      steward.address,
-      "ALWAYSFORSALETestToken",
-      "AFSTT",
-      accounts[0],
-      { from: accounts[0] }
-    );
-    await erc721.addMinter(steward.address, { from: accounts[0] });
-    await erc721.renounceMinter({ from: accounts[0] });
-    await erc20.addMinter(mintManager.address, {
-      from: accounts[0],
-    });
-    await erc20.renounceMinter({ from: accounts[0] });
+  const benefactorAddress = accounts[8];
+  const withdrawCheckerAdmin = accounts[10];
+  const admin = accounts[0];
+  const zeroEther = ether("0");
+  const auctionEndPrice = zeroEther;
+  const auctionStartPrice = zeroEther;
+  const auctionDuration = new BN(86400);
+  const tokenDefaults = {
+    benefactor: benefactorAddress,
+    patronageNumerator,
+    tokenGenerationRate,
+    artist: artistAddress,
+    artistCommission,
+    releaseDate: 0,
+  };
+  const tokenDetails = [
+    {
+      ...tokenDefaults,
+      token: "0",
+    },
+  ];
 
-    // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(
-      erc721.address,
-      accounts[0],
-      mintManager.address,
-      0 /*Set to zero for testing purposes*/
+  beforeEach(async () => {
+    const result = await initialize(
+      admin,
+      withdrawCheckerAdmin,
+      auctionStartPrice,
+      auctionEndPrice,
+      auctionDuration,
+      tokenDetails
     );
-    await steward.listNewTokens(
-      [0],
-      [accounts[0]],
-      [patronageNumerator],
-      [tokenGenerationRate],
-      [artistAddress],
-      [artistCommission],
-      [0]
-    );
+    steward = result.steward;
+    erc721 = result.erc721;
   });
 
   it("steward: init: erc721 minted", async () => {
@@ -180,7 +163,7 @@ contract("WildcardSteward", (accounts) => {
         from: accounts[2],
         value: web3.utils.toWei("0", "ether"),
       }),
-      "SafeMath: subtraction overflow."
+      "SafeMath: subtraction overflow"
     );
   });
 

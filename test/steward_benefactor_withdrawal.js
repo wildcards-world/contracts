@@ -75,10 +75,8 @@ const withdrawBenefactorFundsAll = async (
 };
 
 contract("WildcardSteward Benefactor collection", (accounts) => {
-  let erc721;
   let steward;
-  let erc20;
-  let mintManager;
+
   const patronageNumerator = "12000000000000";
   const patronageDenominator = "1000000000000";
   const tokenGenerationRate = 10; // should depend on token
