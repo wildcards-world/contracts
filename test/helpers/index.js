@@ -9,6 +9,77 @@ const ERC20_CONTRACT_NAME = "./ERC20PatronageReceipt_v2.sol";
 const MINT_MANAGER_CONTRACT_NAME = "./MintManager_v2.sol";
 const SENT_ATTACKER_CONTRACT_NAME = "./tests/SendBlockAttacker.sol";
 
+const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
+const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
+const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
+const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
+
+const initialize = async (
+  admin,
+  withdrawCheckerAdmin,
+  auctionStartPrice,
+  auctionEndPrice,
+  auctionLength,
+  tokenParameters
+) => {
+  const erc721 = await ERC721token.new({ from: admin });
+  const steward = await WildcardSteward.new({ from: admin });
+  const mintManager = await MintManager.new({ from: admin });
+  const erc20 = await ERC20token.new("Wildcards Loyalty Token", "WLT", 18, {
+    from: admin,
+  });
+  await mintManager.initialize(admin, steward.address, erc20.address, {
+    from: admin,
+  });
+  await erc20.addMinter(mintManager.address, {
+    from: admin,
+  });
+  await erc20.renounceMinter({ from: admin });
+  await erc721.setup(
+    steward.address,
+    "ALWAYSFORSALETestToken",
+    "AFSTT",
+    admin,
+    { from: admin }
+  );
+  await erc721.addMinter(steward.address, { from: admin });
+  await erc721.renounceMinter({ from: admin });
+  // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
+  // address _assetToken,
+  // address _admin,
+  // address _mintManager,
+  // address _withdrawCheckerAdmin,
+  // uint256 _auctionStartPrice,
+  // uint256 _auctionEndPrice,
+  // uint256 _auctionLength
+  await steward.initialize(
+    erc721.address,
+    admin,
+    mintManager.address,
+    withdrawCheckerAdmin,
+    auctionStartPrice,
+    auctionEndPrice,
+    auctionLength
+  );
+
+  await steward.listNewTokens(
+    tokenParameters.map((item) => item.token),
+    tokenParameters.map((item) => item.benefactor),
+    tokenParameters.map((item) => item.patronageNumerator),
+    tokenParameters.map((item) => item.tokenGenerationRate),
+    tokenParameters.map((item) => item.artist),
+    tokenParameters.map((item) => item.artistCommission),
+    tokenParameters.map((item) => item.releaseDate)
+  );
+
+  return {
+    erc721,
+    steward,
+    mintManager,
+    erc20,
+  };
+};
+
 // NOTE:: This was inspired by this question and the off by one second errors I was getting:
 // https://ethereum.stackexchange.com/a/74558/4642
 const waitTillBeginningOfSecond = () =>
@@ -68,7 +139,7 @@ module.exports = {
   SENT_ATTACKER_CONTRACT_NAME,
   waitTillBeginningOfSecond,
   setupTimeManager,
-
+  initialize,
   //patronage per token = price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
   multiPatronageCalculator: () => (timeInSeconds, tokenArray) => {
     const totalPatronage = tokenArray.reduce(

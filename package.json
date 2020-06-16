@@ -5,8 +5,9 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "compile": "npx buidler compile",
-    "test": "npx buidler test",
+    "compile": "buidler compile",
+    "test": "buidler test",
+    "coverage": "buidler coverage",
     "check": "truffle exec index.js --network local",
     "deploy": "npx truffle exec scripts/deploy.js"
   },
