@@ -101,12 +101,12 @@ const setupTimeManager = async (web3) => {
     const tx = await transaction;
     return new BN((await web3.eth.getBlock(tx.receipt.blockNumber)).timestamp);
   };
-  const timeSince = async (timestampInThePast, tillTimestamp) => {
+  const timeSince = (timestampInThePast, tillTimestamp) => {
     const timeSince = tillTimestamp.sub(timestampInThePast);
     return timeSince;
   };
   const timeSinceTimestamp = async (timestampInThePast) => {
-    return await timeSince(timestampInThePast, await getCurrentTimestamp());
+    return timeSince(timestampInThePast, await getCurrentTimestamp());
   };
   const setNextTxTimestamp = async (timeIncrease) => {
     if (timeIncrease.lt(new BN("1"))) {
@@ -187,11 +187,11 @@ module.exports = {
     );
   },
 
-  multiTokenCalculator: (timeInSeconds, tokenArray) => {
+  multiTokenCalculator: (tokenArray) => {
     const totalTokens = tokenArray.reduce(
       (totalTokens, token) =>
         totalTokens.add(
-          new BN(token.tokenGenerationRate).mul(new BN(timeInSeconds))
+          new BN(token.tokenGenerationRate).mul(new BN(token.timeHeld))
         ),
       new BN("0")
     );
