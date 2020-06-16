@@ -14,6 +14,17 @@ const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
 const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
 const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
 
+const launchTokens = async (steward, tokenParameters) => {
+  return await steward.listNewTokens(
+    tokenParameters.map((item) => item.token),
+    tokenParameters.map((item) => item.benefactor),
+    tokenParameters.map((item) => item.patronageNumerator),
+    tokenParameters.map((item) => item.tokenGenerationRate),
+    tokenParameters.map((item) => item.artist),
+    tokenParameters.map((item) => item.artistCommission),
+    tokenParameters.map((item) => item.releaseDate)
+  );
+};
 const initialize = async (
   admin,
   withdrawCheckerAdmin,
@@ -62,15 +73,7 @@ const initialize = async (
     auctionLength
   );
 
-  await steward.listNewTokens(
-    tokenParameters.map((item) => item.token),
-    tokenParameters.map((item) => item.benefactor),
-    tokenParameters.map((item) => item.patronageNumerator),
-    tokenParameters.map((item) => item.tokenGenerationRate),
-    tokenParameters.map((item) => item.artist),
-    tokenParameters.map((item) => item.artistCommission),
-    tokenParameters.map((item) => item.releaseDate)
-  );
+  await launchTokens(steward, tokenParameters);
 
   return {
     erc721,
@@ -140,6 +143,7 @@ module.exports = {
   waitTillBeginningOfSecond,
   setupTimeManager,
   initialize,
+  launchTokens,
   //patronage per token = price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
   multiPatronageCalculator: () => (timeInSeconds, tokenArray) => {
     const totalPatronage = tokenArray.reduce(

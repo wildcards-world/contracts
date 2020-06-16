@@ -52,7 +52,6 @@ contract("WildcardSteward admin change", (accounts) => {
     erc20 = result.erc20;
     steward = result.steward;
     mintManager = result.mintManager;
-    // { erc721, steward, mintManager, erc20 } = await initialize(admin, animalDetails);
   });
 
   it("steward: admin-change. On admin change, check that only the admin can change the admin address. Also checking withdraw benfactor funds can be called", async () => {

@@ -5,7 +5,6 @@ import "./MintManager_v2.sol";
 
 import "@nomiclabs/buidler/console.sol";
 
-
 /*
 31536000 seconds = 365 days
 
@@ -244,10 +243,11 @@ contract WildcardSteward_v3 is Initializable {
             tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i];
 
             if (_releaseDate[i] < now) {
-                tokenAuctionBeginTimestamp[i] = now;
+                tokenAuctionBeginTimestamp[tokens[i]] = now;
             } else {
-                tokenAuctionBeginTimestamp[i] = _releaseDate[i];
+                tokenAuctionBeginTimestamp[tokens[i]] = _releaseDate[i];
             }
+
             emit AddToken(
                 tokens[i],
                 _patronageNumerator[i],
@@ -564,7 +564,7 @@ contract WildcardSteward_v3 is Initializable {
 
                 // The bellow 3 lines are the main difference between this function and the `_collectPatronagePatron` function.
                 _collectLoyaltyPatron(tokenPatron, timeSinceLastMint); // NOTE: you have to call collectLoyaltyPatron before collecting your deposit.
-                tokenAuctionBeginTimestamp[tokenId] = newTimeLastCollected;
+                tokenAuctionBeginTimestamp[tokenId] = newTimeLastCollected + 1; // The auction starts the second after the last time collected.
                 _foreclose(tokenId);
 
                 address benefactor = benefactors[tokenId];
@@ -706,10 +706,7 @@ contract WildcardSteward_v3 is Initializable {
             hash == hasher(benefactor, maxAmount, expiry),
             "Incorrect parameters"
         );
-        require(
-            now < expiry,
-            "coupon has expired"
-        );
+        require(now < expiry, "coupon has expired");
 
         _updateBenefactorBalance(benefactor);
 
@@ -788,6 +785,7 @@ contract WildcardSteward_v3 is Initializable {
         uint256 auctionEnd = tokenAuctionBeginTimestamp[tokenId].add(
             auctionLength
         );
+
         // If it is not brand new and foreclosed, use the foreclosre auction price.
         uint256 _auctionStartPrice;
         if (price[tokenId] != 0 && price[tokenId] > auctionEndPrice) {
