@@ -18,9 +18,6 @@ const patronageCalculator = multiPatronageCalculator();
 contract("WildcardSteward owed", (accounts) => {
   let steward;
   const patronageNumerator = "12000000000000";
-  const tokenGenerationRate = 10; // should depend on token
-  const testToken1 = { id: 1, patronageNumerator: 12 };
-  const testToken2 = { id: 2, patronageNumerator: 12 };
 
   const artistAddress = accounts[9];
   const artistCommission = 0;
