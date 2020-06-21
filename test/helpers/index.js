@@ -8,6 +8,8 @@ const ERC721_CONTRACT_NAME = "./ERC721Patronage_v1.sol";
 const ERC20_CONTRACT_NAME = "./ERC20PatronageReceipt_v2.sol";
 const MINT_MANAGER_CONTRACT_NAME = "./MintManager_v2.sol";
 const SENT_ATTACKER_CONTRACT_NAME = "./tests/SendBlockAttacker.sol";
+const abi = require("ethereumjs-abi");
+const ethUtil = require("ethereumjs-util");
 
 const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
 const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
@@ -134,6 +136,61 @@ const setupTimeManager = async (web3) => {
   };
 };
 
+const withdrawBenefactorFundsAll = async (
+  steward,
+  web3,
+  withdrawCheckerAdmin,
+  benefactor,
+  maxAmount,
+  expiry,
+  from
+) => {
+  const hash =
+    "0x" +
+    abi
+      .soliditySHA3(
+        ["address", "uint256", "uint256"],
+        [benefactor, maxAmount, expiry]
+      )
+      .toString("hex");
+
+  const signature = await web3.eth.sign(hash, withdrawCheckerAdmin);
+
+  const { r, s, v } = ethUtil.fromRpcSig(signature);
+  // NOTE: The below 3 lines do the same thing as the above line, kept for reference.
+  // const r = signature.slice(0, 66);
+  // const s = "0x" + signature.slice(66, 130);
+  // const v = web3.utils.toDecimal("0x" + signature.slice(130, 132));
+
+  // this prefix is required by the `ecrecover` builtin solidity function (other than that it is pretty arbitrary)
+  const prefix = "\x19Ethereum Signed Message:\n32";
+  const prefixedBytes = web3.utils.fromAscii(prefix) + hash.slice(2);
+  const prefixedHash = web3.utils.sha3(prefixedBytes, { encoding: "hex" });
+
+  // // For reforence, how to recover a signature with javascript.
+  // const recoveredPub = ethUtil.ecrecover(
+  //   ethUtil.toBuffer(prefixedHash),
+  //   sigDecoded.v,
+  //   sigDecoded.r,
+  //   sigDecoded.s
+  // );
+  // const recoveredAddress = ethUtil.pubToAddress(recoveredPub).toString("hex");
+
+  await steward.withdrawBenefactorFundsToValidated(
+    benefactor,
+    maxAmount,
+    expiry,
+    prefixedHash,
+    v,
+    r,
+    s,
+    {
+      from: from || benefactor,
+      gasPrice: "0", // Set gas price to 0 for simplicity
+    }
+  );
+};
+
 module.exports = {
   STEWARD_CONTRACT_NAME,
   ERC721_CONTRACT_NAME,
@@ -144,6 +201,7 @@ module.exports = {
   setupTimeManager,
   initialize,
   launchTokens,
+  withdrawBenefactorFundsAll,
   //patronage per token = price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
   multiPatronageCalculator: () => (timeInSeconds, tokenArray) => {
     const totalPatronage = tokenArray.reduce(

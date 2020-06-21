@@ -210,11 +210,11 @@ contract("WildcardSteward", (accounts) => {
       from: accounts[0],
     });
 
-    const { logs } = await steward.buyAuction(0, ether("1"), 500, {
+    const txReceipt = await steward.buyAuction(0, ether("1"), 500, {
       from: accounts[2],
       value: ether("1"),
     });
-    expectEvent(logs, "Buy", { owner: accounts[2], price: ether("1") });
+    expectEvent(txReceipt, "Buy", { owner: accounts[2], price: ether("1") });
     const deposit = await steward.deposit.call(accounts[2]);
     const price = await steward.price.call(0);
     const state = await steward.state.call(0);
