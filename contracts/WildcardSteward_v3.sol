@@ -610,7 +610,6 @@ contract WildcardSteward_v3 is Initializable {
         (transferSuccess, ) = recipient.call.gas(2300).value(_wei)("");
     }
 
-    // Think carefully if it is a risk to make this public?
     function _updateBenefactorBalance(address benefactor) public {
         uint256 unclaimedPayoutAvailable = unclaimedPayoutDueForOrganisation(
             benefactor
@@ -637,7 +636,7 @@ contract WildcardSteward_v3 is Initializable {
         benefactorLastTimeCollected[benefactor] = now;
     }
 
-    function fundsDueForActionPeriodAtCurrentRate(address benefactor)
+    function fundsDueForAuctionPeriodAtCurrentRate(address benefactor)
         internal
         view
         returns (uint256)
@@ -655,7 +654,8 @@ contract WildcardSteward_v3 is Initializable {
 
 
             uint256 benefactorWithdrawalSafetyDiscount
-         = fundsDueForActionPeriodAtCurrentRate(benefactor);
+         = fundsDueForAuctionPeriodAtCurrentRate(benefactor);
+
         require(
             availableToWithdraw > benefactorWithdrawalSafetyDiscount,
             "No funds available"

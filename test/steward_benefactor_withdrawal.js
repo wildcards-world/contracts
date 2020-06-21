@@ -11,68 +11,9 @@ const {
   setupTimeManager,
   patronageDue,
   initialize,
-  STEWARD_CONTRACT_NAME,
-  ERC20_CONTRACT_NAME,
-  ERC721_CONTRACT_NAME,
-  MINT_MANAGER_CONTRACT_NAME,
+  withdrawBenefactorFundsAll,
 } = require("./helpers");
 // TODO: switch to the ethersjs version, for future typescript support? https://www.npmjs.com/package/@ethersproject/abi
-const abi = require("ethereumjs-abi");
-const ethUtil = require("ethereumjs-util");
-
-const withdrawBenefactorFundsAll = async (
-  steward,
-  web3,
-  withdrawCheckerAdmin,
-  benefactor,
-  maxAmount,
-  expiry
-) => {
-  const hash =
-    "0x" +
-    abi
-      .soliditySHA3(
-        ["address", "uint256", "uint256"],
-        [benefactor, maxAmount, expiry]
-      )
-      .toString("hex");
-
-  const signature = await web3.eth.sign(hash, withdrawCheckerAdmin);
-
-  const { r, s, v } = ethUtil.fromRpcSig(signature);
-  // NOTE: The below 3 lines do the same thing as the above line, kept for reference.
-  // const r = signature.slice(0, 66);
-  // const s = "0x" + signature.slice(66, 130);
-  // const v = web3.utils.toDecimal("0x" + signature.slice(130, 132));
-
-  // this prefix is required by the `ecrecover` builtin solidity function (other than that it is pretty arbitrary)
-  const prefix = "\x19Ethereum Signed Message:\n32";
-  const prefixedBytes = web3.utils.fromAscii(prefix) + hash.slice(2);
-  const prefixedHash = web3.utils.sha3(prefixedBytes, { encoding: "hex" });
-
-  // // For reforence, how to recover a signature with javascript.
-  // const recoveredPub = ethUtil.ecrecover(
-  //   ethUtil.toBuffer(prefixedHash),
-  //   sigDecoded.v,
-  //   sigDecoded.r,
-  //   sigDecoded.s
-  // );
-  // const recoveredAddress = ethUtil.pubToAddress(recoveredPub).toString("hex");
-
-  await steward.withdrawBenefactorFundsToValidated(
-    benefactor,
-    maxAmount,
-    expiry,
-    prefixedHash,
-    v,
-    r,
-    s,
-    {
-      from: benefactor,
-      gasPrice: "0", // Set gas price to 0 for simplicity
-    }
-  );
-};
 
 contract("WildcardSteward Benefactor collection", (accounts) => {
   let steward;
