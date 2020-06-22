@@ -125,14 +125,6 @@ contract("WildcardSteward", (accounts) => {
     );
   });
 
-  it("steward: init: collect 0 patronage.", async () => {
-    const totalBefore = await steward.totalCollected.call(1);
-    await time.increase(1000); // 1000 seconds, arbitrary
-    await steward._collectPatronage(1, { from: accounts[2] });
-    const totalAfter = await steward.totalCollected.call(1);
-    assert.equal(totalBefore.toString(), totalAfter.toString());
-  });
-
   it("steward: init: buy with 1 ether but 0 price [fail on price]", async () => {
     await expectRevert(
       steward.buy(0, 0, web3.utils.toWei("0", "ether"), 500, {
