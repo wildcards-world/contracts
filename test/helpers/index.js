@@ -111,11 +111,12 @@ const setupTimeManager = async (web3) => {
     return timeSince(timestampInThePast, await getCurrentTimestamp());
   };
   const setNextTxTimestamp = async (timeIncrease) => {
-    if (timeIncrease.lt(new BN("1"))) {
+    const timeIncreaseBN = new BN(timeIncrease);
+    if (timeIncreaseBN.lt(new BN("1"))) {
       throw "timeIncrease must be positive";
     }
     const timestamp = parseInt(
-      (await getCurrentTimestamp()).add(timeIncrease).toString()
+      (await getCurrentTimestamp()).add(timeIncreaseBN).toString()
     );
 
     await promisify(web3.currentProvider.send.bind(web3.currentProvider))({

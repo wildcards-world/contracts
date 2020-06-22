@@ -460,6 +460,15 @@ contract WildcardSteward_v3 is Initializable {
     {
         uint256 timePassed = now.sub(benefactorLastTimeCollected[benefactor]);
 
+        console.log("time passed", timePassed);
+        console.log(
+            "now - time last collected",
+            now,
+            " - ",
+            benefactorLastTimeCollected[benefactor]
+        );
+        console.log("benefactor", benefactor);
+
         return
             benefactorTotalTokenNumerator[benefactor]
                 .mul(timePassed)
@@ -614,6 +623,8 @@ contract WildcardSteward_v3 is Initializable {
         uint256 unclaimedPayoutAvailable = unclaimedPayoutDueForOrganisation(
             benefactor
         );
+
+        console.log("unclaimed payout available", unclaimedPayoutAvailable);
 
         if (unclaimedPayoutAvailable > 0) {
             if (
@@ -873,7 +884,6 @@ contract WildcardSteward_v3 is Initializable {
         _distributeAuctionProceeds(tokenId);
 
         state[tokenId] = StewardState.Owned;
-        timeLastCollected[tokenId] = now;
         timeLastCollectedPatron[msg.sender] = now;
 
         wildcardsPercentages[tokenId] = wildcardsPercentage;
@@ -1016,12 +1026,14 @@ contract WildcardSteward_v3 is Initializable {
     }
 
     function _foreclose(uint256 tokenId) internal {
+        _updateBenefactorBalance(benefactors[tokenId]);
+
         address currentOwner = assetToken.ownerOf(tokenId);
         address tokenPatron = currentPatron[tokenId];
         resetTokenOnForeclosure(tokenId, currentOwner, tokenPatron);
         state[tokenId] = StewardState.Foreclosed;
 
-        emit Foreclosure(currentOwner, timeLastCollected[tokenId]);
+        emit Foreclosure(currentOwner, timeLastCollectedPatron[tokenPatron]);
     }
 
     function transferAssetTokenTo(
@@ -1058,8 +1070,8 @@ contract WildcardSteward_v3 is Initializable {
                 .sub(scaledOldPrice);
         }
 
-        timeHeld[tokenId][_currentPatron] = timeHeld[tokenId][_currentPatron]
-            .add((timeLastCollected[tokenId].sub(timeAcquired[tokenId])));
+        // timeHeld[tokenId][_currentPatron] = timeHeld[tokenId][_currentPatron]
+        //     .add((timeLastCollected[tokenId].sub(timeAcquired[tokenId])));
         assetToken.transferFrom(_currentOwner, _newOwner, tokenId);
         currentPatron[tokenId] = _newOwner;
 
@@ -1085,8 +1097,8 @@ contract WildcardSteward_v3 is Initializable {
         benefactorTotalTokenNumerator[tokenBenefactor] = benefactorTotalTokenNumerator[tokenBenefactor]
             .sub(scaledPrice);
 
-        timeHeld[tokenId][_currentPatron] = timeHeld[tokenId][_currentPatron]
-            .add((timeLastCollected[tokenId].sub(timeAcquired[tokenId])));
+        // timeHeld[tokenId][_currentPatron] = timeHeld[tokenId][_currentPatron]
+        //     .add((timeLastCollected[tokenId].sub(timeAcquired[tokenId])));
         assetToken.transferFrom(_currentOwner, address(this), tokenId);
         currentPatron[tokenId] = address(this);
     }
