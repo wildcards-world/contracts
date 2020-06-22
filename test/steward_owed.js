@@ -17,6 +17,7 @@ contract("WildcardSteward owed", (accounts) => {
   // price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
   const artistAddress = accounts[9];
   const artistCommission = 0;
+  const feeSplitDenominator = new BN(10000);
 
   const tenMinPatronageAt1Eth = ether("1")
     .mul(new BN("600"))
@@ -91,7 +92,7 @@ contract("WildcardSteward owed", (accounts) => {
     steward = result.steward;
     erc721 = result.erc721;
   });
-  /*
+  // /*
   it("steward: owed. transfer without steward (fail)", async () => {
     await steward.buyAuction(1, ether("1"), 500, {
       from: accounts[2],
@@ -107,7 +108,9 @@ contract("WildcardSteward owed", (accounts) => {
       value: ether("1"),
     });
 
-    const timeLastCollected = await steward.timeLastCollected.call(1);
+    const timeLastCollected = await steward.timeLastCollectedPatron.call(
+      accounts[2]
+    );
     await setNextTxTimestamp(1);
     const owed = await steward.patronageOwedWithTimestamp.call(1, {
       from: accounts[2],
@@ -130,7 +133,9 @@ contract("WildcardSteward owed", (accounts) => {
       value: ether("1"),
     });
 
-    const timeLastCollected = await steward.timeLastCollected.call(1);
+    const timeLastCollected = await steward.timeLastCollectedPatron.call(
+      accounts[2]
+    );
     await setTimestamp(time.duration.days(365));
     const owed = await steward.patronageOwedWithTimestamp.call(1, {
       from: accounts[2],
@@ -147,7 +152,6 @@ contract("WildcardSteward owed", (accounts) => {
     // TODO: this value shouldn't be hardcoded. It should depend on the tax variable of the token.
     assert.equal(owed.patronageDue.toString(), "12000000000000000000"); // 5% over 365 days.
   });
-
 
   it("steward: owed. collect patronage successfully after 10 minutes.", async () => {
     const price = ether("1");
@@ -272,7 +276,6 @@ contract("WildcardSteward owed", (accounts) => {
     );
   });
 
-
   it("steward: owed. collect patronage that forecloses precisely after 10min.", async () => {
     const price = ether("1");
     const tenMinutes = time.duration.minutes(10);
@@ -329,7 +332,6 @@ contract("WildcardSteward owed", (accounts) => {
     assert.equal(timeLastCollected.toString(), previousBlockTime.toString());
     assert.equal(state.toString(), "0"); // foreclosed state
   });
- 
 
   it("steward: owed. Deposit zero after 10min of patronage (after 10min) [success].", async () => {
     // 10min of patronage
@@ -361,77 +363,76 @@ contract("WildcardSteward owed", (accounts) => {
     const finalTime = previousBlockTime.add(time.duration.minutes(10));
     assert.equal(forecloseTime.toString(), finalTime.toString());
   });
- */
+  //  */
   it("steward: owed. buy from person that forecloses precisely after 10min.", async () => {
     const price = ether("1");
     const price2 = ether("2");
+    const wildcardsSplit = new BN(500);
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
-    await steward.buyAuction(tokenDetails[0].token, price, 500, {
-      from: accounts[2],
-      value: totalToBuy,
-    });
-    const pred = await steward.deposit.call(accounts[2]);
-
-    await setNextTxTimestamp(time.duration.minutes(10));
-    const owed = await steward.patronageOwedPatronWithTimestamp.call(
-      tokenDetails[0].token,
-      {
+    const initialBuyTime = await txTimestamp(
+      steward.buyAuction(tokenDetails[0].token, price, wildcardsSplit, {
         from: accounts[2],
-      }
+        value: totalToBuy,
+      })
     );
-    const preTimeBought = await steward.timeAcquired.call(
-      tokenDetails[0].token
+
+    let secondBuyTime = await setNextTxTimestamp(
+      time.duration.minutes(10).add(new BN(1))
     );
+    const secondBuyValue = ether("1").add(totalToBuy); // Paying the 1eth auction price plus totaltobuy
     const { logs } = await steward.buyAuction(
       tokenDetails[0].token,
       price2,
-      500,
+      wildcardsSplit,
       {
         from: accounts[3],
-        value: ether("1").add(totalToBuy), // Paying the 1eth auction price plus totaltobuy
+        value: secondBuyValue, // Paying the 1eth auction price plus totaltobuy
       }
     ); // will foreclose and then buy
 
-    const deposit = await steward.deposit.call(accounts[3]);
+    const depositSecondUser = await steward.deposit.call(accounts[3]);
     const benefactorFund = await steward.benefactorFunds.call(
       benefactorAddress
     );
-    const timeLastCollected = await steward.timeLastCollected.call(
-      tokenDetails[0].token
+    const timeLastCollectedBuyer1 = await steward.timeLastCollectedPatron.call(
+      accounts[2]
+    );
+    const timeLastCollectedBuyer2 = await steward.timeLastCollectedPatron.call(
+      accounts[3]
     );
     const previousBlockTime = await time.latest();
-    const state = await steward.state.call(1);
+    const state = await steward.state.call(tokenDetails[0].token);
 
-    const calcBenefactorFund = owed.patronageDue;
-    const calcTotalCurrentCollected = owed.patronageDue;
+    const currentOwner = await erc721.ownerOf.call(tokenDetails[0].token);
 
-    const currentOwner = await erc721.ownerOf.call(1);
+    const calcBenefactorFund = patronageDue([
+      {
+        timeHeld: secondBuyTime.sub(initialBuyTime),
+        patronageNumerator: tokenDetails[0].patronageNumerator,
+        price,
+      },
+    ]);
 
-    const timeHeld = await steward.timeHeld.call(1, accounts[2]);
-    const calcTH = timeLastCollected.sub(preTimeBought);
+    const depositCalc = secondBuyValue.sub(price);
 
     expectEvent.inLogs(logs, "Foreclosure", { prevOwner: accounts[2] });
     expectEvent.inLogs(logs, "Buy", { owner: accounts[3], price: ether("2") });
-    // TODO: invistigate why this sometimes gives an off by one error (not always)
-    // assert.equal(timeHeld.toString(), calcTH.toString();
-    assert(
-      timeHeld
-        .sub(calcTH)
-        .abs()
-        .toString() <= 1
-    );
+
     assert.equal(currentOwner, accounts[3]);
-    assert.equal(deposit.toString(), totalToBuy.toString());
+    assert.equal(depositSecondUser.toString(), depositCalc.toString());
     assert.equal(benefactorFund.toString(), calcBenefactorFund.toString());
-    assert.equal(timeLastCollected.toString(), previousBlockTime.toString());
-    assert.equal(currentCollected.toString(), "0");
     assert.equal(
-      totalCollected.toString(),
-      calcTotalCurrentCollected.toString()
+      timeLastCollectedBuyer1.toString(),
+      previousBlockTime.sub(new BN(1)).toString()
+    );
+    console.log(
+      timeLastCollectedBuyer2.toString(),
+      previousBlockTime.toString()
     );
     assert.equal(state.toString(), "1"); // owned state
   });
+
   /*
   it("steward: owed. collect patronage by benefactor after 10min. [ @skip-on-coverage ]", async () => {
     
