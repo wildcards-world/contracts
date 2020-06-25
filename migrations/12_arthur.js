@@ -6,12 +6,12 @@ const WildcardSteward_v2 = artifacts.require("WildcardSteward_v2");
 const receiptGenerationRate = 11574074074074; // This is just less (rounded down) than one token a day (ie. 10^18 / 86400)
 const tokenIdAnimalId = "19";
 
-const conservationOrganizationAddress =
-  "0xc0eD94f053E7Ee5f24DCebbfd4dcF16d8E767d5F";
+const conservationOrganizationAddress = "";
 //                        6000000000000
-const harbergerTaxRateAnimal = "240" + "0000000000"; // Harberger tax rate of 600% per year
+const harbergerTaxRateAnimal = "120" + "0000000000"; // Harberger tax rate of 600% per year
 
 module.exports = function(deployer, networkName, accounts) {
+  throw "this is 12";
   return deployer
     .then(async () => {
       // Don't try to deploy/migrate the contracts for tests
