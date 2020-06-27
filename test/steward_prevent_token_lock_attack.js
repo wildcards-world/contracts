@@ -1,13 +1,5 @@
+const { BN, expectRevert, ether, time } = require("@openzeppelin/test-helpers");
 const {
-  BN,
-  expectRevert,
-  ether,
-  expectEvent,
-  balance,
-  time,
-} = require("@openzeppelin/test-helpers");
-const {
-  waitTillBeginningOfSecond,
   initialize,
   setupTimeManager,
   patronageDue,
@@ -102,8 +94,6 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
   });
 
   it("steward: buy. Performing payout to the previous owner of deposit, or payment cannot block the transaction.", async () => {
-    await waitTillBeginningOfSecond();
-
     const attacker = await Attacker.new();
     await attacker.buyOnBehalf(
       steward.address,
@@ -149,8 +139,6 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
     );
   });
   it("steward: withdrawBenefactorFundsTo. if the benefactor has blocked receiving eth, the transaction should go through but the balance should be added to the benefactorFunds.", async () => {
-    await waitTillBeginningOfSecond();
-
     const attacker = await Attacker.new();
 
     await steward.listNewTokens(
@@ -202,8 +190,6 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
   });
 
   it("steward: withdrawDeposit. if the benefactor has blocked receiving eth, the transaction should revert.", async () => {
-    await waitTillBeginningOfSecond();
-
     const attacker = await Attacker.new();
     await attacker.buyOnBehalf(
       steward.address,

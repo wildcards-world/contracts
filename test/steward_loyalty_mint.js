@@ -1,14 +1,6 @@
-const {
-  BN,
-  expectRevert,
-  ether,
-  expectEvent,
-  balance,
-  time,
-} = require("@openzeppelin/test-helpers");
+const { BN, ether, time } = require("@openzeppelin/test-helpers");
 const {
   multiTokenCalculator,
-  waitTillBeginningOfSecond,
   initialize,
   setupTimeManager,
 } = require("./helpers");
@@ -89,8 +81,6 @@ contract("WildcardSteward loyalty token", (accounts) => {
   });
 
   it("steward: loyalty-mint. Checking correct number of tokens are received after holding a token for  100min", async () => {
-    await waitTillBeginningOfSecond();
-
     testTokenId1 = tokenDetails[0].token;
     const timeHeld = 100; // In minutes
     // Person buys a token
@@ -128,7 +118,6 @@ contract("WildcardSteward loyalty token", (accounts) => {
   });
 
   it("steward: loyalty-mint. Checking correct number of tokens received after holding 2 different token for  100min", async () => {
-    await waitTillBeginningOfSecond();
     const testTokenId1 = tokenDetails[0].token;
     const testTokenId2 = tokenDetails[1].token;
     const timeHeld = 100; // In minutes
@@ -194,7 +183,6 @@ contract("WildcardSteward loyalty token", (accounts) => {
   });
 
   it("steward: loyalty-mint. Checking correct number of tokens are received/minted after foreclosure.", async () => {
-    await waitTillBeginningOfSecond();
     testTokenId1 = tokenDetails[0].token;
     const timeHeld = 10; // In minutes
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
@@ -239,7 +227,6 @@ contract("WildcardSteward loyalty token", (accounts) => {
   });
 
   it("steward: loyalty-mint. Checking that loyalty tokens are minted for all tokens owned by the current owner.", async () => {
-    await waitTillBeginningOfSecond();
     testTokenId1 = tokenDetails[0].token;
     testTokenId2 = tokenDetails[1].token;
     testTokenId3 = tokenDetails[2].token;
@@ -307,7 +294,6 @@ contract("WildcardSteward loyalty token", (accounts) => {
   });
 
   it("steward: loyalty-mint. Checking Minted erc20's can be sent between parties for sanity.", async () => {
-    await waitTillBeginningOfSecond();
     testTokenId1 = tokenDetails[0].token;
     const timeHeld = 100;
 

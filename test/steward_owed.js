@@ -259,16 +259,10 @@ contract("WildcardSteward owed", (accounts) => {
 
     const calcDeposit = ether("1").sub(patronageDueTillCollection);
 
-    console.log(deposit.toString(), calcDeposit.toString());
     assert.equal(deposit.toString(), calcDeposit.toString());
     assert.equal(
       benefactorFund.toString(),
       patronageDueTillBenefactorUpdate.toString()
-    );
-    console.log(
-      "Time collected",
-      timeLastCollected.toString(),
-      collectPatronageTimestamp.toString()
     );
     assert.equal(
       timeLastCollected.toString(),
@@ -324,11 +318,6 @@ contract("WildcardSteward owed", (accounts) => {
     assert.equal(deposit.toString(), "0");
     // TODO: invistigate why this sometimes gives an off by one error (not always)
     assert.equal(benefactorFund.toString(), calcBenefactorFund.toString());
-    console.log(
-      "FORECLOSURE TIME",
-      timeLastCollected.toString(),
-      previousBlockTime.toString()
-    );
     assert.equal(timeLastCollected.toString(), previousBlockTime.toString());
     assert.equal(state.toString(), "0"); // foreclosed state
   });
@@ -425,10 +414,6 @@ contract("WildcardSteward owed", (accounts) => {
     assert.equal(
       timeLastCollectedBuyer1.toString(),
       previousBlockTime.sub(new BN(1)).toString()
-    );
-    console.log(
-      timeLastCollectedBuyer2.toString(),
-      previousBlockTime.toString()
     );
     assert.equal(state.toString(), "1"); // owned state
   });

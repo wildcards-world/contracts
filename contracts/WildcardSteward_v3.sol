@@ -116,6 +116,7 @@ contract WildcardSteward_v3 is Initializable {
         address indexed benefactor,
         uint256 withdrawAmount
     );
+    event UpgradeToV3();
 
     modifier onlyPatron(uint256 tokenId) {
         require(msg.sender == assetToken.ownerOf(tokenId), "Not patron");
@@ -341,6 +342,7 @@ contract WildcardSteward_v3 is Initializable {
             _auctionEndPrice,
             _auctionLength
         );
+        emit UpgradeToV3();
     }
 
     function changeReceivingBenefactor(
@@ -458,15 +460,6 @@ contract WildcardSteward_v3 is Initializable {
         returns (uint256 payoutDue)
     {
         uint256 timePassed = now.sub(benefactorLastTimeCollected[benefactor]);
-
-        console.log("time passed", timePassed);
-        console.log(
-            "now - time last collected",
-            now,
-            " - ",
-            benefactorLastTimeCollected[benefactor]
-        );
-        console.log("benefactor", benefactor);
 
         return
             benefactorTotalTokenNumerator[benefactor]
@@ -595,7 +588,7 @@ contract WildcardSteward_v3 is Initializable {
                     );
                 }
             } else {
-                timeSinceLastMint = now.sub(
+                d timeSinceLastMint = now.sub(
                     timeLastCollectedPatron[tokenPatron]
                 );
                 timeLastCollectedPatron[tokenPatron] = now;
@@ -620,8 +613,6 @@ contract WildcardSteward_v3 is Initializable {
         uint256 unclaimedPayoutAvailable = unclaimedPayoutDueForOrganisation(
             benefactor
         );
-
-        console.log("unclaimed payout available", unclaimedPayoutAvailable);
 
         if (unclaimedPayoutAvailable > 0) {
             if (

@@ -85,14 +85,6 @@ const initialize = async (
   };
 };
 
-// NOTE:: This was inspired by this question and the off by one second errors I was getting:
-// https://ethereum.stackexchange.com/a/74558/4642
-const waitTillBeginningOfSecond = () =>
-  new Promise((resolve) => {
-    const timeTilNextSecond = 1000 - new Date().getMilliseconds();
-    setTimeout(resolve, timeTilNextSecond);
-  });
-
 const setupTimeManager = async (web3) => {
   const getCurrentTimestamp = async () => {
     return new BN(
@@ -198,7 +190,6 @@ module.exports = {
   ERC20_CONTRACT_NAME,
   MINT_MANAGER_CONTRACT_NAME,
   SENT_ATTACKER_CONTRACT_NAME,
-  waitTillBeginningOfSecond,
   setupTimeManager,
   initialize,
   launchTokens,
