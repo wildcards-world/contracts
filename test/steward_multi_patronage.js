@@ -133,7 +133,6 @@ contract("WildcardSteward owed", (accounts) => {
     //////////////////////////////////////////////////
     //////////////////////////////////////////////////
     await setNextTxTimestamp(time.duration.minutes(10));
-    // await waitTillBeginningOfSecond();
 
     // Buy a 2nd token
     const buyToken2Tx = await steward.buyAuction(

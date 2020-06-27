@@ -25,11 +25,13 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
   const artistAddress = accounts[9];
   const artistCommission = 0;
 
-  const tenMinPatronageAt1Eth = ether("1")
-    .mul(new BN("600"))
-    .mul(new BN("12"))
-    .div(new BN("1"))
-    .div(new BN("31536000"));
+  const tenMinPatronageAt1Eth = patronageDue([
+    {
+      price: ether("1"),
+      timeHeld: new BN(600),
+      patronageNumerator,
+    },
+  ]);
 
   const admin = accounts[0];
   const benefactor1 = accounts[1];
@@ -168,24 +170,36 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
   // });
 
   describe("steward: benefactor withdrawal with token foreclosure", async () => {
-    it("steward: benefactor withdrawal. A token is owned for 20 minutes, but forecloses after 10 minutes. The organisation withdraws their after 20 minutes.", async () => {
+    it("steward: benefactor withdrawal. A token is owned for 20 minutes, but forecloses after 10 minutes. The organisation withdraws their funds after 20 minutes.", async () => {
       const tokenPrice = ether("1");
       const deposit = tenMinPatronageAt1Eth;
       const buyToken2Timestamp = await txTimestamp(
-        steward.buyAuction(1, tokenPrice, percentageForWildcards, {
-          from: patron2,
-          value: deposit.mul(new BN(10)),
-        })
+        steward.buyAuction(
+          tokenDetails[1].token,
+          tokenPrice,
+          percentageForWildcards,
+          {
+            from: patron2,
+            value: deposit.mul(new BN(10)),
+          }
+        )
       );
 
       const buyToken1Timestamp = await txTimestamp(
-        steward.buyAuction(0, tokenPrice, percentageForWildcards, {
-          from: patron1,
-          value: deposit,
-        })
+        steward.buyAuction(
+          tokenDetails[0].token,
+          tokenPrice,
+          percentageForWildcards,
+          {
+            from: patron1,
+            value: deposit,
+          }
+        )
       );
 
-      const token1ForeclosureTime = await steward.foreclosureTime.call(0);
+      const token1ForeclosureTime = await steward.foreclosureTime.call(
+        tokenDetails[0].token
+      );
       assert.equal(
         token1ForeclosureTime.toString(),
         buyToken1Timestamp.add(new BN(time.duration.minutes(10))).toString(),
@@ -194,7 +208,7 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
 
       const balTrack = await balance.tracker(benefactor1);
       const withdrawBenefactorFundstimestamp = await setNextTxTimestamp(
-        time.duration.minutes(20)
+        time.duration.minutes(20).sub(new BN(1))
       );
       await withdrawMaxPermissioned(benefactor1);
 
@@ -221,7 +235,7 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
       const benefactorFundsBefore = await steward.benefactorFunds.call(
         benefactor1
       );
-      const tokenPriceBefore = await steward.price.call("0");
+      const tokenPriceBefore = await steward.price.call(tokenDetails[0].token);
       const patronScaledCostBefore = await steward.totalPatronOwnedTokenCost.call(
         patron1
       );
@@ -229,14 +243,28 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
         benefactor1
       );
       // After calling collect patronage a credit should reflect. tenMinPatronageAt1Eth
-      await steward._collectPatronage(0);
+      await steward._collectPatronage(tokenDetails[0].token);
+
+      const totalDueBeforeForeclosure = patronageDue([
+        {
+          price: tokenPrice,
+          timeHeld: 1,
+          patronageNumerator,
+        },
+        {
+          price: tokenPrice,
+          timeHeld: 1,
+          patronageNumerator,
+        },
+      ]);
+
       const benefactorCreditAfter = await steward.benefactorCredit.call(
         benefactor1
       );
       const benefactorFundsAfter = await steward.benefactorFunds.call(
         benefactor1
       );
-      const tokenPriceAfter = await steward.price.call("0");
+      const tokenPriceAfter = await steward.price.call(tokenDetails[0].token);
       const potronScaledCostAfter = await steward.totalPatronOwnedTokenCost.call(
         patron1
       );
@@ -266,7 +294,7 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
       );
       assert.equal(
         benefactorFundsAfter.toString(),
-        "0",
+        totalDueBeforeForeclosure.toString(),
         "benefactor funds should stay zero"
       );
       assert.equal(
@@ -319,16 +347,13 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
         },
       ]);
 
-      const changeInBenefactorBalance = (await balTrack2.delta()).toString();
-      assert.equal(
-        changeInBenefactorBalance,
-        totalDueInSecondWithdrawal.toString()
+      const changeInBenefactorBalance = await balTrack2.delta();
+      assert.isTrue(
+        // NOTE: due to division error, can be off by 1...
+        Math.abs(changeInBenefactorBalance.sub(totalDueInSecondWithdrawal)) <= 1
       );
-      assert.equal(
-        changeInBenefactorBalance,
-        amountDueForToken2inSecondWithdrawal
-          .sub(benefactorCreditAfter)
-          .toString()
+      const calculatedBenefactorBalanceChange = amountDueForToken2inSecondWithdrawal.sub(
+        benefactorCreditAfter
       );
     });
   });

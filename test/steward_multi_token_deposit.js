@@ -1,10 +1,5 @@
 const { BN, ether, time } = require("@openzeppelin/test-helpers");
-const {
-  waitTillBeginningOfSecond,
-  patronageDue,
-  setupTimeManager,
-  initialize,
-} = require("./helpers");
+const { patronageDue, setupTimeManager, initialize } = require("./helpers");
 
 contract("WildcardSteward owed", (accounts) => {
   let steward;
@@ -78,8 +73,6 @@ contract("WildcardSteward owed", (accounts) => {
   });
 
   it("steward: multi-token-deposit. On token buy, check that the remaining deposit is sent back to patron only if it is their only token", async () => {
-    await waitTillBeginningOfSecond();
-
     //Buying 2 tokens. Setting selling price to 1 and 2 eth respectively. Sending 1 eth each for deposit.
     const buy1time = await txTimestamp(
       steward.buyAuction(tokenDetails[0].token, ether("1"), 500, {

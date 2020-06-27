@@ -6,19 +6,13 @@ const {
   balance,
   time,
 } = require("@openzeppelin/test-helpers");
-const {
-  multiPatronageCalculator,
-  waitTillBeginningOfSecond,
-  initialize,
-} = require("./helpers");
+const { multiPatronageCalculator, initialize } = require("./helpers");
 
 const patronageCalculator = multiPatronageCalculator();
 
 contract("WildcardSteward admin change", (accounts) => {
   let erc721;
   let steward;
-  let erc20;
-  let mintManager;
   const testTokenId1 = 1;
   const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
@@ -55,8 +49,6 @@ contract("WildcardSteward admin change", (accounts) => {
   });
 
   it("steward: admin-change. On admin change, check that only the admin can change the admin address. Also checking withdraw benfactor funds can be called", async () => {
-    await waitTillBeginningOfSecond();
-
     //Buy a token
     await steward.buyAuction(testTokenId1, ether("1"), 500, {
       from: accounts[2],
