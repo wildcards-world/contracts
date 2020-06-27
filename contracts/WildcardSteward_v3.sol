@@ -460,7 +460,6 @@ contract WildcardSteward_v3 is Initializable {
         returns (uint256 payoutDue)
     {
         uint256 timePassed = now.sub(benefactorLastTimeCollected[benefactor]);
-
         return
             benefactorTotalTokenNumerator[benefactor]
                 .mul(timePassed)
@@ -588,7 +587,7 @@ contract WildcardSteward_v3 is Initializable {
                     );
                 }
             } else {
-                d timeSinceLastMint = now.sub(
+                timeSinceLastMint = now.sub(
                     timeLastCollectedPatron[tokenPatron]
                 );
                 timeLastCollectedPatron[tokenPatron] = now;
@@ -624,8 +623,8 @@ contract WildcardSteward_v3 is Initializable {
                     unclaimedPayoutAvailable.add(benefactorFunds[benefactor])
                 );
             } else {
-                benefactorFunds[benefactor] = unclaimedPayoutAvailable
-                    .add(benefactorFunds[benefactor])
+                benefactorFunds[benefactor] = benefactorFunds[benefactor]
+                    .add(unclaimedPayoutAvailable)
                     .sub(benefactorCredit[benefactor]);
 
                 benefactorCredit[benefactor] = 0;
@@ -664,10 +663,14 @@ contract WildcardSteward_v3 is Initializable {
         uint256 amountToWithdraw = availableToWithdraw -
             benefactorWithdrawalSafetyDiscount;
 
+        benefactorFunds[benefactor] = benefactorWithdrawalSafetyDiscount;
         if (safeSend(amountToWithdraw, benefactor)) {
-            benefactorFunds[benefactor] = benefactorWithdrawalSafetyDiscount;
             emit WithdrawBenefactorFundsWithSafetyDelay(
                 benefactor,
+                amountToWithdraw
+            );
+        } else {
+            benefactorFunds[benefactor] = benefactorFunds[benefactor].add(
                 amountToWithdraw
             );
         }
@@ -721,6 +724,8 @@ contract WildcardSteward_v3 is Initializable {
                         benefactor,
                         availableToWithdraw
                     );
+                } else {
+                    console.log("UNABLE TO SEND...");
                 }
             } else {
                 if (safeSend(availableToWithdraw, benefactor)) {
