@@ -169,7 +169,7 @@ const withdrawBenefactorFundsAll = async (
   // );
   // const recoveredAddress = ethUtil.pubToAddress(recoveredPub).toString("hex");
 
-  await steward.withdrawBenefactorFundsToValidated(
+  return await steward.withdrawBenefactorFundsToValidated(
     benefactor,
     maxAmount,
     expiry,
