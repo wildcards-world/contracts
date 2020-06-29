@@ -239,7 +239,7 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
       const patronScaledCostBefore = await steward.totalPatronOwnedTokenCost.call(
         patron1
       );
-      const benefactorScaledCostBefore = await steward.benefactorTotalTokenNumerator.call(
+      const benefactorScaledCostBefore = await steward.totalBenefactorTokenNumerator.call(
         benefactor1
       );
       // After calling collect patronage a credit should reflect. tenMinPatronageAt1Eth
@@ -268,7 +268,7 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
       const potronScaledCostAfter = await steward.totalPatronOwnedTokenCost.call(
         patron1
       );
-      const benefactorScaledCostAfter = await steward.benefactorTotalTokenNumerator.call(
+      const benefactorScaledCostAfter = await steward.totalBenefactorTokenNumerator.call(
         benefactor1
       );
 
