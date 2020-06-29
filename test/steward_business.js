@@ -19,7 +19,7 @@ contract("WildcardSteward owed", (accounts) => {
 
   const admin = accounts[0];
   const benefactor = accounts[1];
-  const withdrawCheckerAdmin = accounts[10];
+  const withdrawCheckerAdmin = accounts[6];
   const zeroEther = ether("0");
   const auctionEndPrice = zeroEther;
   const auctionStartPrice = zeroEther;

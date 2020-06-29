@@ -1,4 +1,5 @@
 const { BN } = require("@openzeppelin/test-helpers");
+const { time } = require("@openzeppelin/test-helpers");
 
 const { promisify } = require("util");
 
@@ -111,11 +112,15 @@ const setupTimeManager = async (web3) => {
       (await getCurrentTimestamp()).add(timeIncreaseBN).toString()
     );
 
-    await promisify(web3.currentProvider.send.bind(web3.currentProvider))({
-      jsonrpc: "2.0",
-      method: "evm_setNextBlockTimestamp",
-      params: [timestamp],
-    });
+    if (process.env.IS_COVERAGE == "true") {
+      await time.increase(timeIncreaseBN);
+      // await time.increase(timeIncreaseBN.add(new BN(1)));
+    } else {
+      await promisify(web3.currentProvider.send.bind(web3.currentProvider))({
+        jsonrpc: "2.0",
+        method: "evm_setNextBlockTimestamp",
+      });
+    }
 
     return new BN(timestamp);
   };

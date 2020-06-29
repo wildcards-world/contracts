@@ -23,7 +23,7 @@ contract("WildcardSteward owed", (accounts) => {
   const artistCommission = 0;
 
   const benefactorAddress = accounts[8];
-  const withdrawCheckerAdmin = accounts[10];
+  const withdrawCheckerAdmin = accounts[6];
   const admin = accounts[0];
   const zeroEther = ether("0");
   const auctionEndPrice = zeroEther;
