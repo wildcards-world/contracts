@@ -95,12 +95,12 @@ contract WildcardSteward_v3 is Initializable {
         uint256 remainingDeposit,
         uint256 amountReceived
     );
-    // Legacy collect loyalty event - only used in the upgrade function; TODO: delete on next upgrade.
-    event CollectLoyalty(
-        uint256 indexed tokenId,
-        address indexed patron,
-        uint256 amountRecieved
-    );
+    // Removing this, no longer needed.
+    // event CollectLoyalty(
+    //     uint256 indexed tokenId,
+    //     address indexed patron,
+    //     uint256 amountRecieved
+    // );
     event CollectLoyalty(address indexed patron, uint256 amountRecieved);
 
     event ArtistCommission(
@@ -283,9 +283,13 @@ contract WildcardSteward_v3 is Initializable {
             uint256 tokenId = tokens[i];
             address currentOwner = assetToken.ownerOf(tokenId);
 
+            uint256 timeSinceTokenLastCollection = now.sub(
+                deprecated_timeLastCollected[tokenId]
+            );
+
             // NOTE: for this upgrade we make sure no tokens are foreclosed, or close to foreclosing
             uint256 collection = price[tokenId]
-                .mul(now.sub(deprecated_timeLastCollected[tokenId]))
+                .mul(timeSinceTokenLastCollection)
                 .mul(patronageNumerator[tokenId])
                 .div(1000000000000)
                 .div(365 days);
@@ -297,7 +301,7 @@ contract WildcardSteward_v3 is Initializable {
                 deposit[currentOwner] = deposit[currentOwner].sub(
                     patronageOwedPatron(currentOwner)
                 );
-Y
+
                 timeLastCollectedPatron[currentOwner] = now;
             }
 
@@ -313,13 +317,16 @@ Y
                 collection
             );
 
-            // Collect the due loyalty tokens for the user
-            if (currentOwner != address(0)) {
-                _collectLoyaltyPatron(
-                    currentOwner,
-                    now.sub(deprecated_timeLastCollected[tokenId])
-                );
-            }
+            // mint required loyalty tokens
+            mintManager.tokenMint(
+                currentOwner,
+                timeSinceTokenLastCollection, // this should always be > 0
+                11574074074074 // instead of this -> tokenGenerationRate[tokenId] hard code to save gas
+            );
+            emit CollectLoyalty(
+                currentOwner,
+                timeSinceTokenLastCollection.mul(11574074074074)
+            ); // OPTIMIZE ME
 
             // Add the tokens generation rate to the totalPatronTokenGenerationRate of the current owner
             totalPatronTokenGenerationRate[currentOwner] = totalPatronTokenGenerationRate[currentOwner]
@@ -527,7 +534,10 @@ Y
             timeSinceLastMint,
             totalPatronTokenGenerationRate[tokenPatron]
         );
-        emit CollectLoyalty(tokenPatron, timeSinceLastMint);
+        emit CollectLoyalty(
+            tokenPatron,
+            timeSinceLastMint.mul(totalPatronTokenGenerationRate[tokenPatron])
+        );
     }
 
     function _collectPatronage(uint256 tokenId) public {
