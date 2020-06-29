@@ -1,11 +1,4 @@
-const {
-  BN,
-  expectRevert,
-  ether,
-  expectEvent,
-  balance,
-  time,
-} = require("@openzeppelin/test-helpers");
+const { expectRevert, ether, time } = require("@openzeppelin/test-helpers");
 const { multiPatronageCalculator, initialize } = require("./helpers");
 
 const patronageCalculator = multiPatronageCalculator();
@@ -18,7 +11,7 @@ contract("WildcardSteward admin change", (accounts) => {
   const tokenGenerationRate = 10; // should depend on token
   const benefactorAddress = accounts[8];
   const artistAddress = accounts[9];
-  const withdrawCheckerAdmin = accounts[10];
+  const withdrawCheckerAdmin = accounts[6];
   const artistCommission = 0;
   const admin = accounts[0];
   const animalDetails = [
