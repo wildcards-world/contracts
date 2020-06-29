@@ -293,13 +293,13 @@ contract WildcardSteward_v3 is Initializable {
             // set the timeLastCollectedPatron for that tokens owner to 'now'.
             // timeLastCollected[tokenId] = now; // This variable is depricated, no need to update it.
             if (timeLastCollectedPatron[currentOwner] < now) {
+                // set subtract patronage owed for the Patron from their deposit.
+                deposit[currentOwner] = deposit[currentOwner].sub(
+                    patronageOwedPatron(currentOwner)
+                );
+Y
                 timeLastCollectedPatron[currentOwner] = now;
             }
-
-            // set subtract patronage owed for the Patron from their deposit.
-            deposit[currentOwner] = deposit[currentOwner].sub(
-                patronageOwedPatron(currentOwner)
-            );
 
             // Add the amount collected for current token to the benefactorFunds.
             benefactorFunds[benefactors[tokenId]] = benefactorFunds[benefactors[tokenId]]
