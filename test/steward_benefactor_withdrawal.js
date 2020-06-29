@@ -8,84 +8,16 @@ const {
 } = require("@openzeppelin/test-helpers");
 const { promisify } = require("util");
 const {
-  waitTillBeginningOfSecond,
   setupTimeManager,
   patronageDue,
-  STEWARD_CONTRACT_NAME,
-  ERC20_CONTRACT_NAME,
-  ERC721_CONTRACT_NAME,
-  MINT_MANAGER_CONTRACT_NAME,
+  initialize,
+  withdrawBenefactorFundsAll,
 } = require("./helpers");
 // TODO: switch to the ethersjs version, for future typescript support? https://www.npmjs.com/package/@ethersproject/abi
-const abi = require("ethereumjs-abi");
-const ethUtil = require("ethereumjs-util");
-
-const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
-const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
-const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
-const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
-
-// todo: test over/underflows
-
-const withdrawBenefactorFundsAll = async (
-  steward,
-  web3,
-  withdrawCheckerAdmin,
-  benefactor,
-  maxAmount,
-  expiry
-) => {
-  const hash =
-    "0x" +
-    abi
-      .soliditySHA3(
-        ["address", "uint256", "uint256"],
-        [benefactor, maxAmount, expiry]
-      )
-      .toString("hex");
-
-  const signature = await web3.eth.sign(hash, withdrawCheckerAdmin);
-
-  const { r, s, v } = ethUtil.fromRpcSig(signature);
-  // NOTE: The below 3 lines do the same thing as the above line, kept for reference.
-  // const r = signature.slice(0, 66);
-  // const s = "0x" + signature.slice(66, 130);
-  // const v = web3.utils.toDecimal("0x" + signature.slice(130, 132));
-
-  // this prefix is required by the `ecrecover` builtin solidity function (other than that it is pretty arbitrary)
-  const prefix = "\x19Ethereum Signed Message:\n32";
-  const prefixedBytes = web3.utils.fromAscii(prefix) + hash.slice(2);
-  const prefixedHash = web3.utils.sha3(prefixedBytes, { encoding: "hex" });
-
-  // // For reforence, how to recover a signature with javascript.
-  // const recoveredPub = ethUtil.ecrecover(
-  //   ethUtil.toBuffer(prefixedHash),
-  //   sigDecoded.v,
-  //   sigDecoded.r,
-  //   sigDecoded.s
-  // );
-  // const recoveredAddress = ethUtil.pubToAddress(recoveredPub).toString("hex");
-
-  await steward.withdrawBenefactorFundsToValidated(
-    benefactor,
-    maxAmount,
-    expiry,
-    prefixedHash,
-    v,
-    r,
-    s,
-    {
-      from: benefactor,
-      gasPrice: "0", // Set gas price to 0 for simplicity
-    }
-  );
-};
 
 contract("WildcardSteward Benefactor collection", (accounts) => {
-  let erc721;
   let steward;
-  let erc20;
-  let mintManager;
+
   const patronageNumerator = "12000000000000";
   const patronageDenominator = "1000000000000";
   const tokenGenerationRate = 10; // should depend on token
@@ -93,11 +25,13 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
   const artistAddress = accounts[9];
   const artistCommission = 0;
 
-  const tenMinPatronageAt1Eth = ether("1")
-    .mul(new BN("600"))
-    .mul(new BN("12"))
-    .div(new BN("1"))
-    .div(new BN("31536000"));
+  const tenMinPatronageAt1Eth = patronageDue([
+    {
+      price: ether("1"),
+      timeHeld: new BN(600),
+      patronageNumerator,
+    },
+  ]);
 
   const admin = accounts[0];
   const benefactor1 = accounts[1];
@@ -105,6 +39,43 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
   const patron1 = accounts[3];
   const patron2 = accounts[4];
   const withdrawCheckerAdmin = accounts[10];
+  const zeroEther = ether("0");
+  const auctionEndPrice = zeroEther;
+  const auctionStartPrice = zeroEther;
+  const auctionDuration = new BN(86400);
+  const percentageForWildcards = 500;
+  const tokenDefaults = {
+    benefactor: benefactor1,
+    patronageNumerator,
+    tokenGenerationRate,
+    artist: artistAddress,
+    artistCommission,
+    releaseDate: 0,
+  };
+  const tokenDetails = [
+    {
+      ...tokenDefaults,
+      token: "0",
+    },
+    {
+      ...tokenDefaults,
+      token: "1",
+    },
+    {
+      ...tokenDefaults,
+      token: "2",
+    },
+    {
+      ...tokenDefaults,
+      benefactor: benefactor2,
+      token: "3",
+    },
+    {
+      ...tokenDefaults,
+      benefactor: benefactor2,
+      token: "4",
+    },
+  ];
   let setNextTxTimestamp,
     timeSinceTimestamp,
     getCurrentTimestamp,
@@ -116,9 +87,21 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
     const timeManager = await setupTimeManager(web3);
     setNextTxTimestamp = timeManager.setNextTxTimestamp; // takes in duration
     timeSinceTimestamp = timeManager.timeSinceTimestamp; // takes in old timestamp, returns current time
-    getCurrentTimestamp = timeManager.getCurrentTimestamp; // returns current time
+    getCurrentTimestamp = timeManager.getCurrentTimestamp; // returns timestamp of a given transaction
     timeSince = timeManager.timeSince; // returns interval between two timestamps
-    txTimestamp = timeManager.txTimestamp; // returns current time
+    txTimestamp = timeManager.txTimestamp; // returns timestamp of a given transaction
+  });
+
+  beforeEach(async () => {
+    const result = await initialize(
+      admin,
+      withdrawCheckerAdmin,
+      auctionStartPrice,
+      auctionEndPrice,
+      auctionDuration,
+      tokenDetails
+    );
+    steward = result.steward;
     withdrawMaxPermissioned = async (benefactor) =>
       withdrawBenefactorFundsAll(
         steward,
@@ -126,89 +109,14 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
         withdrawCheckerAdmin,
         benefactor,
         ether("100").toString(),
-        new BN(await getCurrentTimestamp()).add(new BN(1000)).toString()
+        (await getCurrentTimestamp()).add(new BN(100000000)).toString()
       );
-  });
-
-  beforeEach(async () => {
-    erc721 = await ERC721token.new({ from: admin });
-    steward = await WildcardSteward.new({ from: admin });
-    mintManager = await MintManager.new({ from: admin });
-    erc20 = await ERC20token.new("Wildcards Loyalty Token", "WLT", 18, {
-      from: admin,
-    });
-    await mintManager.initialize(admin, steward.address, erc20.address, {
-      from: admin,
-    });
-    await erc721.setup(
-      steward.address,
-      "ALWAYSFORSALETestToken",
-      "AFSTT",
-      admin,
-      { from: admin }
-    );
-    await erc721.addMinter(steward.address, { from: admin });
-    await erc721.renounceMinter({ from: admin });
-    await erc20.addMinter(mintManager.address, {
-      from: admin,
-    });
-    await erc20.renounceMinter({ from: admin });
-
-    // TODO: use this to make the contract address of the token deterministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(
-      erc721.address,
-      admin,
-      mintManager.address,
-      withdrawCheckerAdmin,
-      0 /* auction start price: Set to zero for testing purposes*/,
-      ether("0") /* auction end price: set this too high for the tests */,
-      time.duration.days(
-        1
-      ) /* auction length; Set to 1 day, its minumum value for testing purposes*/
-    );
-
-    await steward.listNewTokens(
-      [0, 1, 2, 3, 4],
-      [benefactor1, benefactor1, benefactor1, benefactor2, benefactor2],
-      [
-        patronageNumerator,
-        patronageNumerator,
-        patronageNumerator,
-        patronageNumerator,
-        patronageNumerator,
-      ],
-      [
-        tokenGenerationRate,
-        tokenGenerationRate,
-        tokenGenerationRate,
-        tokenGenerationRate,
-        tokenGenerationRate,
-      ],
-      [
-        artistAddress,
-        artistAddress,
-        artistAddress,
-        artistAddress,
-        artistAddress,
-      ],
-      [
-        artistCommission,
-        artistCommission,
-        artistCommission,
-        artistCommission,
-        artistCommission,
-      ],
-      [0, 0, 0, 0, 0]
-    );
-    await steward.changeAuctionParameters("0", "0", 86400, {
-      from: admin,
-    });
   });
 
   it("steward: benefactor withdrawal. A token is owned for 1 year.", async () => {
     const tokenPrice = ether("0.01");
     const deposit = ether("0.5");
-    await steward.buyAuction(1, tokenPrice, 500, {
+    await steward.buyAuction(1, tokenPrice, percentageForWildcards, {
       from: accounts[2],
       value: deposit,
     });
@@ -234,7 +142,7 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
   // it("steward: benefactor withdrawal. A token is owned for 1 year.", async () => {
   //   const tokenPrice = ether("0.01");
   //   const deposit = ether("0.5");
-  //   await steward.buyAuction(1, tokenPrice, 500, {
+  //   await steward.buyAuction(1, tokenPrice, percentageForWildcards, {
   //     from: accounts[2],
   //     value: deposit,
   //   });
@@ -262,24 +170,36 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
   // });
 
   describe("steward: benefactor withdrawal with token foreclosure", async () => {
-    it("steward: benefactor withdrawal. A token is owned for 20 minutes, but forecloses after 10 minutes. The organisation withdraws their after 20 minutes.", async () => {
+    it("steward: benefactor withdrawal. A token is owned for 20 minutes, but forecloses after 10 minutes. The organisation withdraws their funds after 20 minutes.", async () => {
       const tokenPrice = ether("1");
       const deposit = tenMinPatronageAt1Eth;
       const buyToken2Timestamp = await txTimestamp(
-        steward.buyAuction(1, tokenPrice, 500, {
-          from: patron2,
-          value: deposit.mul(new BN(10)),
-        })
+        steward.buyAuction(
+          tokenDetails[1].token,
+          tokenPrice,
+          percentageForWildcards,
+          {
+            from: patron2,
+            value: deposit.mul(new BN(10)),
+          }
+        )
       );
 
       const buyToken1Timestamp = await txTimestamp(
-        steward.buyAuction(0, tokenPrice, 500, {
-          from: patron1,
-          value: deposit,
-        })
+        steward.buyAuction(
+          tokenDetails[0].token,
+          tokenPrice,
+          percentageForWildcards,
+          {
+            from: patron1,
+            value: deposit,
+          }
+        )
       );
 
-      const token1ForeclosureTime = await steward.foreclosureTime.call(0);
+      const token1ForeclosureTime = await steward.foreclosureTime.call(
+        tokenDetails[0].token
+      );
       assert.equal(
         token1ForeclosureTime.toString(),
         buyToken1Timestamp.add(new BN(time.duration.minutes(10))).toString(),
@@ -288,7 +208,7 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
 
       const balTrack = await balance.tracker(benefactor1);
       const withdrawBenefactorFundstimestamp = await setNextTxTimestamp(
-        time.duration.minutes(20)
+        time.duration.minutes(20).sub(new BN(1))
       );
       await withdrawMaxPermissioned(benefactor1);
 
@@ -315,26 +235,40 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
       const benefactorFundsBefore = await steward.benefactorFunds.call(
         benefactor1
       );
-      const tokenPriceBefore = await steward.price.call("0");
+      const tokenPriceBefore = await steward.price.call(tokenDetails[0].token);
       const patronScaledCostBefore = await steward.totalPatronOwnedTokenCost.call(
         patron1
       );
-      const benefactorScaledCostBefore = await steward.benefactorTotalTokenNumerator.call(
+      const benefactorScaledCostBefore = await steward.totalBenefactorTokenNumerator.call(
         benefactor1
       );
       // After calling collect patronage a credit should reflect. tenMinPatronageAt1Eth
-      await steward._collectPatronage(0);
+      await steward._collectPatronage(tokenDetails[0].token);
+
+      const totalDueBeforeForeclosure = patronageDue([
+        {
+          price: tokenPrice,
+          timeHeld: 1,
+          patronageNumerator,
+        },
+        {
+          price: tokenPrice,
+          timeHeld: 1,
+          patronageNumerator,
+        },
+      ]);
+
       const benefactorCreditAfter = await steward.benefactorCredit.call(
         benefactor1
       );
       const benefactorFundsAfter = await steward.benefactorFunds.call(
         benefactor1
       );
-      const tokenPriceAfter = await steward.price.call("0");
+      const tokenPriceAfter = await steward.price.call(tokenDetails[0].token);
       const potronScaledCostAfter = await steward.totalPatronOwnedTokenCost.call(
         patron1
       );
-      const benefactorScaledCostAfter = await steward.benefactorTotalTokenNumerator.call(
+      const benefactorScaledCostAfter = await steward.totalBenefactorTokenNumerator.call(
         benefactor1
       );
 
@@ -360,7 +294,7 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
       );
       assert.equal(
         benefactorFundsAfter.toString(),
-        "0",
+        totalDueBeforeForeclosure.toString(),
         "benefactor funds should stay zero"
       );
       assert.equal(
@@ -413,16 +347,13 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
         },
       ]);
 
-      const changeInBenefactorBalance = (await balTrack2.delta()).toString();
-      assert.equal(
-        changeInBenefactorBalance,
-        totalDueInSecondWithdrawal.toString()
+      const changeInBenefactorBalance = await balTrack2.delta();
+      assert.isTrue(
+        // NOTE: due to division error, can be off by 1...
+        Math.abs(changeInBenefactorBalance.sub(totalDueInSecondWithdrawal)) <= 1
       );
-      assert.equal(
-        changeInBenefactorBalance,
-        amountDueForToken2inSecondWithdrawal
-          .sub(benefactorCreditAfter)
-          .toString()
+      const calculatedBenefactorBalanceChange = amountDueForToken2inSecondWithdrawal.sub(
+        benefactorCreditAfter
       );
     });
   });

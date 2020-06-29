@@ -6,79 +6,49 @@ const {
   balance,
   time,
 } = require("@openzeppelin/test-helpers");
-const {
-  multiPatronageCalculator,
-  waitTillBeginningOfSecond,
-  STEWARD_CONTRACT_NAME,
-  ERC20_CONTRACT_NAME,
-  ERC721_CONTRACT_NAME,
-  MINT_MANAGER_CONTRACT_NAME,
-} = require("./helpers");
-
-const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
-const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
-const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
-const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
+const { multiPatronageCalculator, initialize } = require("./helpers");
 
 const patronageCalculator = multiPatronageCalculator();
 
 contract("WildcardSteward admin change", (accounts) => {
   let erc721;
   let steward;
-  let erc20;
   const testTokenId1 = 1;
   const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
+  const benefactorAddress = accounts[8];
   const artistAddress = accounts[9];
+  const withdrawCheckerAdmin = accounts[10];
   const artistCommission = 0;
+  const admin = accounts[0];
+  const animalDetails = [
+    {
+      token: "1",
+      benefactor: benefactorAddress,
+      patronageNumerator,
+      tokenGenerationRate,
+      artist: artistAddress,
+      artistCommission,
+      releaseDate: Math.round(new Date().getTime() / 1000),
+    },
+  ];
 
   beforeEach(async () => {
-    erc721 = await ERC721token.new({ from: accounts[0] });
-    steward = await WildcardSteward.new({ from: accounts[0] });
-    mintManager = await MintManager.new({ from: accounts[0] });
-    erc20 = await ERC20token.new("Wildcards Loyalty Token", "WLT", 18, {
-      from: accounts[0],
-    });
-    await mintManager.initialize(accounts[0], steward.address, erc20.address, {
-      from: accounts[0],
-    });
-    await erc20.addMinter(mintManager.address, {
-      from: accounts[0],
-    });
-    await erc20.renounceMinter({ from: accounts[0] });
-    await erc721.setup(
-      steward.address,
-      "ALWAYSFORSALETestToken",
-      "AFSTT",
-      accounts[0],
-      { from: accounts[0] }
+    const result = await initialize(
+      admin,
+      withdrawCheckerAdmin,
+      ether("1"),
+      ether("0.05"),
+      86400,
+      animalDetails
     );
-    await erc721.addMinter(steward.address, { from: accounts[0] });
-    await erc721.renounceMinter({ from: accounts[0] });
-    // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(
-      erc721.address,
-      accounts[0],
-      mintManager.address,
-      0 /*Set to zero for testing purposes*/
-    );
-    await steward.listNewTokens(
-      [1],
-      [accounts[9]],
-      [patronageNumerator],
-      [tokenGenerationRate],
-      [artistAddress],
-      [artistCommission],
-      [0]
-    );
-    await steward.changeAuctionParameters(ether("1"), ether("0.05"), 86400, {
-      from: accounts[0],
-    });
+    erc721 = result.erc721;
+    erc20 = result.erc20;
+    steward = result.steward;
+    mintManager = result.mintManager;
   });
 
   it("steward: admin-change. On admin change, check that only the admin can change the admin address. Also checking withdraw benfactor funds can be called", async () => {
-    await waitTillBeginningOfSecond();
-
     //Buy a token
     await steward.buyAuction(testTokenId1, ether("1"), 500, {
       from: accounts[2],

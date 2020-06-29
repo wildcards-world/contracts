@@ -5,7 +5,6 @@ import "./MintManager_v2.sol";
 
 import "@nomiclabs/buidler/console.sol";
 
-
 /*
 31536000 seconds = 365 days
 
@@ -29,9 +28,9 @@ contract WildcardSteward_v3 is Initializable {
     mapping(uint256 => uint256) public price; //in wei
     ERC721Patronage_v1 public assetToken; // ERC721 NFT.
 
-    mapping(uint256 => uint256) public totalCollected; // THIS VALUE IS DEPRECATED
-    mapping(uint256 => uint256) public currentCollected; // THIS VALUE IS DEPRECATED
-    mapping(uint256 => uint256) public timeLastCollected; // THIS VALUE IS DEPRECATED.
+    mapping(uint256 => uint256) public deprecated_totalCollected; // THIS VALUE IS DEPRECATED
+    mapping(uint256 => uint256) public deprecated_currentCollected; // THIS VALUE IS DEPRECATED
+    mapping(uint256 => uint256) public deprecated_timeLastCollected; // THIS VALUE IS DEPRECATED.
     mapping(address => uint256) public timeLastCollectedPatron;
     mapping(address => uint256) public deposit;
     mapping(address => uint256) public totalPatronOwnedTokenCost;
@@ -39,11 +38,11 @@ contract WildcardSteward_v3 is Initializable {
     mapping(uint256 => address) public benefactors; // non-profit benefactor
     mapping(address => uint256) public benefactorFunds;
 
-    mapping(uint256 => address) public currentPatron; // This is different to the current token owner.
-    mapping(uint256 => mapping(address => bool)) public patrons;
-    mapping(uint256 => mapping(address => uint256)) public timeHeld;
+    mapping(uint256 => address) public deprecated_currentPatron; // Deprecate This is different to the current token owner.
+    mapping(uint256 => mapping(address => bool)) public deprecated_patrons; // Deprecate
+    mapping(uint256 => mapping(address => uint256)) public deprecated_timeHeld; // Deprecate
 
-    mapping(uint256 => uint256) public timeAcquired;
+    mapping(uint256 => uint256) public deprecate_timeAcquired; // deprecate
 
     // 1200% patronage
     mapping(uint256 => uint256) public patronageNumerator;
@@ -68,8 +67,8 @@ contract WildcardSteward_v3 is Initializable {
     mapping(uint256 => uint256) tokenAuctionBeginTimestamp;
 
     mapping(address => uint256) public totalPatronTokenGenerationRate; // The total token generation rate for all the tokens of the given address.
-    mapping(address => uint256) public benefactorTotalTokenNumerator;
-    mapping(address => uint256) public benefactorLastTimeCollected;
+    mapping(address => uint256) public totalBenefactorTokenNumerator;
+    mapping(address => uint256) public timeLastCollectedBenefactor; // make my name consistent please
     mapping(address => uint256) public benefactorCredit;
     address public withdrawCheckerAdmin;
 
@@ -96,12 +95,12 @@ contract WildcardSteward_v3 is Initializable {
         uint256 remainingDeposit,
         uint256 amountReceived
     );
-    // Legacy collect loyalty event - only used in the upgrade function; TODO: delete on next upgrade.
-    event CollectLoyalty(
-        uint256 indexed tokenId,
-        address indexed patron,
-        uint256 amountRecieved
-    );
+    // Removing this, no longer needed.
+    // event CollectLoyalty(
+    //     uint256 indexed tokenId,
+    //     address indexed patron,
+    //     uint256 amountRecieved
+    // );
     event CollectLoyalty(address indexed patron, uint256 amountRecieved);
 
     event ArtistCommission(
@@ -117,9 +116,10 @@ contract WildcardSteward_v3 is Initializable {
         address indexed benefactor,
         uint256 withdrawAmount
     );
+    event UpgradeToV3();
 
     modifier onlyPatron(uint256 tokenId) {
-        require(msg.sender == currentPatron[tokenId], "Not patron");
+        require(msg.sender == assetToken.ownerOf(tokenId), "Not patron");
         _;
     }
 
@@ -146,7 +146,7 @@ contract WildcardSteward_v3 is Initializable {
         _;
     }
 
-    // This modifier MUST be called anytime before the `benefactorTotalTokenNumerator[benefactor]` value changes.
+    // This modifier MUST be called anytime before the `totalBenefactorTokenNumerator[benefactor]` value changes.
     modifier updateBenefactorBalance(address benefactor) {
         _updateBenefactorBalance(benefactor);
         _;
@@ -239,15 +239,15 @@ contract WildcardSteward_v3 is Initializable {
             assetToken.mintWithTokenURI(address(this), tokens[i], tokenUri);
             benefactors[tokens[i]] = _benefactors[i];
             state[tokens[i]] = StewardState.Foreclosed;
-            timeLastCollected[tokens[i]] = now;
             patronageNumerator[tokens[i]] = _patronageNumerator[i];
             tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i];
 
             if (_releaseDate[i] < now) {
-                tokenAuctionBeginTimestamp[i] = now;
+                tokenAuctionBeginTimestamp[tokens[i]] = now;
             } else {
-                tokenAuctionBeginTimestamp[i] = _releaseDate[i];
+                tokenAuctionBeginTimestamp[tokens[i]] = _releaseDate[i];
             }
+
             emit AddToken(
                 tokens[i],
                 _patronageNumerator[i],
@@ -262,8 +262,8 @@ contract WildcardSteward_v3 is Initializable {
             );
 
             // // No need to initialize this.
-            // if (benefactorLastTimeCollected[benefactor] == 0) {
-            //     benefactorLastTimeCollected[benefactor] = now;
+            // if (timeLastCollectedBenefactor[benefactor] == 0) {
+            //     timeLastCollectedBenefactor[benefactor] = now;
             // }
         }
     }
@@ -281,25 +281,28 @@ contract WildcardSteward_v3 is Initializable {
         // For each token
         for (uint8 i = 0; i < tokens.length; ++i) {
             uint256 tokenId = tokens[i];
-            address currentOwner = currentPatron[tokenId]; // One of these is probably zero and doesn't exist
+            address currentOwner = assetToken.ownerOf(tokenId);
+
+            uint256 timeSinceTokenLastCollection = now.sub(
+                deprecated_timeLastCollected[tokenId]
+            );
 
             // NOTE: for this upgrade we make sure no tokens are foreclosed, or close to foreclosing
             uint256 collection = price[tokenId]
-                .mul(now.sub(timeLastCollected[tokenId]))
+                .mul(timeSinceTokenLastCollection)
                 .mul(patronageNumerator[tokenId])
-                .div(1000000000000)
-                .div(365 days);
+                .div(31536000000000000000);
 
             // set the timeLastCollectedPatron for that tokens owner to 'now'.
             // timeLastCollected[tokenId] = now; // This variable is depricated, no need to update it.
             if (timeLastCollectedPatron[currentOwner] < now) {
+                // set subtract patronage owed for the Patron from their deposit.
+                deposit[currentOwner] = deposit[currentOwner].sub(
+                    patronageOwedPatron(currentOwner)
+                );
+
                 timeLastCollectedPatron[currentOwner] = now;
             }
-
-            // set subtract patronage owed for the Patron from their deposit.
-            deposit[currentOwner] = deposit[currentOwner].sub(
-                patronageOwedPatron(currentOwner)
-            );
 
             // Add the amount collected for current token to the benefactorFunds.
             benefactorFunds[benefactors[tokenId]] = benefactorFunds[benefactors[tokenId]]
@@ -313,13 +316,16 @@ contract WildcardSteward_v3 is Initializable {
                 collection
             );
 
-            // Collect the due loyalty tokens for the user
-            if (currentOwner != address(0)) {
-                _collectLoyaltyPatron(
-                    currentOwner,
-                    now.sub(timeLastCollected[tokenId])
-                );
-            }
+            // mint required loyalty tokens
+            mintManager.tokenMint(
+                currentOwner,
+                timeSinceTokenLastCollection, // this should always be > 0
+                11574074074074 // instead of this -> tokenGenerationRate[tokenId] hard code to save gas
+            );
+            emit CollectLoyalty(
+                currentOwner,
+                timeSinceTokenLastCollection.mul(11574074074074)
+            ); // OPTIMIZE ME
 
             // Add the tokens generation rate to the totalPatronTokenGenerationRate of the current owner
             totalPatronTokenGenerationRate[currentOwner] = totalPatronTokenGenerationRate[currentOwner]
@@ -328,13 +334,12 @@ contract WildcardSteward_v3 is Initializable {
                 .add(11574074074074);
 
             address tokenBenefactor = benefactors[tokenId];
-            // add the scaled tokens price to the `benefactorTotalTokenNumerator`
-            benefactorTotalTokenNumerator[tokenBenefactor] = benefactorTotalTokenNumerator[tokenBenefactor]
+            // add the scaled tokens price to the `totalBenefactorTokenNumerator`
+            totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
                 .add(price[tokenId].mul(patronageNumerator[tokenId]));
 
-            // add the scaled tokens price to the `benefactorTotalTokenNumerator`
-            if (benefactorLastTimeCollected[tokenBenefactor] == 0) {
-                benefactorLastTimeCollected[tokenBenefactor] = now;
+            if (timeLastCollectedBenefactor[tokenBenefactor] == 0) {
+                timeLastCollectedBenefactor[tokenBenefactor] = now;
             }
         }
         _changeAuctionParameters(
@@ -342,6 +347,7 @@ contract WildcardSteward_v3 is Initializable {
             _auctionEndPrice,
             _auctionLength
         );
+        emit UpgradeToV3();
     }
 
     function changeReceivingBenefactor(
@@ -417,15 +423,14 @@ contract WildcardSteward_v3 is Initializable {
     {
 
             uint256 tokenTimeLastCollectedPatron
-         = timeLastCollectedPatron[currentPatron[tokenId]];
+         = timeLastCollectedPatron[assetToken.ownerOf(tokenId)];
 
         if (tokenTimeLastCollectedPatron == 0) return 0;
 
         uint256 owed = price[tokenId]
             .mul(now.sub(tokenTimeLastCollectedPatron))
             .mul(patronageNumerator[tokenId])
-            .div(1000000000000)
-            .div(365 days);
+            .div(31536000000000000000);
 
         return owed;
     }
@@ -458,13 +463,11 @@ contract WildcardSteward_v3 is Initializable {
         view
         returns (uint256 payoutDue)
     {
-        uint256 timePassed = now.sub(benefactorLastTimeCollected[benefactor]);
-
+        uint256 timePassed = now.sub(timeLastCollectedBenefactor[benefactor]);
         return
-            benefactorTotalTokenNumerator[benefactor]
-                .mul(timePassed)
-                .div(1000000000000)
-                .div(365 days);
+            totalBenefactorTokenNumerator[benefactor].mul(timePassed).div(
+                31536000000000000000
+            );
     }
 
     function patronageOwedPatronWithTimestamp(address tokenPatron)
@@ -484,7 +487,7 @@ contract WildcardSteward_v3 is Initializable {
     }
 
     function foreclosed(uint256 tokenId) public view returns (bool) {
-        address tokenPatron = currentPatron[tokenId];
+        address tokenPatron = assetToken.ownerOf(tokenId);
         return foreclosedPatron(tokenPatron);
     }
 
@@ -506,14 +509,14 @@ contract WildcardSteward_v3 is Initializable {
         view
         returns (uint256)
     {
-        uint256 pps = totalPatronOwnedTokenCost[tokenPatron]
-            .div(1000000000000)
-            .div(365 days);
+        uint256 pps = totalPatronOwnedTokenCost[tokenPatron].div(
+            31536000000000000000
+        );
         return now.add(depositAbleToWithdraw(tokenPatron).div(pps));
     }
 
     function foreclosureTime(uint256 tokenId) public view returns (uint256) {
-        address tokenPatron = currentPatron[tokenId];
+        address tokenPatron = assetToken.ownerOf(tokenId);
         return foreclosureTimePatron(tokenPatron);
     }
 
@@ -527,15 +530,16 @@ contract WildcardSteward_v3 is Initializable {
             timeSinceLastMint,
             totalPatronTokenGenerationRate[tokenPatron]
         );
-        emit CollectLoyalty(tokenPatron, timeSinceLastMint);
+        emit CollectLoyalty(
+            tokenPatron,
+            timeSinceLastMint.mul(totalPatronTokenGenerationRate[tokenPatron])
+        );
     }
 
     function _collectPatronage(uint256 tokenId) public {
-        // TODO: lots of this code is duplicated in the `_collectPatronagePatron` function. Refactor accordingly.
         if (state[tokenId] == StewardState.Owned) {
-            address tokenPatron = currentPatron[tokenId];
+            address tokenPatron = assetToken.ownerOf(tokenId);
 
-            // _collectPatronagePatron(currentPatron[tokenId]);
             uint256 patronageOwedByTokenPatron = patronageOwedPatron(
                 tokenPatron
             );
@@ -564,14 +568,14 @@ contract WildcardSteward_v3 is Initializable {
 
                 // The bellow 3 lines are the main difference between this function and the `_collectPatronagePatron` function.
                 _collectLoyaltyPatron(tokenPatron, timeSinceLastMint); // NOTE: you have to call collectLoyaltyPatron before collecting your deposit.
-                tokenAuctionBeginTimestamp[tokenId] = newTimeLastCollected;
+                tokenAuctionBeginTimestamp[tokenId] = newTimeLastCollected + 1; // The auction starts the second after the last time collected.
                 _foreclose(tokenId);
 
                 address benefactor = benefactors[tokenId];
 
                 // If the organisation collected their patronage after this token was foreclosed, then record the credit they have been given.
                 if (
-                    benefactorLastTimeCollected[benefactor] >
+                    timeLastCollectedBenefactor[benefactor] >
                     newTimeLastCollected
                 ) {
                     benefactorCredit[benefactor] = benefactorCredit[benefactor]
@@ -579,7 +583,7 @@ contract WildcardSteward_v3 is Initializable {
                         price[tokenId]
                             .mul(
                             (
-                                benefactorLastTimeCollected[benefactor].sub(
+                                timeLastCollectedBenefactor[benefactor].sub(
                                     newTimeLastCollected
                                 )
                             )
@@ -610,7 +614,6 @@ contract WildcardSteward_v3 is Initializable {
         (transferSuccess, ) = recipient.call.gas(2300).value(_wei)("");
     }
 
-    // Think carefully if it is a risk to make this public?
     function _updateBenefactorBalance(address benefactor) public {
         uint256 unclaimedPayoutAvailable = unclaimedPayoutDueForOrganisation(
             benefactor
@@ -626,24 +629,24 @@ contract WildcardSteward_v3 is Initializable {
                     unclaimedPayoutAvailable.add(benefactorFunds[benefactor])
                 );
             } else {
-                benefactorFunds[benefactor] = unclaimedPayoutAvailable
-                    .add(benefactorFunds[benefactor])
+                benefactorFunds[benefactor] = benefactorFunds[benefactor]
+                    .add(unclaimedPayoutAvailable)
                     .sub(benefactorCredit[benefactor]);
 
                 benefactorCredit[benefactor] = 0;
             }
         }
 
-        benefactorLastTimeCollected[benefactor] = now;
+        timeLastCollectedBenefactor[benefactor] = now;
     }
 
-    function fundsDueForActionPeriodAtCurrentRate(address benefactor)
+    function fundsDueForAuctionPeriodAtCurrentRate(address benefactor)
         internal
         view
         returns (uint256)
     {
         return
-            benefactorTotalTokenNumerator[benefactor].mul(auctionLength).div(
+            totalBenefactorTokenNumerator[benefactor].mul(auctionLength).div(
                 31536000000000000000
             ); // 365 days * 1000000000000
     }
@@ -655,7 +658,8 @@ contract WildcardSteward_v3 is Initializable {
 
 
             uint256 benefactorWithdrawalSafetyDiscount
-         = fundsDueForActionPeriodAtCurrentRate(benefactor);
+         = fundsDueForAuctionPeriodAtCurrentRate(benefactor);
+
         require(
             availableToWithdraw > benefactorWithdrawalSafetyDiscount,
             "No funds available"
@@ -665,10 +669,14 @@ contract WildcardSteward_v3 is Initializable {
         uint256 amountToWithdraw = availableToWithdraw -
             benefactorWithdrawalSafetyDiscount;
 
+        benefactorFunds[benefactor] = benefactorWithdrawalSafetyDiscount;
         if (safeSend(amountToWithdraw, benefactor)) {
-            benefactorFunds[benefactor] = benefactorWithdrawalSafetyDiscount;
             emit WithdrawBenefactorFundsWithSafetyDelay(
                 benefactor,
+                amountToWithdraw
+            );
+        } else {
+            benefactorFunds[benefactor] = benefactorFunds[benefactor].add(
                 amountToWithdraw
             );
         }
@@ -706,10 +714,7 @@ contract WildcardSteward_v3 is Initializable {
             hash == hasher(benefactor, maxAmount, expiry),
             "Incorrect parameters"
         );
-        require(
-            now < expiry,
-            "coupon has expired"
-        );
+        require(now < expiry, "coupon has expired");
 
         _updateBenefactorBalance(benefactor);
 
@@ -725,6 +730,8 @@ contract WildcardSteward_v3 is Initializable {
                         benefactor,
                         availableToWithdraw
                     );
+                } else {
+                    console.log("UNABLE TO SEND...");
                 }
             } else {
                 if (safeSend(availableToWithdraw, benefactor)) {
@@ -788,6 +795,7 @@ contract WildcardSteward_v3 is Initializable {
         uint256 auctionEnd = tokenAuctionBeginTimestamp[tokenId].add(
             auctionLength
         );
+
         // If it is not brand new and foreclosed, use the foreclosre auction price.
         uint256 _auctionStartPrice;
         if (price[tokenId] != 0 && price[tokenId] > auctionEndPrice) {
@@ -841,7 +849,6 @@ contract WildcardSteward_v3 is Initializable {
         transferAssetTokenTo(
             tokenId,
             assetToken.ownerOf(tokenId),
-            currentPatron[tokenId],
             msg.sender,
             _newPrice
         );
@@ -875,7 +882,6 @@ contract WildcardSteward_v3 is Initializable {
         _distributeAuctionProceeds(tokenId);
 
         state[tokenId] = StewardState.Owned;
-        timeLastCollected[tokenId] = now;
         timeLastCollectedPatron[msg.sender] = now;
 
         wildcardsPercentages[tokenId] = wildcardsPercentage;
@@ -883,7 +889,6 @@ contract WildcardSteward_v3 is Initializable {
         transferAssetTokenTo(
             tokenId,
             assetToken.ownerOf(tokenId),
-            currentPatron[tokenId],
             msg.sender,
             _newPrice
         );
@@ -908,7 +913,7 @@ contract WildcardSteward_v3 is Initializable {
 
     function _distributePurchaseProceeds(uint256 tokenId) internal {
         uint256 totalAmount = price[tokenId];
-        address tokenPatron = currentPatron[tokenId];
+        address tokenPatron = assetToken.ownerOf(tokenId);
         // Wildcards percentage calc
         if (wildcardsPercentages[tokenId] == 0) {
             wildcardsPercentages[tokenId] = 500;
@@ -982,7 +987,7 @@ contract WildcardSteward_v3 is Initializable {
             .sub(oldPriceScaled)
             .add(newPriceScaled);
 
-        benefactorTotalTokenNumerator[tokenBenefactor] = benefactorTotalTokenNumerator[tokenBenefactor]
+        totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
             .sub(oldPriceScaled)
             .add(newPriceScaled);
 
@@ -1018,18 +1023,18 @@ contract WildcardSteward_v3 is Initializable {
     }
 
     function _foreclose(uint256 tokenId) internal {
+        _updateBenefactorBalance(benefactors[tokenId]);
+
         address currentOwner = assetToken.ownerOf(tokenId);
-        address tokenPatron = currentPatron[tokenId];
-        resetTokenOnForeclosure(tokenId, currentOwner, tokenPatron);
+        resetTokenOnForeclosure(tokenId, currentOwner);
         state[tokenId] = StewardState.Foreclosed;
 
-        emit Foreclosure(currentOwner, timeLastCollected[tokenId]);
+        emit Foreclosure(currentOwner, timeLastCollectedPatron[currentOwner]);
     }
 
     function transferAssetTokenTo(
         uint256 tokenId,
         address _currentOwner,
-        address _currentPatron,
         address _newOwner,
         uint256 _newPrice
     ) internal {
@@ -1046,50 +1051,40 @@ contract WildcardSteward_v3 is Initializable {
             .add(tokenGenerationRate[tokenId]);
 
         address tokenBenefactor = benefactors[tokenId];
-        benefactorTotalTokenNumerator[tokenBenefactor] = benefactorTotalTokenNumerator[tokenBenefactor]
+        totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
             .add(scaledNewPrice);
 
-        if (_currentPatron != address(this) && _currentPatron != address(0)) {
-            totalPatronOwnedTokenCost[_currentPatron] = totalPatronOwnedTokenCost[_currentPatron]
+        if (_currentOwner != address(this) && _currentOwner != address(0)) {
+            totalPatronOwnedTokenCost[_currentOwner] = totalPatronOwnedTokenCost[_currentOwner]
                 .sub(scaledOldPrice);
 
-            totalPatronTokenGenerationRate[_currentPatron] = totalPatronTokenGenerationRate[_currentPatron]
+            totalPatronTokenGenerationRate[_currentOwner] = totalPatronTokenGenerationRate[_currentOwner]
                 .sub((tokenGenerationRate[tokenId]));
 
-            benefactorTotalTokenNumerator[tokenBenefactor] = benefactorTotalTokenNumerator[tokenBenefactor]
+            totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
                 .sub(scaledOldPrice);
         }
 
-        timeHeld[tokenId][_currentPatron] = timeHeld[tokenId][_currentPatron]
-            .add((timeLastCollected[tokenId].sub(timeAcquired[tokenId])));
         assetToken.transferFrom(_currentOwner, _newOwner, tokenId);
-        currentPatron[tokenId] = _newOwner;
 
         price[tokenId] = _newPrice;
-        timeAcquired[tokenId] = now;
-        patrons[tokenId][_newOwner] = true;
     }
 
-    function resetTokenOnForeclosure(
-        uint256 tokenId,
-        address _currentOwner,
-        address _currentPatron
-    ) internal {
+    function resetTokenOnForeclosure(uint256 tokenId, address _currentOwner)
+        internal
+    {
         uint256 scaledPrice = price[tokenId].mul(patronageNumerator[tokenId]);
 
-        totalPatronOwnedTokenCost[_currentPatron] = totalPatronOwnedTokenCost[_currentPatron]
+        totalPatronOwnedTokenCost[_currentOwner] = totalPatronOwnedTokenCost[_currentOwner]
             .sub(scaledPrice);
 
-        totalPatronTokenGenerationRate[_currentPatron] = totalPatronTokenGenerationRate[_currentPatron]
+        totalPatronTokenGenerationRate[_currentOwner] = totalPatronTokenGenerationRate[_currentOwner]
             .sub((tokenGenerationRate[tokenId]));
 
         address tokenBenefactor = benefactors[tokenId];
-        benefactorTotalTokenNumerator[tokenBenefactor] = benefactorTotalTokenNumerator[tokenBenefactor]
+        totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
             .sub(scaledPrice);
 
-        timeHeld[tokenId][_currentPatron] = timeHeld[tokenId][_currentPatron]
-            .add((timeLastCollected[tokenId].sub(timeAcquired[tokenId])));
         assetToken.transferFrom(_currentOwner, address(this), tokenId);
-        currentPatron[tokenId] = address(this);
     }
 }
