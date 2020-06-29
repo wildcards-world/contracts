@@ -67,8 +67,8 @@ contract WildcardSteward_v3 is Initializable {
     mapping(uint256 => uint256) tokenAuctionBeginTimestamp;
 
     mapping(address => uint256) public totalPatronTokenGenerationRate; // The total token generation rate for all the tokens of the given address.
-    mapping(address => uint256) public benefactorTotalTokenNumerator;
-    mapping(address => uint256) public benefactorLastTimeCollected;
+    mapping(address => uint256) public totalBenefactorTokenNumerator;
+    mapping(address => uint256) public timeLastCollectedBenefactor; // make my name consistent please
     mapping(address => uint256) public benefactorCredit;
     address public withdrawCheckerAdmin;
 
@@ -95,12 +95,12 @@ contract WildcardSteward_v3 is Initializable {
         uint256 remainingDeposit,
         uint256 amountReceived
     );
-    // Legacy collect loyalty event - only used in the upgrade function; TODO: delete on next upgrade.
-    event CollectLoyalty(
-        uint256 indexed tokenId,
-        address indexed patron,
-        uint256 amountRecieved
-    );
+    // Removing this, no longer needed.
+    // event CollectLoyalty(
+    //     uint256 indexed tokenId,
+    //     address indexed patron,
+    //     uint256 amountRecieved
+    // );
     event CollectLoyalty(address indexed patron, uint256 amountRecieved);
 
     event ArtistCommission(
@@ -146,7 +146,7 @@ contract WildcardSteward_v3 is Initializable {
         _;
     }
 
-    // This modifier MUST be called anytime before the `benefactorTotalTokenNumerator[benefactor]` value changes.
+    // This modifier MUST be called anytime before the `totalBenefactorTokenNumerator[benefactor]` value changes.
     modifier updateBenefactorBalance(address benefactor) {
         _updateBenefactorBalance(benefactor);
         _;
@@ -262,8 +262,8 @@ contract WildcardSteward_v3 is Initializable {
             );
 
             // // No need to initialize this.
-            // if (benefactorLastTimeCollected[benefactor] == 0) {
-            //     benefactorLastTimeCollected[benefactor] = now;
+            // if (timeLastCollectedBenefactor[benefactor] == 0) {
+            //     timeLastCollectedBenefactor[benefactor] = now;
             // }
         }
     }
@@ -283,12 +283,15 @@ contract WildcardSteward_v3 is Initializable {
             uint256 tokenId = tokens[i];
             address currentOwner = assetToken.ownerOf(tokenId);
 
+            uint256 timeSinceTokenLastCollection = now.sub(
+                deprecated_timeLastCollected[tokenId]
+            );
+
             // NOTE: for this upgrade we make sure no tokens are foreclosed, or close to foreclosing
             uint256 collection = price[tokenId]
-                .mul(now.sub(deprecated_timeLastCollected[tokenId]))
+                .mul(timeSinceTokenLastCollection)
                 .mul(patronageNumerator[tokenId])
-                .div(1000000000000)
-                .div(365 days);
+                .div(31536000000000000000);
 
             // set the timeLastCollectedPatron for that tokens owner to 'now'.
             // timeLastCollected[tokenId] = now; // This variable is depricated, no need to update it.
@@ -297,7 +300,7 @@ contract WildcardSteward_v3 is Initializable {
                 deposit[currentOwner] = deposit[currentOwner].sub(
                     patronageOwedPatron(currentOwner)
                 );
-Y
+
                 timeLastCollectedPatron[currentOwner] = now;
             }
 
@@ -313,13 +316,16 @@ Y
                 collection
             );
 
-            // Collect the due loyalty tokens for the user
-            if (currentOwner != address(0)) {
-                _collectLoyaltyPatron(
-                    currentOwner,
-                    now.sub(deprecated_timeLastCollected[tokenId])
-                );
-            }
+            // mint required loyalty tokens
+            mintManager.tokenMint(
+                currentOwner,
+                timeSinceTokenLastCollection, // this should always be > 0
+                11574074074074 // instead of this -> tokenGenerationRate[tokenId] hard code to save gas
+            );
+            emit CollectLoyalty(
+                currentOwner,
+                timeSinceTokenLastCollection.mul(11574074074074)
+            ); // OPTIMIZE ME
 
             // Add the tokens generation rate to the totalPatronTokenGenerationRate of the current owner
             totalPatronTokenGenerationRate[currentOwner] = totalPatronTokenGenerationRate[currentOwner]
@@ -328,13 +334,12 @@ Y
                 .add(11574074074074);
 
             address tokenBenefactor = benefactors[tokenId];
-            // add the scaled tokens price to the `benefactorTotalTokenNumerator`
-            benefactorTotalTokenNumerator[tokenBenefactor] = benefactorTotalTokenNumerator[tokenBenefactor]
+            // add the scaled tokens price to the `totalBenefactorTokenNumerator`
+            totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
                 .add(price[tokenId].mul(patronageNumerator[tokenId]));
 
-            // add the scaled tokens price to the `benefactorTotalTokenNumerator`
-            if (benefactorLastTimeCollected[tokenBenefactor] == 0) {
-                benefactorLastTimeCollected[tokenBenefactor] = now;
+            if (timeLastCollectedBenefactor[tokenBenefactor] == 0) {
+                timeLastCollectedBenefactor[tokenBenefactor] = now;
             }
         }
         _changeAuctionParameters(
@@ -425,8 +430,7 @@ Y
         uint256 owed = price[tokenId]
             .mul(now.sub(tokenTimeLastCollectedPatron))
             .mul(patronageNumerator[tokenId])
-            .div(1000000000000)
-            .div(365 days);
+            .div(31536000000000000000);
 
         return owed;
     }
@@ -459,12 +463,11 @@ Y
         view
         returns (uint256 payoutDue)
     {
-        uint256 timePassed = now.sub(benefactorLastTimeCollected[benefactor]);
+        uint256 timePassed = now.sub(timeLastCollectedBenefactor[benefactor]);
         return
-            benefactorTotalTokenNumerator[benefactor]
-                .mul(timePassed)
-                .div(1000000000000)
-                .div(365 days);
+            totalBenefactorTokenNumerator[benefactor].mul(timePassed).div(
+                31536000000000000000
+            );
     }
 
     function patronageOwedPatronWithTimestamp(address tokenPatron)
@@ -506,9 +509,9 @@ Y
         view
         returns (uint256)
     {
-        uint256 pps = totalPatronOwnedTokenCost[tokenPatron]
-            .div(1000000000000)
-            .div(365 days);
+        uint256 pps = totalPatronOwnedTokenCost[tokenPatron].div(
+            31536000000000000000
+        );
         return now.add(depositAbleToWithdraw(tokenPatron).div(pps));
     }
 
@@ -527,7 +530,10 @@ Y
             timeSinceLastMint,
             totalPatronTokenGenerationRate[tokenPatron]
         );
-        emit CollectLoyalty(tokenPatron, timeSinceLastMint);
+        emit CollectLoyalty(
+            tokenPatron,
+            timeSinceLastMint.mul(totalPatronTokenGenerationRate[tokenPatron])
+        );
     }
 
     function _collectPatronage(uint256 tokenId) public {
@@ -569,7 +575,7 @@ Y
 
                 // If the organisation collected their patronage after this token was foreclosed, then record the credit they have been given.
                 if (
-                    benefactorLastTimeCollected[benefactor] >
+                    timeLastCollectedBenefactor[benefactor] >
                     newTimeLastCollected
                 ) {
                     benefactorCredit[benefactor] = benefactorCredit[benefactor]
@@ -577,7 +583,7 @@ Y
                         price[tokenId]
                             .mul(
                             (
-                                benefactorLastTimeCollected[benefactor].sub(
+                                timeLastCollectedBenefactor[benefactor].sub(
                                     newTimeLastCollected
                                 )
                             )
@@ -631,7 +637,7 @@ Y
             }
         }
 
-        benefactorLastTimeCollected[benefactor] = now;
+        timeLastCollectedBenefactor[benefactor] = now;
     }
 
     function fundsDueForAuctionPeriodAtCurrentRate(address benefactor)
@@ -640,7 +646,7 @@ Y
         returns (uint256)
     {
         return
-            benefactorTotalTokenNumerator[benefactor].mul(auctionLength).div(
+            totalBenefactorTokenNumerator[benefactor].mul(auctionLength).div(
                 31536000000000000000
             ); // 365 days * 1000000000000
     }
@@ -981,7 +987,7 @@ Y
             .sub(oldPriceScaled)
             .add(newPriceScaled);
 
-        benefactorTotalTokenNumerator[tokenBenefactor] = benefactorTotalTokenNumerator[tokenBenefactor]
+        totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
             .sub(oldPriceScaled)
             .add(newPriceScaled);
 
@@ -1045,7 +1051,7 @@ Y
             .add(tokenGenerationRate[tokenId]);
 
         address tokenBenefactor = benefactors[tokenId];
-        benefactorTotalTokenNumerator[tokenBenefactor] = benefactorTotalTokenNumerator[tokenBenefactor]
+        totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
             .add(scaledNewPrice);
 
         if (_currentOwner != address(this) && _currentOwner != address(0)) {
@@ -1055,7 +1061,7 @@ Y
             totalPatronTokenGenerationRate[_currentOwner] = totalPatronTokenGenerationRate[_currentOwner]
                 .sub((tokenGenerationRate[tokenId]));
 
-            benefactorTotalTokenNumerator[tokenBenefactor] = benefactorTotalTokenNumerator[tokenBenefactor]
+            totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
                 .sub(scaledOldPrice);
         }
 
@@ -1076,7 +1082,7 @@ Y
             .sub((tokenGenerationRate[tokenId]));
 
         address tokenBenefactor = benefactors[tokenId];
-        benefactorTotalTokenNumerator[tokenBenefactor] = benefactorTotalTokenNumerator[tokenBenefactor]
+        totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
             .sub(scaledPrice);
 
         assetToken.transferFrom(_currentOwner, address(this), tokenId);
