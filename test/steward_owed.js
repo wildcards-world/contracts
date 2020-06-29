@@ -192,7 +192,7 @@ contract("WildcardSteward owed", (accounts) => {
     const benefactorFund = await steward.benefactorFunds.call(
       benefactorAddress
     );
-    const benefactorLastTimeCollected = await steward.benefactorLastTimeCollected.call(
+    const timeLastCollectedBenefactor = await steward.timeLastCollectedBenefactor.call(
       benefactorAddress
     );
     const previousBlockTime = await time.latest();
@@ -223,7 +223,7 @@ contract("WildcardSteward owed", (accounts) => {
       owed.patronageDue.add(patronageEarnedSinceMeasurement).toString()
     );
     assert.equal(
-      benefactorLastTimeCollected.toString(),
+      timeLastCollectedBenefactor.toString(),
       previousBlockTime.toString()
     );
   });
