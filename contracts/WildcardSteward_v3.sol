@@ -421,33 +421,24 @@ contract WildcardSteward_v3 is Initializable {
         view
         returns (uint256 patronageDue)
     {
-        if (timeLastCollectedPatron[tokenPatron] == 0) return 0;
-
+        // if (timeLastCollectedPatron[tokenPatron] == 0) return 0;
         return
             totalPatronOwnedTokenCost[tokenPatron]
                 .mul(now.sub(timeLastCollectedPatron[tokenPatron]))
                 .div(31536000000000000000);
     }
 
-    function unclaimedPayoutDueForOrganisation(address benefactor)
+    function patronageDueBenefactor(address benefactor)
         public
         view
         returns (uint256 payoutDue)
     {
-        uint256 timePassed = now.sub(timeLastCollectedBenefactor[benefactor]);
+        // if (timeLastCollectedBenefactor[benefactor] == 0) return 0;
         return
-            totalBenefactorTokenNumerator[benefactor].mul(timePassed).div(
-                31536000000000000000
-            );
+            totalBenefactorTokenNumerator[benefactor]
+                .mul(now.sub(timeLastCollectedBenefactor[benefactor]))
+                .div(31536000000000000000);
     }
-
-    // function patronageOwedPatronWithTimestamp(address tokenPatron)
-    //     public
-    //     view
-    //     returns (uint256 patronageDue, uint256 timestamp)
-    // {
-    //     return (patronageOwedPatron(tokenPatron), now);
-    // }
 
     function foreclosedPatron(address tokenPatron) public view returns (bool) {
         if (patronageOwedPatron(tokenPatron) >= deposit[tokenPatron]) {
@@ -586,9 +577,7 @@ contract WildcardSteward_v3 is Initializable {
     }
 
     function _updateBenefactorBalance(address benefactor) public {
-        uint256 unclaimedPayoutAvailable = unclaimedPayoutDueForOrganisation(
-            benefactor
-        );
+        uint256 unclaimedPayoutAvailable = patronageDueBenefactor(benefactor);
 
         if (unclaimedPayoutAvailable > 0) {
             if (
