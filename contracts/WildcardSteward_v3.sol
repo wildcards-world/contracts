@@ -353,13 +353,39 @@ contract WildcardSteward_v3 is Initializable {
     function changeReceivingBenefactor(
         uint256 tokenId,
         address payable _newReceivingBenefactor
-    ) public onlyReceivingBenefactorOrAdmin(tokenId) {
+    )
+        public
+        onlyReceivingBenefactorOrAdmin(tokenId)
+        updateBenefactorBalance(benefactors[tokenId])
+        updateBenefactorBalance(_newReceivingBenefactor)
+    {
         address oldBenfactor = benefactors[tokenId];
-        require(
-            oldBenfactor != _newReceivingBenefactor,
-            "Cannot change to same address"
-        );
+
+        require(oldBenfactor != _newReceivingBenefactor);
+        require(address(0) != _newReceivingBenefactor);
+
+        // Collect patronage from old and new benefactor before changing totalBenefactorTokenNumerator on both
+        uint256 scaledPrice = price[tokenId].mul(patronageNumerator[tokenId]);
+        totalBenefactorTokenNumerator[oldBenfactor] = totalBenefactorTokenNumerator[oldBenfactor]
+            .sub(scaledPrice);
+        totalBenefactorTokenNumerator[_newReceivingBenefactor] = totalBenefactorTokenNumerator[_newReceivingBenefactor]
+            .add(scaledPrice);
+
         benefactors[tokenId] = _newReceivingBenefactor;
+        // NB No fund exchanging here please!
+    }
+
+    // NB This function is if an organisation loses their keys etc..
+    // It will transfer their deposit to their new benefactor address
+    // It should only be called once all their tokens also changeReceivingBenefactor
+    function changeReceivingBenefactorDeposit(
+        address oldBenfactor,
+        address payable _newReceivingBenefactor
+    ) public onlyAdmin {
+        require(benefactorFunds[oldBenfactor] > 0);
+        require(oldBenfactor != _newReceivingBenefactor);
+        require(address(0) != _newReceivingBenefactor);
+
         benefactorFunds[_newReceivingBenefactor] = benefactorFunds[_newReceivingBenefactor]
             .add(benefactorFunds[oldBenfactor]);
         benefactorFunds[oldBenfactor] = 0;
@@ -487,15 +513,19 @@ contract WildcardSteward_v3 is Initializable {
         address tokenPatron,
         uint256 timeSinceLastMint
     ) internal {
-        mintManager.tokenMint(
-            tokenPatron,
-            timeSinceLastMint,
-            totalPatronTokenGenerationRate[tokenPatron]
-        );
-        emit CollectLoyalty(
-            tokenPatron,
-            timeSinceLastMint.mul(totalPatronTokenGenerationRate[tokenPatron])
-        );
+        if (timeSinceLastMint != 0) {
+            mintManager.tokenMint(
+                tokenPatron,
+                timeSinceLastMint,
+                totalPatronTokenGenerationRate[tokenPatron]
+            );
+            emit CollectLoyalty(
+                tokenPatron,
+                timeSinceLastMint.mul(
+                    totalPatronTokenGenerationRate[tokenPatron]
+                )
+            );
+        }
     }
 
     function _collectPatronage(uint256 tokenId) public {
@@ -534,25 +564,30 @@ contract WildcardSteward_v3 is Initializable {
                 _foreclose(tokenId);
 
                 address benefactor = benefactors[tokenId];
-
-                // If the organisation collected their patronage after this token was foreclosed, then record the credit they have been given.
-                if (
-                    timeLastCollectedBenefactor[benefactor] >
-                    newTimeLastCollected
-                ) {
-                    benefactorCredit[benefactor] = benefactorCredit[benefactor]
-                        .add(
-                        price[tokenId]
-                            .mul(
-                            (
-                                timeLastCollectedBenefactor[benefactor].sub(
-                                    newTimeLastCollected
-                                )
-                            )
+                uint256 amountOverCredited = price[tokenId]
+                    .mul(
+                    (
+                        timeLastCollectedBenefactor[benefactor].sub(
+                            newTimeLastCollected
                         )
-                            .mul(patronageNumerator[tokenId])
-                            .div(31536000000000000000) // 365 days * 1000000000000
-                    );
+                    )
+                )
+                    .mul(patronageNumerator[tokenId])
+                    .div(31536000000000000000);
+
+                if (benefactorFunds[benefactor] > 0) {
+                    if (amountOverCredited <= benefactorFunds[benefactor]) {
+                        benefactorFunds[benefactor] = benefactorFunds[benefactor]
+                            .sub(amountOverCredited);
+                    } else {
+                        benefactorCredit[benefactor] = amountOverCredited.sub(
+                            benefactorFunds[benefactor]
+                        );
+                        benefactorFunds[benefactor] = 0;
+                    }
+                } else {
+                    benefactorCredit[benefactor] = benefactorCredit[benefactor]
+                        .add(amountOverCredited);
                 }
             } else {
                 timeSinceLastMint = now.sub(
@@ -576,24 +611,31 @@ contract WildcardSteward_v3 is Initializable {
         (transferSuccess, ) = recipient.call.gas(2300).value(_wei)("");
     }
 
+    // if credit balance exists,
+    // if amount owed > creidt
+    // credit zero add amount
+    // else reduce credit by certain amount.
+    // else if credit balance doesn't exist
+    // add amount to balance
+
     function _updateBenefactorBalance(address benefactor) public {
-        uint256 unclaimedPayoutAvailable = patronageDueBenefactor(benefactor);
+        uint256 patronageDueBenefactor = patronageDueBenefactor(benefactor);
 
-        if (unclaimedPayoutAvailable > 0) {
-            if (
-                unclaimedPayoutAvailable.add(benefactorFunds[benefactor]) <
-                benefactorCredit[benefactor]
-            ) {
-                // Here there is nothing left extra to pay the organisation, everything goes to paying of debt.
-                benefactorCredit[benefactor] = benefactorCredit[benefactor].sub(
-                    unclaimedPayoutAvailable.add(benefactorFunds[benefactor])
-                );
+        if (patronageDueBenefactor > 0) {
+            if (benefactorCredit[benefactor] > 0) {
+                if (patronageDueBenefactor < benefactorCredit[benefactor]) {
+                    benefactorCredit[benefactor] = benefactorCredit[benefactor]
+                        .sub(patronageDueBenefactor);
+                } else {
+                    benefactorFunds[benefactor] = patronageDueBenefactor.sub(
+                        benefactorCredit[benefactor]
+                    );
+                    benefactorCredit[benefactor] = 0;
+                }
             } else {
-                benefactorFunds[benefactor] = benefactorFunds[benefactor]
-                    .add(unclaimedPayoutAvailable)
-                    .sub(benefactorCredit[benefactor]);
-
-                benefactorCredit[benefactor] = 0;
+                benefactorFunds[benefactor] = benefactorFunds[benefactor].add(
+                    patronageDueBenefactor
+                );
             }
         }
 
