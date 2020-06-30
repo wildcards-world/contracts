@@ -441,13 +441,13 @@ contract WildcardSteward_v3 is Initializable {
             );
     }
 
-    function patronageOwedPatronWithTimestamp(address tokenPatron)
-        public
-        view
-        returns (uint256 patronageDue, uint256 timestamp)
-    {
-        return (patronageOwedPatron(tokenPatron), now);
-    }
+    // function patronageOwedPatronWithTimestamp(address tokenPatron)
+    //     public
+    //     view
+    //     returns (uint256 patronageDue, uint256 timestamp)
+    // {
+    //     return (patronageOwedPatron(tokenPatron), now);
+    // }
 
     function foreclosedPatron(address tokenPatron) public view returns (bool) {
         if (patronageOwedPatron(tokenPatron) >= deposit[tokenPatron]) {

@@ -96,10 +96,9 @@ contract("WildcardSteward owed", (accounts) => {
     });
 
     await setTimestamp(time.duration.minutes(10));
-    const owedPatron = await steward.patronageOwedPatronWithTimestamp.call(
-      accounts[2],
-      { from: accounts[2] }
-    );
+    const owedPatron = await steward.patronageOwedPatron.call(accounts[2], {
+      from: accounts[2],
+    });
 
     // What our functions calculate should be owed
     const priceOfToken1 = await steward.price.call(tokenDetails[0].token);
@@ -128,12 +127,9 @@ contract("WildcardSteward owed", (accounts) => {
     ]);
 
     if (!isCoverage) {
+      assert.equal(owedPatron.toString(), expectedPatronageBoth.toString());
       assert.equal(
-        owedPatron.patronageDue.toString(),
-        expectedPatronageBoth.toString()
-      );
-      assert.equal(
-        owedPatron.patronageDue.toString(),
+        owedPatron.toString(),
         expectedPatronageAfter10minToken2
           .add(expectedPatronageAfter10minToken1)
           .toString()
@@ -154,10 +150,9 @@ contract("WildcardSteward owed", (accounts) => {
 
     await setTimestamp(time.duration.minutes(10));
 
-    const owedPatron = await steward.patronageOwedPatronWithTimestamp.call(
-      accounts[2],
-      { from: accounts[2] }
-    );
+    const owedPatron = await steward.patronageOwedPatron.call(accounts[2], {
+      from: accounts[2],
+    });
 
     // What we calculate
     const priceOfToken1 = await steward.price.call(tokenDetails[0].token);
@@ -198,10 +193,10 @@ contract("WildcardSteward owed", (accounts) => {
     // Time increases
     await setTimestamp(time.duration.minutes(10));
 
-    const owedPatronSecond = await steward.patronageOwedPatronWithTimestamp.call(
+    const owedPatronSecond = await steward.patronageOwedPatron.call(
       accounts[2]
     );
-    const owedPatron2Second = await steward.patronageOwedPatronWithTimestamp.call(
+    const owedPatron2Second = await steward.patronageOwedPatron.call(
       accounts[3]
     );
 
@@ -221,22 +216,19 @@ contract("WildcardSteward owed", (accounts) => {
 
     if (!isCoverage) {
       assert.equal(
-        owedPatron.patronageDue.toString(),
+        owedPatron.toString(),
         expectedPatronageAfter10minToken2
           .add(expectedPatronageAfter10minToken1)
           .toString()
       );
-      assert.equal(
-        owedPatron.patronageDue.toString(),
-        expectedPatronageBoth.toString()
-      );
+      assert.equal(owedPatron.toString(), expectedPatronageBoth.toString());
       // Should only count since the last clearance (when token 1 was bought)
       assert.equal(
-        owedPatronSecond.patronageDue.toString(),
+        owedPatronSecond.toString(),
         expectedPatronageAfter10minToken2.toString()
       );
       assert.equal(
-        owedPatron2Second.patronageDue.toString(),
+        owedPatron2Second.toString(),
         expectedPatronageAfter20minToken1.toString()
       );
     }
