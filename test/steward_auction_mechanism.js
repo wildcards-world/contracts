@@ -1,11 +1,4 @@
-const {
-  BN,
-  expectRevert,
-  ether,
-  expectEvent,
-  balance,
-  time,
-} = require("@openzeppelin/test-helpers");
+const { BN, expectRevert, ether, time } = require("@openzeppelin/test-helpers");
 const {
   multiPatronageCalculator,
   auctionCalculator,
