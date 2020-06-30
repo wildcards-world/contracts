@@ -421,6 +421,7 @@ contract WildcardSteward_v3 is Initializable {
         view
         returns (uint256 patronageDue)
     {
+        // NOTE: Leaving this code here as a reminder: totalPatronOwnedTokenCost[tokenPatron] has to be zero if timeLastCollectedPatron[tokenPatron] is zero. So effectively this line isn't needed.
         // if (timeLastCollectedPatron[tokenPatron] == 0) return 0;
         return
             totalPatronOwnedTokenCost[tokenPatron]
@@ -433,6 +434,7 @@ contract WildcardSteward_v3 is Initializable {
         view
         returns (uint256 payoutDue)
     {
+        // NOTE: Leaving this code here as a reminder: totalBenefactorTokenNumerator[tokenPatron] has to be zero if timeLastCollectedBenefactor[tokenPatron] is zero. So effectively this line isn't needed.
         // if (timeLastCollectedBenefactor[benefactor] == 0) return 0;
         return
             totalBenefactorTokenNumerator[benefactor]
