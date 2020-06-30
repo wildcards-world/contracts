@@ -373,6 +373,7 @@ contract WildcardSteward_v3 is Initializable {
         public
         onlyAdmin
     {
+        require(_withdrawCheckerAdmin != address(0));
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
     }
 
@@ -454,8 +455,7 @@ contract WildcardSteward_v3 is Initializable {
         return
             totalPatronOwnedTokenCost[tokenPatron]
                 .mul(now.sub(timeLastCollectedPatron[tokenPatron]))
-                .div(1000000000000)
-                .div(365 days);
+                .div(31536000000000000000);
     }
 
     function unclaimedPayoutDueForOrganisation(address benefactor)
@@ -904,10 +904,10 @@ contract WildcardSteward_v3 is Initializable {
             artistAmount = totalAmount.mul(artistPercentages[tokenId]).div(
                 10000
             );
+            deposit[artistAddresses[tokenId]] = deposit[artistAddresses[tokenId]]
+                .add(artistAmount);
         }
         uint256 wildcardsAmount = totalAmount.sub(artistAmount);
-        deposit[artistAddresses[tokenId]] = deposit[artistAddresses[tokenId]]
-            .add(artistAmount);
         deposit[admin] = deposit[admin].add(wildcardsAmount);
     }
 
@@ -930,6 +930,8 @@ contract WildcardSteward_v3 is Initializable {
             artistAmount = totalAmount.mul(artistPercentages[tokenId]).div(
                 10000
             );
+            deposit[artistAddresses[tokenId]] = deposit[artistAddresses[tokenId]]
+                .add(artistAmount);
         }
 
         uint256 previousOwnerProceedsFromSale = totalAmount
@@ -961,8 +963,6 @@ contract WildcardSteward_v3 is Initializable {
             );
         }
 
-        deposit[artistAddresses[tokenId]] = deposit[artistAddresses[tokenId]]
-            .add(artistAmount);
         deposit[admin] = deposit[admin].add(wildcardsAmount);
     }
 
