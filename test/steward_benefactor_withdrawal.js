@@ -224,7 +224,8 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
         },
       ]);
 
-      assert.equal((await balTrack.delta()).toString(), totalDue.toString());
+      if (!isCoverage)
+        assert.equal((await balTrack.delta()).toString(), totalDue.toString());
 
       const benefactorCreditBefore = await steward.benefactorCredit.call(
         benefactor1
