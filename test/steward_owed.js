@@ -438,9 +438,6 @@ contract("WildcardSteward owed", (accounts) => {
       value: totalToBuy,
     });
     await setNextTxTimestamp(time.duration.minutes(10));
-    // const owed = await steward.patronageOwedPatron.call(accounts[2], {
-    //   from: accounts[2],
-    // });
     await steward._collectPatronage(tokenDetails[0].token); // will foreclose
 
     const balTrack = await balance.tracker(benefactorAddress);
