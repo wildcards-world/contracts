@@ -141,7 +141,7 @@ contract WildcardSteward_v3 is Initializable {
         _;
     }
 
-    modifier collectPatronageAddress(address tokenPatron) {
+    modifier collectPatronagePatron(address tokenPatron) {
         _collectPatronagePatron(tokenPatron);
         _;
     }
@@ -830,7 +830,7 @@ contract WildcardSteward_v3 is Initializable {
         payable
         collectPatronage(tokenId)
         updateBenefactorBalance(benefactors[tokenId])
-        collectPatronageAddress(msg.sender)
+        collectPatronagePatron(msg.sender)
         priceGreaterThanZero(_newPrice)
         validWildcardsPercentage(wildcardsPercentage, tokenId)
     {
@@ -866,7 +866,7 @@ contract WildcardSteward_v3 is Initializable {
         payable
         collectPatronage(tokenId)
         updateBenefactorBalance(benefactors[tokenId])
-        collectPatronageAddress(msg.sender)
+        collectPatronagePatron(msg.sender)
         priceGreaterThanZero(_newPrice)
         validWildcardsPercentage(wildcardsPercentage, tokenId)
     {
@@ -999,7 +999,7 @@ contract WildcardSteward_v3 is Initializable {
 
     function withdrawDeposit(uint256 _wei)
         public
-        collectPatronageAddress(msg.sender)
+        collectPatronagePatron(msg.sender)
         returns (uint256)
     {
         _withdrawDeposit(_wei);
@@ -1009,7 +1009,7 @@ contract WildcardSteward_v3 is Initializable {
         withdrawBenefactorFundsTo(msg.sender);
     }
 
-    function exit() public collectPatronageAddress(msg.sender) {
+    function exit() public collectPatronagePatron(msg.sender) {
         _withdrawDeposit(deposit[msg.sender]);
     }
 
