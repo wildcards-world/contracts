@@ -373,6 +373,7 @@ contract WildcardSteward_v3 is Initializable {
         public
         onlyAdmin
     {
+        require(_withdrawCheckerAdmin != address(0));
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
     }
 
@@ -415,67 +416,30 @@ contract WildcardSteward_v3 is Initializable {
         );
     }
 
-    // TODO: this function needs to be deprecated - only used in the tests
-    function patronageOwed(uint256 tokenId)
-        public
-        view
-        returns (uint256 patronageDue)
-    {
-
-            uint256 tokenTimeLastCollectedPatron
-         = timeLastCollectedPatron[assetToken.ownerOf(tokenId)];
-
-        if (tokenTimeLastCollectedPatron == 0) return 0;
-
-        uint256 owed = price[tokenId]
-            .mul(now.sub(tokenTimeLastCollectedPatron))
-            .mul(patronageNumerator[tokenId])
-            .div(31536000000000000000);
-
-        return owed;
-    }
-
-    // TODO: this function needs to be deprecated - only used in the tests
-    function patronageOwedWithTimestamp(uint256 tokenId)
-        public
-        view
-        returns (uint256 patronageDue, uint256 timestamp)
-    {
-        return (patronageOwed(tokenId), now);
-    }
-
     function patronageOwedPatron(address tokenPatron)
         public
         view
         returns (uint256 patronageDue)
     {
-        if (timeLastCollectedPatron[tokenPatron] == 0) return 0;
-
+        // NOTE: Leaving this code here as a reminder: totalPatronOwnedTokenCost[tokenPatron] has to be zero if timeLastCollectedPatron[tokenPatron] is zero. So effectively this line isn't needed.
+        // if (timeLastCollectedPatron[tokenPatron] == 0) return 0;
         return
             totalPatronOwnedTokenCost[tokenPatron]
                 .mul(now.sub(timeLastCollectedPatron[tokenPatron]))
-                .div(1000000000000)
-                .div(365 days);
+                .div(31536000000000000000);
     }
 
-    function unclaimedPayoutDueForOrganisation(address benefactor)
+    function patronageDueBenefactor(address benefactor)
         public
         view
         returns (uint256 payoutDue)
     {
-        uint256 timePassed = now.sub(timeLastCollectedBenefactor[benefactor]);
+        // NOTE: Leaving this code here as a reminder: totalBenefactorTokenNumerator[tokenPatron] has to be zero if timeLastCollectedBenefactor[tokenPatron] is zero. So effectively this line isn't needed.
+        // if (timeLastCollectedBenefactor[benefactor] == 0) return 0;
         return
-            totalBenefactorTokenNumerator[benefactor].mul(timePassed).div(
-                31536000000000000000
-            );
-    }
-
-    function patronageOwedPatronWithTimestamp(address tokenPatron)
-        public
-        view
-        returns (uint256 patronageDue, uint256 timestamp)
-    {
-        return (patronageOwedPatron(tokenPatron), now);
+            totalBenefactorTokenNumerator[benefactor]
+                .mul(now.sub(timeLastCollectedBenefactor[benefactor]))
+                .div(31536000000000000000);
     }
 
     function foreclosedPatron(address tokenPatron) public view returns (bool) {
@@ -615,9 +579,7 @@ contract WildcardSteward_v3 is Initializable {
     }
 
     function _updateBenefactorBalance(address benefactor) public {
-        uint256 unclaimedPayoutAvailable = unclaimedPayoutDueForOrganisation(
-            benefactor
-        );
+        uint256 unclaimedPayoutAvailable = patronageDueBenefactor(benefactor);
 
         if (unclaimedPayoutAvailable > 0) {
             if (
@@ -904,10 +866,10 @@ contract WildcardSteward_v3 is Initializable {
             artistAmount = totalAmount.mul(artistPercentages[tokenId]).div(
                 10000
             );
+            deposit[artistAddresses[tokenId]] = deposit[artistAddresses[tokenId]]
+                .add(artistAmount);
         }
         uint256 wildcardsAmount = totalAmount.sub(artistAmount);
-        deposit[artistAddresses[tokenId]] = deposit[artistAddresses[tokenId]]
-            .add(artistAmount);
         deposit[admin] = deposit[admin].add(wildcardsAmount);
     }
 
@@ -930,6 +892,8 @@ contract WildcardSteward_v3 is Initializable {
             artistAmount = totalAmount.mul(artistPercentages[tokenId]).div(
                 10000
             );
+            deposit[artistAddresses[tokenId]] = deposit[artistAddresses[tokenId]]
+                .add(artistAmount);
         }
 
         uint256 previousOwnerProceedsFromSale = totalAmount
@@ -961,8 +925,6 @@ contract WildcardSteward_v3 is Initializable {
             );
         }
 
-        deposit[artistAddresses[tokenId]] = deposit[artistAddresses[tokenId]]
-            .add(artistAmount);
         deposit[admin] = deposit[admin].add(wildcardsAmount);
     }
 

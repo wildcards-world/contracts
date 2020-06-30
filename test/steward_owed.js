@@ -13,7 +13,10 @@ const {
   withdrawBenefactorFundsAll,
   isCoverage,
   waitTillBeginningOfSecond,
+  multiPatronageCalculator,
 } = require("./helpers");
+
+const patronageCalculator = multiPatronageCalculator();
 
 contract("WildcardSteward owed", (accounts) => {
   let erc721;
@@ -128,23 +131,18 @@ contract("WildcardSteward owed", (accounts) => {
       value: ether("1"),
     });
 
-    const timeLastCollected = await steward.timeLastCollectedPatron.call(
-      accounts[2]
-    );
-    await setNextTxTimestamp(1);
-    const owed = await steward.patronageOwedWithTimestamp.call(1, {
+    await setTimestamp(1);
+    const owed = await steward.patronageOwedPatron.call(accounts[2], {
       from: accounts[2],
     });
+    const expectedPatronageAfter1second = patronageCalculator("1", [
+      {
+        patronageNumerator: patronageNumerator,
+        price: ether("1"),
+      },
+    ]);
 
-    // price * (now - timeLastCollected) * patronageNumerator/ patronageDenominator / 365 days;
-    // TODO: make all these values into global constants
-    const due = ether("1")
-      .mul(owed.timestamp.sub(timeLastCollected))
-      .mul(new BN("12000000000000"))
-      .div(new BN("1000000000000"))
-      .div(new BN("31536000"));
-
-    assert.equal(owed.patronageDue.toString(), due.toString());
+    assert.equal(owed.toString(), expectedPatronageAfter1second.toString());
   });
 
   it("steward: owed. check patronage owed after 1 year.", async () => {
@@ -153,24 +151,21 @@ contract("WildcardSteward owed", (accounts) => {
       value: ether("1"),
     });
 
-    const timeLastCollected = await steward.timeLastCollectedPatron.call(
-      accounts[2]
-    );
     await setTimestamp(time.duration.days(365));
-    const owed = await steward.patronageOwedWithTimestamp.call(1, {
+    const owed = await steward.patronageOwedPatron.call(accounts[2], {
       from: accounts[2],
     });
 
-    // price * (now - timeLastCollected) * patronageNumerator/ patronageDenominator / 365 days;
-    const due = ether("1")
-      .mul(owed.timestamp.sub(timeLastCollected))
-      .mul(new BN("12000000000000"))
-      .div(new BN("1000000000000"))
-      .div(new BN("31536000"));
+    const due = patronageCalculator("31536000", [
+      {
+        patronageNumerator: patronageNumerator,
+        price: ether("1"),
+      },
+    ]);
 
-    assert.equal(owed.patronageDue.toString(), due.toString());
+    assert.equal(owed.toString(), due.toString());
     // TODO: this value shouldn't be hardcoded. It should depend on the tax variable of the token.
-    assert.equal(owed.patronageDue.toString(), "12000000000000000000"); // 5% over 365 days.
+    assert.equal(owed.toString(), "12000000000000000000"); // 5% over 365 days.
   });
 
   it("steward: owed. collect patronage successfully after 10 minutes.", async () => {
@@ -181,10 +176,9 @@ contract("WildcardSteward owed", (accounts) => {
     });
 
     const measurementTimestamp = await setTimestamp(time.duration.minutes(10));
-    const owed = await steward.patronageOwedPatronWithTimestamp.call(
-      accounts[2],
-      { from: accounts[2] }
-    );
+    const owed = await steward.patronageOwedPatron.call(accounts[2], {
+      from: accounts[2],
+    });
     const collectPatronageTimestamp = await txTimestamp(
       steward._collectPatronage(tokenDetails[0].token)
     );
@@ -216,15 +210,13 @@ contract("WildcardSteward owed", (accounts) => {
       },
     ]);
 
-    const calcDeposit = price
-      .sub(owed.patronageDue)
-      .sub(patronageDueSinceMeasurement);
+    const calcDeposit = price.sub(owed).sub(patronageDueSinceMeasurement);
 
     assert.equal(deposit.toString(), calcDeposit.toString());
 
     assert.equal(
       benefactorFund.toString(),
-      owed.patronageDue.add(patronageEarnedSinceMeasurement).toString()
+      owed.add(patronageEarnedSinceMeasurement).toString()
     );
     assert.equal(
       timeLastCollectedBenefactor.toString(),
@@ -446,9 +438,6 @@ contract("WildcardSteward owed", (accounts) => {
       value: totalToBuy,
     });
     await setNextTxTimestamp(time.duration.minutes(10));
-    const owed = await steward.patronageOwedWithTimestamp.call(1, {
-      from: accounts[2],
-    });
     await steward._collectPatronage(tokenDetails[0].token); // will foreclose
 
     const balTrack = await balance.tracker(benefactorAddress);
@@ -477,7 +466,7 @@ contract("WildcardSteward owed", (accounts) => {
     const foreclosed = await steward.foreclosed.call(1);
     const preTLC = await steward.timeLastCollectedPatron.call(accounts[2]);
     const preDeposit = await steward.deposit.call(accounts[2]);
-    const owed = await steward.patronageOwedWithTimestamp.call(1, {
+    const owed = await steward.patronageOwedPatron.call(accounts[2], {
       from: accounts[2],
     });
     await steward._collectPatronage(1); // will foreclose
@@ -497,7 +486,7 @@ contract("WildcardSteward owed", (accounts) => {
       previousBlockTime
         .sub(preTLC)
         .mul(preDeposit)
-        .div(owed.patronageDue)
+        .div(owed)
     );
     const state = await steward.state.call(1);
 

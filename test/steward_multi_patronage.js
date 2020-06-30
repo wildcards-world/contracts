@@ -101,7 +101,7 @@ contract("WildcardSteward owed", (accounts) => {
     const collectPatronageT10_tx = await steward._collectPatronage(
       testTokenId1
     );
-    const benefactorFundsT10 = await steward.unclaimedPayoutDueForOrganisation.call(
+    const benefactorFundsT10 = await steward.patronageDueBenefactor.call(
       accounts[8]
     );
     const collectPatronageT10BlockTime = (
@@ -224,7 +224,7 @@ contract("WildcardSteward owed", (accounts) => {
       patronDepositAfter30min.toString()
     );
 
-    const benefactorFundsT30 = await steward.unclaimedPayoutDueForOrganisation.call(
+    const benefactorFundsT30 = await steward.patronageDueBenefactor.call(
       accounts[8]
     );
 
@@ -245,7 +245,7 @@ contract("WildcardSteward owed", (accounts) => {
     //////////////////////////////////////////////////
     await time.increase(time.duration.minutes(10));
 
-    const benefactor2FundsT40Unclaimed = await steward.unclaimedPayoutDueForOrganisation.call(
+    const benefactor2FundsT40Unclaimed = await steward.patronageDueBenefactor.call(
       accounts[8]
     );
     const benefactor2FundsT40AlreadyClaimed = await steward.benefactorFunds.call(
