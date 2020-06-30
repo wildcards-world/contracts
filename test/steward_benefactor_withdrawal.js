@@ -1,17 +1,12 @@
-const {
-  BN,
-  expectRevert,
-  ether,
-  expectEvent,
-  balance,
-  time,
-} = require("@openzeppelin/test-helpers");
+const { BN, ether, balance, time } = require("@openzeppelin/test-helpers");
 const { promisify } = require("util");
 const {
   setupTimeManager,
   patronageDue,
   initialize,
   withdrawBenefactorFundsAll,
+  isCoverage,
+  waitTillBeginningOfSecond,
 } = require("./helpers");
 // TODO: switch to the ethersjs version, for future typescript support? https://www.npmjs.com/package/@ethersproject/abi
 
@@ -111,6 +106,8 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
         ether("100").toString(),
         (await getCurrentTimestamp()).add(new BN(100000000)).toString()
       );
+
+    if (isCoverage) await waitTillBeginningOfSecond();
   });
 
   it("steward: benefactor withdrawal. A token is owned for 1 year.", async () => {
@@ -135,8 +132,8 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
       .mul(new BN(patronageNumerator))
       .div(new BN(patronageDenominator))
       .div(time.duration.days(365));
-
-    assert.equal((await balTrack.delta()).toString(), due.toString());
+    if (!isCoverage)
+      assert.equal((await balTrack.delta()).toString(), due.toString());
   });
 
   // it("steward: benefactor withdrawal. A token is owned for 1 year.", async () => {
@@ -170,7 +167,7 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
   // });
 
   describe("steward: benefactor withdrawal with token foreclosure", async () => {
-    it("steward: benefactor withdrawal. A token is owned for 20 minutes, but forecloses after 10 minutes. The organisation withdraws their funds after 20 minutes.", async () => {
+    it("steward: benefactor withdrawal. A token is owned for 20 minutes, but forecloses after 10 minutes. The organisation withdraws their funds after 20 minutes. [ @skip-on-coverage ]", async () => {
       const tokenPrice = ether("1");
       const deposit = tenMinPatronageAt1Eth;
       const buyToken2Timestamp = await txTimestamp(
@@ -272,89 +269,96 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
         benefactor1
       );
 
-      assert.equal(
-        "0",
-        benefactorCreditBefore.toString(),
-        "benefactor shouldn't have credit before token forecloses"
-      );
-      assert.equal(
-        benefactorCreditAfter.toString(),
-        tenMinPatronageAt1Eth.toString(),
-        "benefactor should have correct credit after token is foreclosed"
-      );
-      assert.equal(
-        benefactorFundsBefore.toString(),
-        "0",
-        "benefactor should start with a balance of zero"
-      );
-      assert.equal(
-        patronScaledCostBefore.toString(),
-        tokenPrice.mul(new BN(patronageNumerator)).toString(),
-        "The scaled token price is incorrect before the withdrawal"
-      );
-      assert.equal(
-        benefactorFundsAfter.toString(),
-        totalDueBeforeForeclosure.toString(),
-        "benefactor funds should stay zero"
-      );
-      assert.equal(
-        tokenPriceBefore.toString(),
-        tokenPriceAfter.toString(),
-        "The token price shouldn't change"
-      );
-      assert.equal(
-        "0",
-        potronScaledCostAfter.toString(),
-        "The patrons scaled cost should reset to zero when token forecloses"
-      );
-      assert.equal(
-        benefactorScaledCostBefore.toString(),
-        benefactorScaledCostAfter.mul(new BN(2)).toString(),
-        "The benefactor scaled cost should be half (since half the tokens were foreclosed)"
-      );
+      if (!isCoverage) {
+        assert.equal(
+          "0",
+          benefactorCreditBefore.toString(),
+          "benefactor shouldn't have credit before token forecloses"
+        );
+        assert.equal(
+          benefactorCreditAfter.toString(),
+          tenMinPatronageAt1Eth.toString(),
+          "benefactor should have correct credit after token is foreclosed"
+        );
+        assert.equal(
+          benefactorFundsBefore.toString(),
+          "0",
+          "benefactor should start with a balance of zero"
+        );
+        assert.equal(
+          patronScaledCostBefore.toString(),
+          tokenPrice.mul(new BN(patronageNumerator)).toString(),
+          "The scaled token price is incorrect before the withdrawal"
+        );
+        assert.equal(
+          benefactorFundsAfter.toString(),
+          totalDueBeforeForeclosure.toString(),
+          "benefactor funds should stay zero"
+        );
+        assert.equal(
+          tokenPriceBefore.toString(),
+          tokenPriceAfter.toString(),
+          "The token price shouldn't change"
+        );
+        assert.equal(
+          "0",
+          potronScaledCostAfter.toString(),
+          "The patrons scaled cost should reset to zero when token forecloses"
+        );
+        assert.equal(
+          benefactorScaledCostBefore.toString(),
+          benefactorScaledCostAfter.mul(new BN(2)).toString(),
+          "The benefactor scaled cost should be half (since half the tokens were foreclosed)"
+        );
 
-      const balTrack2 = await balance.tracker(benefactor1);
-      await setNextTxTimestamp(time.duration.minutes(40));
+        const balTrack2 = await balance.tracker(benefactor1);
+        await setNextTxTimestamp(time.duration.minutes(40));
 
-      // the amount of credit should be tenMinPatronageAt1Eth;
-      // the extra amount available to withdraw should be 3 * tenMinPatronageAt1Eth;
+        // the amount of credit should be tenMinPatronageAt1Eth;
+        // the extra amount available to withdraw should be 3 * tenMinPatronageAt1Eth;
 
-      // the error is the available to withdraw is at 1826484018264840 (8 * tenMinPatronageAt1Eth)
-      // Since the foreclosure of token 1 is not Recognized here.
-      await withdrawMaxPermissioned(benefactor1);
+        // the error is the available to withdraw is at 1826484018264840 (8 * tenMinPatronageAt1Eth)
+        // Since the foreclosure of token 1 is not Recognized here.
+        await withdrawMaxPermissioned(benefactor1);
 
-      const amountDueForToken2inSecondWithdrawal = patronageDue([
-        {
-          price: tokenPrice,
-          timeHeld: await timeSinceTimestamp(withdrawBenefactorFundstimestamp),
-          patronageNumerator,
-        },
-      ]);
+        const amountDueForToken2inSecondWithdrawal = patronageDue([
+          {
+            price: tokenPrice,
+            timeHeld: await timeSinceTimestamp(
+              withdrawBenefactorFundstimestamp
+            ),
+            patronageNumerator,
+          },
+        ]);
 
-      const totalDueInSecondWithdrawal = patronageDue([
-        {
-          price: tokenPrice,
-          timeHeld: await timeSince(
-            withdrawBenefactorFundstimestamp,
-            token1ForeclosureTime
-          ),
-          patronageNumerator,
-        },
-        {
-          price: tokenPrice,
-          timeHeld: await timeSinceTimestamp(withdrawBenefactorFundstimestamp),
-          patronageNumerator,
-        },
-      ]);
+        const totalDueInSecondWithdrawal = patronageDue([
+          {
+            price: tokenPrice,
+            timeHeld: await timeSince(
+              withdrawBenefactorFundstimestamp,
+              token1ForeclosureTime
+            ),
+            patronageNumerator,
+          },
+          {
+            price: tokenPrice,
+            timeHeld: await timeSinceTimestamp(
+              withdrawBenefactorFundstimestamp
+            ),
+            patronageNumerator,
+          },
+        ]);
 
-      const changeInBenefactorBalance = await balTrack2.delta();
-      assert.isTrue(
-        // NOTE: due to division error, can be off by 1...
-        Math.abs(changeInBenefactorBalance.sub(totalDueInSecondWithdrawal)) <= 1
-      );
-      const calculatedBenefactorBalanceChange = amountDueForToken2inSecondWithdrawal.sub(
-        benefactorCreditAfter
-      );
+        const changeInBenefactorBalance = await balTrack2.delta();
+        assert.isTrue(
+          // NOTE: due to division error, can be off by 1...
+          Math.abs(changeInBenefactorBalance.sub(totalDueInSecondWithdrawal)) <=
+            1
+        );
+        const calculatedBenefactorBalanceChange = amountDueForToken2inSecondWithdrawal.sub(
+          benefactorCreditAfter
+        );
+      }
     });
   });
 });

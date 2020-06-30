@@ -1,15 +1,10 @@
-const {
-  BN,
-  expectRevert,
-  ether,
-  expectEvent,
-  balance,
-  time,
-} = require("@openzeppelin/test-helpers");
+const { BN, ether, time } = require("@openzeppelin/test-helpers");
 const {
   multiPatronageCalculator,
   setupTimeManager,
   initialize,
+  isCoverage,
+  waitTillBeginningOfSecond,
 } = require("./helpers");
 const { web3 } = require("@openzeppelin/test-helpers/src/setup");
 
@@ -73,6 +68,8 @@ contract("WildcardSteward owed", (accounts) => {
         value: "0",
       });
     };
+
+    if (isCoverage) await waitTillBeginningOfSecond();
   });
 
   beforeEach(async () => {
@@ -143,19 +140,20 @@ contract("WildcardSteward owed", (accounts) => {
       },
     ]);
 
-    assert.equal(
-      owed1.patronageDue.toString(),
-      expectedPatronageAfter10minToken1.toString()
-    );
-    assert.equal(
-      owed2.patronageDue.toString(),
-      expectedPatronageAfter10minToken2.toString()
-    );
-    assert.equal(
-      owedPatron.patronageDue.toString(),
-      expectedPatronageBoth.toString()
-    );
-    assert(true);
+    if (!isCoverage) {
+      assert.equal(
+        owed1.patronageDue.toString(),
+        expectedPatronageAfter10minToken1.toString()
+      );
+      assert.equal(
+        owed2.patronageDue.toString(),
+        expectedPatronageAfter10minToken2.toString()
+      );
+      assert.equal(
+        owedPatron.patronageDue.toString(),
+        expectedPatronageBoth.toString()
+      );
+    }
   });
 
   // buy 2 tokens, with prices of 1 ether and 2 ether.
@@ -256,34 +254,36 @@ contract("WildcardSteward owed", (accounts) => {
       },
     ]);
 
-    assert.equal(
-      owed1.patronageDue.toString(),
-      expectedPatronageAfter10minToken1.toString()
-    );
-    assert.equal(
-      owed2.patronageDue.toString(),
-      expectedPatronageAfter10minToken2.toString()
-    );
-    assert.equal(
-      owedPatron.patronageDue.toString(),
-      expectedPatronageBoth.toString()
-    );
-    assert.equal(
-      owed2Second.patronageDue.toString(),
-      expectedPatronageAfter20minToken2.toString()
-    );
-    assert.equal(
-      owed1Second.patronageDue.toString(),
-      expectedPatronageAfter20minToken1.toString()
-    );
-    // Should only count since the last clearance (when token 1 was bought)
-    assert.equal(
-      owedPatronSecond.patronageDue.toString(),
-      expectedPatronageAfter10minToken2.toString()
-    );
-    assert.equal(
-      owedPatron2Second.patronageDue.toString(),
-      expectedPatronageAfter20minToken1.toString()
-    );
+    if (!isCoverage) {
+      assert.equal(
+        owed1.patronageDue.toString(),
+        expectedPatronageAfter10minToken1.toString()
+      );
+      assert.equal(
+        owed2.patronageDue.toString(),
+        expectedPatronageAfter10minToken2.toString()
+      );
+      assert.equal(
+        owedPatron.patronageDue.toString(),
+        expectedPatronageBoth.toString()
+      );
+      assert.equal(
+        owed2Second.patronageDue.toString(),
+        expectedPatronageAfter20minToken2.toString()
+      );
+      assert.equal(
+        owed1Second.patronageDue.toString(),
+        expectedPatronageAfter20minToken1.toString()
+      );
+      // Should only count since the last clearance (when token 1 was bought)
+      assert.equal(
+        owedPatronSecond.patronageDue.toString(),
+        expectedPatronageAfter10minToken2.toString()
+      );
+      assert.equal(
+        owedPatron2Second.patronageDue.toString(),
+        expectedPatronageAfter20minToken1.toString()
+      );
+    }
   });
 });

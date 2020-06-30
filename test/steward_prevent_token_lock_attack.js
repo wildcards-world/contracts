@@ -4,6 +4,7 @@ const {
   setupTimeManager,
   patronageDue,
   withdrawBenefactorFundsAll,
+  isCoverage,
   SENT_ATTACKER_CONTRACT_NAME,
 } = require("./helpers");
 
@@ -130,13 +131,14 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
       },
     ]);
 
-    assert.equal(
-      depositAbleToWithdrawBefore.add(ether("0.95")).toString(), //6% artist and wildcards default cut
-      depositAbleToWithdrawAfter
-        .add(expectedPatronageAfterFirstSale)
-        .toString(),
-      "The deposit before and after + funds earned from token sale should be the same"
-    );
+    if (!isCoverage)
+      assert.equal(
+        depositAbleToWithdrawBefore.add(ether("0.95")).toString(), //6% artist and wildcards default cut
+        depositAbleToWithdrawAfter
+          .add(expectedPatronageAfterFirstSale)
+          .toString(),
+        "The deposit before and after + funds earned from token sale should be the same"
+      );
   });
   it("steward: withdrawBenefactorFundsTo. if the benefactor has blocked receiving eth, the transaction should go through but the balance should be added to the benefactorFunds.", async () => {
     const attacker = await Attacker.new();
@@ -181,12 +183,12 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
         price: ether("1"),
       },
     ]);
-
-    assert.equal(
-      benefactorFunds.toString(),
-      benefactorFundsAfter.sub(expectedPatronageFor1Second).toString(),
-      "benefactor funds should be unchanged"
-    );
+    if (!isCoverage)
+      assert.equal(
+        benefactorFunds.toString(),
+        benefactorFundsAfter.sub(expectedPatronageFor1Second).toString(),
+        "benefactor funds should be unchanged"
+      );
   });
 
   it("steward: withdrawDeposit. if the benefactor has blocked receiving eth, the transaction should revert.", async () => {

@@ -3,6 +3,8 @@ const {
   multiPatronageCalculator,
   setupTimeManager,
   initialize,
+  isCoverage,
+  waitTillBeginningOfSecond,
 } = require("./helpers");
 const patronageCalculator = multiPatronageCalculator();
 
@@ -65,6 +67,8 @@ contract("WildcardSteward owed", (accounts) => {
       tokenDetails
     );
     steward = result.steward;
+
+    if (isCoverage) await waitTillBeginningOfSecond();
   });
 
   it("steward: multi-patronage. On token buy, check that the remaining deposit is sent back to patron only if it is their only token", async () => {
@@ -115,10 +119,11 @@ contract("WildcardSteward owed", (accounts) => {
         price: priceOfToken1.toString(),
       },
     ]);
-    assert.equal(
-      patronDepositInitial.toString(),
-      patronDepositAfter10min.add(expectedPatronageAfter10min).toString()
-    );
+    if (!isCoverage)
+      assert.equal(
+        patronDepositInitial.toString(),
+        patronDepositAfter10min.add(expectedPatronageAfter10min).toString()
+      );
     assert.equal(
       collectPatronageT10BlockTime.toString(),
       lastCollectedPatronT10.toString()
@@ -165,20 +170,22 @@ contract("WildcardSteward owed", (accounts) => {
       },
     ]);
 
-    assert.equal(
-      patronDepositAfter20min.toString(),
-      patronDepositAfter10min
-        .sub(expectedPatronage10MinToken1)
-        .add(ether("1"))
-        .toString()
-    );
-    assert.equal(
-      patronDepositCalculatedAfter20min.toString(),
-      patronDepositAfter10min
-        .add(ether("1"))
-        .sub(expectedPatronage10MinToken1)
-        .toString()
-    );
+    if (!isCoverage) {
+      assert.equal(
+        patronDepositAfter20min.toString(),
+        patronDepositAfter10min
+          .sub(expectedPatronage10MinToken1)
+          .add(ether("1"))
+          .toString()
+      );
+      assert.equal(
+        patronDepositCalculatedAfter20min.toString(),
+        patronDepositAfter10min
+          .add(ether("1"))
+          .sub(expectedPatronage10MinToken1)
+          .toString()
+      );
+    }
 
     /////////////////// TIME = 30 ////////////////////
     //////////////////////////////////////////////////
@@ -227,10 +234,11 @@ contract("WildcardSteward owed", (accounts) => {
         price: priceOfToken1.toString(),
       },
     ]);
-    assert.equal(
-      benefactorFundsT30.toString(),
-      expectedTotalPatronageT30Token1.toString()
-    );
+    if (!isCoverage)
+      assert.equal(
+        benefactorFundsT30.toString(),
+        expectedTotalPatronageT30Token1.toString()
+      );
 
     /////////////////// TIME = 40 ////////////////////
     //////////////////////////////////////////////////
@@ -251,11 +259,12 @@ contract("WildcardSteward owed", (accounts) => {
       },
     ]);
 
-    assert.equal(
-      expectedTotalPatronageT40Token2.toString(),
-      benefactor2FundsT40Unclaimed
-        .add(benefactor2FundsT40AlreadyClaimed)
-        .toString()
-    );
+    if (!isCoverage)
+      assert.equal(
+        expectedTotalPatronageT40Token2.toString(),
+        benefactor2FundsT40Unclaimed
+          .add(benefactor2FundsT40AlreadyClaimed)
+          .toString()
+      );
   });
 });

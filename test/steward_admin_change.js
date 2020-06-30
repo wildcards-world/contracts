@@ -1,5 +1,9 @@
 const { expectRevert, ether, time } = require("@openzeppelin/test-helpers");
-const { multiPatronageCalculator, initialize } = require("./helpers");
+const {
+  multiPatronageCalculator,
+  initialize,
+  isCoverage,
+} = require("./helpers");
 
 const patronageCalculator = multiPatronageCalculator();
 
@@ -70,7 +74,12 @@ contract("WildcardSteward admin change", (accounts) => {
         price: priceOfToken1.toString(),
       },
     ]);
-    assert.equal(owed10min.toString(), expectedPatronageAfter10min.toString());
+
+    if (!isCoverage)
+      assert.equal(
+        owed10min.toString(),
+        expectedPatronageAfter10min.toString()
+      );
 
     // TEST 3:
     // Attempting to change the admin of the contract as a non-admin. Should fail
