@@ -167,7 +167,7 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
   // });
 
   describe("steward: benefactor withdrawal with token foreclosure", async () => {
-    it("steward: benefactor withdrawal. A token is owned for 20 minutes, but forecloses after 10 minutes. The organisation withdraws their funds after 20 minutes. [ @skip-on-coverage ]", async () => {
+    it("steward: benefactor withdrawal. A token is owned for 20 minutes, but forecloses after 10 minutes. The organisation withdraws their funds after 20 minutes.", async () => {
       const tokenPrice = ether("1");
       const deposit = tenMinPatronageAt1Eth;
       const buyToken2Timestamp = await txTimestamp(
