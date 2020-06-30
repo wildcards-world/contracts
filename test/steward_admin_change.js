@@ -55,7 +55,7 @@ contract("WildcardSteward admin change", (accounts) => {
 
     // TEST 1:
     // Checking that when patronage owed is called immediately after a token is bought, nothing returned.
-    const owed = await steward.patronageOwed(testTokenId1, {
+    const owed = await steward.patronageOwedPatron(accounts[2], {
       from: accounts[5],
     });
     assert.equal(owed, 0);
@@ -65,7 +65,7 @@ contract("WildcardSteward admin change", (accounts) => {
 
     // TEST 2:
     // Checking that the patronage after 10min returns what is expected by the manual calculator.
-    const owed10min = await steward.patronageOwed(testTokenId1, {
+    const owed10min = await steward.patronageOwedPatron(accounts[2], {
       from: accounts[5],
     });
     const expectedPatronageAfter10min = patronageCalculator("600", [
