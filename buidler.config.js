@@ -13,6 +13,10 @@ module.exports = {
       blockGasLimit: 95000000,
     },
   },
+  reporterOptions: {
+    currency: "USD",
+    gasPrice: 25, //in gwei
+  },
   solc: {
     version: "0.5.17",
     optimizer: {
