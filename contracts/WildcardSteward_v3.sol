@@ -416,35 +416,6 @@ contract WildcardSteward_v3 is Initializable {
         );
     }
 
-    // TODO: this function needs to be deprecated - only used in the tests
-    function patronageOwed(uint256 tokenId)
-        public
-        view
-        returns (uint256 patronageDue)
-    {
-
-            uint256 tokenTimeLastCollectedPatron
-         = timeLastCollectedPatron[assetToken.ownerOf(tokenId)];
-
-        if (tokenTimeLastCollectedPatron == 0) return 0;
-
-        uint256 owed = price[tokenId]
-            .mul(now.sub(tokenTimeLastCollectedPatron))
-            .mul(patronageNumerator[tokenId])
-            .div(31536000000000000000);
-
-        return owed;
-    }
-
-    // TODO: this function needs to be deprecated - only used in the tests
-    function patronageOwedWithTimestamp(uint256 tokenId)
-        public
-        view
-        returns (uint256 patronageDue, uint256 timestamp)
-    {
-        return (patronageOwed(tokenId), now);
-    }
-
     function patronageOwedPatron(address tokenPatron)
         public
         view
