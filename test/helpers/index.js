@@ -86,6 +86,16 @@ const initialize = async (
   };
 };
 
+const isCoverage = process.env.IS_COVERAGE == "true";
+
+// NOTE:: This was inspired by this question and the off by one second errors I was getting:
+// https://ethereum.stackexchange.com/a/74558/4642
+const waitTillBeginningOfSecond = () =>
+  new Promise((resolve) => {
+    const timeTilNextSecond = 1000 - new Date().getMilliseconds();
+    setTimeout(resolve, timeTilNextSecond);
+  });
+
 const setupTimeManager = async (web3) => {
   const getCurrentTimestamp = async () => {
     return new BN(
@@ -112,7 +122,7 @@ const setupTimeManager = async (web3) => {
       (await getCurrentTimestamp()).add(timeIncreaseBN).toString()
     );
 
-    if (process.env.IS_COVERAGE == "true") {
+    if (isCoverage) {
       await time.increase(timeIncreaseBN);
       // await time.increase(timeIncreaseBN.add(new BN(1)));
     } else {
@@ -199,6 +209,8 @@ module.exports = {
   initialize,
   launchTokens,
   withdrawBenefactorFundsAll,
+  isCoverage,
+  waitTillBeginningOfSecond,
   //patronage per token = price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
   multiPatronageCalculator: () => (timeInSeconds, tokenArray) => {
     const totalPatronage = tokenArray.reduce(

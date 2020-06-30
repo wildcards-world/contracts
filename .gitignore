@@ -9,3 +9,4 @@ coverage
 .openzeppelin/.session
 secretsManager.js
 coverage.json
+.coverage*

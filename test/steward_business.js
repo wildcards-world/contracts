@@ -6,7 +6,12 @@ const {
   balance,
   time,
 } = require("@openzeppelin/test-helpers");
-const { initialize, setupTimeManager, patronageDue } = require("./helpers");
+const {
+  initialize,
+  setupTimeManager,
+  patronageDue,
+  isCoverage,
+} = require("./helpers");
 
 contract("WildcardSteward owed", (accounts) => {
   let steward;
@@ -140,14 +145,15 @@ contract("WildcardSteward owed", (accounts) => {
     ]);
 
     // 1% to artist and 5% to wildcards on this token.
-    assert.equal(
-      patronDepositAfterFirstSale.toString(),
-      patronDepositBeforeSale
-        .add(token1Price.sub(firstSaleArtistCut).sub(firstSaleWildcardsCut))
-        .sub(patronageDueFromHoldingTokensSale1)
-        .toString(),
-      "Deposit should be 94% of original, since 5% + 1% went to wildcards and the artist respectively."
-    );
+    if (!isCoverage)
+      assert.equal(
+        patronDepositAfterFirstSale.toString(),
+        patronDepositBeforeSale
+          .add(token1Price.sub(firstSaleArtistCut).sub(firstSaleWildcardsCut))
+          .sub(patronageDueFromHoldingTokensSale1)
+          .toString(),
+        "Deposit should be 94% of original, since 5% + 1% went to wildcards and the artist respectively."
+      );
 
     assert.equal(
       balancePatronBeforeSale.toString(),
@@ -203,15 +209,16 @@ contract("WildcardSteward owed", (accounts) => {
     //Checking once no more tokens are owned, the deposit is set to zero
     assert.equal(patronDepositAfterSecondSale.toString(), "0");
     //Checking owner gets deposit back on sale of final token plus sale price too.
-    assert.equal(
-      balancePatronAfterSecondSale.toString(),
-      balancePatronAfterFirstSale
-        .add(token2Price.sub(secondSaleArtistCut).sub(secondSaleWildcardsCut))
-        .add(patronDepositAfterFirstSale)
-        .sub(patronageDueFromHoldingTokensSale2)
-        .toString(),
-      "The user should get back their full deposit + sale price on last token sale."
-    );
+    if (!isCoverage)
+      assert.equal(
+        balancePatronAfterSecondSale.toString(),
+        balancePatronAfterFirstSale
+          .add(token2Price.sub(secondSaleArtistCut).sub(secondSaleWildcardsCut))
+          .add(patronDepositAfterFirstSale)
+          .sub(patronageDueFromHoldingTokensSale2)
+          .toString(),
+        "The user should get back their full deposit + sale price on last token sale."
+      );
 
     const balanceArtistBeforeWithdraw = new BN(
       await web3.eth.getBalance(accounts[9])
