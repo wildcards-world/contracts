@@ -8,13 +8,7 @@ module.exports = {
     buidlerevm: {
       gas: 95000000,
       blockGasLimit: 95000000,
-      // accounts: {
-      //   count: 20,
-      // },
     },
-    // coverage: {
-    //   url: "http://localhost:8555",
-    // },
   },
   solc: {
     version: "0.5.17",
