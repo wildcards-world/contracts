@@ -1,6 +1,9 @@
+const isCoverage = process.env.IS_COVERAGE == "true";
+const isGasReport = process.env.IS_GAS_REPORT == "true";
+
 usePlugin("@nomiclabs/buidler-truffle5");
-usePlugin("solidity-coverage");
-usePlugin("buidler-gas-reporter");
+if (isCoverage) usePlugin("solidity-coverage");
+if (isGasReport) usePlugin("buidler-gas-reporter");
 
 module.exports = {
   defaultNetwork: "buidlerevm",

@@ -129,6 +129,7 @@ const setupTimeManager = async (web3) => {
       await promisify(web3.currentProvider.send.bind(web3.currentProvider))({
         jsonrpc: "2.0",
         method: "evm_setNextBlockTimestamp",
+        params: [timestamp],
       });
     }
 

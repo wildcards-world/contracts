@@ -7,6 +7,8 @@
   "scripts": {
     "compile": "buidler compile",
     "test": "buidler test",
+    "buidler-node": "buidler node",
+    "gas-report": "IS_GAS_REPORT='true' buidler test",
     "coverage": "IS_COVERAGE='true' buidler coverage",
     "check": "truffle exec index.js --network local",
     "deploy": "npx truffle exec scripts/deploy.js"
