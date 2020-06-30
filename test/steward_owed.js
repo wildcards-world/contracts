@@ -176,10 +176,9 @@ contract("WildcardSteward owed", (accounts) => {
     });
 
     const measurementTimestamp = await setTimestamp(time.duration.minutes(10));
-    const owed = await steward.patronageOwedPatronWithTimestamp.call(
-      accounts[2],
-      { from: accounts[2] }
-    );
+    const owed = await steward.patronageOwedPatron.call(accounts[2], {
+      from: accounts[2],
+    });
     const collectPatronageTimestamp = await txTimestamp(
       steward._collectPatronage(tokenDetails[0].token)
     );
@@ -211,15 +210,13 @@ contract("WildcardSteward owed", (accounts) => {
       },
     ]);
 
-    const calcDeposit = price
-      .sub(owed.patronageDue)
-      .sub(patronageDueSinceMeasurement);
+    const calcDeposit = price.sub(owed).sub(patronageDueSinceMeasurement);
 
     assert.equal(deposit.toString(), calcDeposit.toString());
 
     assert.equal(
       benefactorFund.toString(),
-      owed.patronageDue.add(patronageEarnedSinceMeasurement).toString()
+      owed.add(patronageEarnedSinceMeasurement).toString()
     );
     assert.equal(
       timeLastCollectedBenefactor.toString(),
