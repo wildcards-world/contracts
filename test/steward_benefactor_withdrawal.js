@@ -9,6 +9,7 @@ const {
   waitTillBeginningOfSecond,
 } = require("./helpers");
 // TODO: switch to the ethersjs version, for future typescript support? https://www.npmjs.com/package/@ethersproject/abi
+const one = new BN(1);
 
 contract("WildcardSteward Benefactor collection", (accounts) => {
   let steward;
@@ -199,13 +200,13 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
       );
       assert.equal(
         token1ForeclosureTime.toString(),
-        buyToken1Timestamp.add(new BN(time.duration.minutes(10))).toString(),
+        buyToken1Timestamp.add(time.duration.minutes(10)).toString(),
         "foreclosure time should be 10 minutes after purchase"
       );
 
       const balTrack = await balance.tracker(benefactor1);
       const withdrawBenefactorFundstimestamp = await setNextTxTimestamp(
-        time.duration.minutes(20).sub(new BN(1))
+        time.duration.minutes(20).add(one)
       );
       await withdrawMaxPermissioned(benefactor1);
 
@@ -293,7 +294,7 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
         );
         assert.equal(
           benefactorFundsAfter.toString(),
-          totalDueBeforeForeclosure.toString(),
+          "0",
           "benefactor funds should stay zero"
         );
         assert.equal(

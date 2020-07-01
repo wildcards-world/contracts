@@ -5,13 +5,6 @@ import "./MintManager_v2.sol";
 
 import "@nomiclabs/buidler/console.sol";
 
-/*
-31536000 seconds = 365 days
-
-divisor = 365 days * 1000000000000
-        = 31536000000000000000
-*/
-
 contract WildcardSteward_v3 is Initializable {
     /*
     This smart contract collects patronage from current owner through a Harberger tax model and 
@@ -71,6 +64,14 @@ contract WildcardSteward_v3 is Initializable {
     mapping(address => uint256) public timeLastCollectedBenefactor; // make my name consistent please
     mapping(address => uint256) public benefactorCredit;
     address public withdrawCheckerAdmin;
+
+    /*
+    31536000 seconds = 365 days
+
+    divisor = 365 days * 1000000000000
+            = 31536000000000000000
+    */
+    uint256 constant yearTimePatronagDenominator = 31536000000000000000;
 
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
     event PriceChange(uint256 indexed tokenId, uint256 newPrice);
@@ -150,7 +151,7 @@ contract WildcardSteward_v3 is Initializable {
         require(
             !(deposit[tokenPatron] == 0 &&
                 totalPatronOwnedTokenCost[tokenPatron] > 0),
-            "You already own tokens but have no deposit"
+            "no deposit existing tokens"
         );
         _;
     }
@@ -165,6 +166,14 @@ contract WildcardSteward_v3 is Initializable {
         require(_newPrice > 0, "Price is zero");
         _;
     }
+    modifier notNullAddress(address checkAddress) {
+        require(checkAddress != address(0), "null address");
+        _;
+    }
+    modifier notSameAddress(address firstAddress, address secondAddress) {
+        require(firstAddress != secondAddress, "cannot be same address");
+        _;
+    }
     modifier validWildcardsPercentage(
         uint256 wildcardsPercentage,
         uint256 tokenID
@@ -172,7 +181,7 @@ contract WildcardSteward_v3 is Initializable {
         require(
             wildcardsPercentage >= 500 &&
                 wildcardsPercentage <= (10000 - artistPercentages[tokenID]), // not sub safemath. Is this okay?
-            "Minimum 5% (500) commission, max 100% (10000) commission."
+            "wildcards commision not between 5% and 100%"
         );
         _;
     }
@@ -239,7 +248,7 @@ contract WildcardSteward_v3 is Initializable {
 
         for (uint8 i = 0; i < tokens.length; ++i) {
             address benefactor = _benefactors[i];
-            assert(_benefactors[i] != address(0));
+            require(_benefactors[i] != address(0), "null address");
             string memory idString = uintToStr(tokens[i]);
             string memory tokenUriBase = "https://wildcards.xyz/token/";
             string memory tokenUri = string(
@@ -283,9 +292,8 @@ contract WildcardSteward_v3 is Initializable {
         uint256 _auctionStartPrice,
         uint256 _auctionEndPrice,
         uint256 _auctionLength
-    ) public {
+    ) public notNullAddress(withdrawCheckerAdmin) {
         // This function effectively needs to call both _collectPatronage and _collectPatronagePatron from the v2 contract.
-        require(withdrawCheckerAdmin == address(0));
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
         // For each token
         for (uint8 i = 0; i < tokens.length; ++i) {
@@ -300,7 +308,7 @@ contract WildcardSteward_v3 is Initializable {
             uint256 collection = price[tokenId]
                 .mul(timeSinceTokenLastCollection)
                 .mul(patronageNumerator[tokenId])
-                .div(31536000000000000000);
+                .div(yearTimePatronagDenominator);
 
             // set the timeLastCollectedPatron for that tokens owner to 'now'.
             // timeLastCollected[tokenId] = now; // This variable is depricated, no need to update it.
@@ -367,11 +375,14 @@ contract WildcardSteward_v3 is Initializable {
         onlyReceivingBenefactorOrAdmin(tokenId)
         updateBenefactorBalance(benefactors[tokenId])
         updateBenefactorBalance(_newReceivingBenefactor)
+        notNullAddress(_newReceivingBenefactor)
     {
         address oldBenfactor = benefactors[tokenId];
 
-        require(oldBenfactor != _newReceivingBenefactor);
-        require(address(0) != _newReceivingBenefactor);
+        require(
+            oldBenfactor != _newReceivingBenefactor,
+            "cannot be same address"
+        );
 
         // Collect patronage from old and new benefactor before changing totalBenefactorTokenNumerator on both
         uint256 scaledPrice = price[tokenId].mul(patronageNumerator[tokenId]);
@@ -390,10 +401,13 @@ contract WildcardSteward_v3 is Initializable {
     function changeReceivingBenefactorDeposit(
         address oldBenfactor,
         address payable _newReceivingBenefactor
-    ) public onlyAdmin {
-        require(benefactorFunds[oldBenfactor] > 0);
-        require(oldBenfactor != _newReceivingBenefactor);
-        require(address(0) != _newReceivingBenefactor);
+    )
+        public
+        onlyAdmin
+        notNullAddress(_newReceivingBenefactor)
+        notSameAddress(oldBenfactor, _newReceivingBenefactor)
+    {
+        require(benefactorFunds[oldBenfactor] > 0, "no funds");
 
         benefactorFunds[_newReceivingBenefactor] = benefactorFunds[_newReceivingBenefactor]
             .add(benefactorFunds[oldBenfactor]);
@@ -407,8 +421,8 @@ contract WildcardSteward_v3 is Initializable {
     function changeWithdrawCheckerAdmin(address _withdrawCheckerAdmin)
         public
         onlyAdmin
+        notNullAddress(_withdrawCheckerAdmin)
     {
-        require(_withdrawCheckerAdmin != address(0));
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
     }
 
@@ -417,7 +431,7 @@ contract WildcardSteward_v3 is Initializable {
         address artistAddress,
         uint256 percentage
     ) public onlyAdmin {
-        require(percentage <= 2000, "Cannot be more than 20%");
+        require(percentage <= 2000, "not more than 20%");
         artistPercentages[tokenId] = percentage;
         artistAddresses[tokenId] = artistAddress;
         emit ArtistCommission(tokenId, artistAddress, percentage);
@@ -430,9 +444,9 @@ contract WildcardSteward_v3 is Initializable {
     ) internal {
         require(
             _auctionStartPrice >= _auctionEndPrice,
-            "Auction value must decrease over time"
+            "auction start < auction end"
         );
-        require(_auctionLength >= 86400, "Auction should last at least day");
+        require(_auctionLength >= 86400, "1 day min auction length");
 
         auctionStartPrice = _auctionStartPrice;
         auctionEndPrice = _auctionEndPrice;
@@ -461,7 +475,7 @@ contract WildcardSteward_v3 is Initializable {
         return
             totalPatronOwnedTokenCost[tokenPatron]
                 .mul(now.sub(timeLastCollectedPatron[tokenPatron]))
-                .div(31536000000000000000);
+                .div(yearTimePatronagDenominator);
     }
 
     function patronageDueBenefactor(address benefactor)
@@ -474,7 +488,7 @@ contract WildcardSteward_v3 is Initializable {
         return
             totalBenefactorTokenNumerator[benefactor]
                 .mul(now.sub(timeLastCollectedBenefactor[benefactor]))
-                .div(31536000000000000000);
+                .div(yearTimePatronagDenominator);
     }
 
     function foreclosedPatron(address tokenPatron) public view returns (bool) {
@@ -509,7 +523,7 @@ contract WildcardSteward_v3 is Initializable {
         returns (uint256)
     {
         uint256 pps = totalPatronOwnedTokenCost[tokenPatron].div(
-            31536000000000000000
+            yearTimePatronagDenominator
         );
         return now.add(depositAbleToWithdraw(tokenPatron).div(pps));
     }
@@ -551,7 +565,7 @@ contract WildcardSteward_v3 is Initializable {
 
             if (
                 patronageOwedByTokenPatron > 0 &&
-                patronageOwedByTokenPatron >= deposit[tokenPatron]
+                patronageOwedByTokenPatron > deposit[tokenPatron]
             ) {
 
                     uint256 previousCollectionTime
@@ -584,7 +598,7 @@ contract WildcardSteward_v3 is Initializable {
                     )
                 )
                     .mul(patronageNumerator[tokenId])
-                    .div(31536000000000000000);
+                    .div(yearTimePatronagDenominator);
 
                 _decreaseBenefactorBalance(benefactor, amountOverCredited);
             } else {
@@ -677,7 +691,7 @@ contract WildcardSteward_v3 is Initializable {
     {
         return
             totalBenefactorTokenNumerator[benefactor].mul(auctionLength).div(
-                31536000000000000000
+                yearTimePatronagDenominator
             ); // 365 days * 1000000000000
     }
 
@@ -692,7 +706,7 @@ contract WildcardSteward_v3 is Initializable {
 
         require(
             availableToWithdraw > benefactorWithdrawalSafetyDiscount,
-            "No funds available"
+            "no funds"
         );
 
         // NOTE: no need for safe-maths, above require prevents issues.
@@ -738,13 +752,13 @@ contract WildcardSteward_v3 is Initializable {
     ) public {
         require(
             ecrecover(hash, v, r, s) == withdrawCheckerAdmin,
-            "No permission to withdraw"
+            "no permission to withdraw"
         );
         require(
             hash == hasher(benefactor, maxAmount, expiry),
-            "Incorrect parameters"
+            "incorrect hash"
         );
-        require(now < expiry, "coupon has expired");
+        require(now < expiry, "coupon expired");
 
         _updateBenefactorBalance(benefactor);
 
@@ -760,8 +774,6 @@ contract WildcardSteward_v3 is Initializable {
                         benefactor,
                         availableToWithdraw
                     );
-                } else {
-                    console.log("UNABLE TO SEND...");
                 }
             } else {
                 if (safeSend(availableToWithdraw, benefactor)) {
@@ -782,7 +794,7 @@ contract WildcardSteward_v3 is Initializable {
 
         if (
             patronageOwedByTokenPatron > 0 &&
-            patronageOwedByTokenPatron >= deposit[tokenPatron]
+            patronageOwedByTokenPatron > deposit[tokenPatron]
         ) {
 
                 uint256 previousCollectionTime
@@ -816,7 +828,7 @@ contract WildcardSteward_v3 is Initializable {
     }
 
     function depositWeiPatron(address patron) public payable {
-        require(totalPatronOwnedTokenCost[patron] > 0, "No tokens owned");
+        require(totalPatronOwnedTokenCost[patron] > 0, "no tokens");
         deposit[patron] = deposit[patron].add(msg.value);
         emit RemainingDepositUpdate(patron, deposit[patron]);
     }
@@ -863,14 +875,11 @@ contract WildcardSteward_v3 is Initializable {
         youCurrentlyAreNotInDefault(msg.sender)
         validWildcardsPercentage(wildcardsPercentage, tokenId)
     {
-        require(
-            state[tokenId] == StewardState.Owned,
-            "Cannot buy foreclosed token using this function"
-        );
+        require(state[tokenId] == StewardState.Owned, "token on auction");
         uint256 remainingValueForDeposit = msg.value.sub(price[tokenId]);
         require(
             remainingValueForDeposit >= _deposit,
-            "The deposit available is < what was stated in the transaction"
+            "deposit available < stated"
         );
 
         _distributePurchaseProceeds(tokenId);
@@ -902,12 +911,9 @@ contract WildcardSteward_v3 is Initializable {
     {
         require(
             state[tokenId] == StewardState.Foreclosed,
-            "Can only buy foreclosed tokens useing this function"
+            "token not foreclosed"
         );
-        require(
-            now >= tokenAuctionBeginTimestamp[tokenId],
-            "Token is not yet released"
-        );
+        require(now >= tokenAuctionBeginTimestamp[tokenId], "not on auction");
         uint256 auctionTokenPrice = _auctionPrice(tokenId);
         uint256 remainingValueForDeposit = msg.value.sub(auctionTokenPrice);
 
@@ -1003,9 +1009,9 @@ contract WildcardSteward_v3 is Initializable {
         collectPatronage(tokenId)
         updateBenefactorBalance(benefactors[tokenId])
     {
-        require(state[tokenId] != StewardState.Foreclosed, "Foreclosed");
-        require(_newPrice != 0, "Incorrect Price");
-        require(_newPrice < 10000 ether, "exceeded max price");
+        require(state[tokenId] != StewardState.Foreclosed, "foreclosed");
+        require(_newPrice != 0, "incorrect price");
+        require(_newPrice < 10000 ether, "exceeds max price");
 
         uint256 oldPriceScaled = price[tokenId].mul(
             patronageNumerator[tokenId]
@@ -1043,13 +1049,13 @@ contract WildcardSteward_v3 is Initializable {
     }
 
     function _withdrawDeposit(uint256 _wei) internal {
-        require(deposit[msg.sender] >= _wei, "Withdrawing too much");
+        require(deposit[msg.sender] >= _wei, "withdrawing too much");
 
         deposit[msg.sender] = deposit[msg.sender].sub(_wei);
 
         (bool transferSuccess, ) = msg.sender.call.gas(2300).value(_wei)("");
         if (!transferSuccess) {
-            revert("Unable to withdraw deposit");
+            revert("withdrawal failed");
         }
     }
 
@@ -1069,7 +1075,7 @@ contract WildcardSteward_v3 is Initializable {
         address _newOwner,
         uint256 _newPrice
     ) internal {
-        require(_newPrice < 10000 ether, "exceeded max price");
+        require(_newPrice < 10000 ether, "exceeds max price");
 
         uint256 scaledOldPrice = price[tokenId].mul(
             patronageNumerator[tokenId]

@@ -87,13 +87,13 @@ contract("WildcardSteward owed", (accounts) => {
       steward.changeAuctionParameters(ether("1"), ether("2"), auctionDuration, {
         from: admin,
       }),
-      "Auction value must decrease over time"
+      "auction start < auction end"
     );
     await expectRevert(
       steward.changeAuctionParameters(ether("1"), ether("0.5"), 600, {
         from: admin,
       }),
-      "Auction should last at least day"
+      "1 day min auction length"
     );
   });
 
@@ -356,7 +356,7 @@ contract("WildcardSteward owed", (accounts) => {
           value: ether("1").add(tenMinPatronageAt1Eth),
         }
       ),
-      "Token is not yet released"
+      "not on auction"
     );
 
     const timeAfterTokenLaunchToBuy = time.duration.seconds(30000);

@@ -17,6 +17,7 @@ const {
 } = require("./helpers");
 
 const patronageCalculator = multiPatronageCalculator();
+const one = new BN(1);
 
 contract("WildcardSteward owed", (accounts) => {
   let erc721;
@@ -294,7 +295,7 @@ contract("WildcardSteward owed", (accounts) => {
       })
     );
 
-    await setNextTxTimestamp(tenMinutes);
+    await setNextTxTimestamp(tenMinutes.add(one));
     const receipt = await steward._collectPatronage(tokenDetails[0].token); // will foreclose
     // const updateBenefactorBalanceTimestamp = await txTimestamp(
     //   steward._updateBenefactorBalance(benefactorAddress)
@@ -311,9 +312,11 @@ contract("WildcardSteward owed", (accounts) => {
     const previousBlockTime = await time.latest();
     const state = await steward.state.call(tokenDetails[0].token);
 
+    const timeHeld = timeLastCollected.sub(initialBuyTimestamp);
+
     const calcBenefactorFund = patronageDue([
       {
-        timeHeld: collectPatronageTimestamp.sub(initialBuyTimestamp),
+        timeHeld,
         patronageNumerator: tokenDetails[0].patronageNumerator,
         price,
       },
@@ -330,7 +333,10 @@ contract("WildcardSteward owed", (accounts) => {
     assert.equal(deposit.toString(), "0");
     // TODO: invistigate why this sometimes gives an off by one error (not always)
     assert.equal(benefactorFund.toString(), calcBenefactorFund.toString());
-    assert.equal(timeLastCollected.toString(), previousBlockTime.toString());
+    assert.equal(
+      timeLastCollected.toString(),
+      previousBlockTime.sub(one).toString()
+    );
     assert.equal(state.toString(), "0"); // foreclosed state
   });
 
@@ -379,7 +385,7 @@ contract("WildcardSteward owed", (accounts) => {
     );
 
     let secondBuyTime = await setNextTxTimestamp(
-      time.duration.minutes(10).add(new BN(1))
+      time.duration.minutes(10).add(one)
     );
     const secondBuyValue = ether("1").add(totalToBuy); // Paying the 1eth auction price plus totaltobuy
     const txReceipt = await steward.buyAuction(
@@ -407,9 +413,14 @@ contract("WildcardSteward owed", (accounts) => {
 
     const currentOwner = await erc721.ownerOf.call(tokenDetails[0].token);
 
+    const timeLastCollected = await steward.timeLastCollectedPatron.call(
+      accounts[2]
+    );
+    const timeHeld = timeLastCollected.sub(initialBuyTime);
+
     const calcBenefactorFund = patronageDue([
       {
-        timeHeld: secondBuyTime.sub(initialBuyTime),
+        timeHeld,
         patronageNumerator: tokenDetails[0].patronageNumerator,
         price,
       },
@@ -425,7 +436,7 @@ contract("WildcardSteward owed", (accounts) => {
     assert.equal(benefactorFund.toString(), calcBenefactorFund.toString());
     assert.equal(
       timeLastCollectedBuyer1.toString(),
-      previousBlockTime.sub(new BN(1)).toString()
+      previousBlockTime.sub(one).toString()
     );
     assert.equal(state.toString(), "1"); // owned state
   });
@@ -437,7 +448,7 @@ contract("WildcardSteward owed", (accounts) => {
       from: accounts[2],
       value: totalToBuy,
     });
-    await setNextTxTimestamp(time.duration.minutes(10));
+    await setNextTxTimestamp(time.duration.minutes(10).add(one));
     await steward._collectPatronage(tokenDetails[0].token); // will foreclose
 
     const balTrack = await balance.tracker(benefactorAddress);
@@ -525,7 +536,7 @@ contract("WildcardSteward owed", (accounts) => {
     });
     await expectRevert(
       steward.changePrice(tokenDetails[0].token, "0", { from: accounts[2] }),
-      "Incorrect Price"
+      "incorrect price"
     );
   });
 
@@ -637,11 +648,11 @@ contract("WildcardSteward owed", (accounts) => {
     });
     await expectRevert(
       steward.withdrawDeposit(ether("4"), { from: accounts[2] }),
-      "Withdrawing too much"
+      "withdrawing too much"
     );
   });
 
-  // TODO: This test needs to change, but it returns "revert" as the reason, that is a bug. It should say "Withdrawing too much", even if `accounts[3]` has never used this before.
+  // TODO: This test needs to change, but it returns "revert" as the reason, that is a bug. It should say "withdrawing too much", even if `accounts[3]` has never used this before.
   // it('steward: owned. withdraw some deposit from another account [fails]', async () => {
   //   await steward.buy(1, ether('1'), { from: accounts[2], value: ether('2') });
   //   await expectRevert(steward.withdrawDeposit(ether('1'), { from: accounts[3] }), "Not patron");
@@ -755,11 +766,11 @@ contract("WildcardSteward owed", (accounts) => {
       steward.changePrice(tokenDetails[0].token, ether("2"), {
         from: accounts[2],
       }),
-      "Foreclosed"
+      "foreclosed"
     );
     await expectRevert(
       steward.withdrawDeposit(ether("0.5"), { from: accounts[2] }),
-      "Withdrawing too much"
+      "withdrawing too much"
     );
   });
 
