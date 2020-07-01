@@ -554,65 +554,32 @@ contract WildcardSteward_v3 is Initializable {
     }
 
     function _collectPatronage(uint256 tokenId) public {
-        if (state[tokenId] == StewardState.Owned) {
-            address tokenPatron = assetToken.ownerOf(tokenId);
+        address tokenPatron = assetToken.ownerOf(tokenId);
+        uint256 newTimeLastCollectedOnForeclosure = _collectPatronagePatron(
+            tokenPatron
+        );
 
-            uint256 patronageOwedByTokenPatron = patronageOwedPatron(
-                tokenPatron
-            );
+        bool tokenForeclosed = newTimeLastCollectedOnForeclosure > 0;
+        bool tokenIsOwned = state[tokenId] == StewardState.Owned;
+        if (tokenForeclosed && tokenIsOwned) {
+            tokenAuctionBeginTimestamp[tokenId] =
+                // The auction starts the second after the last time collected.
+                newTimeLastCollectedOnForeclosure +
+                1;
 
-            uint256 timeSinceLastMint;
+            _foreclose(tokenId);
 
-            if (
-                patronageOwedByTokenPatron > 0 &&
-                patronageOwedByTokenPatron > deposit[tokenPatron]
-            ) {
-
-                    uint256 previousCollectionTime
-                 = timeLastCollectedPatron[tokenPatron];
-                uint256 newTimeLastCollected = previousCollectionTime.add(
-                    (
-                        (now.sub(previousCollectionTime))
-                            .mul(deposit[tokenPatron])
-                            .div(patronageOwedByTokenPatron)
-                    )
-                );
-                timeLastCollectedPatron[tokenPatron] = newTimeLastCollected;
-                deposit[tokenPatron] = 0;
-                timeSinceLastMint = (
-                    newTimeLastCollected.sub(previousCollectionTime)
-                );
-
-                // The bellow 3 lines are the main difference between this function and the `_collectPatronagePatron` function.
-                _collectLoyaltyPatron(tokenPatron, timeSinceLastMint); // NOTE: you have to call collectLoyaltyPatron before collecting your deposit.
-                tokenAuctionBeginTimestamp[tokenId] = newTimeLastCollected + 1; // The auction starts the second after the last time collected.
-                _foreclose(tokenId);
-
-                address benefactor = benefactors[tokenId];
-                uint256 amountOverCredited = price[tokenId]
-                    .mul(
-                    (
-                        timeLastCollectedBenefactor[benefactor].sub(
-                            newTimeLastCollected
-                        )
-                    )
+            address benefactor = benefactors[tokenId];
+            uint256 amountOverCredited = price[tokenId]
+                .mul(
+                timeLastCollectedBenefactor[benefactor].sub(
+                    newTimeLastCollectedOnForeclosure
                 )
-                    .mul(patronageNumerator[tokenId])
-                    .div(yearTimePatronagDenominator);
+            )
+                .mul(patronageNumerator[tokenId])
+                .div(yearTimePatronagDenominator);
 
-                _decreaseBenefactorBalance(benefactor, amountOverCredited);
-            } else {
-                timeSinceLastMint = now.sub(
-                    timeLastCollectedPatron[tokenPatron]
-                );
-                timeLastCollectedPatron[tokenPatron] = now;
-                deposit[tokenPatron] = deposit[tokenPatron].sub(
-                    patronageOwedByTokenPatron
-                );
-                _collectLoyaltyPatron(tokenPatron, timeSinceLastMint);
-            }
-
-            emit RemainingDepositUpdate(tokenPatron, deposit[tokenPatron]);
+            _decreaseBenefactorBalance(benefactor, amountOverCredited);
         }
     }
 
@@ -787,7 +754,10 @@ contract WildcardSteward_v3 is Initializable {
         }
     }
 
-    function _collectPatronagePatron(address tokenPatron) public {
+    function _collectPatronagePatron(address tokenPatron)
+        public
+        returns (uint256 newTimeLastCollectedOnForeclosure)
+    {
         uint256 patronageOwedByTokenPatron = patronageOwedPatron(tokenPatron);
 
         uint256 timeSinceLastMint;
@@ -799,17 +769,17 @@ contract WildcardSteward_v3 is Initializable {
 
                 uint256 previousCollectionTime
              = timeLastCollectedPatron[tokenPatron];
-            uint256 newTimeLastCollected = previousCollectionTime.add(
+            newTimeLastCollectedOnForeclosure = previousCollectionTime.add(
                 (
                     (now.sub(previousCollectionTime))
                         .mul(deposit[tokenPatron])
                         .div(patronageOwedByTokenPatron)
                 )
             );
-            timeLastCollectedPatron[tokenPatron] = newTimeLastCollected;
+            timeLastCollectedPatron[tokenPatron] = newTimeLastCollectedOnForeclosure;
             deposit[tokenPatron] = 0;
             timeSinceLastMint = (
-                newTimeLastCollected.sub(previousCollectionTime)
+                newTimeLastCollectedOnForeclosure.sub(previousCollectionTime)
             );
         } else {
             timeSinceLastMint = now.sub(timeLastCollectedPatron[tokenPatron]);
