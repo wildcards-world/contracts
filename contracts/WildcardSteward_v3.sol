@@ -586,20 +586,7 @@ contract WildcardSteward_v3 is Initializable {
                     .mul(patronageNumerator[tokenId])
                     .div(31536000000000000000);
 
-                if (benefactorFunds[benefactor] > 0) {
-                    if (amountOverCredited <= benefactorFunds[benefactor]) {
-                        benefactorFunds[benefactor] = benefactorFunds[benefactor]
-                            .sub(amountOverCredited);
-                    } else {
-                        benefactorCredit[benefactor] = amountOverCredited.sub(
-                            benefactorFunds[benefactor]
-                        );
-                        benefactorFunds[benefactor] = 0;
-                    }
-                } else {
-                    benefactorCredit[benefactor] = benefactorCredit[benefactor]
-                        .add(amountOverCredited);
-                }
+                _decreaseBenefactorBalance(benefactor, amountOverCredited);
             } else {
                 timeSinceLastMint = now.sub(
                     timeLastCollectedPatron[tokenPatron]
@@ -633,24 +620,54 @@ contract WildcardSteward_v3 is Initializable {
         uint256 patronageDueBenefactor = patronageDueBenefactor(benefactor);
 
         if (patronageDueBenefactor > 0) {
-            if (benefactorCredit[benefactor] > 0) {
-                if (patronageDueBenefactor < benefactorCredit[benefactor]) {
-                    benefactorCredit[benefactor] = benefactorCredit[benefactor]
-                        .sub(patronageDueBenefactor);
-                } else {
-                    benefactorFunds[benefactor] = patronageDueBenefactor.sub(
-                        benefactorCredit[benefactor]
-                    );
-                    benefactorCredit[benefactor] = 0;
-                }
-            } else {
-                benefactorFunds[benefactor] = benefactorFunds[benefactor].add(
-                    patronageDueBenefactor
-                );
-            }
+            _increaseBenefactorBalance(benefactor, patronageDueBenefactor);
         }
 
         timeLastCollectedBenefactor[benefactor] = now;
+    }
+
+    function _increaseBenefactorBalance(
+        address benefactor,
+        uint256 patronageDueBenefactor
+    ) internal {
+        if (benefactorCredit[benefactor] > 0) {
+            if (patronageDueBenefactor < benefactorCredit[benefactor]) {
+                benefactorCredit[benefactor] = benefactorCredit[benefactor].sub(
+                    patronageDueBenefactor
+                );
+            } else {
+                benefactorFunds[benefactor] = patronageDueBenefactor.sub(
+                    benefactorCredit[benefactor]
+                );
+                benefactorCredit[benefactor] = 0;
+            }
+        } else {
+            benefactorFunds[benefactor] = benefactorFunds[benefactor].add(
+                patronageDueBenefactor
+            );
+        }
+    }
+
+    function _decreaseBenefactorBalance(
+        address benefactor,
+        uint256 amountOverCredited
+    ) internal {
+        if (benefactorFunds[benefactor] > 0) {
+            if (amountOverCredited <= benefactorFunds[benefactor]) {
+                benefactorFunds[benefactor] = benefactorFunds[benefactor].sub(
+                    amountOverCredited
+                );
+            } else {
+                benefactorCredit[benefactor] = amountOverCredited.sub(
+                    benefactorFunds[benefactor]
+                );
+                benefactorFunds[benefactor] = 0;
+            }
+        } else {
+            benefactorCredit[benefactor] = benefactorCredit[benefactor].add(
+                amountOverCredited
+            );
+        }
     }
 
     function fundsDueForAuctionPeriodAtCurrentRate(address benefactor)
