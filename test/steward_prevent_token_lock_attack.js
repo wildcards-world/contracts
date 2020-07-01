@@ -207,7 +207,7 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
       attacker.withdrawDeposit(steward.address, "50000", {
         from: accounts[2],
       }),
-      "Unable to withdraw deposit"
+      "withdrawal failed"
     );
   });
 });
