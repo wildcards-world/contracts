@@ -146,6 +146,15 @@ contract WildcardSteward_v3 is Initializable {
         _;
     }
 
+    modifier youCurrentlyAreNotInDefault(address tokenPatron) {
+        require(
+            !(deposit[tokenPatron] == 0 &&
+                totalPatronOwnedTokenCost[tokenPatron] > 0),
+            "You already own tokens but have no deposit"
+        );
+        _;
+    }
+
     // This modifier MUST be called anytime before the `totalBenefactorTokenNumerator[benefactor]` value changes.
     modifier updateBenefactorBalance(address benefactor) {
         _updateBenefactorBalance(benefactor);
@@ -832,6 +841,7 @@ contract WildcardSteward_v3 is Initializable {
         updateBenefactorBalance(benefactors[tokenId])
         collectPatronagePatron(msg.sender)
         priceGreaterThanZero(_newPrice)
+        youCurrentlyAreNotInDefault(msg.sender)
         validWildcardsPercentage(wildcardsPercentage, tokenId)
     {
         require(
@@ -868,6 +878,7 @@ contract WildcardSteward_v3 is Initializable {
         updateBenefactorBalance(benefactors[tokenId])
         collectPatronagePatron(msg.sender)
         priceGreaterThanZero(_newPrice)
+        youCurrentlyAreNotInDefault(msg.sender)
         validWildcardsPercentage(wildcardsPercentage, tokenId)
     {
         require(
@@ -884,7 +895,6 @@ contract WildcardSteward_v3 is Initializable {
         _distributeAuctionProceeds(tokenId);
 
         state[tokenId] = StewardState.Owned;
-        timeLastCollectedPatron[msg.sender] = now;
 
         wildcardsPercentages[tokenId] = wildcardsPercentage;
         deposit[msg.sender] = deposit[msg.sender].add(remainingValueForDeposit);
