@@ -92,7 +92,7 @@ contract("WildcardSteward admin change", (accounts) => {
     // Revert as this account is not a benefactor and has no funds to withdraw. No funds available to withdraw.
     await expectRevert(
       steward.withdrawBenefactorFunds({ from: accounts[5] }),
-      "No funds available"
+      "no funds"
     );
 
     //Changing the admin
