@@ -242,7 +242,7 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
         benefactor1
       );
       // After calling collect patronage a credit should reflect. tenMinPatronageAt1Eth
-      await steward._collectPatronage(tokenDetails[0].token);
+      await steward._collectPatronageAndSettleBenefactor(tokenDetails[0].token);
 
       const totalDueBeforeForeclosure = patronageDue([
         {
