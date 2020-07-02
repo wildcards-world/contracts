@@ -7,6 +7,7 @@
   "scripts": {
     "compile": "buidler compile",
     "test": "buidler test",
+    "truffle-test": "IS_COVERAGE='true' truffle test --network test",
     "buidler-node": "buidler node",
     "gas-report": "IS_GAS_REPORT='true' buidler test",
     "coverage": "IS_COVERAGE='true' buidler coverage",
@@ -31,7 +32,7 @@
     "@openzeppelin/cli": "^2.8.0",
     "@openzeppelin/test-helpers": "^0.5.1",
     "chai": "^4.2.0",
-    "eth-gas-reporter": "^0.2.12",
+    "eth-gas-reporter": "^0.2.17",
     "ethereumjs-abi": "^0.6.8",
     "ethereumjs-util": "^7.0.2",
     "truffle": "^5.0.38"

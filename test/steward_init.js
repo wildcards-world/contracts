@@ -103,7 +103,7 @@ contract("WildcardSteward", (accounts) => {
         from: accounts[2],
         value: ether("1"),
       }),
-      "No tokens owned"
+      "no tokens"
     );
   });
 
@@ -114,7 +114,7 @@ contract("WildcardSteward", (accounts) => {
         from: accounts[2],
         value: ether("1"),
       }),
-      "No tokens owned"
+      "no tokens"
     );
   });
 
@@ -175,7 +175,7 @@ contract("WildcardSteward", (accounts) => {
         from: accounts[2],
         value: ether("1"),
       }),
-      "Cannot buy foreclosed token using this function"
+      "token on auction"
     );
   });
 
@@ -183,6 +183,7 @@ contract("WildcardSteward", (accounts) => {
     await steward.changeAuctionParameters(ether("0"), ether("0"), 86400, {
       from: accounts[0],
     });
+
     await steward.buyAuction(0, ether("1"), 500, {
       from: accounts[2],
       value: ether("1"),
@@ -193,7 +194,7 @@ contract("WildcardSteward", (accounts) => {
         from: accounts[2],
         value: ether("2"),
       }),
-      "Can only buy foreclosed tokens useing this function"
+      "token not foreclosed"
     );
   });
 
