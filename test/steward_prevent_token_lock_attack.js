@@ -160,7 +160,7 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
 
     await setNextTxTimestamp(time.duration.minutes(10));
 
-    await steward._collectPatronage(3);
+    await steward._collectPatronageAndSettleBenefactor(3);
     await steward._updateBenefactorBalance(attacker.address);
 
     const benefactorFunds = await steward.benefactorFunds.call(

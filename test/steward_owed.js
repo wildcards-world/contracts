@@ -181,8 +181,9 @@ contract("WildcardSteward owed", (accounts) => {
       from: accounts[2],
     });
     const collectPatronageTimestamp = await txTimestamp(
-      steward._collectPatronage(tokenDetails[0].token)
+      steward._collectPatronageAndSettleBenefactor(tokenDetails[0].token)
     );
+    // TODO: this isn't necessary anymore. Left in not to break the tests.
     const updateBenefactorBalanceTimestamp = await txTimestamp(
       steward._updateBenefactorBalance(benefactorAddress)
     );
@@ -236,12 +237,12 @@ contract("WildcardSteward owed", (accounts) => {
 
     await setNextTxTimestamp(time.duration.minutes(10));
 
-    await steward._collectPatronage(tokenDetails[0].token);
+    await steward._collectPatronageAndSettleBenefactor(tokenDetails[0].token);
 
     await setNextTxTimestamp(time.duration.minutes(10));
 
     const collectPatronageTimestamp = await txTimestamp(
-      steward._collectPatronage(tokenDetails[0].token)
+      steward._collectPatronageAndSettleBenefactor(tokenDetails[0].token)
     );
     const updateBenefactorBalanceTimestamp = await txTimestamp(
       steward._updateBenefactorBalance(benefactorAddress)
@@ -296,7 +297,9 @@ contract("WildcardSteward owed", (accounts) => {
     );
 
     await setNextTxTimestamp(tenMinutes.add(one));
-    const receipt = await steward._collectPatronage(tokenDetails[0].token); // will foreclose
+    const receipt = await steward._collectPatronageAndSettleBenefactor(
+      tokenDetails[0].token
+    ); // will foreclose
     // const updateBenefactorBalanceTimestamp = await txTimestamp(
     //   steward._updateBenefactorBalance(benefactorAddress)
     // );
@@ -449,7 +452,7 @@ contract("WildcardSteward owed", (accounts) => {
       value: totalToBuy,
     });
     await setNextTxTimestamp(time.duration.minutes(10).add(one));
-    await steward._collectPatronage(tokenDetails[0].token); // will foreclose
+    await steward._collectPatronageAndSettleBenefactor(tokenDetails[0].token); // will foreclose
 
     const balTrack = await balance.tracker(benefactorAddress);
 
@@ -480,7 +483,7 @@ contract("WildcardSteward owed", (accounts) => {
     const owed = await steward.patronageOwedPatron.call(accounts[2], {
       from: accounts[2],
     });
-    await steward._collectPatronage(1); // will foreclose
+    await steward._collectPatronageAndSettleBenefactor(1); // will foreclose
 
     const deposit = await steward.deposit.call(accounts[2]);
     const benefactorFunds = await steward.benefactorFunds.call(
