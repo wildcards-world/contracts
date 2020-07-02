@@ -561,9 +561,9 @@ contract WildcardSteward_v3 is Initializable {
         );
 
         address benefactor = benefactors[tokenId];
-        bool tokenForeclosed = newTimeLastCollectedOnForeclosure > 0;
+        // bool tokenForeclosed = newTimeLastCollectedOnForeclosure > 0;
         bool tokenIsOwned = state[tokenId] == StewardState.Owned;
-        if (tokenForeclosed && tokenIsOwned) {
+        if (newTimeLastCollectedOnForeclosure > 0 && tokenIsOwned) {
             tokenAuctionBeginTimestamp[tokenId] =
                 // The auction starts the second after the last time collected.
                 newTimeLastCollectedOnForeclosure +
