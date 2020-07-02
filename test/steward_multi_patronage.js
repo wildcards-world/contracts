@@ -260,6 +260,7 @@ contract("WildcardSteward owed", (accounts) => {
     ]);
 
     if (!isCoverage)
+      // TODO: investigate why this test is flaky. I think it is the only flaky test in our whole test suite.
       assert.equal(
         expectedTotalPatronageT40Token2.toString(),
         benefactor2FundsT40Unclaimed
