@@ -543,35 +543,10 @@ contract WildcardSteward_v3 is Initializable {
         if (state[tokenId] == StewardState.Owned) {
             address tokenPatron = assetToken.ownerOf(tokenId);
 
-            uint256 patronageOwedByTokenPatron = patronageOwedPatron(
-                tokenPatron
-            );
-
-            uint256 timeSinceLastMint;
-
-            if (
-                patronageOwedByTokenPatron > 0 &&
-                patronageOwedByTokenPatron >= deposit[tokenPatron]
-            ) {
-
-                    uint256 previousCollectionTime
-                 = timeLastCollectedPatron[tokenPatron];
-                uint256 newTimeLastCollected = previousCollectionTime.add(
-                    (
-                        (now.sub(previousCollectionTime))
-                            .mul(deposit[tokenPatron])
-                            .div(patronageOwedByTokenPatron)
-                    )
-                );
-                timeLastCollectedPatron[tokenPatron] = newTimeLastCollected;
-                deposit[tokenPatron] = 0;
-                timeSinceLastMint = (
-                    newTimeLastCollected.sub(previousCollectionTime)
-                );
-
-                // The bellow 3 lines are the main difference between this function and the `_collectPatronagePatron` function.
-                _collectLoyaltyPatron(tokenPatron, timeSinceLastMint); // NOTE: you have to call collectLoyaltyPatron before collecting your deposit.
-                tokenAuctionBeginTimestamp[tokenId] = newTimeLastCollected + 1; // The auction starts the second after the last time collected.
+            if (_collectPatronagePatron(tokenPatron)) {
+                tokenAuctionBeginTimestamp[tokenId] =
+                    timeLastCollectedPatron[tokenPatron] +
+                    1; // The auction starts the second after the last time collected.
                 _foreclose(tokenId);
 
                 address benefactor = benefactors[tokenId];
@@ -579,26 +554,14 @@ contract WildcardSteward_v3 is Initializable {
                     .mul(
                     (
                         timeLastCollectedBenefactor[benefactor].sub(
-                            newTimeLastCollected
+                            timeLastCollectedPatron[tokenPatron]
                         )
                     )
                 )
                     .mul(patronageNumerator[tokenId])
                     .div(31536000000000000000);
-
                 _decreaseBenefactorBalance(benefactor, amountOverCredited);
-            } else {
-                timeSinceLastMint = now.sub(
-                    timeLastCollectedPatron[tokenPatron]
-                );
-                timeLastCollectedPatron[tokenPatron] = now;
-                deposit[tokenPatron] = deposit[tokenPatron].sub(
-                    patronageOwedByTokenPatron
-                );
-                _collectLoyaltyPatron(tokenPatron, timeSinceLastMint);
             }
-
-            emit RemainingDepositUpdate(tokenPatron, deposit[tokenPatron]);
         }
     }
 
@@ -775,9 +738,12 @@ contract WildcardSteward_v3 is Initializable {
         }
     }
 
-    function _collectPatronagePatron(address tokenPatron) public {
+    function _collectPatronagePatron(address tokenPatron)
+        public
+        returns (bool)
+    {
         uint256 patronageOwedByTokenPatron = patronageOwedPatron(tokenPatron);
-
+        bool didUserDeafult;
         uint256 timeSinceLastMint;
 
         if (
@@ -799,16 +765,19 @@ contract WildcardSteward_v3 is Initializable {
             timeSinceLastMint = (
                 newTimeLastCollected.sub(previousCollectionTime)
             );
+            didUserDeafult = true;
         } else {
             timeSinceLastMint = now.sub(timeLastCollectedPatron[tokenPatron]);
             timeLastCollectedPatron[tokenPatron] = now;
             deposit[tokenPatron] = deposit[tokenPatron].sub(
                 patronageOwedByTokenPatron
             );
+            didUserDeafult = false;
         }
 
         _collectLoyaltyPatron(tokenPatron, timeSinceLastMint);
         emit RemainingDepositUpdate(tokenPatron, deposit[tokenPatron]);
+        return didUserDeafult;
     }
 
     function depositWei() public payable {
