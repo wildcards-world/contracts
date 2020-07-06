@@ -46,7 +46,7 @@ contract("WildcardSteward admin change", (accounts) => {
 
   it("steward: admin-change. On admin change, check that only the admin can change the admin address. Also checking withdraw benfactor funds can be called", async () => {
     //Buy a token
-    await steward.buyAuction(testTokenId1, ether("1"), 500, {
+    await steward.buyAuction(testTokenId1, ether("1"), 50000, {
       from: accounts[2],
       value: ether("2", "ether"),
     });
