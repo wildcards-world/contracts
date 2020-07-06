@@ -34,12 +34,10 @@ contract("WildcardSteward owed", (accounts) => {
     {
       ...tokenDefaults,
       token: "0",
-      tokenGenerationRate: 1,
     },
     {
       ...tokenDefaults,
       token: "1",
-      tokenGenerationRate: 2,
     },
   ];
   let setNextTxTimestamp,

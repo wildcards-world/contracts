@@ -23,7 +23,6 @@ contract("WildcardSteward admin change", (accounts) => {
       token: "1",
       benefactor: benefactorAddress,
       patronageNumerator,
-      tokenGenerationRate,
       artist: artistAddress,
       artistCommission,
       releaseDate: Math.round(new Date().getTime() / 1000),

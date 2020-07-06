@@ -35,7 +35,7 @@ contract WildcardSteward_v3 is Initializable {
     mapping(uint256 => mapping(address => bool)) public deprecated_patrons; // Deprecate
     mapping(uint256 => mapping(address => uint256)) public deprecated_timeHeld; // Deprecate
 
-    mapping(uint256 => uint256) public deprecate_timeAcquired; // deprecate
+    mapping(uint256 => uint256) public deprecated_timeAcquired; // deprecate
 
     // 1200% patronage
     mapping(uint256 => uint256) public patronageNumerator;
@@ -46,7 +46,7 @@ contract WildcardSteward_v3 is Initializable {
     address public admin;
 
     //////////////// NEW variables in v2///////////////////
-    mapping(uint256 => uint256) public tokenGenerationRate; // we can reuse the patronage denominator
+    mapping(uint256 => uint256) public deprecated_tokenGenerationRate; // we can reuse the patronage denominator
 
     MintManager_v2 public mintManager;
     //////////////// NEW variables in v3 ///////////////////
@@ -71,7 +71,11 @@ contract WildcardSteward_v3 is Initializable {
     divisor = 365 days * 1000000000000
             = 31536000000000000000
     */
-    uint256 constant yearTimePatronagDenominator = 31536000000000000000;
+
+    // 11574074074074 = 10^18 / 86400 This is just less (rounded down) than one token a day.
+    //       - this can be done since all tokens have the exact same tokenGenerationRate - and hardcoding saves gas.
+    uint256 public constant globalTokenGenerationRate = 11574074074074;
+    uint256 public constant yearTimePatronagDenominator = 31536000000000000000;
 
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
     event PriceChange(uint256 indexed tokenId, uint256 newPrice);
@@ -84,7 +88,7 @@ contract WildcardSteward_v3 is Initializable {
     event AddToken(
         uint256 indexed tokenId,
         uint256 patronageNumerator,
-        uint256 tokenGenerationRate,
+        // uint256 tokenGenerationRate,
         uint256 unixTimestampOfTokenAuctionStart
     );
 
@@ -233,14 +237,14 @@ contract WildcardSteward_v3 is Initializable {
         uint256[] memory tokens,
         address payable[] memory _benefactors,
         uint256[] memory _patronageNumerator,
-        uint256[] memory _tokenGenerationRate,
+        // uint256[] memory _tokenGenerationRate,
         address[] memory _artists,
         uint256[] memory _artistCommission,
         uint256[] memory _releaseDate
     ) public onlyAdmin {
         assert(tokens.length == _benefactors.length);
         assert(tokens.length == _patronageNumerator.length);
-        assert(tokens.length == _tokenGenerationRate.length);
+        // assert(tokens.length == _tokenGenerationRate.length);
         assert(tokens.length == _artists.length);
         assert(tokens.length == _artistCommission.length);
         assert(tokens.length == _releaseDate.length);
@@ -257,7 +261,7 @@ contract WildcardSteward_v3 is Initializable {
             benefactors[tokens[i]] = _benefactors[i];
             state[tokens[i]] = StewardState.Foreclosed;
             patronageNumerator[tokens[i]] = _patronageNumerator[i];
-            tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i];
+            // tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i];
 
             if (_releaseDate[i] < now) {
                 tokenAuctionBeginTimestamp[tokens[i]] = now;
@@ -268,7 +272,7 @@ contract WildcardSteward_v3 is Initializable {
             emit AddToken(
                 tokens[i],
                 _patronageNumerator[i],
-                _tokenGenerationRate[i],
+                // _tokenGenerationRate[i],
                 tokenAuctionBeginTimestamp[i]
             );
             // Adding this after the add token emit, so graph can first capture the token before processing the change artist things
@@ -336,18 +340,16 @@ contract WildcardSteward_v3 is Initializable {
             mintManager.tokenMint(
                 currentOwner,
                 timeSinceTokenLastCollection, // this should always be > 0
-                11574074074074 // instead of this -> tokenGenerationRate[tokenId] hard code to save gas
+                globalTokenGenerationRate // instead of this -> tokenGenerationRate[tokenId] hard code to save gas
             );
             emit CollectLoyalty(
                 currentOwner,
-                timeSinceTokenLastCollection.mul(11574074074074)
+                timeSinceTokenLastCollection.mul(globalTokenGenerationRate)
             ); // OPTIMIZE ME
 
             // Add the tokens generation rate to the totalPatronTokenGenerationRate of the current owner
             totalPatronTokenGenerationRate[currentOwner] = totalPatronTokenGenerationRate[currentOwner]
-            // 11574074074074 = 10^18 / 86400 This is just less (rounded down) than one token a day.
-            //       - this can be done since all tokens have the exact same tokenGenerationRate - and hardcoding saves gas.
-                .add(11574074074074);
+                .add(globalTokenGenerationRate);
 
             address tokenBenefactor = benefactors[tokenId];
             // add the scaled tokens price to the `totalBenefactorTokenNumerator`
@@ -1065,7 +1067,7 @@ contract WildcardSteward_v3 is Initializable {
         totalPatronOwnedTokenCost[_newOwner] = totalPatronOwnedTokenCost[_newOwner]
             .add(scaledNewPrice);
         totalPatronTokenGenerationRate[_newOwner] = totalPatronTokenGenerationRate[_newOwner]
-            .add(tokenGenerationRate[tokenId]);
+            .add(globalTokenGenerationRate);
 
         address tokenBenefactor = benefactors[tokenId];
         totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
@@ -1076,7 +1078,7 @@ contract WildcardSteward_v3 is Initializable {
                 .sub(scaledOldPrice);
 
             totalPatronTokenGenerationRate[_currentOwner] = totalPatronTokenGenerationRate[_currentOwner]
-                .sub((tokenGenerationRate[tokenId]));
+                .sub(globalTokenGenerationRate);
 
             totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
                 .sub(scaledOldPrice);
@@ -1096,7 +1098,7 @@ contract WildcardSteward_v3 is Initializable {
             .sub(scaledPrice);
 
         totalPatronTokenGenerationRate[_currentOwner] = totalPatronTokenGenerationRate[_currentOwner]
-            .sub((tokenGenerationRate[tokenId]));
+            .sub((globalTokenGenerationRate));
 
         address tokenBenefactor = benefactors[tokenId];
         totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]

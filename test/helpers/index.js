@@ -11,6 +11,7 @@ const MINT_MANAGER_CONTRACT_NAME = "./MintManager_v2.sol";
 const SENT_ATTACKER_CONTRACT_NAME = "./tests/SendBlockAttacker.sol";
 const abi = require("ethereumjs-abi");
 const ethUtil = require("ethereumjs-util");
+const globalTokenGenerationRate = 11574074074074;
 
 const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
 const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
@@ -22,7 +23,6 @@ const launchTokens = async (steward, tokenParameters) => {
     tokenParameters.map((item) => item.token),
     tokenParameters.map((item) => item.benefactor),
     tokenParameters.map((item) => item.patronageNumerator),
-    tokenParameters.map((item) => item.tokenGenerationRate),
     tokenParameters.map((item) => item.artist),
     tokenParameters.map((item) => item.artistCommission),
     tokenParameters.map((item) => item.releaseDate)
@@ -210,6 +210,7 @@ module.exports = {
   initialize,
   launchTokens,
   withdrawBenefactorFundsAll,
+  globalTokenGenerationRate,
   isCoverage,
   waitTillBeginningOfSecond,
   //patronage per token = price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;

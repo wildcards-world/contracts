@@ -5,6 +5,7 @@ const {
   setupTimeManager,
   isCoverage,
   waitTillBeginningOfSecond,
+  globalTokenGenerationRate,
 } = require("./helpers");
 
 const SECONDS_IN_A_MINUTE = "60";
@@ -41,17 +42,14 @@ contract("WildcardSteward loyalty token", (accounts) => {
     {
       ...tokenDefaults,
       token: "0",
-      tokenGenerationRate: 1,
     },
     {
       ...tokenDefaults,
       token: "1",
-      tokenGenerationRate: 2,
     },
     {
       ...tokenDefaults,
       token: "2",
-      tokenGenerationRate: 3,
     },
   ];
   let setNextTxTimestamp,
@@ -104,7 +102,7 @@ contract("WildcardSteward loyalty token", (accounts) => {
     const expectedTokens = multiTokenCalculator([
       {
         timeHeld: new BN(timeHeld).mul(new BN(SECONDS_IN_A_MINUTE)).toString(),
-        tokenGenerationRate: tokenDetails[0].tokenGenerationRate.toString(),
+        tokenGenerationRate: globalTokenGenerationRate,
       },
     ]);
     const amountOfToken = await erc20.balanceOf(accounts[2]);
@@ -157,17 +155,17 @@ contract("WildcardSteward loyalty token", (accounts) => {
     const expectedTokens = multiTokenCalculator([
       {
         timeHeld: new BN(timeHeld).mul(new BN(SECONDS_IN_A_MINUTE)).toString(),
-        tokenGenerationRate: tokenDetails[0].tokenGenerationRate.toString(),
+        tokenGenerationRate: globalTokenGenerationRate,
       },
       {
         timeHeld: new BN(timeHeld).mul(new BN(SECONDS_IN_A_MINUTE)).toString(),
-        tokenGenerationRate: tokenDetails[1].tokenGenerationRate.toString(),
+        tokenGenerationRate: globalTokenGenerationRate,
       },
     ]);
     const expectedTreasuryTokensFromUser2 = multiTokenCalculator([
       {
         timeHeld: timeBetweenTransactions,
-        tokenGenerationRate: tokenDetails[0].tokenGenerationRate.toString(),
+        tokenGenerationRate: globalTokenGenerationRate,
       },
     ]).div(new BN(5) /* since 20% goes to the organisation */);
     const amountOfToken = await erc20.balanceOf(accounts[2]);
@@ -211,7 +209,7 @@ contract("WildcardSteward loyalty token", (accounts) => {
     const expectedTokens = multiTokenCalculator([
       {
         timeHeld: new BN(timeHeld).mul(new BN(SECONDS_IN_A_MINUTE)).toString(),
-        tokenGenerationRate: tokenDetails[0].tokenGenerationRate.toString(),
+        tokenGenerationRate: globalTokenGenerationRate,
       },
     ]);
     const amountOfToken = await erc20.balanceOf(accounts[2]);
@@ -277,15 +275,15 @@ contract("WildcardSteward loyalty token", (accounts) => {
     const expectedTokens = multiTokenCalculator([
       {
         timeHeld: timeSince(buy1Timestamp, foreclosureTime).toString(),
-        tokenGenerationRate: tokenDetails[0].tokenGenerationRate.toString(),
+        tokenGenerationRate: globalTokenGenerationRate,
       },
       {
         timeHeld: timeSince(buy2Timestamp, foreclosureTime).toString(),
-        tokenGenerationRate: tokenDetails[1].tokenGenerationRate.toString(),
+        tokenGenerationRate: globalTokenGenerationRate,
       },
       {
         timeHeld: timeSince(buy3Timestamp, foreclosureTime).toString(),
-        tokenGenerationRate: tokenDetails[2].tokenGenerationRate.toString(),
+        tokenGenerationRate: globalTokenGenerationRate,
       },
     ]);
     const amountOfToken = await erc20.balanceOf(accounts[2]);
