@@ -86,11 +86,11 @@ contract("WildcardSteward owed", (accounts) => {
 
   it("steward: multi-token. check patronage of two tokens owed by the same patron after 10 minutes.", async () => {
     // buy 2 tokens, with prices of 1 ether and 2 ether.
-    await steward.buyAuction(tokenDetails[0].token, ether("1"), 500, {
+    await steward.buyAuction(tokenDetails[0].token, ether("1"), 50000, {
       from: accounts[2],
       value: ether("1"),
     });
-    await steward.buyAuction(tokenDetails[1].token, ether("2"), 500, {
+    await steward.buyAuction(tokenDetails[1].token, ether("2"), 50000, {
       from: accounts[2],
       value: ether("1"),
     });
@@ -139,11 +139,11 @@ contract("WildcardSteward owed", (accounts) => {
 
   // buy 2 tokens, with prices of 1 ether and 2 ether.
   it("steward: multi-token. check patronage of two tokens owed by the same patron after 10 minutes one of the tokens gets bought.", async () => {
-    await steward.buyAuction(tokenDetails[0].token, ether("1"), 500, {
+    await steward.buyAuction(tokenDetails[0].token, ether("1"), 50000, {
       from: accounts[2],
       value: ether("1"),
     });
-    await steward.buyAuction(tokenDetails[1].token, ether("2"), 500, {
+    await steward.buyAuction(tokenDetails[1].token, ether("2"), 50000, {
       from: accounts[2],
       value: web3.utils.toWei("0.1", "ether"),
     });
@@ -184,7 +184,7 @@ contract("WildcardSteward owed", (accounts) => {
       tokenDetails[0].token,
       ether("0.1"),
       web3.utils.toWei("0.1", "ether"),
-      500,
+      50000,
       {
         from: accounts[3],
         value: ether("1.1"),

@@ -20,7 +20,7 @@ contract("WildcardSteward owed", (accounts) => {
   const tokenGenerationRate = 10; // should depend on token
   // price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
   const artistAddress = accounts[9];
-  const artistCommission = new BN(100); // 1%
+  const artistCommission = new BN(10000); // 1%
 
   const admin = accounts[0];
   const benefactor = accounts[1];
@@ -29,8 +29,8 @@ contract("WildcardSteward owed", (accounts) => {
   const auctionEndPrice = zeroEther;
   const auctionStartPrice = zeroEther;
   const auctionDuration = new BN(86400);
-  const defaultPercentageForWildcards = new BN(500);
-  const percentageCutPrecision = new BN(10000);
+  const defaultPercentageForWildcards = new BN(50000);
+  const percentageCutPrecision = new BN(1000000);
   const tokenDefaults = {
     benefactor: benefactor,
     patronageNumerator,
@@ -83,7 +83,7 @@ contract("WildcardSteward owed", (accounts) => {
   it("steward: multi-token-deposit. On token buy, check that the remaining deposit is sent back to patron only if it is their only token", async () => {
     const token1Price = ether("1");
     const token2Price = ether("2");
-    const tenPercentForWildcards = new BN(1000);
+    const tenPercentForWildcards = new BN(100000);
     //Buying 2 tokens. Setting selling price to 1 and 2 eth respectively. Sending 1 eth each for deposit.
     // 5% wildcards commission
     const initialBuyToken1Timestamp = await txTimestamp(
@@ -146,6 +146,8 @@ contract("WildcardSteward owed", (accounts) => {
 
     // 1% to artist and 5% to wildcards on this token.
     if (!isCoverage)
+      // -2939998477929984780
+      // +-3000001522070015220
       assert.equal(
         patronDepositAfterFirstSale.toString(),
         patronDepositBeforeSale

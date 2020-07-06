@@ -75,13 +75,13 @@ contract("WildcardSteward owed", (accounts) => {
   it("steward: multi-token-deposit. On token buy, check that the remaining deposit is sent back to patron only if it is their only token", async () => {
     //Buying 2 tokens. Setting selling price to 1 and 2 eth respectively. Sending 1 eth each for deposit.
     const buy1time = await txTimestamp(
-      steward.buyAuction(tokenDetails[0].token, ether("1"), 500, {
+      steward.buyAuction(tokenDetails[0].token, ether("1"), 50000, {
         from: accounts[2],
         value: ether("1"),
       })
     );
     const buy2time = await txTimestamp(
-      steward.buyAuction(tokenDetails[1].token, ether("2"), 500, {
+      steward.buyAuction(tokenDetails[1].token, ether("2"), 50000, {
         from: accounts[2],
         value: ether("1"),
       })
@@ -100,7 +100,7 @@ contract("WildcardSteward owed", (accounts) => {
 
     // When first token is bought, deposit should remain.
     const sell1time = await txTimestamp(
-      steward.buy(tokenDetails[0].token, ether("1"), ether("1"), 500, {
+      steward.buy(tokenDetails[0].token, ether("1"), ether("1"), 50000, {
         from: accounts[3],
         value: ether("2"),
       })
@@ -113,7 +113,7 @@ contract("WildcardSteward owed", (accounts) => {
 
     //Second token then bought. Deposit should now be added back the patrons balance
     const sell2time = await txTimestamp(
-      steward.buy(tokenDetails[1].token, ether("1"), ether("1"), 500, {
+      steward.buy(tokenDetails[1].token, ether("1"), ether("1"), 50000, {
         from: accounts[3],
         value: ether("3"),
       })

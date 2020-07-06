@@ -39,7 +39,7 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
   const auctionEndPrice = zeroEther;
   const auctionStartPrice = zeroEther;
   const auctionDuration = new BN(86400);
-  const percentageForWildcards = 500;
+  const percentageForWildcards = 50000;
   const tokenDefaults = {
     benefactor: benefactor1,
     patronageNumerator,
