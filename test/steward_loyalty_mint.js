@@ -86,7 +86,7 @@ contract("WildcardSteward loyalty token", (accounts) => {
     testTokenId1 = tokenDetails[0].token;
     const timeHeld = 100; // In minutes
     // Person buys a token
-    await steward.buyAuction(testTokenId1, ether("1"), 500, {
+    await steward.buyAuction(testTokenId1, ether("1"), 50000, {
       from: accounts[2],
       value: ether("2"),
     });
@@ -94,7 +94,7 @@ contract("WildcardSteward loyalty token", (accounts) => {
     // TIME INCREASES HERE BY timeHeld
     await setNextTxTimestamp(time.duration.minutes(timeHeld));
     // First token bought from patron [Collect patronage will therefore be called]
-    await steward.buy(testTokenId1, ether("1"), ether("1"), 500, {
+    await steward.buy(testTokenId1, ether("1"), ether("1"), 50000, {
       from: accounts[3],
       value: ether("2"),
     });
@@ -124,13 +124,13 @@ contract("WildcardSteward loyalty token", (accounts) => {
     const testTokenId2 = tokenDetails[1].token;
     const timeHeld = 100; // In minutes
     // Person buys a token
-    await steward.buyAuction(testTokenId1, ether("1"), 500, {
+    await steward.buyAuction(testTokenId1, ether("1"), 50000, {
       from: accounts[2],
       value: ether("2"),
     });
     const timeBetweenTransactions = new BN(50);
     await setNextTxTimestamp(timeBetweenTransactions);
-    await steward.buyAuction(testTokenId2, ether("1"), 500, {
+    await steward.buyAuction(testTokenId2, ether("1"), 50000, {
       from: accounts[2],
       value: ether("2"),
     });
@@ -141,13 +141,13 @@ contract("WildcardSteward loyalty token", (accounts) => {
       // .sub(new BN(1))
     );
     // First token bought from patron [Collect patronage will therefore be called]
-    await steward.buy(testTokenId1, ether("1"), ether("1"), 500, {
+    await steward.buy(testTokenId1, ether("1"), ether("1"), 50000, {
       from: accounts[3],
       value: ether("2"),
     });
 
     await setNextTxTimestamp(timeBetweenTransactions);
-    await steward.buy(testTokenId2, ether("1"), ether("1"), 500, {
+    await steward.buy(testTokenId2, ether("1"), ether("1"), 50000, {
       from: accounts[3],
       value: ether("2"),
     });
@@ -194,7 +194,7 @@ contract("WildcardSteward loyalty token", (accounts) => {
       from: accounts[0],
     });
 
-    await steward.buyAuction(testTokenId1, ether("1"), 500, {
+    await steward.buyAuction(testTokenId1, ether("1"), 50000, {
       from: accounts[2],
       value: totalToBuy,
     });
@@ -243,21 +243,21 @@ contract("WildcardSteward loyalty token", (accounts) => {
     });
 
     const buy1Timestamp = await txTimestamp(
-      steward.buyAuction(testTokenId1, ether("1"), 500, {
+      steward.buyAuction(testTokenId1, ether("1"), 50000, {
         from: accounts[2],
         value: totalToBuy,
       })
     );
     await setNextTxTimestamp(new BN(5)); // put a multiple of 5 as time between transactions so that rounding doesn't cause maths issues.
     const buy2Timestamp = await txTimestamp(
-      steward.buyAuction(testTokenId2, ether("1"), 500, {
+      steward.buyAuction(testTokenId2, ether("1"), 50000, {
         from: accounts[2],
         value: totalToBuy,
       })
     );
     await setNextTxTimestamp(new BN(5)); // put a multiple of 5 as time between transactions so that rounding doesn't cause maths issues.
     const buy3Timestamp = await txTimestamp(
-      steward.buyAuction(testTokenId3, ether("1"), 500, {
+      steward.buyAuction(testTokenId3, ether("1"), 50000, {
         from: accounts[2],
         value: totalToBuy,
       })
@@ -305,12 +305,12 @@ contract("WildcardSteward loyalty token", (accounts) => {
     testTokenId1 = tokenDetails[0].token;
     const timeHeld = 100;
 
-    await steward.buyAuction(testTokenId1, ether("1"), 500, {
+    await steward.buyAuction(testTokenId1, ether("1"), 50000, {
       from: accounts[2],
       value: ether("2"),
     });
     await time.increase(time.duration.minutes(timeHeld));
-    await steward.buy(testTokenId1, ether("1"), ether("1"), 500, {
+    await steward.buy(testTokenId1, ether("1"), ether("1"), 50000, {
       from: accounts[7],
       value: ether("2"),
     });

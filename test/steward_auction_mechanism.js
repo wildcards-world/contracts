@@ -25,7 +25,7 @@ contract("WildcardSteward owed", (accounts) => {
   const auctionEndPrice = zeroEther;
   const auctionStartPrice = ether("1");
   const auctionDuration = new BN(86400);
-  const percentageForWildcards = 500;
+  const percentageForWildcards = 50000;
   const tokenDefaults = {
     benefactor: benefactorAddress,
     patronageNumerator,
