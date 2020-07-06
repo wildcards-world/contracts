@@ -203,7 +203,9 @@ contract("WildcardSteward loyalty token", (accounts) => {
 
     await setNextTxTimestamp(time.duration.minutes(150));
     // foreclosure should happen here (since patraonge was only for 10min)
-    await steward._collectPatronage(testTokenId1, { from: accounts[2] });
+    await steward._collectPatronageAndSettleBenefactor(testTokenId1, {
+      from: accounts[2],
+    });
 
     // should only receive 10min of tokens
     const expectedTokens = multiTokenCalculator([
@@ -267,7 +269,9 @@ contract("WildcardSteward loyalty token", (accounts) => {
 
     await setNextTxTimestamp(time.duration.minutes(15));
     // foreclosure should happen here (since patraonge was only for 10min)
-    await steward._collectPatronage(testTokenId1, { from: accounts[2] });
+    await steward._collectPatronageAndSettleBenefactor(testTokenId1, {
+      from: accounts[2],
+    });
 
     // should only receive 10min of tokens
     const expectedTokens = multiTokenCalculator([

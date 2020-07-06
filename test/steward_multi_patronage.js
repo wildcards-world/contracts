@@ -98,12 +98,10 @@ contract("WildcardSteward owed", (accounts) => {
     //////////////////////////////////////////////////
     //////////////////////////////////////////////////
     await setNextTxTimestamp(time.duration.minutes(10));
-    const collectPatronageT10_tx = await steward._collectPatronage(
+    const collectPatronageT10_tx = await steward._collectPatronageAndSettleBenefactor(
       testTokenId1
     );
-    const benefactorFundsT10 = await steward.patronageDueBenefactor.call(
-      accounts[8]
-    );
+    const benefactorFundsT10 = await steward.benefactorFunds.call(accounts[8]);
     const collectPatronageT10BlockTime = (
       await web3.eth.getBlock(collectPatronageT10_tx.receipt.blockNumber)
     ).timestamp;
@@ -147,6 +145,7 @@ contract("WildcardSteward owed", (accounts) => {
 
       { from: accounts[2], value: ether("1") }
     );
+    const benefactorFundsT20 = await steward.benefactorFunds.call(accounts[8]);
     const buyToken2BlockTime = (
       await web3.eth.getBlock(buyToken2Tx.receipt.blockNumber)
     ).timestamp;
@@ -193,7 +192,7 @@ contract("WildcardSteward owed", (accounts) => {
     await setNextTxTimestamp(time.duration.minutes(10));
     // This adds an extra second to the test, but is needed since this test is long off by one second errors should be avoided.
 
-    await steward._collectPatronage(testTokenId1);
+    await steward._collectPatronageAndSettleBenefactor(testTokenId1);
 
     const patronDepositAfter30min = await steward.deposit.call(accounts[2]);
     const patronDepositCalculatedAfter30min = await steward.depositAbleToWithdraw.call(
@@ -224,9 +223,7 @@ contract("WildcardSteward owed", (accounts) => {
       patronDepositAfter30min.toString()
     );
 
-    const benefactorFundsT30 = await steward.patronageDueBenefactor.call(
-      accounts[8]
-    );
+    const benefactorFundsT30 = await steward.benefactorFunds.call(accounts[8]);
 
     const expectedTotalPatronageT30Token1 = patronageCalculator("1800", [
       {
@@ -236,7 +233,7 @@ contract("WildcardSteward owed", (accounts) => {
     ]);
     if (!isCoverage)
       assert.equal(
-        benefactorFundsT30.toString(),
+        benefactorFundsT30.sub(benefactorFundsT20).toString(),
         expectedTotalPatronageT30Token1.toString()
       );
 

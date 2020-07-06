@@ -137,8 +137,8 @@ contract WildcardSteward_v3 is Initializable {
         _;
     }
 
-    modifier collectPatronage(uint256 tokenId) {
-        _collectPatronage(tokenId);
+    modifier collectPatronageAndSettleBenefactor(uint256 tokenId) {
+        _collectPatronageAndSettleBenefactor(tokenId);
         _;
     }
 
@@ -156,7 +156,6 @@ contract WildcardSteward_v3 is Initializable {
         _;
     }
 
-    // This modifier MUST be called anytime before the `totalBenefactorTokenNumerator[benefactor]` value changes.
     modifier updateBenefactorBalance(address benefactor) {
         _updateBenefactorBalance(benefactor);
         _;
@@ -553,66 +552,49 @@ contract WildcardSteward_v3 is Initializable {
         }
     }
 
-    function _collectPatronage(uint256 tokenId) public {
-        if (state[tokenId] == StewardState.Owned) {
-            address tokenPatron = assetToken.ownerOf(tokenId);
+    // TODO: create a version of this function that only collects patronage (and only settles the benefactor if the token forecloses) - is this needed?
 
-            uint256 patronageOwedByTokenPatron = patronageOwedPatron(
-                tokenPatron
-            );
+    function _collectPatronageAndSettleBenefactor(uint256 tokenId) public {
+        address tokenPatron = assetToken.ownerOf(tokenId);
+        uint256 newTimeLastCollectedOnForeclosure = _collectPatronagePatron(
+            tokenPatron
+        );
 
-            uint256 timeSinceLastMint;
+        address benefactor = benefactors[tokenId];
+        bool tokenForeclosed = newTimeLastCollectedOnForeclosure > 0;
+        bool tokenIsOwned = state[tokenId] == StewardState.Owned;
+        if (tokenForeclosed && tokenIsOwned) {
+            tokenAuctionBeginTimestamp[tokenId] =
+                // The auction starts the second after the last time collected.
+                newTimeLastCollectedOnForeclosure +
+                1;
 
-            if (
-                patronageOwedByTokenPatron > 0 &&
-                patronageOwedByTokenPatron > deposit[tokenPatron]
-            ) {
 
-                    uint256 previousCollectionTime
-                 = timeLastCollectedPatron[tokenPatron];
-                uint256 newTimeLastCollected = previousCollectionTime.add(
-                    (
-                        (now.sub(previousCollectionTime))
-                            .mul(deposit[tokenPatron])
-                            .div(patronageOwedByTokenPatron)
-                    )
+                uint256 patronageDueBenefactorBeforeForeclosure
+             = patronageDueBenefactor(benefactor);
+
+            _foreclose(tokenId);
+
+            uint256 amountOverCredited = price[tokenId]
+                .mul(now.sub(newTimeLastCollectedOnForeclosure))
+                .mul(patronageNumerator[tokenId])
+                .div(yearTimePatronagDenominator);
+
+            if (amountOverCredited < patronageDueBenefactorBeforeForeclosure) {
+                _increaseBenefactorBalance(
+                    benefactor,
+                    patronageDueBenefactorBeforeForeclosure - amountOverCredited
                 );
-                timeLastCollectedPatron[tokenPatron] = newTimeLastCollected;
-                deposit[tokenPatron] = 0;
-                timeSinceLastMint = (
-                    newTimeLastCollected.sub(previousCollectionTime)
-                );
-
-                // The bellow 3 lines are the main difference between this function and the `_collectPatronagePatron` function.
-                _collectLoyaltyPatron(tokenPatron, timeSinceLastMint); // NOTE: you have to call collectLoyaltyPatron before collecting your deposit.
-                tokenAuctionBeginTimestamp[tokenId] = newTimeLastCollected + 1; // The auction starts the second after the last time collected.
-                _foreclose(tokenId);
-
-                address benefactor = benefactors[tokenId];
-                uint256 amountOverCredited = price[tokenId]
-                    .mul(
-                    (
-                        timeLastCollectedBenefactor[benefactor].sub(
-                            newTimeLastCollected
-                        )
-                    )
-                )
-                    .mul(patronageNumerator[tokenId])
-                    .div(yearTimePatronagDenominator);
-
-                _decreaseBenefactorBalance(benefactor, amountOverCredited);
             } else {
-                timeSinceLastMint = now.sub(
-                    timeLastCollectedPatron[tokenPatron]
+                _decreaseBenefactorBalance(
+                    benefactor,
+                    amountOverCredited - patronageDueBenefactorBeforeForeclosure
                 );
-                timeLastCollectedPatron[tokenPatron] = now;
-                deposit[tokenPatron] = deposit[tokenPatron].sub(
-                    patronageOwedByTokenPatron
-                );
-                _collectLoyaltyPatron(tokenPatron, timeSinceLastMint);
             }
 
-            emit RemainingDepositUpdate(tokenPatron, deposit[tokenPatron]);
+            timeLastCollectedBenefactor[benefactor] = now;
+        } else {
+            _updateBenefactorBalance(benefactor);
         }
     }
 
@@ -787,7 +769,10 @@ contract WildcardSteward_v3 is Initializable {
         }
     }
 
-    function _collectPatronagePatron(address tokenPatron) public {
+    function _collectPatronagePatron(address tokenPatron)
+        public
+        returns (uint256 newTimeLastCollectedOnForeclosure)
+    {
         uint256 patronageOwedByTokenPatron = patronageOwedPatron(tokenPatron);
 
         uint256 timeSinceLastMint;
@@ -799,17 +784,17 @@ contract WildcardSteward_v3 is Initializable {
 
                 uint256 previousCollectionTime
              = timeLastCollectedPatron[tokenPatron];
-            uint256 newTimeLastCollected = previousCollectionTime.add(
+            newTimeLastCollectedOnForeclosure = previousCollectionTime.add(
                 (
                     (now.sub(previousCollectionTime))
                         .mul(deposit[tokenPatron])
                         .div(patronageOwedByTokenPatron)
                 )
             );
-            timeLastCollectedPatron[tokenPatron] = newTimeLastCollected;
+            timeLastCollectedPatron[tokenPatron] = newTimeLastCollectedOnForeclosure;
             deposit[tokenPatron] = 0;
             timeSinceLastMint = (
-                newTimeLastCollected.sub(previousCollectionTime)
+                newTimeLastCollectedOnForeclosure.sub(previousCollectionTime)
             );
         } else {
             timeSinceLastMint = now.sub(timeLastCollectedPatron[tokenPatron]);
@@ -868,8 +853,7 @@ contract WildcardSteward_v3 is Initializable {
     )
         public
         payable
-        collectPatronage(tokenId)
-        updateBenefactorBalance(benefactors[tokenId])
+        collectPatronageAndSettleBenefactor(tokenId)
         collectPatronagePatron(msg.sender)
         priceGreaterThanZero(_newPrice)
         youCurrentlyAreNotInDefault(msg.sender)
@@ -902,8 +886,7 @@ contract WildcardSteward_v3 is Initializable {
     )
         public
         payable
-        collectPatronage(tokenId)
-        updateBenefactorBalance(benefactors[tokenId])
+        collectPatronageAndSettleBenefactor(tokenId)
         collectPatronagePatron(msg.sender)
         priceGreaterThanZero(_newPrice)
         youCurrentlyAreNotInDefault(msg.sender)
@@ -1006,8 +989,7 @@ contract WildcardSteward_v3 is Initializable {
     function changePrice(uint256 tokenId, uint256 _newPrice)
         public
         onlyPatron(tokenId)
-        collectPatronage(tokenId)
-        updateBenefactorBalance(benefactors[tokenId])
+        collectPatronageAndSettleBenefactor(tokenId)
     {
         require(state[tokenId] != StewardState.Foreclosed, "foreclosed");
         require(_newPrice != 0, "incorrect price");
@@ -1060,8 +1042,6 @@ contract WildcardSteward_v3 is Initializable {
     }
 
     function _foreclose(uint256 tokenId) internal {
-        _updateBenefactorBalance(benefactors[tokenId]);
-
         address currentOwner = assetToken.ownerOf(tokenId);
         resetTokenOnForeclosure(tokenId, currentOwner);
         state[tokenId] = StewardState.Foreclosed;
