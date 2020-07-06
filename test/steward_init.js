@@ -81,7 +81,6 @@ contract("WildcardSteward", (accounts) => {
       tokenIds,
       Array(numberOfTokens).fill(accounts[0]),
       Array(numberOfTokens).fill(patronageNumerator),
-      Array(numberOfTokens).fill(tokenGenerationRate),
       Array(numberOfTokens).fill(artistAddress),
       Array(numberOfTokens).fill(artistCommission),
       Array(numberOfTokens).fill(0)
