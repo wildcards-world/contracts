@@ -17,7 +17,6 @@ contract WildcardSteward_v3 is Initializable {
     - Steward maints control over ERC721.
     */
     using SafeMath for uint256;
-
     mapping(uint256 => uint256) public price; //in wei
     ERC721Patronage_v1 public assetToken; // ERC721 NFT.
 
@@ -39,6 +38,7 @@ contract WildcardSteward_v3 is Initializable {
 
     // 1200% patronage
     mapping(uint256 => uint256) public patronageNumerator;
+    uint256 public patronageDenominator;
 
     enum StewardState {Foreclosed, Owned}
     mapping(uint256 => StewardState) public state;
@@ -295,7 +295,7 @@ contract WildcardSteward_v3 is Initializable {
         uint256 _auctionStartPrice,
         uint256 _auctionEndPrice,
         uint256 _auctionLength
-    ) public notNullAddress(withdrawCheckerAdmin) {
+    ) public notNullAddress(_withdrawCheckerAdmin) {
         // This function effectively needs to call both _collectPatronage and _collectPatronagePatron from the v2 contract.
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
         // For each token
