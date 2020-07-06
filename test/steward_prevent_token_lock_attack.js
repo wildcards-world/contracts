@@ -147,7 +147,6 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
       [3],
       [attacker.address],
       [patronageNumerator],
-      [tokenGenerationRate],
       [artistAddress],
       [artistCommission],
       [0]
