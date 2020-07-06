@@ -113,7 +113,7 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
       tokenDetails[0].token,
       ether("1"),
       web3.utils.toWei("0.5", "ether"),
-      500,
+      50000,
       {
         from: accounts[2],
         value: web3.utils.toWei("1.5", "ether"),
@@ -152,7 +152,7 @@ contract("WildcardSteward fallback to pull mechanism", (accounts) => {
       [0]
     );
 
-    await steward.buyAuction(3, ether("1"), 500, {
+    await steward.buyAuction(3, ether("1"), 50000, {
       from: accounts[2],
       value: ether("1"),
     });

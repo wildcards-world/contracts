@@ -182,8 +182,8 @@ contract WildcardSteward_v3 is Initializable {
         uint256 tokenID
     ) {
         require(
-            wildcardsPercentage >= 500 &&
-                wildcardsPercentage <= (10000 - artistPercentages[tokenID]), // not sub safemath. Is this okay?
+            wildcardsPercentage >= 50000 &&
+                wildcardsPercentage <= (1000000 - artistPercentages[tokenID]), // not sub safemath. Is this okay?
             "wildcards commision not between 5% and 100%"
         );
         _;
@@ -432,7 +432,7 @@ contract WildcardSteward_v3 is Initializable {
         address artistAddress,
         uint256 percentage
     ) public onlyAdmin {
-        require(percentage <= 2000, "not more than 20%");
+        require(percentage <= 200000, "not more than 20%");
         artistPercentages[tokenId] = percentage;
         artistAddresses[tokenId] = artistAddress;
         emit ArtistCommission(tokenId, artistAddress, percentage);
@@ -924,7 +924,7 @@ contract WildcardSteward_v3 is Initializable {
             artistAmount = 0;
         } else {
             artistAmount = totalAmount.mul(artistPercentages[tokenId]).div(
-                10000
+                1000000
             );
             deposit[artistAddresses[tokenId]] = deposit[artistAddresses[tokenId]]
                 .add(artistAmount);
@@ -938,11 +938,11 @@ contract WildcardSteward_v3 is Initializable {
         address tokenPatron = assetToken.ownerOf(tokenId);
         // Wildcards percentage calc
         if (wildcardsPercentages[tokenId] == 0) {
-            wildcardsPercentages[tokenId] = 500;
+            wildcardsPercentages[tokenId] = 50000;
         }
         uint256 wildcardsAmount = totalAmount
             .mul(wildcardsPercentages[tokenId])
-            .div(10000);
+            .div(1000000);
 
         // Artist percentage calc
         uint256 artistAmount;
@@ -950,7 +950,7 @@ contract WildcardSteward_v3 is Initializable {
             artistAmount = 0;
         } else {
             artistAmount = totalAmount.mul(artistPercentages[tokenId]).div(
-                10000
+                1000000
             );
             deposit[artistAddresses[tokenId]] = deposit[artistAddresses[tokenId]]
                 .add(artistAmount);
