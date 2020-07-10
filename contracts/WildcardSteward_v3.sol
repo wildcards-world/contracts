@@ -20,9 +20,9 @@ contract WildcardSteward_v3 is Initializable {
     mapping(uint256 => uint256) public price; //in wei
     ERC721Patronage_v1 public assetToken; // ERC721 NFT.
 
-    mapping(uint256 => uint256) public deprecated_totalCollected; // THIS VALUE IS DEPRECATED
-    mapping(uint256 => uint256) public deprecated_currentCollected; // THIS VALUE IS DEPRECATED
-    mapping(uint256 => uint256) public deprecated_timeLastCollected; // THIS VALUE IS DEPRECATED.
+    mapping(uint256 => uint256) deprecated_totalCollected; // THIS VALUE IS DEPRECATED
+    mapping(uint256 => uint256) deprecated_currentCollected; // THIS VALUE IS DEPRECATED
+    mapping(uint256 => uint256) deprecated_timeLastCollected; // THIS VALUE IS DEPRECATED.
     mapping(address => uint256) public timeLastCollectedPatron;
     mapping(address => uint256) public deposit;
     mapping(address => uint256) public totalPatronOwnedTokenCost;
@@ -30,11 +30,11 @@ contract WildcardSteward_v3 is Initializable {
     mapping(uint256 => address) public benefactors; // non-profit benefactor
     mapping(address => uint256) public benefactorFunds;
 
-    mapping(uint256 => address) public deprecated_currentPatron; // Deprecate This is different to the current token owner.
-    mapping(uint256 => mapping(address => bool)) public deprecated_patrons; // Deprecate
-    mapping(uint256 => mapping(address => uint256)) public deprecated_timeHeld; // Deprecate
+    mapping(uint256 => address) deprecated_currentPatron; // Deprecate This is different to the current token owner.
+    mapping(uint256 => mapping(address => bool)) deprecated_patrons; // Deprecate
+    mapping(uint256 => mapping(address => uint256)) deprecated_timeHeld; // Deprecate
 
-    mapping(uint256 => uint256) public deprecated_timeAcquired; // deprecate
+    mapping(uint256 => uint256) deprecated_timeAcquired; // deprecate
 
     // 1200% patronage
     mapping(uint256 => uint256) public patronageNumerator;
@@ -46,7 +46,7 @@ contract WildcardSteward_v3 is Initializable {
     address public admin;
 
     //////////////// NEW variables in v2///////////////////
-    mapping(uint256 => uint256) public deprecated_tokenGenerationRate; // we can reuse the patronage denominator
+    mapping(uint256 => uint256) deprecated_tokenGenerationRate; // we can reuse the patronage denominator
 
     MintManager_v2 public mintManager;
     //////////////// NEW variables in v3 ///////////////////
