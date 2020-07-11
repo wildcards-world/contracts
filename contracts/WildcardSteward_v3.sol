@@ -297,6 +297,7 @@ contract WildcardSteward_v3 is Initializable {
         uint256 _auctionLength
     ) public notNullAddress(_withdrawCheckerAdmin) {
         // This function effectively needs to call both _collectPatronage and _collectPatronagePatron from the v2 contract.
+        require(withdrawCheckerAdmin == address(0), "only can call once");
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
         // For each token
         for (uint8 i = 0; i < tokens.length; ++i) {
