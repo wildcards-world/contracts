@@ -36,7 +36,7 @@ module.exports = {
       network_id: 5,
       provider: new HDWalletProvider(mnemonic, goerliProviderUrl, 0),
       // gas: 47000000,
-      gasPrice: 10000000000, // 10 gwei
+      gasPrice: 50000000000, // 10 gwei
       skipDryRun: true,
     },
     development: {
