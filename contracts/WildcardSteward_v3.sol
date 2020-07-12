@@ -3,7 +3,7 @@ pragma solidity 0.5.17;
 import "./ERC721Patronage_v1.sol";
 import "./MintManager_v2.sol";
 
-import "@nomiclabs/buidler/console.sol";
+// import "@nomiclabs/buidler/console.sol";
 
 contract WildcardSteward_v3 is Initializable {
     /*
@@ -297,7 +297,7 @@ contract WildcardSteward_v3 is Initializable {
         uint256 _auctionLength
     ) public notNullAddress(_withdrawCheckerAdmin) {
         // This function effectively needs to call both _collectPatronage and _collectPatronagePatron from the v2 contract.
-        require(withdrawCheckerAdmin == address(0), "only can call once");
+        require(withdrawCheckerAdmin == address(0));
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
         // For each token
         for (uint8 i = 0; i < tokens.length; ++i) {
@@ -851,7 +851,7 @@ contract WildcardSteward_v3 is Initializable {
     function buy(
         uint256 tokenId,
         uint256 _newPrice,
-        uint256 _deposit,
+        uint256 previousPrice,
         uint256 wildcardsPercentage
     )
         public
@@ -863,15 +863,15 @@ contract WildcardSteward_v3 is Initializable {
         validWildcardsPercentage(wildcardsPercentage, tokenId)
     {
         require(state[tokenId] == StewardState.Owned, "token on auction");
-        uint256 remainingValueForDeposit = msg.value.sub(price[tokenId]);
         require(
-            remainingValueForDeposit >= _deposit,
-            "deposit available < stated"
+            price[tokenId] == previousPrice,
+            "must specify current price accuratrely"
         );
 
         _distributePurchaseProceeds(tokenId);
 
         wildcardsPercentages[tokenId] = wildcardsPercentage;
+        uint256 remainingValueForDeposit = msg.value.sub(price[tokenId]);
         deposit[msg.sender] = deposit[msg.sender].add(remainingValueForDeposit);
         transferAssetTokenTo(
             tokenId,
