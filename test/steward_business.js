@@ -181,7 +181,7 @@ contract("WildcardSteward owed", (accounts) => {
     await steward.buy(
       tokenDetails[1].token,
       ether("1"),
-      ether("1"),
+      token2Price,
       defaultPercentageForWildcards,
       {
         from: accounts[3],

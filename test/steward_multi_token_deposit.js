@@ -80,8 +80,9 @@ contract("WildcardSteward owed", (accounts) => {
         value: ether("1"),
       })
     );
+    const token2price = ether("2");
     const buy2time = await txTimestamp(
-      steward.buyAuction(tokenDetails[1].token, ether("2"), 50000, {
+      steward.buyAuction(tokenDetails[1].token, token2price, 50000, {
         from: accounts[2],
         value: ether("1"),
       })
@@ -113,7 +114,7 @@ contract("WildcardSteward owed", (accounts) => {
 
     //Second token then bought. Deposit should now be added back the patrons balance
     const sell2time = await txTimestamp(
-      steward.buy(tokenDetails[1].token, ether("1"), ether("1"), 50000, {
+      steward.buy(tokenDetails[1].token, ether("1"), priceOftoken2, 50000, {
         from: accounts[3],
         value: ether("3"),
       })
