@@ -53,7 +53,7 @@ module.exports = function(deployer, networkName, accounts) {
       patronageToken_v0.address
     );
     const steward = await WildcardSteward_v2.at(steward_v0.address);
-    /*
+
     await Promise.all([
       patronageToken.mintWithTokenURI(
         steward.address,
@@ -116,7 +116,6 @@ module.exports = function(deployer, networkName, accounts) {
         { from: accounts[0], gas: 681877 }
       ),
     ]);
-    */
 
     await steward.listNewTokens(
       [

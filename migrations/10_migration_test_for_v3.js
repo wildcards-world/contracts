@@ -62,7 +62,6 @@ async function deploy(options) {
 }
 
 module.exports = function(deployer, networkName, accounts) {
-  throw "not here...";
   deployer.then(async () => {
     // Don't try to deploy/migrate the contracts for tests
     if (networkName === "test") {
