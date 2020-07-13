@@ -53,7 +53,7 @@ module.exports = function(deployer, networkName, accounts) {
       patronageToken_v0.address
     );
     const steward = await WildcardSteward_v2.at(steward_v0.address);
-
+    /*
     await Promise.all([
       patronageToken.mintWithTokenURI(
         steward.address,
@@ -67,58 +67,56 @@ module.exports = function(deployer, networkName, accounts) {
         "https://wildcards.xyz/token/14",
         { from: accounts[0], gas: 681877 }
       ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        tokenIdTarkus,
+        "https://wildcards.xyz/token/15",
+        { from: accounts[0], gas: 681877 }
+      ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        tokenIdHook,
+        "https://wildcards.xyz/token/16",
+        { from: accounts[0], gas: 681877 }
+      ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        tokenIdMijungla,
+        "https://wildcards.xyz/token/17",
+        { from: accounts[0], gas: 681877 }
+      ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        ajayuTokenId,
+        `https://wildcards.xyz/token/${ajayuTokenId}`,
+        { from: accounts[0], gas: 681877 }
+      ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        arthurTokenId,
+        `https://wildcards.xyz/token/${arthurTokenId}`,
+        { from: accounts[0], gas: 681877 }
+      ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        aboTokenId,
+        `https://wildcards.xyz/token/${aboTokenId}`,
+        { from: accounts[0], gas: 681877 }
+      ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        whackyCappyTokenId,
+        `https://wildcards.xyz/token/${whackyCappyTokenId}`,
+        { from: accounts[0], gas: 681877 }
+      ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        sliceTokenId,
+        `https://wildcards.xyz/token/${sliceTokenId}`,
+        { from: accounts[0], gas: 681877 }
+      ),
     ]);
-
-    await patronageToken.mintWithTokenURI(
-      steward.address,
-      tokenIdTarkus,
-      "https://wildcards.xyz/token/15",
-      { from: accounts[0], gas: 681877 }
-    );
-
-    await patronageToken.mintWithTokenURI(
-      steward.address,
-      tokenIdHook,
-      "https://wildcards.xyz/token/16",
-      { from: accounts[0], gas: 681877 }
-    );
-
-    await patronageToken.mintWithTokenURI(
-      steward.address,
-      tokenIdMijungla,
-      "https://wildcards.xyz/token/17",
-      { from: accounts[0], gas: 681877 }
-    );
-    await patronageToken.mintWithTokenURI(
-      steward.address,
-      ajayuTokenId,
-      `https://wildcards.xyz/token/${ajayuTokenId}`,
-      { from: accounts[0], gas: 681877 }
-    );
-    await patronageToken.mintWithTokenURI(
-      steward.address,
-      arthurTokenId,
-      `https://wildcards.xyz/token/${arthurTokenId}`,
-      { from: accounts[0], gas: 681877 }
-    );
-    await patronageToken.mintWithTokenURI(
-      steward.address,
-      aboTokenId,
-      `https://wildcards.xyz/token/${aboTokenId}`,
-      { from: accounts[0], gas: 681877 }
-    );
-    await patronageToken.mintWithTokenURI(
-      steward.address,
-      whackyCappyTokenId,
-      `https://wildcards.xyz/token/${whackyCappyTokenId}`,
-      { from: accounts[0], gas: 681877 }
-    );
-    await patronageToken.mintWithTokenURI(
-      steward.address,
-      sliceTokenId,
-      `https://wildcards.xyz/token/${sliceTokenId}`,
-      { from: accounts[0], gas: 681877 }
-    );
+    */
 
     await steward.listNewTokens(
       [
@@ -169,7 +167,7 @@ module.exports = function(deployer, networkName, accounts) {
         receiptGenerationRate,
         receiptGenerationRate,
       ],
-      { from: accounts[0], gas: 615225 }
+      { from: accounts[0], gas: 6152250 }
     );
   });
 };

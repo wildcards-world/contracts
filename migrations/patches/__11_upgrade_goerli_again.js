@@ -13,48 +13,12 @@ async function deploy(options) {
 
   // Push implementation contracts to the network
   await push({ ...options, force: true }); // I have to use force here because OpenZeppelin is being difficult :/ (and this is a hacky solution anyway...)
-  const tokensToUpgrade = [
-    "0",
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "10",
-    "11",
-    "12",
-    "13",
-    "14",
-    "15",
-    "16",
-    "17",
-    "18",
-    "19",
-    "20",
-    "21",
-    "22",
-    "42",
-  ];
 
   // Update instance, adding +10 to value as part of the migration
   let result = await update({
     ...options,
     contractAlias: "WildcardSteward",
-    methodName: "upgradeToV3",
-    methodArgs: [
-      tokensToUpgrade,
-      adminCheckerAddress,
-      "1000000000000000000", // 1 ETH
-      "50000000000000000", // 0.05 ETH
-      "604800", // auction length 1week = 60*60*24*7
-    ],
   });
-
-  console.log(result);
 
   // // Validate that the upgrade was successful:
   // const steward_v0 = await WildcardSteward_v0.deployed();
@@ -62,7 +26,6 @@ async function deploy(options) {
 }
 
 module.exports = function(deployer, networkName, accounts) {
-  throw "not here...";
   deployer.then(async () => {
     // Don't try to deploy/migrate the contracts for tests
     if (networkName === "test") {
@@ -74,5 +37,6 @@ module.exports = function(deployer, networkName, accounts) {
       from: accounts[0],
     });
     await deploy({ network, txParams }, accounts);
+    throw "Don't save migration!";
   });
 };
