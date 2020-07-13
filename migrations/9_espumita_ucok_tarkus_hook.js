@@ -13,11 +13,32 @@ const laSendaVerdeAddress = "0x6e2a8814bE551B263f9B95A721D32d33877Ee5Ec";
 const darwinAnimalDoctorsAddress = "0x233f9bcb02bfAD03aAcCb6cE40b6C4f83C867603";
 const tempWhaleConservancyAccount =
   "0x4245284F5D377E5d2d86306e836c8df33152c94e";
+const bdiAddress = "0xADad0D21ba0E4b356e2b2769e08CfeF206f83891";
+const saveWildAddress = "0xc0eD94f053E7Ee5f24DCebbfd4dcF16d8E767d5F";
 //                        6000000000000
 const harbergerTaxRate = "6000000000000"; // Harberger tax rate of 600% per year
 const harbergerTaxRateTarkus = "2400000000000"; // Harberger tax rate of 240% per year
 const harbergerTaxRateHook = "2400000000000";
 const harbergerTaxRateMijungla = "6000000000000";
+
+const ajayuTokenId = "18";
+
+const ajayuHarbergerTaxRateAnimal = "600" + "0000000000";
+
+const arthurTokenId = "19";
+
+const arthurHarbergerTaxRateAnimal = "240" + "0000000000";
+
+const aboTokenId = "20";
+
+const aboHarbergerTaxRateAnimal = "120" + "0000000000"; // Harberger tax rate of 120% per year
+
+const whackyCappyTokenId = "21";
+
+const whackyCappyHarbergerTaxRateAnimal = "240" + "0000000000"; // Harberger tax rate of 120% per year
+const sliceTokenId = "22";
+
+const sliceHarbergerTaxRateAnimal = "120" + "0000000000"; // Harberger tax rate of 120% per year
 
 module.exports = function(deployer, networkName, accounts) {
   deployer.then(async () => {
@@ -46,72 +67,106 @@ module.exports = function(deployer, networkName, accounts) {
         "https://wildcards.xyz/token/14",
         { from: accounts[0], gas: 681877 }
       ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        tokenIdTarkus,
+        "https://wildcards.xyz/token/15",
+        { from: accounts[0], gas: 681877 }
+      ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        tokenIdHook,
+        "https://wildcards.xyz/token/16",
+        { from: accounts[0], gas: 681877 }
+      ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        tokenIdMijungla,
+        "https://wildcards.xyz/token/17",
+        { from: accounts[0], gas: 681877 }
+      ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        ajayuTokenId,
+        `https://wildcards.xyz/token/${ajayuTokenId}`,
+        { from: accounts[0], gas: 681877 }
+      ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        arthurTokenId,
+        `https://wildcards.xyz/token/${arthurTokenId}`,
+        { from: accounts[0], gas: 681877 }
+      ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        aboTokenId,
+        `https://wildcards.xyz/token/${aboTokenId}`,
+        { from: accounts[0], gas: 681877 }
+      ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        whackyCappyTokenId,
+        `https://wildcards.xyz/token/${whackyCappyTokenId}`,
+        { from: accounts[0], gas: 681877 }
+      ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        sliceTokenId,
+        `https://wildcards.xyz/token/${sliceTokenId}`,
+        { from: accounts[0], gas: 681877 }
+      ),
     ]);
 
-    /*
-      uint256[] memory tokens,
-      address payable[] memory _benefactors,
-      uint256[] memory _patronageNumerator,
-      uint256[] memory _tokenGenerationRate
-    */
     await steward.listNewTokens(
-      [tokenIdEspumita, tokenIdUcok],
-      [laSendaVerdeAddress, darwinAnimalDoctorsAddress],
-      [harbergerTaxRate, harbergerTaxRate],
-      [receiptGenerationRate, receiptGenerationRate],
-      { from: accounts[0], gas: 615225 }
-    );
-
-    await patronageToken.mintWithTokenURI(
-      steward.address,
-      tokenIdTarkus,
-      "https://wildcards.xyz/token/15",
-      { from: accounts[0], gas: 681877 }
-    );
-
-    await steward.listNewTokens(
-      [tokenIdTarkus],
-      [laSendaVerdeAddress],
-      [harbergerTaxRateTarkus],
-      [receiptGenerationRate],
-      { from: accounts[0], gas: 615225 }
-    );
-
-    await patronageToken.mintWithTokenURI(
-      steward.address,
-      tokenIdHook,
-      "https://wildcards.xyz/token/16",
-      { from: accounts[0], gas: 681877 }
-    );
-
-    /*
-      uint256[] memory tokens,
-      address payable[] memory _benefactors,
-      uint256[] memory _patronageNumerator,
-      uint256[] memory _tokenGenerationRate
-    */
-
-    await steward.listNewTokens(
-      [tokenIdMijungla],
-      [laSendaVerdeAddress],
-      [harbergerTaxRateMijungla],
-      [receiptGenerationRate],
-      { from: accounts[0], gas: 615225 }
-    );
-
-    await patronageToken.mintWithTokenURI(
-      steward.address,
-      tokenIdMijungla,
-      "https://wildcards.xyz/token/17",
-      { from: accounts[0], gas: 681877 }
-    );
-
-    await steward.listNewTokens(
-      [tokenIdHook],
-      [tempWhaleConservancyAccount],
-      [harbergerTaxRateHook],
-      [receiptGenerationRate],
-      { from: accounts[0], gas: 615225 }
+      [
+        tokenIdEspumita,
+        tokenIdUcok,
+        tokenIdTarkus,
+        tokenIdHook,
+        tokenIdMijungla,
+        ajayuTokenId,
+        arthurTokenId,
+        aboTokenId,
+        whackyCappyTokenId,
+        sliceTokenId,
+      ],
+      [
+        laSendaVerdeAddress,
+        darwinAnimalDoctorsAddress,
+        laSendaVerdeAddress,
+        tempWhaleConservancyAccount,
+        laSendaVerdeAddress,
+        laSendaVerdeAddress,
+        saveWildAddress,
+        bdiAddress,
+        bdiAddress,
+        tempWhaleConservancyAccount,
+      ],
+      [
+        harbergerTaxRate,
+        harbergerTaxRate,
+        harbergerTaxRateTarkus,
+        harbergerTaxRateHook,
+        harbergerTaxRateMijungla,
+        ajayuHarbergerTaxRateAnimal,
+        arthurHarbergerTaxRateAnimal,
+        aboHarbergerTaxRateAnimal,
+        whackyCappyHarbergerTaxRateAnimal,
+        sliceHarbergerTaxRateAnimal,
+      ],
+      [
+        receiptGenerationRate,
+        receiptGenerationRate,
+        receiptGenerationRate,
+        receiptGenerationRate,
+        receiptGenerationRate,
+        receiptGenerationRate,
+        receiptGenerationRate,
+        receiptGenerationRate,
+        receiptGenerationRate,
+        receiptGenerationRate,
+      ],
+      { from: accounts[0], gas: 6152250 }
     );
   });
 };

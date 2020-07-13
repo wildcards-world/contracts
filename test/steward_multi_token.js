@@ -139,7 +139,8 @@ contract("WildcardSteward owed", (accounts) => {
 
   // buy 2 tokens, with prices of 1 ether and 2 ether.
   it("steward: multi-token. check patronage of two tokens owed by the same patron after 10 minutes one of the tokens gets bought.", async () => {
-    await steward.buyAuction(tokenDetails[0].token, ether("1"), 50000, {
+    const token1Price = ether("1");
+    await steward.buyAuction(tokenDetails[0].token, token1Price, 50000, {
       from: accounts[2],
       value: ether("1"),
     });
@@ -180,16 +181,10 @@ contract("WildcardSteward owed", (accounts) => {
       },
     ]);
     // Token 1 bought
-    await steward.buy(
-      tokenDetails[0].token,
-      ether("0.1"),
-      web3.utils.toWei("0.1", "ether"),
-      50000,
-      {
-        from: accounts[3],
-        value: ether("1.1"),
-      }
-    );
+    await steward.buy(tokenDetails[0].token, ether("0.1"), token1Price, 50000, {
+      from: accounts[3],
+      value: ether("1.1"),
+    });
     // Time increases
     await setTimestamp(time.duration.minutes(10));
 

@@ -3,7 +3,7 @@ pragma solidity 0.5.17;
 import "./ERC721Patronage_v1.sol";
 import "./MintManager_v2.sol";
 
-import "@nomiclabs/buidler/console.sol";
+// import "@nomiclabs/buidler/console.sol";
 
 contract WildcardSteward_v3 is Initializable {
     /*
@@ -20,9 +20,9 @@ contract WildcardSteward_v3 is Initializable {
     mapping(uint256 => uint256) public price; //in wei
     ERC721Patronage_v1 public assetToken; // ERC721 NFT.
 
-    mapping(uint256 => uint256) public deprecated_totalCollected; // THIS VALUE IS DEPRECATED
-    mapping(uint256 => uint256) public deprecated_currentCollected; // THIS VALUE IS DEPRECATED
-    mapping(uint256 => uint256) public deprecated_timeLastCollected; // THIS VALUE IS DEPRECATED.
+    mapping(uint256 => uint256) deprecated_totalCollected; // THIS VALUE IS DEPRECATED
+    mapping(uint256 => uint256) deprecated_currentCollected; // THIS VALUE IS DEPRECATED
+    mapping(uint256 => uint256) deprecated_timeLastCollected; // THIS VALUE IS DEPRECATED.
     mapping(address => uint256) public timeLastCollectedPatron;
     mapping(address => uint256) public deposit;
     mapping(address => uint256) public totalPatronOwnedTokenCost;
@@ -30,11 +30,11 @@ contract WildcardSteward_v3 is Initializable {
     mapping(uint256 => address) public benefactors; // non-profit benefactor
     mapping(address => uint256) public benefactorFunds;
 
-    mapping(uint256 => address) public deprecated_currentPatron; // Deprecate This is different to the current token owner.
-    mapping(uint256 => mapping(address => bool)) public deprecated_patrons; // Deprecate
-    mapping(uint256 => mapping(address => uint256)) public deprecated_timeHeld; // Deprecate
+    mapping(uint256 => address) deprecated_currentPatron; // Deprecate This is different to the current token owner.
+    mapping(uint256 => mapping(address => bool)) deprecated_patrons; // Deprecate
+    mapping(uint256 => mapping(address => uint256)) deprecated_timeHeld; // Deprecate
 
-    mapping(uint256 => uint256) public deprecated_timeAcquired; // deprecate
+    mapping(uint256 => uint256) deprecated_timeAcquired; // deprecate
 
     // 1200% patronage
     mapping(uint256 => uint256) public patronageNumerator;
@@ -46,7 +46,7 @@ contract WildcardSteward_v3 is Initializable {
     address public admin;
 
     //////////////// NEW variables in v2///////////////////
-    mapping(uint256 => uint256) public deprecated_tokenGenerationRate; // we can reuse the patronage denominator
+    mapping(uint256 => uint256) deprecated_tokenGenerationRate; // we can reuse the patronage denominator
 
     MintManager_v2 public mintManager;
     //////////////// NEW variables in v3 ///////////////////
@@ -297,7 +297,7 @@ contract WildcardSteward_v3 is Initializable {
         uint256 _auctionLength
     ) public notNullAddress(_withdrawCheckerAdmin) {
         // This function effectively needs to call both _collectPatronage and _collectPatronagePatron from the v2 contract.
-        require(withdrawCheckerAdmin == address(0), "only can call once");
+        require(withdrawCheckerAdmin == address(0));
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
         // For each token
         for (uint8 i = 0; i < tokens.length; ++i) {
@@ -851,7 +851,7 @@ contract WildcardSteward_v3 is Initializable {
     function buy(
         uint256 tokenId,
         uint256 _newPrice,
-        uint256 _deposit,
+        uint256 previousPrice,
         uint256 wildcardsPercentage
     )
         public
@@ -863,15 +863,15 @@ contract WildcardSteward_v3 is Initializable {
         validWildcardsPercentage(wildcardsPercentage, tokenId)
     {
         require(state[tokenId] == StewardState.Owned, "token on auction");
-        uint256 remainingValueForDeposit = msg.value.sub(price[tokenId]);
         require(
-            remainingValueForDeposit >= _deposit,
-            "deposit available < stated"
+            price[tokenId] == previousPrice,
+            "must specify current price accuratrely"
         );
 
         _distributePurchaseProceeds(tokenId);
 
         wildcardsPercentages[tokenId] = wildcardsPercentage;
+        uint256 remainingValueForDeposit = msg.value.sub(price[tokenId]);
         deposit[msg.sender] = deposit[msg.sender].add(remainingValueForDeposit);
         transferAssetTokenTo(
             tokenId,
