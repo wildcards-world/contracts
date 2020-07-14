@@ -863,10 +863,7 @@ contract WildcardSteward_v3 is Initializable {
         validWildcardsPercentage(wildcardsPercentage, tokenId)
     {
         require(state[tokenId] == StewardState.Owned, "token on auction");
-        require(
-            price[tokenId] == previousPrice,
-            "must specify current price accuratrely"
-        );
+        require(price[tokenId] == previousPrice, "must specify current price ");
 
         _distributePurchaseProceeds(tokenId);
 
