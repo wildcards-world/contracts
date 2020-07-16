@@ -1,95 +1,7 @@
 {
   "contracts": {
-    "MintManager": {
-      "address": "0x5c582570698860a86A1B2C52Ee97A735026feb54",
-      "constructorCode": "608060405234801561001057600080fd5b50610570806100206000396000f3fe",
-      "bodyBytecodeHash": "b292e443b37d661ba0e7e6d5a35d5141a1d4b5f2a369cb0f2f434d94972a5390",
-      "localBytecodeHash": "e88c08c783812adc6607d8e4c90ccf7ecae97c4e5d156d4130812d44e1328061",
-      "deployedBytecodeHash": "e88c08c783812adc6607d8e4c90ccf7ecae97c4e5d156d4130812d44e1328061",
-      "types": {
-        "t_bool": {
-          "id": "t_bool",
-          "kind": "elementary",
-          "label": "bool"
-        },
-        "t_uint256": {
-          "id": "t_uint256",
-          "kind": "elementary",
-          "label": "uint256"
-        },
-        "t_array:50<t_uint256>": {
-          "id": "t_array:50<t_uint256>",
-          "valueType": "t_uint256",
-          "length": "50",
-          "kind": "array",
-          "label": "uint256[50]"
-        },
-        "t_address": {
-          "id": "t_address",
-          "kind": "elementary",
-          "label": "address"
-        }
-      },
-      "storage": [
-        {
-          "contract": "Initializable",
-          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
-          "label": "initialized",
-          "astId": 11261,
-          "type": "t_bool",
-          "src": "757:24:37"
-        },
-        {
-          "contract": "Initializable",
-          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
-          "label": "initializing",
-          "astId": 11263,
-          "type": "t_bool",
-          "src": "876:25:37"
-        },
-        {
-          "contract": "Initializable",
-          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
-          "label": "______gap",
-          "astId": 11325,
-          "type": "t_array:50<t_uint256>",
-          "src": "1982:29:37"
-        },
-        {
-          "contract": "MintManager_v2",
-          "path": "contracts/MintManager_v2.sol",
-          "label": "admin",
-          "astId": 277,
-          "type": "t_address",
-          "src": "234:20:4"
-        },
-        {
-          "contract": "MintManager_v2",
-          "path": "contracts/MintManager_v2.sol",
-          "label": "steward",
-          "astId": 279,
-          "type": "t_address",
-          "src": "260:22:4"
-        },
-        {
-          "contract": "MintManager_v2",
-          "path": "contracts/MintManager_v2.sol",
-          "label": "token",
-          "astId": 281,
-          "type": "t_address",
-          "src": "288:27:4"
-        }
-      ],
-      "warnings": {
-        "hasConstructor": false,
-        "hasSelfDestruct": false,
-        "hasDelegateCall": false,
-        "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
-      }
-    },
     "ERC721Patronage": {
-      "address": "0xA516783e5c8597A2F577bdB5f5561774e691A5f1",
+      "address": "0xCB52A66C6B841B1A78B7aEB6568ff98588b2693a",
       "constructorCode": "60806040526126b5806100136000396000f3fe",
       "bodyBytecodeHash": "52bf7541c20c9f0953d469a603b5804f2085506265c61f47287a9a17554044bd",
       "localBytecodeHash": "fcd92741ae8e5816b695811b5194c52961cc77c329f002935f0409b861e7364d",
@@ -98,11 +10,11 @@
       "storage": null
     },
     "WildcardSteward": {
-      "address": "0x61A05415D33bF0C82FaE8d4CC24E391667b22246",
-      "constructorCode": "608060405234801561001057600080fd5b50614b31806100206000396000f3fe",
-      "bodyBytecodeHash": "315638b61c0af8443ea7275a366f86436d7e5c3406c74dd2893d482d2b0918fa",
-      "localBytecodeHash": "33e5c0d9607e174c90d1b6d9adc720591f26fb4d1244aef956a56f7ec2dcbd55",
-      "deployedBytecodeHash": "33e5c0d9607e174c90d1b6d9adc720591f26fb4d1244aef956a56f7ec2dcbd55",
+      "address": "0x0169650601A5Ae5B5Fe39a511c4A1b86676E4093",
+      "constructorCode": "608060405234801561001057600080fd5b50614b30806100206000396000f3fe",
+      "bodyBytecodeHash": "d2739d8c62f27cebb8d66d628049ee362713ee5f390af14a7f1f654db9f11e9c",
+      "localBytecodeHash": "fe273300611f502d0bc6e6c89eba95361457bfab7547f89f80e61c9953dcf6fc",
+      "deployedBytecodeHash": "fe273300611f502d0bc6e6c89eba95361457bfab7547f89f80e61c9953dcf6fc",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -148,7 +60,10 @@
           "id": "t_enum<WildcardSteward_v3.StewardState>",
           "kind": "enum",
           "label": "WildcardSteward_v3.StewardState",
-          "members": ["Foreclosed", "Owned"]
+          "members": [
+            "Foreclosed",
+            "Owned"
+          ]
         },
         "t_mapping<t_enum<WildcardSteward_v3.StewardState>>": {
           "id": "t_mapping<t_enum<WildcardSteward_v3.StewardState>>",
@@ -791,34 +706,122 @@
           }
         ]
       }
+    },
+    "MintManager": {
+      "address": "0x6823c26B6937112ee1f9741e740D2d7595ac9870",
+      "constructorCode": "608060405234801561001057600080fd5b50610570806100206000396000f3fe",
+      "bodyBytecodeHash": "b292e443b37d661ba0e7e6d5a35d5141a1d4b5f2a369cb0f2f434d94972a5390",
+      "localBytecodeHash": "e88c08c783812adc6607d8e4c90ccf7ecae97c4e5d156d4130812d44e1328061",
+      "deployedBytecodeHash": "e88c08c783812adc6607d8e4c90ccf7ecae97c4e5d156d4130812d44e1328061",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 11261,
+          "type": "t_bool",
+          "src": "757:24:37"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 11263,
+          "type": "t_bool",
+          "src": "876:25:37"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 11325,
+          "type": "t_array:50<t_uint256>",
+          "src": "1982:29:37"
+        },
+        {
+          "contract": "MintManager_v2",
+          "path": "contracts/MintManager_v2.sol",
+          "label": "admin",
+          "astId": 277,
+          "type": "t_address",
+          "src": "234:20:4"
+        },
+        {
+          "contract": "MintManager_v2",
+          "path": "contracts/MintManager_v2.sol",
+          "label": "steward",
+          "astId": 279,
+          "type": "t_address",
+          "src": "260:22:4"
+        },
+        {
+          "contract": "MintManager_v2",
+          "path": "contracts/MintManager_v2.sol",
+          "label": "token",
+          "astId": 281,
+          "type": "t_address",
+          "src": "288:27:4"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
     }
   },
   "solidityLibs": {},
   "proxies": {
     "wildcards-contracts/WildcardSteward": [
       {
-        "address": "0x229Cb219F056A9097b2744594Bc37597380854E8",
+        "address": "0xA20802b88b745784Fb7ca11AA75b4bdafC6DA0D5",
         "version": "0.1.0",
-        "implementation": "0x61A05415D33bF0C82FaE8d4CC24E391667b22246",
-        "admin": "0x5326574569283412E4991C6dedE3274Fed5074D3",
+        "implementation": "0x0169650601A5Ae5B5Fe39a511c4A1b86676E4093",
+        "admin": "0xca245fa71896eB677B13ff4A464E4e8dd68A7465",
         "kind": "Upgradeable"
       }
     ],
     "wildcards-contracts/ERC721Patronage": [
       {
-        "address": "0x73d3e04eFA1F26861aa80D4b933484Ec2DbDF410",
+        "address": "0xF82B698631009dc5D187daA73d015a3Ad8972eEB",
         "version": "0.1.0",
-        "implementation": "0xA516783e5c8597A2F577bdB5f5561774e691A5f1",
-        "admin": "0x5326574569283412E4991C6dedE3274Fed5074D3",
+        "implementation": "0xCB52A66C6B841B1A78B7aEB6568ff98588b2693a",
+        "admin": "0xca245fa71896eB677B13ff4A464E4e8dd68A7465",
         "kind": "Upgradeable"
       }
     ],
     "wildcards-contracts/MintManager": [
       {
-        "address": "0xbEB6F5b94fA6174A905B8Fe192a5Ed9BD6920eE8",
+        "address": "0x16d6B3258D581654Cd9370777396E42dED1E5FA0",
         "version": "0.1.0",
-        "implementation": "0x5c582570698860a86A1B2C52Ee97A735026feb54",
-        "admin": "0x5326574569283412E4991C6dedE3274Fed5074D3",
+        "implementation": "0x6823c26B6937112ee1f9741e740D2d7595ac9870",
+        "admin": "0xca245fa71896eB677B13ff4A464E4e8dd68A7465",
         "kind": "Upgradeable"
       }
     ]
@@ -826,6 +829,6 @@
   "manifestVersion": "2.2",
   "version": "0.1.0",
   "proxyAdmin": {
-    "address": "0x5326574569283412E4991C6dedE3274Fed5074D3"
+    "address": "0xca245fa71896eB677B13ff4A464E4e8dd68A7465"
   }
 }

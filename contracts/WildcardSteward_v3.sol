@@ -296,6 +296,7 @@ contract WildcardSteward_v3 is Initializable {
         uint256 _auctionEndPrice,
         uint256 _auctionLength
     ) public notNullAddress(_withdrawCheckerAdmin) {
+        emit UpgradeToV3();
         // This function effectively needs to call both _collectPatronage and _collectPatronagePatron from the v2 contract.
         require(withdrawCheckerAdmin == address(0));
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
@@ -366,7 +367,6 @@ contract WildcardSteward_v3 is Initializable {
             _auctionEndPrice,
             _auctionLength
         );
-        emit UpgradeToV3();
     }
 
     function changeReceivingBenefactor(
@@ -863,7 +863,10 @@ contract WildcardSteward_v3 is Initializable {
         validWildcardsPercentage(wildcardsPercentage, tokenId)
     {
         require(state[tokenId] == StewardState.Owned, "token on auction");
-        require(price[tokenId] == previousPrice, "must specify current price ");
+        require(
+            price[tokenId] == previousPrice,
+            "must specify current price accurately"
+        );
 
         _distributePurchaseProceeds(tokenId);
 
