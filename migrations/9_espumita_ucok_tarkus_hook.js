@@ -19,6 +19,7 @@ const saveWildAddress = "0xc0eD94f053E7Ee5f24DCebbfd4dcF16d8E767d5F";
 const harbergerTaxRate = "6000000000000"; // Harberger tax rate of 600% per year
 const harbergerTaxRateTarkus = "2400000000000"; // Harberger tax rate of 240% per year
 const harbergerTaxRateHook = "2400000000000";
+const harbergerTaxRateStar = "2400000000000";
 const harbergerTaxRateMijungla = "6000000000000";
 
 const ajayuTokenId = "18";
@@ -39,6 +40,10 @@ const whackyCappyHarbergerTaxRateAnimal = "240" + "0000000000"; // Harberger tax
 const sliceTokenId = "22";
 
 const sliceHarbergerTaxRateAnimal = "120" + "0000000000"; // Harberger tax rate of 120% per year
+
+const starTokenId = "24";
+
+const starHarbergerTaxRateAnimal = "240" + "0000000000"; // Harberger tax rate of 240% per year
 
 module.exports = function(deployer, networkName, accounts) {
   deployer.then(async () => {
@@ -115,6 +120,12 @@ module.exports = function(deployer, networkName, accounts) {
         `https://wildcards.xyz/token/${sliceTokenId}`,
         { from: accounts[0], gas: 681877 }
       ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        starTokenId,
+        `https://wildcards.xyz/token/${starTokenId}`,
+        { from: accounts[0], gas: 681877 }
+      ),
     ]);
 
     await steward.listNewTokens(
@@ -129,6 +140,7 @@ module.exports = function(deployer, networkName, accounts) {
         aboTokenId,
         whackyCappyTokenId,
         sliceTokenId,
+        starTokenId,
       ],
       [
         laSendaVerdeAddress,
@@ -140,6 +152,7 @@ module.exports = function(deployer, networkName, accounts) {
         saveWildAddress,
         bdiAddress,
         bdiAddress,
+        tempWhaleConservancyAccount,
         tempWhaleConservancyAccount,
       ],
       [
@@ -153,8 +166,10 @@ module.exports = function(deployer, networkName, accounts) {
         aboHarbergerTaxRateAnimal,
         whackyCappyHarbergerTaxRateAnimal,
         sliceHarbergerTaxRateAnimal,
+        starHarbergerTaxRateAnimal,
       ],
       [
+        receiptGenerationRate,
         receiptGenerationRate,
         receiptGenerationRate,
         receiptGenerationRate,
