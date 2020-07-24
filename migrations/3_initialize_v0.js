@@ -22,7 +22,7 @@ const image2MetadataJson = {
 };
 const image2MetadataString = JSON.stringify(image2MetadataJson);
 
-module.exports = function(deployer, networkName, accounts) {
+module.exports = function (deployer, networkName, accounts) {
   deployer.then(async () => {
     // Don't try to deploy/migrate the contracts for tests
     if (networkName === "test") {
@@ -59,5 +59,12 @@ module.exports = function(deployer, networkName, accounts) {
       [patronageNumerator, patronageNumerator],
       { from: accounts[0] }
     );
+
+    console.log({ stewardAdd: steward.address, pToken: patronageToken.address });
+
+    if (networkName === "subgraphTest") {
+      const result = await steward.buy(0, 1234568, { from: accounts[1], value: 2234568 });
+      console.log(JSON.stringify(result, null, 2));
+    }
   });
 };

@@ -1,14 +1,17 @@
 const path = require("path");
-// This gives very strange errors in development, so keep these values null unless you require infura etc.
-const HDWalletProvider = require("@truffle/hdwallet-provider");
-const {
-  mnemonic,
-  mainnetProviderUrl,
-  rinkebyProviderUrl,
-  goerliProviderUrl,
-} = require("./secretsManager.js");
-// let HDWalletProvider = function(mnemonic, providerUrl, index) {};
-// let mnemonic, mainnetProviderUrl, rinkebyProviderUrl, goerliProviderUrl;
+// This gives very strange errors in development, so keep these
+try {
+  const {
+    mnemonic,
+    mainnetProviderUrl,
+    rinkebyProviderUrl,
+    goerliProviderUrl,
+  } = require("./secretsManager.js");
+} catch (e) {
+  console.log("secrets manager not defined - this means you can only work on localhost. Please copy the 'secretsManagerCi.js' config to 'secretsManager.js' to your preferences.");
+}
+let HDWalletProvider = function (mnemonic, providerUrl, index) { };
+let mnemonic, mainnetProviderUrl, rinkebyProviderUrl, goerliProviderUrl;
 
 const blockchainNodeHost = process.env.BLOCKCHAIN_NODE_HOST || "localhost";
 
@@ -46,6 +49,12 @@ module.exports = {
       gasPrice: 1000000000, // 1 gwei
     },
     test: {
+      host: blockchainNodeHost, // Localhost (default: none)
+      port: 8545, // Standard Ethereum port (default: none)
+      network_id: "*", // Any network (default: none)
+      gasPrice: 100000000, // 1 gwei
+    },
+    subgraphTest: {
       host: blockchainNodeHost, // Localhost (default: none)
       port: 8545, // Standard Ethereum port (default: none)
       network_id: "*", // Any network (default: none)
