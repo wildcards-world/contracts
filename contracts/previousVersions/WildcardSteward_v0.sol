@@ -221,6 +221,7 @@ contract WildcardSteward_v0 is Initializable {
             .div(365 days);
         return now.add(depositAbleToWithdraw(tokenPatron).div(pps)); // zero division if price is zero.
     }
+
     function foreclosureTime(uint256 tokenId) public view returns (uint256) {
         address tokenPatron = currentPatron[tokenId];
         return foreclosureTimePatron(tokenPatron);
@@ -241,8 +242,10 @@ contract WildcardSteward_v0 is Initializable {
             // should foreclose and stake stewardship
             if (patronageOwedByTokenPatron >= deposit[tokenPatron]) {
                 // up to when was it actually paid for?
-                uint256 newTimeLastCollected = timeLastCollectedPatron[tokenPatron]
-                    .add(
+
+
+                    uint256 newTimeLastCollected
+                 = timeLastCollectedPatron[tokenPatron].add(
                     (
                         (now.sub(timeLastCollectedPatron[tokenPatron]))
                             .mul(deposit[tokenPatron])
@@ -292,7 +295,9 @@ contract WildcardSteward_v0 is Initializable {
             patronageOwedByTokenPatron > 0 &&
             patronageOwedByTokenPatron >= deposit[tokenPatron]
         ) {
-            uint256 previousCollectionTime = timeLastCollectedPatron[tokenPatron];
+
+                uint256 previousCollectionTime
+             = timeLastCollectedPatron[tokenPatron];
             // up to when was it actually paid for?
             uint256 newTimeLastCollected = previousCollectionTime.add(
                 (
@@ -317,6 +322,7 @@ contract WildcardSteward_v0 is Initializable {
     function depositWei() public payable {
         depositWeiPatron(msg.sender);
     }
+
     function depositWeiPatron(address patron) public payable {
         require(totalPatronOwnedTokenCost[patron] > 0, "No tokens owned");
         deposit[patron] = deposit[patron].add(msg.value);
