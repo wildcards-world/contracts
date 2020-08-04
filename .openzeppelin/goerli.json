@@ -1,0 +1,35 @@
+{
+  "contracts": {
+    "MintManager": {
+      "address": "0xDB0D753d45e728B00a01e2b25D43FF79E1cFE0bC",
+      "constructorCode": "608060405234801561001057600080fd5b50610570806100206000396000f3fe",
+      "bodyBytecodeHash": "b292e443b37d661ba0e7e6d5a35d5141a1d4b5f2a369cb0f2f434d94972a5390",
+      "localBytecodeHash": "e88c08c783812adc6607d8e4c90ccf7ecae97c4e5d156d4130812d44e1328061",
+      "deployedBytecodeHash": "e88c08c783812adc6607d8e4c90ccf7ecae97c4e5d156d4130812d44e1328061",
+      "types": null,
+      "storage": null
+    },
+    "WildcardSteward": {
+      "address": "0x088e291F6BB33ed6C33E606A23B7AEFfbF7e85d3",
+      "constructorCode": "608060405234801561001057600080fd5b50614b5f806100206000396000f3fe",
+      "bodyBytecodeHash": "7e1e5db5385fc807bc1bc98689e3bcc8d6e671366f8c7d7550660f5c50662891",
+      "localBytecodeHash": "69aa084a01a9f39811190726b5eedfa780d00f63560160ff2ccafb07d4403bac",
+      "deployedBytecodeHash": "69aa084a01a9f39811190726b5eedfa780d00f63560160ff2ccafb07d4403bac",
+      "types": null,
+      "storage": null
+    },
+    "ERC721Patronage": {
+      "address": "0x509AACAF0AA7aD947658fB93F4627FE99D2C5306",
+      "constructorCode": "60806040526126b5806100136000396000f3fe",
+      "bodyBytecodeHash": "52bf7541c20c9f0953d469a603b5804f2085506265c61f47287a9a17554044bd",
+      "localBytecodeHash": "fcd92741ae8e5816b695811b5194c52961cc77c329f002935f0409b861e7364d",
+      "deployedBytecodeHash": "fcd92741ae8e5816b695811b5194c52961cc77c329f002935f0409b861e7364d",
+      "types": null,
+      "storage": null
+    }
+  },
+  "solidityLibs": {},
+  "proxies": {},
+  "manifestVersion": "2.2",
+  "version": "0.1.0"
+}
