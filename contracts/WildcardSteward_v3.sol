@@ -85,10 +85,9 @@ contract WildcardSteward_v3 is Initializable {
         uint256 remainingDeposit
     );
 
-    event AddToken(
+    event AddTokenV3(
         uint256 indexed tokenId,
         uint256 patronageNumerator,
-        // uint256 tokenGenerationRate,
         uint256 unixTimestampOfTokenAuctionStart
     );
 
@@ -100,12 +99,6 @@ contract WildcardSteward_v3 is Initializable {
         uint256 remainingDeposit,
         uint256 amountReceived
     );
-    // Removing this, no longer needed.
-    // event CollectLoyalty(
-    //     uint256 indexed tokenId,
-    //     address indexed patron,
-    //     uint256 amountRecieved
-    // );
     event CollectLoyalty(address indexed patron, uint256 amountRecieved);
 
     event ArtistCommission(
@@ -122,6 +115,7 @@ contract WildcardSteward_v3 is Initializable {
         uint256 withdrawAmount
     );
     event UpgradeToV3();
+    event ChangeAuctionParameters();
 
     modifier onlyPatron(uint256 tokenId) {
         require(msg.sender == assetToken.ownerOf(tokenId), "Not patron");
@@ -269,7 +263,7 @@ contract WildcardSteward_v3 is Initializable {
                 tokenAuctionBeginTimestamp[tokens[i]] = _releaseDate[i];
             }
 
-            emit AddToken(
+            emit AddTokenV3(
                 tokens[i],
                 _patronageNumerator[i],
                 // _tokenGenerationRate[i],
@@ -453,6 +447,7 @@ contract WildcardSteward_v3 is Initializable {
         auctionStartPrice = _auctionStartPrice;
         auctionEndPrice = _auctionEndPrice;
         auctionLength = _auctionLength;
+        emit ChangeAuctionParameters();
     }
 
     function changeAuctionParameters(

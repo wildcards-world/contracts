@@ -1,9 +1,7 @@
-pragma solidity 0.5.17;
-import "./ERC721Patronage_v1.sol";
-import "./MintManager_v2.sol";
+pragma solidity ^0.5.0;
+import "../ERC721Patronage_v1.sol";
 
-
-contract WildcardSteward_v2 is Initializable {
+contract WildcardSteward_v1 is Initializable {
     /*
     This smart contract collects patronage from current owner through a Harberger tax model and 
     takes stewardship of the asset token if the patron can't pay anymore.
@@ -44,35 +42,20 @@ contract WildcardSteward_v2 is Initializable {
 
     address public admin;
 
-    //////////////// NEW variables in v2///////////////////
-    mapping(uint256 => uint256) public tokenGenerationRate; // we can reuse the patronage denominator
-
-    MintManager_v2 public mintManager;
-
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
     event PriceChange(uint256 indexed tokenId, uint256 newPrice);
-    event Foreclosure(address indexed prevOwner, uint256 foreclosureTime);
+    event Foreclosure(address indexed prevOwner);
     event RemainingDepositUpdate(
         address indexed tokenPatron,
         uint256 remainingDeposit
     );
 
-    event AddToken(
-        uint256 indexed tokenId,
-        uint256 patronageNumerator,
-        uint256 tokenGenerationRate
-    );
-    // QUESTION: in future versions, should these two events (CollectPatronage and CollectLoyalty) be combined into one? - they only ever happen at the same time.
+    event AddToken(uint256 indexed tokenId, uint256 patronageNumerator);
     event CollectPatronage(
         uint256 indexed tokenId,
         address indexed patron,
         uint256 remainingDeposit,
         uint256 amountReceived
-    );
-    event CollectLoyalty(
-        uint256 indexed tokenId,
-        address indexed patron,
-        uint256 amountRecieved
     );
 
     modifier onlyPatron(uint256 tokenId) {
@@ -117,54 +100,16 @@ contract WildcardSteward_v2 is Initializable {
     function listNewTokens(
         uint256[] memory tokens,
         address payable[] memory _benefactors,
-        uint256[] memory _patronageNumerator,
-        uint256[] memory _tokenGenerationRate
+        uint256[] memory _patronageNumerator
     ) public onlyAdmin {
         assert(tokens.length == _benefactors.length);
-        assert(tokens.length == _patronageNumerator.length);
-        assert(tokens.length == _tokenGenerationRate.length);
-
         for (uint8 i = 0; i < tokens.length; ++i) {
             assert(_benefactors[i] != address(0));
             benefactors[tokens[i]] = _benefactors[i];
-            state[tokens[i]] = StewardState.Foreclosed; // TODO: Maybe Implement reverse dutch auction on intial sale or other such mechanisms to avoid the deadloss weight of
+            state[tokens[i]] = StewardState.Foreclosed;
             patronageNumerator[tokens[i]] = _patronageNumerator[i];
-            tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i];
-            emit AddToken(
-                tokens[i],
-                _patronageNumerator[i],
-                _tokenGenerationRate[i]
-            );
+            emit AddToken(tokens[i], _patronageNumerator[i]);
         }
-    }
-
-    function addTokenGenerationRateToExistingTokens(
-        uint256[] memory tokens,
-        uint256[] memory _tokenGenerationRate
-    ) internal {
-        assert(tokens.length == _tokenGenerationRate.length);
-        for (uint8 i = 0; i < tokens.length; ++i) {
-            assert(tokenGenerationRate[tokens[i]] == 0);
-
-            tokenGenerationRate[tokens[i]] = _tokenGenerationRate[i];
-        }
-    }
-
-    function setMintManager(address _mintManager) public {
-        require(
-            address(mintManager) == address(0),
-            "Only set on initialisation"
-        ); // This can only be called once!
-        mintManager = MintManager_v2(_mintManager);
-    }
-
-    function updateToV2(
-        address _mintManager,
-        uint256[] memory tokens,
-        uint256[] memory _tokenGenerationRate
-    ) public {
-        setMintManager(_mintManager);
-        addTokenGenerationRateToExistingTokens(tokens, _tokenGenerationRate);
     }
 
     function changeReceivingBenefactor(
@@ -213,6 +158,7 @@ contract WildcardSteward_v2 is Initializable {
     {
         if (timeLastCollectedPatron[tokenPatron] == 0) return 0;
 
+        // NOTE/TODO: to cater to different patronage rates, we should include it in the `totalPatronOwnedTokenCost` (and probably rename that variable)
         return
             totalPatronOwnedTokenCost[tokenPatron]
                 .mul(now.sub(timeLastCollectedPatron[tokenPatron]))
@@ -261,6 +207,10 @@ contract WildcardSteward_v2 is Initializable {
         }
     }
 
+    /*
+    now + deposit/patronage per second 
+    now + depositAbleToWithdraw/(price*nume/denom/365).
+    */
     function foreclosureTimePatron(address tokenPatron)
         public
         view
@@ -279,96 +229,67 @@ contract WildcardSteward_v2 is Initializable {
     }
 
     /* actions */
-    function _collectLoyalty(uint256 tokenId) internal {
-        // NOTE: this isn't currently implemented optimally. It would be possible to keep track of the total loyalty token generation rate for all the users tokens and use that.
-        // This should be implemented soon (while there are only a small number of tokens), or never.
-        address currentOwner = currentPatron[tokenId];
-        uint256 previousTokenCollection = timeLastCollected[tokenId];
-        uint256 patronageOwedByTokenPatron = patronageOwedPatron(currentOwner);
-        uint256 timeSinceLastMint;
-
-        if (patronageOwedByTokenPatron >= deposit[currentOwner]) {
-            uint256 newTimeLastCollected = timeLastCollectedPatron[currentOwner]
-                .add(
-                (
-                    (now.sub(timeLastCollectedPatron[currentOwner]))
-                        .mul(deposit[currentOwner])
-                        .div(patronageOwedByTokenPatron)
-                )
-            );
-            timeSinceLastMint = (
-                newTimeLastCollected.sub(previousTokenCollection)
-            );
-        } else {
-            timeSinceLastMint = now.sub(timeLastCollected[tokenId]);
-        }
-        mintManager.tokenMint(
-            currentOwner,
-            timeSinceLastMint,
-            tokenGenerationRate[tokenId]
-        );
-        emit CollectLoyalty(tokenId, currentOwner, timeSinceLastMint);
-    }
-
-    // TODO:: think of more efficient ways for recipients to collect patronage for lots of tokens at the same time.0
+    // TODO:: think of more efficient ways for recipients to collect patronage for lots of tokens at the same time.
     function _collectPatronage(uint256 tokenId) public {
         // determine patronage to pay
         if (state[tokenId] == StewardState.Owned) {
-            address currentOwner = currentPatron[tokenId];
             uint256 previousTokenCollection = timeLastCollected[tokenId];
             uint256 patronageOwedByTokenPatron = patronageOwedPatron(
-                currentOwner
+                currentPatron[tokenId]
             );
-            _collectLoyalty(tokenId); // This needs to be called before before the token may be foreclosed next section
             uint256 collection;
 
-            // it should foreclose and take stewardship
-            if (patronageOwedByTokenPatron >= deposit[currentOwner]) {
+            // should foreclose and stake stewardship
+            if (patronageOwedByTokenPatron >= deposit[currentPatron[tokenId]]) {
+                // up to when was it actually paid for?
 
                     uint256 newTimeLastCollected
-                 = timeLastCollectedPatron[currentOwner].add(
+                 = timeLastCollectedPatron[currentPatron[tokenId]].add(
                     (
-                        (now.sub(timeLastCollectedPatron[currentOwner]))
-                            .mul(deposit[currentOwner])
+                        (
+                            now.sub(
+                                timeLastCollectedPatron[currentPatron[tokenId]]
+                            )
+                        )
+                            .mul(deposit[currentPatron[tokenId]])
                             .div(patronageOwedByTokenPatron)
                     )
                 );
 
                 timeLastCollected[tokenId] = newTimeLastCollected;
-                timeLastCollectedPatron[currentOwner] = newTimeLastCollected;
+                timeLastCollectedPatron[currentPatron[tokenId]] = newTimeLastCollected;
                 collection = price[tokenId]
                     .mul(newTimeLastCollected.sub(previousTokenCollection))
                     .mul(patronageNumerator[tokenId])
                     .div(patronageDenominator)
                     .div(365 days);
-                deposit[currentOwner] = 0;
+
+                deposit[currentPatron[tokenId]] = 0;
                 _foreclose(tokenId);
             } else {
+                // just a normal collection
                 collection = price[tokenId]
                     .mul(now.sub(previousTokenCollection))
                     .mul(patronageNumerator[tokenId])
                     .div(patronageDenominator)
                     .div(365 days);
-
                 timeLastCollected[tokenId] = now;
-                timeLastCollectedPatron[currentOwner] = now;
+                timeLastCollectedPatron[currentPatron[tokenId]] = now;
                 currentCollected[tokenId] = currentCollected[tokenId].add(
                     collection
                 );
-                deposit[currentOwner] = deposit[currentOwner].sub(
-                    patronageOwedByTokenPatron
-                );
+                deposit[currentPatron[tokenId]] = deposit[currentPatron[tokenId]]
+                    .sub(patronageOwedByTokenPatron);
             }
             totalCollected[tokenId] = totalCollected[tokenId].add(collection);
             address benefactor = benefactors[tokenId];
             benefactorFunds[benefactor] = benefactorFunds[benefactor].add(
                 collection
             );
-            // if foreclosed, tokens are minted and sent to the steward since _foreclose is already called.
             emit CollectPatronage(
                 tokenId,
-                currentOwner,
-                deposit[currentOwner],
+                currentPatron[tokenId],
+                deposit[currentPatron[tokenId]],
                 collection
             );
         }
@@ -441,13 +362,7 @@ contract WildcardSteward_v2 is Initializable {
             address payable payableCurrentPatron = address(
                 uint160(tokenPatron)
             );
-            (bool transferSuccess, ) = payableCurrentPatron
-                .call
-                .gas(2300)
-                .value(totalToPayBack)("");
-            if (!transferSuccess) {
-                deposit[tokenPatron] = deposit[tokenPatron].add(totalToPayBack);
-            }
+            payableCurrentPatron.transfer(totalToPayBack);
         } else if (state[tokenId] == StewardState.Foreclosed) {
             state[tokenId] = StewardState.Owned;
             timeLastCollected[tokenId] = now;
@@ -498,15 +413,8 @@ contract WildcardSteward_v2 is Initializable {
 
     function withdrawBenefactorFundsTo(address payable benefactor) public {
         require(benefactorFunds[benefactor] > 0, "No funds available");
-        uint256 amountToWithdraw = benefactorFunds[benefactor];
+        benefactor.transfer(benefactorFunds[benefactor]);
         benefactorFunds[benefactor] = 0;
-
-        (bool transferSuccess, ) = benefactor.call.gas(2300).value(
-            amountToWithdraw
-        )("");
-        if (!transferSuccess) {
-            revert("Unable to withdraw benefactor funds");
-        }
     }
 
     function exit() public collectPatronageAddress(msg.sender) {
@@ -519,12 +427,7 @@ contract WildcardSteward_v2 is Initializable {
         require(deposit[msg.sender] >= _wei, "Withdrawing too much");
 
         deposit[msg.sender] = deposit[msg.sender].sub(_wei);
-
-        // msg.sender == patron
-        (bool transferSuccess, ) = msg.sender.call.gas(2300).value(_wei)("");
-        if (!transferSuccess) {
-            revert("Unable to withdraw deposit");
-        }
+        msg.sender.transfer(_wei); // msg.sender == patron
     }
 
     function _foreclose(uint256 tokenId) internal {
@@ -541,7 +444,7 @@ contract WildcardSteward_v2 is Initializable {
         state[tokenId] = StewardState.Foreclosed;
         currentCollected[tokenId] = 0;
 
-        emit Foreclosure(currentOwner, timeLastCollected[tokenId]);
+        emit Foreclosure(currentOwner);
     }
 
     function transferAssetTokenTo(
@@ -551,6 +454,7 @@ contract WildcardSteward_v2 is Initializable {
         address _newOwner,
         uint256 _newPrice
     ) internal {
+        // TODO: add the patronage rate as a multiplier here: https://github.com/wild-cards/contracts/issues/7
         totalPatronOwnedTokenCost[_newOwner] = totalPatronOwnedTokenCost[_newOwner]
             .add(_newPrice.mul(patronageNumerator[tokenId]));
         totalPatronOwnedTokenCost[_currentPatron] = totalPatronOwnedTokenCost[_currentPatron]
