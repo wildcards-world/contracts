@@ -231,17 +231,14 @@ contract WildcardSteward_v3 is Initializable {
         uint256[] memory tokens,
         address payable[] memory _benefactors,
         uint256[] memory _patronageNumerator,
-        // uint256[] memory _tokenGenerationRate,
         address[] memory _artists,
         uint256[] memory _artistCommission,
         uint256[] memory _releaseDate
     ) public onlyAdmin {
         assert(tokens.length == _benefactors.length);
         assert(tokens.length == _patronageNumerator.length);
-        // assert(tokens.length == _tokenGenerationRate.length);
-        assert(tokens.length == _artists.length);
-        assert(tokens.length == _artistCommission.length);
         assert(tokens.length == _releaseDate.length);
+        assert(_artists.length == _artistCommission.length);
 
         for (uint8 i = 0; i < tokens.length; ++i) {
             address benefactor = _benefactors[i];
@@ -270,16 +267,13 @@ contract WildcardSteward_v3 is Initializable {
                 tokenAuctionBeginTimestamp[i]
             );
             // Adding this after the add token emit, so graph can first capture the token before processing the change artist things
-            changeArtistAddressAndCommission(
-                tokens[i],
-                _artists[i],
-                _artistCommission[i]
-            );
-
-            // // No need to initialize this.
-            // if (timeLastCollectedBenefactor[benefactor] == 0) {
-            //     timeLastCollectedBenefactor[benefactor] = now;
-            // }
+            if (_artists.length > i) {
+                changeArtistAddressAndCommission(
+                    tokens[i],
+                    _artists[i],
+                    _artistCommission[i]
+                );
+            }
         }
     }
 

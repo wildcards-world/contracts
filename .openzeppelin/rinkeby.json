@@ -10,11 +10,11 @@
       "storage": null
     },
     "WildcardSteward": {
-      "address": "0x8dea417eBec909F9157783eA4e76A821107E6b80",
-      "constructorCode": "608060405234801561001057600080fd5b50614b5f806100206000396000f3fe",
-      "bodyBytecodeHash": "7e1e5db5385fc807bc1bc98689e3bcc8d6e671366f8c7d7550660f5c50662891",
-      "localBytecodeHash": "69aa084a01a9f39811190726b5eedfa780d00f63560160ff2ccafb07d4403bac",
-      "deployedBytecodeHash": "69aa084a01a9f39811190726b5eedfa780d00f63560160ff2ccafb07d4403bac",
+      "address": "0xA0C4FdeB76dE5a1594755a3472135aF87e75Bb42",
+      "constructorCode": "608060405234801561001057600080fd5b50614b60806100206000396000f3fe",
+      "bodyBytecodeHash": "13554e1b2ae7a91a822422e36dabe8241650aa26a1638c9d18a66cb9d7a5da4c",
+      "localBytecodeHash": "95472fa9f66f298cdde938ef06149f9f198f9ebfc2bdfe761b55fa179d63c97e",
+      "deployedBytecodeHash": "95472fa9f66f298cdde938ef06149f9f198f9ebfc2bdfe761b55fa179d63c97e",
       "types": null,
       "storage": null
     },
@@ -113,7 +113,7 @@
       {
         "address": "0xA20802b88b745784Fb7ca11AA75b4bdafC6DA0D5",
         "version": "0.1.0",
-        "implementation": "0x8dea417eBec909F9157783eA4e76A821107E6b80",
+        "implementation": "0xA0C4FdeB76dE5a1594755a3472135aF87e75Bb42",
         "admin": "0xca245fa71896eB677B13ff4A464E4e8dd68A7465",
         "kind": "Upgradeable"
       }
