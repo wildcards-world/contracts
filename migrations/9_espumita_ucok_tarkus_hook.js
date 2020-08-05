@@ -9,36 +9,35 @@ const tokenIdUcok = "14";
 const tokenIdTarkus = "15";
 const tokenIdHook = "16";
 const tokenIdMijungla = "17";
+const ajayuTokenId = "18";
+const arthurTokenId = "19";
+const aboTokenId = "20";
+const whackyCappyTokenId = "21";
+const sliceTokenId = "22";
+const charlesTokenId = "23";
+const starTokenId = "24";
+const tokenIdPendo = "25";
+
 const laSendaVerdeAddress = "0x6e2a8814bE551B263f9B95A721D32d33877Ee5Ec";
 const darwinAnimalDoctorsAddress = "0x233f9bcb02bfAD03aAcCb6cE40b6C4f83C867603";
 const tempWhaleConservancyAccount =
   "0x4245284F5D377E5d2d86306e836c8df33152c94e";
 const bdiAddress = "0xADad0D21ba0E4b356e2b2769e08CfeF206f83891";
 const saveWildAddress = "0xc0eD94f053E7Ee5f24DCebbfd4dcF16d8E767d5F";
-//                        6000000000000
+const pangolinAfricaAddress = "0x0471C0ADbF27c53FbCf122C829807bd3DE3fec55";
+
 const harbergerTaxRate = "6000000000000"; // Harberger tax rate of 600% per year
 const harbergerTaxRateTarkus = "2400000000000"; // Harberger tax rate of 240% per year
 const harbergerTaxRateHook = "2400000000000";
 const harbergerTaxRateMijungla = "6000000000000";
-
-const ajayuTokenId = "18";
-
 const ajayuHarbergerTaxRateAnimal = "600" + "0000000000";
-
-const arthurTokenId = "19";
-
 const arthurHarbergerTaxRateAnimal = "240" + "0000000000";
-
-const aboTokenId = "20";
-
 const aboHarbergerTaxRateAnimal = "120" + "0000000000"; // Harberger tax rate of 120% per year
-
-const whackyCappyTokenId = "21";
-
-const whackyCappyHarbergerTaxRateAnimal = "240" + "0000000000"; // Harberger tax rate of 120% per year
-const sliceTokenId = "22";
-
+const whackyCappyHarbergerTaxRateAnimal = "240" + "0000000000"; // Harberger tax rate of 240% per year
 const sliceHarbergerTaxRateAnimal = "120" + "0000000000"; // Harberger tax rate of 120% per year
+const charlesHarbergerTaxRate = "6000000000000"; // Harberger tax rate of 600% per year
+const starHarbergerTaxRateAnimal = "240" + "0000000000"; // Harberger tax rate of 240% per year
+const harbergerTaxRatePendo = "120" + "0000000000"; // Harberger tax rate of 600% per year
 
 module.exports = function(deployer, networkName, accounts) {
   deployer.then(async () => {
@@ -115,6 +114,24 @@ module.exports = function(deployer, networkName, accounts) {
         `https://wildcards.xyz/token/${sliceTokenId}`,
         { from: accounts[0], gas: 681877 }
       ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        starTokenId,
+        `https://wildcards.xyz/token/${charlesTokenId}`,
+        { from: accounts[0], gas: 681877 }
+      ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        starTokenId,
+        `https://wildcards.xyz/token/${starTokenId}`,
+        { from: accounts[0], gas: 681877 }
+      ),
+      patronageToken.mintWithTokenURI(
+        steward.address,
+        starTokenId,
+        `https://wildcards.xyz/token/${tokenIdPendo}`,
+        { from: accounts[0], gas: 681877 }
+      ),
     ]);
 
     await steward.listNewTokens(
@@ -129,6 +146,9 @@ module.exports = function(deployer, networkName, accounts) {
         aboTokenId,
         whackyCappyTokenId,
         sliceTokenId,
+        charlesTokenId,
+        starTokenId,
+        tokenIdPendo,
       ],
       [
         laSendaVerdeAddress,
@@ -141,6 +161,9 @@ module.exports = function(deployer, networkName, accounts) {
         bdiAddress,
         bdiAddress,
         tempWhaleConservancyAccount,
+        bdiAddress,
+        tempWhaleConservancyAccount,
+        pangolinAfricaAddress,
       ],
       [
         harbergerTaxRate,
@@ -153,6 +176,9 @@ module.exports = function(deployer, networkName, accounts) {
         aboHarbergerTaxRateAnimal,
         whackyCappyHarbergerTaxRateAnimal,
         sliceHarbergerTaxRateAnimal,
+        charlesHarbergerTaxRate,
+        starHarbergerTaxRateAnimal,
+        harbergerTaxRatePendo,
       ],
       [
         receiptGenerationRate,
@@ -165,8 +191,11 @@ module.exports = function(deployer, networkName, accounts) {
         receiptGenerationRate,
         receiptGenerationRate,
         receiptGenerationRate,
+        receiptGenerationRate,
+        receiptGenerationRate,
+        receiptGenerationRate,
       ],
-      { from: accounts[0], gas: 6152250 }
+      { from: accounts[0], gas: 9152250 }
     );
   });
 };

@@ -85,10 +85,9 @@ contract WildcardSteward_v3 is Initializable {
         uint256 remainingDeposit
     );
 
-    event AddToken(
+    event AddTokenV3(
         uint256 indexed tokenId,
         uint256 patronageNumerator,
-        // uint256 tokenGenerationRate,
         uint256 unixTimestampOfTokenAuctionStart
     );
 
@@ -100,12 +99,6 @@ contract WildcardSteward_v3 is Initializable {
         uint256 remainingDeposit,
         uint256 amountReceived
     );
-    // Removing this, no longer needed.
-    // event CollectLoyalty(
-    //     uint256 indexed tokenId,
-    //     address indexed patron,
-    //     uint256 amountRecieved
-    // );
     event CollectLoyalty(address indexed patron, uint256 amountRecieved);
 
     event ArtistCommission(
@@ -122,6 +115,7 @@ contract WildcardSteward_v3 is Initializable {
         uint256 withdrawAmount
     );
     event UpgradeToV3();
+    event ChangeAuctionParameters();
 
     modifier onlyPatron(uint256 tokenId) {
         require(msg.sender == assetToken.ownerOf(tokenId), "Not patron");
@@ -237,17 +231,14 @@ contract WildcardSteward_v3 is Initializable {
         uint256[] memory tokens,
         address payable[] memory _benefactors,
         uint256[] memory _patronageNumerator,
-        // uint256[] memory _tokenGenerationRate,
         address[] memory _artists,
         uint256[] memory _artistCommission,
         uint256[] memory _releaseDate
     ) public onlyAdmin {
         assert(tokens.length == _benefactors.length);
         assert(tokens.length == _patronageNumerator.length);
-        // assert(tokens.length == _tokenGenerationRate.length);
-        assert(tokens.length == _artists.length);
-        assert(tokens.length == _artistCommission.length);
         assert(tokens.length == _releaseDate.length);
+        assert(_artists.length == _artistCommission.length);
 
         for (uint8 i = 0; i < tokens.length; ++i) {
             address benefactor = _benefactors[i];
@@ -269,23 +260,20 @@ contract WildcardSteward_v3 is Initializable {
                 tokenAuctionBeginTimestamp[tokens[i]] = _releaseDate[i];
             }
 
-            emit AddToken(
+            emit AddTokenV3(
                 tokens[i],
                 _patronageNumerator[i],
                 // _tokenGenerationRate[i],
                 tokenAuctionBeginTimestamp[i]
             );
             // Adding this after the add token emit, so graph can first capture the token before processing the change artist things
-            changeArtistAddressAndCommission(
-                tokens[i],
-                _artists[i],
-                _artistCommission[i]
-            );
-
-            // // No need to initialize this.
-            // if (timeLastCollectedBenefactor[benefactor] == 0) {
-            //     timeLastCollectedBenefactor[benefactor] = now;
-            // }
+            if (_artists.length > i) {
+                changeArtistAddressAndCommission(
+                    tokens[i],
+                    _artists[i],
+                    _artistCommission[i]
+                );
+            }
         }
     }
 
@@ -296,6 +284,7 @@ contract WildcardSteward_v3 is Initializable {
         uint256 _auctionEndPrice,
         uint256 _auctionLength
     ) public notNullAddress(_withdrawCheckerAdmin) {
+        emit UpgradeToV3();
         // This function effectively needs to call both _collectPatronage and _collectPatronagePatron from the v2 contract.
         require(withdrawCheckerAdmin == address(0));
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
@@ -366,7 +355,6 @@ contract WildcardSteward_v3 is Initializable {
             _auctionEndPrice,
             _auctionLength
         );
-        emit UpgradeToV3();
     }
 
     function changeReceivingBenefactor(
@@ -453,6 +441,7 @@ contract WildcardSteward_v3 is Initializable {
         auctionStartPrice = _auctionStartPrice;
         auctionEndPrice = _auctionEndPrice;
         auctionLength = _auctionLength;
+        emit ChangeAuctionParameters();
     }
 
     function changeAuctionParameters(
@@ -863,7 +852,10 @@ contract WildcardSteward_v3 is Initializable {
         validWildcardsPercentage(wildcardsPercentage, tokenId)
     {
         require(state[tokenId] == StewardState.Owned, "token on auction");
-        require(price[tokenId] == previousPrice, "must specify current price ");
+        require(
+            price[tokenId] == previousPrice,
+            "must specify current price accurately"
+        );
 
         _distributePurchaseProceeds(tokenId);
 

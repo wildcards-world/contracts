@@ -1,15 +1,15 @@
 const { ConfigManager, scripts } = require("@openzeppelin/cli");
 const { add, push, update } = scripts;
 
-const WildcardSteward_v0 = artifacts.require("WildcardSteward_v0");
-const WildcardSteward_v3 = artifacts.require("WildcardSteward_v3");
+const ERC721Patronage_v0 = artifacts.require("ERC721Patronage_v0");
+const ERC721Patronage_v2 = artifacts.require("ERC721Patronage_v2");
 
 const adminCheckerAddress = "0xDcC54cd9876230571bB68cC6d38ddeFc50095224";
 
 async function deploy(options) {
   console.log(options);
   add({
-    contractsData: [{ name: "WildcardSteward_v3", alias: "WildcardSteward" }],
+    contractsData: [{ name: "ERC721Patronage_v2", alias: "ERC721Patronage" }],
   });
 
   // Push implementation contracts to the network
@@ -18,14 +18,14 @@ async function deploy(options) {
   // Update instance, adding +10 to value as part of the migration
   let result = await update({
     ...options,
-    contractAlias: "WildcardSteward",
+    contractAlias: "ERC721Patronage",
   });
 
   console.log(result);
 
   // // Validate that the upgrade was successful:
-  // const steward_v0 = await WildcardSteward_v0.deployed();
-  // const steward = await WildcardSteward_v3.at(steward_v0.address);
+  // const steward_v0 = await ERC721Patronage_v0.deployed();
+  // const steward = await ERC721Patronage_v2.at(steward_v0.address);
 }
 
 module.exports = function(deployer, networkName, accounts) {
