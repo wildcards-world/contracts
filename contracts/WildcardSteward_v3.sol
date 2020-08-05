@@ -263,8 +263,7 @@ contract WildcardSteward_v3 is Initializable {
             emit AddTokenV3(
                 tokens[i],
                 _patronageNumerator[i],
-                // _tokenGenerationRate[i],
-                tokenAuctionBeginTimestamp[i]
+                tokenAuctionBeginTimestamp[tokens[i]]
             );
             // Adding this after the add token emit, so graph can first capture the token before processing the change artist things
             if (_artists.length > i) {
