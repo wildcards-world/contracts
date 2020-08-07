@@ -4,6 +4,8 @@ const WildcardSteward_v0 = artifacts.require("WildcardSteward_v0");
 const patronageNumerator = 2400000000000;
 const patronageDenominator = 1000000000000;
 
+const {increaseTime, getWeb3 } = require("./testing/index.js");
+
 const image1MetadataJson = {
   artist: "Matty Fraser",
   name: "Simon",
@@ -23,6 +25,7 @@ const image2MetadataJson = {
 const image2MetadataString = JSON.stringify(image2MetadataJson);
 
 module.exports = function (deployer, networkName, accounts) {
+  console.log("testutils",getWeb3,increaseTime)
   deployer.then(async () => {
     // Don't try to deploy/migrate the contracts for tests
     if (networkName === "test") {
@@ -63,8 +66,12 @@ module.exports = function (deployer, networkName, accounts) {
     console.log({ stewardAdd: steward.address, pToken: patronageToken.address });
 
     if (networkName === "subgraphTest") {
-      const result = await steward.buy(0, 1234568, { from: accounts[1], value: 2234568 });
-      console.log(JSON.stringify(result, null, 2));
+      const web3 = getWeb3("http://localhost:8545")
+      const result1 = await steward.buy(0, 1234568, { from: accounts[1], value: 2234568 });
+      console.log(JSON.stringify(result1, null, 2));
+      await increaseTime(web3, 2*60); // 2 minutes increase
+      const result2 = await steward.buy(1, 1234568, { from: accounts[1], value: 2234568 });
+      console.log(JSON.stringify(result2, null, 2));
     }
   });
 };
