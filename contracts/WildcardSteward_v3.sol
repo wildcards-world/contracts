@@ -54,10 +54,10 @@ contract WildcardSteward_v3 is Initializable {
     uint256 public auctionEndPrice;
     uint256 public auctionLength;
 
-    mapping(uint256 => address) artistAddresses; //mapping from tokenID to the artists address
-    mapping(uint256 => uint256) wildcardsPercentages; // mapping from tokenID to the percentage sale cut of wildcards for each token
-    mapping(uint256 => uint256) artistPercentages; // tokenId to artist percetages. To make it configurable. 10 000 = 100%
-    mapping(uint256 => uint256) tokenAuctionBeginTimestamp;
+    mapping(uint256 => address) public artistAddresses; //mapping from tokenID to the artists address
+    mapping(uint256 => uint256) public wildcardsPercentages; // mapping from tokenID to the percentage sale cut of wildcards for each token
+    mapping(uint256 => uint256) public artistPercentages; // tokenId to artist percetages. To make it configurable. 10 000 = 100%
+    mapping(uint256 => uint256) public tokenAuctionBeginTimestamp;
 
     mapping(address => uint256) public totalPatronTokenGenerationRate; // The total token generation rate for all the tokens of the given address.
     mapping(address => uint256) public totalBenefactorTokenNumerator;
@@ -263,8 +263,7 @@ contract WildcardSteward_v3 is Initializable {
             emit AddTokenV3(
                 tokens[i],
                 _patronageNumerator[i],
-                // _tokenGenerationRate[i],
-                tokenAuctionBeginTimestamp[i]
+                tokenAuctionBeginTimestamp[tokens[i]]
             );
             // Adding this after the add token emit, so graph can first capture the token before processing the change artist things
             if (_artists.length > i) {
