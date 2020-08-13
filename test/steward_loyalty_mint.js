@@ -1,26 +1,12 @@
-const {
-  BN,
-  expectRevert,
-  ether,
-  expectEvent,
-  balance,
-  time
-} = require("@openzeppelin/test-helpers");
+const { BN, ether, time } = require("@openzeppelin/test-helpers");
 const {
   multiTokenCalculator,
+  initialize,
+  setupTimeManager,
+  isCoverage,
   waitTillBeginningOfSecond,
-  STEWARD_CONTRACT_NAME,
-  ERC20_CONTRACT_NAME,
-  ERC721_CONTRACT_NAME,
-  MINT_MANAGER_CONTRACT_NAME
+  globalTokenGenerationRate,
 } = require("./helpers");
-
-const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
-const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
-const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
-const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
-
-const PATRONAGE_DENOMINATOR = "1";
 
 const SECONDS_IN_A_MINUTE = "60";
 const TREASURY_NUMERATOR = "20"; // This indicates a 20% rate of tokens treasury collects
@@ -31,84 +17,94 @@ const tenMinPatronageAt1Eth = ether("1")
   .div(new BN("1"))
   .div(new BN("31536000"));
 
-contract("WildcardSteward owed", accounts => {
-  let erc721;
+contract("WildcardSteward loyalty token", (accounts) => {
   let steward;
   let erc20;
-  const testToken1 = { id: 1, tokenGenerationRate: 1 };
-  const testToken2 = { id: 2, tokenGenerationRate: 2 };
-  const patronageNumerator = 12;
-  const testTokenURI = "test token uri";
+  const patronageNumerator = "12000000000000";
+  const artistAddress = accounts[9];
+  const artistCommission = 0;
+
+  const benefactorAddress = accounts[8];
+  const withdrawCheckerAdmin = accounts[6];
+  const admin = accounts[0];
+  const zeroEther = ether("0");
+  const auctionEndPrice = zeroEther;
+  const auctionStartPrice = zeroEther;
+  const auctionDuration = new BN(86400);
+  const tokenDefaults = {
+    benefactor: benefactorAddress,
+    patronageNumerator,
+    artist: artistAddress,
+    artistCommission,
+    releaseDate: 0,
+  };
+  const tokenDetails = [
+    {
+      ...tokenDefaults,
+      token: "0",
+    },
+    {
+      ...tokenDefaults,
+      token: "1",
+    },
+    {
+      ...tokenDefaults,
+      token: "2",
+    },
+  ];
+  let setNextTxTimestamp,
+    timeSinceTimestamp,
+    getCurrentTimestamp,
+    timeSince,
+    txTimestamp;
+
+  before(async () => {
+    const timeManager = await setupTimeManager(web3);
+    setNextTxTimestamp = timeManager.setNextTxTimestamp; // takes in duration
+    timeSinceTimestamp = timeManager.timeSinceTimestamp; // takes in old timestamp, returns current time
+    getCurrentTimestamp = timeManager.getCurrentTimestamp; // returns timestamp of a given transaction
+    timeSince = timeManager.timeSince; // returns interval between two timestamps
+    txTimestamp = timeManager.txTimestamp; // returns timestamp of a given transaction
+  });
 
   beforeEach(async () => {
-    erc721 = await ERC721token.new({ from: accounts[0] });
-    steward = await WildcardSteward.new({ from: accounts[0] });
-    mintManager = await MintManager.new({ from: accounts[0] });
-    erc20 = await ERC20token.new("Wildcards Loyalty Token", "WLT", 18, {
-      from: accounts[0]
-    });
-    await mintManager.initialize(accounts[0], steward.address, erc20.address, {
-      from: accounts[0]
-    });
-    await erc721.setup(
-      steward.address,
-      "ALWAYSFORSALETestToken",
-      "AFSTT",
-      accounts[0],
-      { from: accounts[0] }
+    const result = await initialize(
+      admin,
+      withdrawCheckerAdmin,
+      auctionStartPrice,
+      auctionEndPrice,
+      auctionDuration,
+      tokenDetails
     );
-    await erc20.addMinter(mintManager.address, {
-      from: accounts[0]
-    });
-    await erc20.renounceMinter({ from: accounts[0] });
+    steward = result.steward;
+    erc20 = result.erc20;
 
-    await erc721.mintWithTokenURI(steward.address, 1, testTokenURI, {
-      from: accounts[0]
-    });
-    await erc721.mintWithTokenURI(steward.address, 2, testTokenURI, {
-      from: accounts[0]
-    });
-    // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
-    await steward.initialize(
-      erc721.address,
-      accounts[0],
-      PATRONAGE_DENOMINATOR
-    );
-    await steward.updateToV2(mintManager.address, [], []);
-    await steward.listNewTokens(
-      [testToken1.id, testToken2.id],
-      [accounts[0], accounts[0]],
-      [patronageNumerator, patronageNumerator],
-      [testToken1.tokenGenerationRate, testToken2.tokenGenerationRate]
-    );
+    if (isCoverage) await waitTillBeginningOfSecond();
   });
 
   it("steward: loyalty-mint. Checking correct number of tokens are received after holding a token for  100min", async () => {
-    await waitTillBeginningOfSecond();
-    testTokenId1 = testToken1.id;
+    testTokenId1 = tokenDetails[0].token;
     const timeHeld = 100; // In minutes
     // Person buys a token
-    await steward.buy(testTokenId1, web3.utils.toWei("1", "ether"), {
+    await steward.buyAuction(testTokenId1, ether("1"), 50000, {
       from: accounts[2],
-      value: web3.utils.toWei("1", "ether")
+      value: ether("2"),
     });
 
     // TIME INCREASES HERE BY timeHeld
-    await time.increase(time.duration.minutes(timeHeld));
+    await setNextTxTimestamp(time.duration.minutes(timeHeld));
     // First token bought from patron [Collect patronage will therefore be called]
-    await steward.buy(testTokenId1, ether("1"), {
+    await steward.buy(testTokenId1, ether("1"), ether("1"), 50000, {
       from: accounts[3],
-      value: ether("2")
+      value: ether("2"),
     });
 
-    const expectedTokens = multiTokenCalculator(
-      new BN(timeHeld).mul(new BN(SECONDS_IN_A_MINUTE)).toString(),
-      [
-        {
-          tokenGenerationRate: testToken1.tokenGenerationRate.toString()
-        }
-      ]
-    );
+    const expectedTokens = multiTokenCalculator([
+      {
+        timeHeld: new BN(timeHeld).mul(new BN(SECONDS_IN_A_MINUTE)).toString(),
+        tokenGenerationRate: globalTokenGenerationRate,
+      },
+    ]);
     const amountOfToken = await erc20.balanceOf(accounts[2]);
 
     const amountOfTreasuryToken = await erc20.balanceOf(accounts[0]); // stewards account
@@ -124,82 +120,172 @@ contract("WildcardSteward owed", accounts => {
   });
 
   it("steward: loyalty-mint. Checking correct number of tokens received after holding 2 different token for  100min", async () => {
-    await waitTillBeginningOfSecond();
-    testTokenId1 = testToken1.id;
-    testTokenId2 = testToken2.id;
+    const testTokenId1 = tokenDetails[0].token;
+    const testTokenId2 = tokenDetails[1].token;
     const timeHeld = 100; // In minutes
     // Person buys a token
-    await steward.buy(testTokenId1, web3.utils.toWei("1", "ether"), {
+    await steward.buyAuction(testTokenId1, ether("1"), 50000, {
       from: accounts[2],
-      value: web3.utils.toWei("1", "ether")
+      value: ether("2"),
     });
-
-    await steward.buy(testTokenId2, web3.utils.toWei("1", "ether"), {
+    const timeBetweenTransactions = new BN(50);
+    await setNextTxTimestamp(timeBetweenTransactions);
+    await steward.buyAuction(testTokenId2, ether("1"), 50000, {
       from: accounts[2],
-      value: web3.utils.toWei("1", "ether")
+      value: ether("2"),
     });
 
     // TIME INCREASES HERE BY timeHeld
-    await time.increase(time.duration.minutes(timeHeld));
+    await setNextTxTimestamp(
+      time.duration.minutes(timeHeld).sub(timeBetweenTransactions)
+      // .sub(new BN(1))
+    );
     // First token bought from patron [Collect patronage will therefore be called]
-    await steward.buy(testTokenId1, ether("1"), {
+    await steward.buy(testTokenId1, ether("1"), ether("1"), 50000, {
       from: accounts[3],
-      value: ether("2")
-    });
-    await steward.buy(testTokenId2, ether("1"), {
-      from: accounts[3],
-      value: ether("2")
+      value: ether("2"),
     });
 
-    const expectedTokens = multiTokenCalculator(
-      new BN(timeHeld).mul(new BN(SECONDS_IN_A_MINUTE)).toString(),
-      [
-        {
-          tokenGenerationRate: testToken1.tokenGenerationRate.toString()
-        },
-        {
-          tokenGenerationRate: testToken2.tokenGenerationRate.toString()
-        }
-      ]
-    );
+    await setNextTxTimestamp(timeBetweenTransactions);
+    await steward.buy(testTokenId2, ether("1"), ether("1"), 50000, {
+      from: accounts[3],
+      value: ether("2"),
+    });
+
+    const expectedTokens = multiTokenCalculator([
+      {
+        timeHeld: new BN(timeHeld).mul(new BN(SECONDS_IN_A_MINUTE)).toString(),
+        tokenGenerationRate: globalTokenGenerationRate,
+      },
+      {
+        timeHeld: new BN(timeHeld).mul(new BN(SECONDS_IN_A_MINUTE)).toString(),
+        tokenGenerationRate: globalTokenGenerationRate,
+      },
+    ]);
+    const expectedTreasuryTokensFromUser2 = multiTokenCalculator([
+      {
+        timeHeld: timeBetweenTransactions,
+        tokenGenerationRate: globalTokenGenerationRate,
+      },
+    ]).div(new BN(5) /* since 20% goes to the organisation */);
     const amountOfToken = await erc20.balanceOf(accounts[2]);
 
     const amountOfTreasuryToken = await erc20.balanceOf(accounts[0]); // stewards account
+
     const expectedTreasuryToken = new BN(expectedTokens)
       .mul(new BN(TREASURY_NUMERATOR))
-      .div(new BN(TREASURY_DENOMINATOR));
+      .div(new BN(TREASURY_DENOMINATOR))
+      .add(expectedTreasuryTokensFromUser2);
 
-    assert.equal(amountOfToken.toString(), expectedTokens.toString());
+    if (!isCoverage)
+      assert.equal(amountOfToken.toString(), expectedTokens.toString());
     assert.equal(
       amountOfTreasuryToken.toString(),
       expectedTreasuryToken.toString()
     );
   });
 
-  it("steward: loyalty-mint. Checking correct number of tokens are recieved/minted after foreclosure.", async () => {
-    await waitTillBeginningOfSecond();
-    testTokenId1 = testToken1.id;
+  it("steward: loyalty-mint. Checking correct number of tokens are received/minted after foreclosure.", async () => {
+    testTokenId1 = tokenDetails[0].token;
     const timeHeld = 10; // In minutes
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
 
-    await steward.buy(testTokenId1, ether("1"), {
-      from: accounts[2],
-      value: totalToBuy
+    await steward.changeAuctionParameters(ether("0"), ether("0"), 86400, {
+      from: accounts[0],
     });
 
-    await time.increase(time.duration.minutes(15));
+    await steward.buyAuction(testTokenId1, ether("1"), 50000, {
+      from: accounts[2],
+      value: totalToBuy,
+    });
+
+    await setNextTxTimestamp(time.duration.minutes(150));
     // foreclosure should happen here (since patraonge was only for 10min)
-    await steward._collectPatronage(testTokenId1, { from: accounts[2] });
+    await steward._collectPatronageAndSettleBenefactor(testTokenId1, {
+      from: accounts[2],
+    });
 
     // should only receive 10min of tokens
-    const expectedTokens = multiTokenCalculator(
-      new BN(timeHeld).mul(new BN(SECONDS_IN_A_MINUTE)).toString(),
-      [
-        {
-          tokenGenerationRate: testToken1.tokenGenerationRate.toString()
-        }
-      ]
+    const expectedTokens = multiTokenCalculator([
+      {
+        timeHeld: new BN(timeHeld).mul(new BN(SECONDS_IN_A_MINUTE)).toString(),
+        tokenGenerationRate: globalTokenGenerationRate,
+      },
+    ]);
+    const amountOfToken = await erc20.balanceOf(accounts[2]);
+
+    const amountOfTreasuryToken = await erc20.balanceOf(accounts[0]); // stewards account
+    const expectedTreasuryToken = new BN(expectedTokens)
+      .mul(new BN(TREASURY_NUMERATOR))
+      .div(new BN(TREASURY_DENOMINATOR));
+
+    assert.equal(
+      amountOfToken.toString(),
+      expectedTokens.toString(),
+      "the correct amount of tokens should be minted for the patron"
     );
+    assert.equal(
+      amountOfTreasuryToken.toString(),
+      expectedTreasuryToken.toString(),
+      "the correct amount of tokens should be minted for wildcards"
+    );
+  });
+
+  it("steward: loyalty-mint. Checking that loyalty tokens are minted for all tokens owned by the current owner.", async () => {
+    testTokenId1 = tokenDetails[0].token;
+    testTokenId2 = tokenDetails[1].token;
+    testTokenId3 = tokenDetails[2].token;
+    const timeHeld = 10; // In minutes
+    const totalToBuy = new BN(tenMinPatronageAt1Eth);
+
+    await steward.changeAuctionParameters(ether("0"), ether("0"), 86400, {
+      from: accounts[0],
+    });
+
+    const buy1Timestamp = await txTimestamp(
+      steward.buyAuction(testTokenId1, ether("1"), 50000, {
+        from: accounts[2],
+        value: totalToBuy,
+      })
+    );
+    await setNextTxTimestamp(new BN(5)); // put a multiple of 5 as time between transactions so that rounding doesn't cause maths issues.
+    const buy2Timestamp = await txTimestamp(
+      steward.buyAuction(testTokenId2, ether("1"), 50000, {
+        from: accounts[2],
+        value: totalToBuy,
+      })
+    );
+    await setNextTxTimestamp(new BN(5)); // put a multiple of 5 as time between transactions so that rounding doesn't cause maths issues.
+    const buy3Timestamp = await txTimestamp(
+      steward.buyAuction(testTokenId3, ether("1"), 50000, {
+        from: accounts[2],
+        value: totalToBuy,
+      })
+    );
+
+    const foreclosureTime = await steward.foreclosureTimePatron(accounts[2]);
+
+    await setNextTxTimestamp(time.duration.minutes(15));
+    // foreclosure should happen here (since patraonge was only for 10min)
+    await steward._collectPatronageAndSettleBenefactor(testTokenId1, {
+      from: accounts[2],
+    });
+
+    // should only receive 10min of tokens
+    const expectedTokens = multiTokenCalculator([
+      {
+        timeHeld: timeSince(buy1Timestamp, foreclosureTime).toString(),
+        tokenGenerationRate: globalTokenGenerationRate,
+      },
+      {
+        timeHeld: timeSince(buy2Timestamp, foreclosureTime).toString(),
+        tokenGenerationRate: globalTokenGenerationRate,
+      },
+      {
+        timeHeld: timeSince(buy3Timestamp, foreclosureTime).toString(),
+        tokenGenerationRate: globalTokenGenerationRate,
+      },
+    ]);
     const amountOfToken = await erc20.balanceOf(accounts[2]);
 
     const amountOfTreasuryToken = await erc20.balanceOf(accounts[0]); // stewards account
@@ -208,39 +294,30 @@ contract("WildcardSteward owed", accounts => {
       .div(new BN(TREASURY_DENOMINATOR));
 
     assert.equal(amountOfToken.toString(), expectedTokens.toString());
-    assert.equal(
-      amountOfTreasuryToken.toString(),
-      expectedTreasuryToken.toString()
-    );
-  });
-
-  it("steward: loyalty-mint. Checking MintManager cannot be altered after intial set up.", async () => {
-    await waitTillBeginningOfSecond();
-
-    await expectRevert(
-      steward.setMintManager(accounts[5], { from: accounts[5] }),
-      "Only set on initialisation"
-    );
+    if (!isCoverage)
+      assert.equal(
+        amountOfTreasuryToken.toString(),
+        expectedTreasuryToken.toString()
+      );
   });
 
   it("steward: loyalty-mint. Checking Minted erc20's can be sent between parties for sanity.", async () => {
-    await waitTillBeginningOfSecond();
-    testTokenId1 = testToken1.id;
+    testTokenId1 = tokenDetails[0].token;
     const timeHeld = 100;
 
-    await steward.buy(testTokenId1, web3.utils.toWei("1", "ether"), {
+    await steward.buyAuction(testTokenId1, ether("1"), 50000, {
       from: accounts[2],
-      value: web3.utils.toWei("1", "ether")
+      value: ether("2"),
     });
     await time.increase(time.duration.minutes(timeHeld));
-    await steward.buy(testTokenId1, ether("1"), {
+    await steward.buy(testTokenId1, ether("1"), ether("1"), 50000, {
       from: accounts[7],
-      value: ether("2")
+      value: ether("2"),
     });
 
     const amountToTransfer = 100;
     await erc20.transfer(accounts[3], amountToTransfer, {
-      from: accounts[2]
+      from: accounts[2],
     });
     const amountOfTokenTransferred = await erc20.balanceOf(accounts[3]);
 

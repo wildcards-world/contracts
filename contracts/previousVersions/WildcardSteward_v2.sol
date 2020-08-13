@@ -1,7 +1,6 @@
-pragma solidity 0.5.16;
-import "./ERC721Patronage_v1.sol";
-import "./MintManager_v2.sol";
-
+pragma solidity 0.5.17;
+import "../ERC721Patronage_v1.sol";
+import "../MintManager_v2.sol";
 
 contract WildcardSteward_v2 is Initializable {
     /*
