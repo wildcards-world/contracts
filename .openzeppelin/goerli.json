@@ -1,20 +1,20 @@
 {
   "contracts": {
     "WildcardSteward": {
-      "address": "0x93c05bcA4867E480B447322051d73Ab83d4E228f",
-      "constructorCode": "608060405234801561001057600080fd5b50612c80806100206000396000f3fe",
-      "bodyBytecodeHash": "4baea267943ea36e59d6ccd77a8f9525957ae8933b38490156ff4346e997e652",
-      "localBytecodeHash": "cf71322ea5b50b51f35de382120075b885762889c900bc9ff523b8a6fa0f10c3",
-      "deployedBytecodeHash": "cf71322ea5b50b51f35de382120075b885762889c900bc9ff523b8a6fa0f10c3",
+      "address": "0xeb37A6dF956F1997085498aDd98b25a2f633d83F",
+      "constructorCode": "608060405234801561001057600080fd5b50614b60806100206000396000f3fe",
+      "bodyBytecodeHash": "13554e1b2ae7a91a822422e36dabe8241650aa26a1638c9d18a66cb9d7a5da4c",
+      "localBytecodeHash": "95472fa9f66f298cdde938ef06149f9f198f9ebfc2bdfe761b55fa179d63c97e",
+      "deployedBytecodeHash": "95472fa9f66f298cdde938ef06149f9f198f9ebfc2bdfe761b55fa179d63c97e",
       "types": null,
       "storage": null
     },
     "ERC721Patronage": {
-      "address": "0xE95E7C5C94332fF7c38E71cE69dDaE81324f580d",
-      "constructorCode": "6080604052612459806100136000396000f3fe",
-      "bodyBytecodeHash": "b18ac95bd4d376d45c47fc97ca7e752c513f44d3fb8643aef1c364661503d497",
-      "localBytecodeHash": "c8c2d3ca5ed33babe343b31b1798bedaedcdded59ec10d5e12ce94b18b8cb1b2",
-      "deployedBytecodeHash": "c8c2d3ca5ed33babe343b31b1798bedaedcdded59ec10d5e12ce94b18b8cb1b2",
+      "address": "0x229Cb219F056A9097b2744594Bc37597380854E8",
+      "constructorCode": "608060405261266f806100136000396000f3fe",
+      "bodyBytecodeHash": "5d8614b4f5332ee21c99fdea74c52f044e4d29330454f0caaf8d2f8161e8d766",
+      "localBytecodeHash": "3cdf5f9939960124f3b8052816896206b528734bcd2a60f4afcebdec0a7932a0",
+      "deployedBytecodeHash": "3cdf5f9939960124f3b8052816896206b528734bcd2a60f4afcebdec0a7932a0",
       "types": null,
       "storage": null
     },
@@ -34,7 +34,7 @@
       {
         "address": "0x0C00CFE8EbB34fE7C31d4915a43Cde211e9F0F3B",
         "version": "0.1.0",
-        "implementation": "0x1a69129B3D25FAd7c12c0D5827a1471577e9943a",
+        "implementation": "0xeb37A6dF956F1997085498aDd98b25a2f633d83F",
         "admin": "0xB8bAa0b4bd356b3f643047DF729F62F401F4DB2d",
         "kind": "Upgradeable"
       }
@@ -43,7 +43,7 @@
       {
         "address": "0x6Da7DD22A9c1B6bC7b2Ba9A540A37EC786E30eA7",
         "version": "0.1.0",
-        "implementation": "0x41870482f23d5A6020f4E59Fcad3f5E11A4E66AE",
+        "implementation": "0x229Cb219F056A9097b2744594Bc37597380854E8",
         "admin": "0xB8bAa0b4bd356b3f643047DF729F62F401F4DB2d",
         "kind": "Upgradeable"
       }

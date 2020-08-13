@@ -10,7 +10,7 @@
       "constant": false,
       "inputs": [
         {
-          "internalType": "contract WildcardSteward_v2",
+          "internalType": "contract WildcardSteward_v3",
           "name": "stewardAddress",
           "type": "address"
         },
@@ -35,7 +35,7 @@
       "constant": false,
       "inputs": [
         {
-          "internalType": "contract WildcardSteward_v2",
+          "internalType": "contract WildcardSteward_v3",
           "name": "stewardAddress",
           "type": "address"
         },
@@ -52,41 +52,41 @@
       "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.5.16+commit.9c3226ce\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"contract WildcardSteward_v2\",\"name\":\"stewardAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"newPrice\",\"type\":\"uint256\"}],\"name\":\"buyOnBehalf\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"contract WildcardSteward_v2\",\"name\":\"stewardAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"withdrawDeposit\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/home/jasoons/Documents/clean-code/contracts/contracts/tests/SendBlockAttacker.sol\":\"SendBlockAttacker\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/jasoons/Documents/clean-code/contracts/contracts/ERC721Patronage_v1.sol\":{\"keccak256\":\"0x4bcf3f2299c70355d33dc8af9bd0a99f2878114b2d5b209a9adf4352404d374d\",\"urls\":[\"bzz-raw://50bd232822e582b946a02b4443d9f812453498084b0a3af285c789d9cdcb07d2\",\"dweb:/ipfs/QmNPKJWhRCVAqdpsBQReugCf8LNdd85rUUDAky8HseUw5h\"]},\"/home/jasoons/Documents/clean-code/contracts/contracts/MintManager_v2.sol\":{\"keccak256\":\"0x5409de9e707a34cd0a5f220693bf59cf23a22ab3d12e6b7cf7d11f4f50a8c9af\",\"urls\":[\"bzz-raw://43c58df84ebf64b5367c34f2af12d96f1c7f4c1eaca5e21cf77865be977d21b2\",\"dweb:/ipfs/QmTrNhgNQGYEQ4JGZMGVrrzV4aMF7n7dHN41gsitG8fGQY\"]},\"/home/jasoons/Documents/clean-code/contracts/contracts/WildcardSteward_v2.sol\":{\"keccak256\":\"0x50d97986407042cdd80dc0890616a2c86b8b50bbed64f04d9973628b41b198bf\",\"urls\":[\"bzz-raw://100e4c3b06f70f10e7844f0668750229b5b4076c627f9b4f725f4ffd380bc01e\",\"dweb:/ipfs/Qmbno6Bf751TBRtfHMnkWYpXoESvcURDaDverij4kkCjuD\"]},\"/home/jasoons/Documents/clean-code/contracts/contracts/interfaces/IERC20Mintable.sol\":{\"keccak256\":\"0xd6b7b2f04556bef9f396e9061dee9c28aafde086c6693af1fb0421bbf0bb9f08\",\"urls\":[\"bzz-raw://14ea8e5fcf8f4467ba83e92a8648c1675dfa5004432aa95641a6743ad385ca4c\",\"dweb:/ipfs/QmPziXuvAELCJiK64jNRxMDi3hBGqJJcMwe8RAN486ySKD\"]},\"/home/jasoons/Documents/clean-code/contracts/contracts/tests/SendBlockAttacker.sol\":{\"keccak256\":\"0xb145cc4f9e6dcb4986860f7eb5d99b653caad1d8661ba7babb0b08dd793e3db0\",\"urls\":[\"bzz-raw://6910f20c1a6d8219e8f3ef748aa65548f15d98d406a1205448b93ed90449a57d\",\"dweb:/ipfs/QmZPcz4PEXRHLRHEyrMR7byrDuxD3yLEoxXp6H6ms7ri6j\"]},\"@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol\":{\"keccak256\":\"0x3491510fa4862af1a43f6c860d9cf7392240196540cd3c0eea79d374d419c5a1\",\"urls\":[\"bzz-raw://3e51386d74eb723d3acaaddafce1dd0b4082ad4c10ddba6b9fc154aad2930d02\",\"dweb:/ipfs/QmcA8Huap1c7YjdVjx5TGasxKNMLgsa3XyLvQUaMa1nMt8\"]},\"@openzeppelin/contracts-ethereum-package/contracts/access/Roles.sol\":{\"keccak256\":\"0xb002c378d7b82a101bd659c341518953ca0919d342c0a400196982c0e7e7bcdb\",\"urls\":[\"bzz-raw://00a788c4631466c220b385bdd100c571d24b2deccd657615cfbcef6cadf669a4\",\"dweb:/ipfs/QmTEwDbjJNxmMNCDMqtuou3dyM8Wtp8Q9NFvn7SAVM7Jf3\"]},\"@openzeppelin/contracts-ethereum-package/contracts/access/roles/MinterRole.sol\":{\"keccak256\":\"0xdf50b7ae128ae6234bf297a03a7622b3d146734479b26b749052e61ee9dae650\",\"urls\":[\"bzz-raw://93218d23526253d8e8634e5f5be8c21e3c46f12992eae378b202ca22d48564a0\",\"dweb:/ipfs/QmfG4XhTbsxnzCGXgsvxWmuJtU8snNaMEpW9drGde2yY6S\"]},\"@openzeppelin/contracts-ethereum-package/contracts/drafts/Counters.sol\":{\"keccak256\":\"0xf1267d23aae72ba9bef7bbef542a658645e1e2a125d107978a0907f6693d43a1\",\"urls\":[\"bzz-raw://35227fc5f4ed2b123ba30d04b8887b7b8e0c492e3947663c08b2bc310e4da17e\",\"dweb:/ipfs/QmYGavckDLSHAtxSXpGgCWzAdAFdeMDDALJdeJawyqP1Ha\"]},\"@openzeppelin/contracts-ethereum-package/contracts/introspection/ERC165.sol\":{\"keccak256\":\"0x77dba70b279e47f7f6941b433a26ba51b8484b557d250d3a78075ecea5a9b01d\",\"urls\":[\"bzz-raw://946383a175d8b051ab44a6a6001b09ad09403aae6af0280d9532f1fde557ba7f\",\"dweb:/ipfs/QmeTQrn4DJWnZyf7v3FRGfP7CLzESNNtFAsDDhakWH2zfp\"]},\"@openzeppelin/contracts-ethereum-package/contracts/introspection/IERC165.sol\":{\"keccak256\":\"0xe0ed10f53955c35eecb02724538650a155aa940be3f0a54cd3bde6c6b0c6e48c\",\"urls\":[\"bzz-raw://7dcfda88e3225987245908c3296f3559752647036804325ebfaa9fd1545161c3\",\"dweb:/ipfs/QmXxx5rHfLL57zdgyyyG9MMv4XGN7bpVSc2MuDcaCgto6u\"]},\"@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol\":{\"keccak256\":\"0x640b6dee7a4b830bdfd52b5031a07fc2b12209f5b2e29e5d364a7d37f69d8076\",\"urls\":[\"bzz-raw://31113152e1ddb78fe7a4197f247591ca894e93f916867beb708d8e747b6cc74f\",\"dweb:/ipfs/QmbZaJyXdpsYGykVhHH9qpVGQg9DGCxE2QufbCUy3daTgq\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol\":{\"keccak256\":\"0xcc02740f27fa64fcd3237e531390e7091c0d1a597c1e3c315412e6edfcb56e98\",\"urls\":[\"bzz-raw://435140748ea8a6aef64fb8be8e92547bc73b55715487959f8a38cae981c3be5b\",\"dweb:/ipfs/QmWzaYxa7Bvpb8AifSw3Au6hB2VdevwL66xyzr6objJoqs\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol\":{\"keccak256\":\"0x46b471beac241540af38bf756c5c15b1662ede1c6826bdbda1865daa975e17e2\",\"urls\":[\"bzz-raw://284575184b15dc9e8f2d5b5fe0af433348ab272f35715d63b78e9824e735f200\",\"dweb:/ipfs/QmfRwqexUjB4bBtmxsYBQa631jLAVPBgjoXUcGRrh3d7iA\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol\":{\"keccak256\":\"0x05716424b99aa883c7dd4eb4c32cd75a19c9fdfddaede038dd5fb1da2377e21e\",\"urls\":[\"bzz-raw://1f34d0a534e323b399b66cd212b3caafb7d257398999eacb6153a7850931f0c7\",\"dweb:/ipfs/QmcpNsTGmbGyGM8SvbusKbCW4FWQSka3u3rxVLY1bAwajq\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721MetadataMintable.sol\":{\"keccak256\":\"0x1a4a7d5e495009d435ece44f0bd2af5cb978f40fd3f569abd095c674dbaa6da9\",\"urls\":[\"bzz-raw://6381555b1eb1383da3cf1322b13d2b54cadad776fc35544f1ae819025be3a8f4\",\"dweb:/ipfs/QmViikCSYeJiiUvrokD3U3qny97ZSRDtnN5MaWxe4rtTRQ\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/IERC721.sol\":{\"keccak256\":\"0x3481053b3fbcb2cc24d40f208f1d65a1381febbed382eaba0f6ef7ce2296dac0\",\"urls\":[\"bzz-raw://9a44cef44872a5051402b8a3e00c18c4b36f75c8394c11b71e78abdb81ffe8ca\",\"dweb:/ipfs/QmYnuiJaRrBpPbC2YnQbK8MwDVtY68dpY18ir1GZeBZrh5\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/IERC721Enumerable.sol\":{\"keccak256\":\"0x6a3efb9d8c3c6467f308592675407fceae553543d90c287d4f7370b7c2638774\",\"urls\":[\"bzz-raw://5f003d160f9b7a296d724fd58e3ef545dab049536d089d0e5af4c9984db55a7e\",\"dweb:/ipfs/QmaZHGFYVa89vvjHq7uxQhg3P5vaAhY323VYEpuuma4us2\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/IERC721Metadata.sol\":{\"keccak256\":\"0xf83b0e3cfc9d22e6ab413d8881a7e55384a9ebfd1d78ab8b9ce4f0cb6ee2fcf8\",\"urls\":[\"bzz-raw://e618ab3e1bb35d7f98c80213b5c0d563c3d47ecf9bf701b0cce3b1bcbefe815a\",\"dweb:/ipfs/QmeRYHm9BZ67gM4QCdrN3mecRAbVMrB3pRoo26jwoZWvdr\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/IERC721Receiver.sol\":{\"keccak256\":\"0x042048c375daca04b31e31c91bbae912b84b5eb818c4e31b2deb530fd2305342\",\"urls\":[\"bzz-raw://d877a87c5e29b9ffca3e334378058c051a4e012fd3635039681003a9376baf1f\",\"dweb:/ipfs/QmR45snf93cFXtB71TZcmoGy9DbcMha8CqgkDKaLvhjXZK\"]},\"@openzeppelin/contracts-ethereum-package/contracts/utils/Address.sol\":{\"keccak256\":\"0x70df50e240407aa50915ad14f61b1a901fa335b37de20955b99ed647be756af0\",\"urls\":[\"bzz-raw://9404711f3206610c08ea97fa52c7b6b4d2e9d536e96fc4b7210aa7e24f796c36\",\"dweb:/ipfs/QmZDzpVzjoap13SuPEq5pVCrmdjoKVZnTsQPLKXAbynTTW\"]},\"@openzeppelin/upgrades/contracts/Initializable.sol\":{\"keccak256\":\"0x9bfec92e36234ecc99b5d37230acb6cd1f99560233753162204104a4897e8721\",\"urls\":[\"bzz-raw://5cf7c208583d4d046d75bd99f5507412ab01cce9dd9f802ce9768a416d93ea2f\",\"dweb:/ipfs/QmcQS1BBMPpVEkXP3qzwSjxHNrqDek8YeR7xbVWDC9ApC7\"]}},\"version\":1}",
-  "bytecode": "0x608060405234801561001057600080fd5b506101ea806100206000396000f3fe6080604052600436106100295760003560e01c80637f07bfdc14610066578063aedcca81146100a1575b6040805162461bcd60e51b815260206004820152600d60248201526c49276d204d616c6963696f757360981b604482015290519081900360640190fd5b34801561007257600080fd5b5061009f6004803603604081101561008957600080fd5b506001600160a01b0381351690602001356100d3565b005b61009f600480360360608110156100b757600080fd5b506001600160a01b038135169060208101359060400135610149565b816001600160a01b03166333289a46826040518263ffffffff1660e01b815260040180828152602001915050602060405180830381600087803b15801561011957600080fd5b505af115801561012d573d6000803e3d6000fd5b505050506040513d602081101561014357600080fd5b50505050565b826001600160a01b031663d6febde83484846040518463ffffffff1660e01b815260040180838152602001828152602001925050506000604051808303818588803b15801561019757600080fd5b505af11580156101ab573d6000803e3d6000fd5b505050505050505056fea265627a7a72315820b3ca668db91b1d2731d506e6a25434af64ab9919fd48abad5f28ef6071cf7c5e64736f6c63430005100032",
-  "deployedBytecode": "0x6080604052600436106100295760003560e01c80637f07bfdc14610066578063aedcca81146100a1575b6040805162461bcd60e51b815260206004820152600d60248201526c49276d204d616c6963696f757360981b604482015290519081900360640190fd5b34801561007257600080fd5b5061009f6004803603604081101561008957600080fd5b506001600160a01b0381351690602001356100d3565b005b61009f600480360360608110156100b757600080fd5b506001600160a01b038135169060208101359060400135610149565b816001600160a01b03166333289a46826040518263ffffffff1660e01b815260040180828152602001915050602060405180830381600087803b15801561011957600080fd5b505af115801561012d573d6000803e3d6000fd5b505050506040513d602081101561014357600080fd5b50505050565b826001600160a01b031663d6febde83484846040518463ffffffff1660e01b815260040180838152602001828152602001925050506000604051808303818588803b15801561019757600080fd5b505af11580156101ab573d6000803e3d6000fd5b505050505050505056fea265627a7a72315820b3ca668db91b1d2731d506e6a25434af64ab9919fd48abad5f28ef6071cf7c5e64736f6c63430005100032",
-  "sourceMap": "62:472:10:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;62:472:10;;;;;;;",
-  "deployedSourceMap": "62:472:10:-;;;;;;;;;;;;;;;;;;;;;;;502:23;;;-1:-1:-1;;;502:23:10;;;;;;;;;;;;-1:-1:-1;;;502:23:10;;;;;;;;;;;;;;308:150;;8:9:-1;5:2;;;30:1;27;20:12;5:2;308:150:10;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;-1:-1;;;;;;308:150:10;;;;;;;;:::i;:::-;;95:207;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;-1:-1;;;;;;95:207:10;;;;;;;;;;;;;:::i;308:150::-;413:14;-1:-1:-1;;;;;413:30:10;;444:6;413:38;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;413:38:10;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;413:38:10;;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;-1:-1;;;;308:150:10:o;95:207::-;241:14;-1:-1:-1;;;;;241:18:10;;266:9;277:7;286:8;241:54;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;241:54:10;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;241:54:10;;;;;95:207;;;:::o",
-  "source": "pragma solidity 0.5.16;\n\nimport \"../WildcardSteward_v2.sol\";\n\ncontract SendBlockAttacker {\n    function buyOnBehalf(\n        WildcardSteward_v2 stewardAddress,\n        uint256 tokenId,\n        uint256 newPrice\n    ) public payable {\n        stewardAddress.buy.value(msg.value)(tokenId, newPrice);\n    }\n\n    function withdrawDeposit(WildcardSteward_v2 stewardAddress, uint256 amount)\n        public\n    {\n        stewardAddress.withdrawDeposit(amount);\n    }\n\n    function() external payable {\n        revert(\"I'm Malicious\");\n    }\n}\n",
-  "sourcePath": "/home/jasoons/Documents/clean-code/contracts/contracts/tests/SendBlockAttacker.sol",
+  "metadata": "{\"compiler\":{\"version\":\"0.5.17+commit.d19bba13\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"contract WildcardSteward_v3\",\"name\":\"stewardAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"newPrice\",\"type\":\"uint256\"}],\"name\":\"buyOnBehalf\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"contract WildcardSteward_v3\",\"name\":\"stewardAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"withdrawDeposit\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/home/jasoons/Documents/code/contracts/contracts/tests/SendBlockAttacker.sol\":\"SendBlockAttacker\"},\"evmVersion\":\"constantinople\",\"libraries\":{},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/jasoons/Documents/code/contracts/contracts/ERC721Patronage_v1.sol\":{\"keccak256\":\"0x4dd0349b80510da918db8ca89780591e44b7180ce9fed22e10a9be93d3d6474b\",\"urls\":[\"bzz-raw://cf54cd519474a32b369bf73db684caa211b89e4d7f6685512d07414b0013c881\",\"dweb:/ipfs/QmYdeYnRxnFdV514XCEhcg7aJMVcspS3x5Fi4WWgZH75gD\"]},\"/home/jasoons/Documents/code/contracts/contracts/MintManager_v2.sol\":{\"keccak256\":\"0x606c3aef08ff721963518cc286fb1c9c549d7604f677210da09ef1fbbbb8e878\",\"urls\":[\"bzz-raw://d11d0f46982d8c2f8a9583c36314c4f72685aa6b0d80645271ec0c5d5e5d7754\",\"dweb:/ipfs/QmUHh5oUybAByJmSM5wxG6vj2Vc1ui5ExeN3hLxaTRVNhe\"]},\"/home/jasoons/Documents/code/contracts/contracts/WildcardSteward_v3.sol\":{\"keccak256\":\"0x63163f652db403595b5e28c37059d2d6fc1e0e681a2f3de237d43a33ca474fcc\",\"urls\":[\"bzz-raw://cb9ef46f952330b478b94039b0bf21df02a058136cc0ea6cd3859a6f11c2434a\",\"dweb:/ipfs/QmZeuEiuYviKhCGV1e96MDhLXTGfFeFUZqccVXY32r7HF3\"]},\"/home/jasoons/Documents/code/contracts/contracts/interfaces/IERC20Mintable.sol\":{\"keccak256\":\"0xd6b7b2f04556bef9f396e9061dee9c28aafde086c6693af1fb0421bbf0bb9f08\",\"urls\":[\"bzz-raw://14ea8e5fcf8f4467ba83e92a8648c1675dfa5004432aa95641a6743ad385ca4c\",\"dweb:/ipfs/QmPziXuvAELCJiK64jNRxMDi3hBGqJJcMwe8RAN486ySKD\"]},\"/home/jasoons/Documents/code/contracts/contracts/tests/SendBlockAttacker.sol\":{\"keccak256\":\"0x0d0a6eeb3b23174af8da59401c6af64e0ae9d6cc44dd447eb721ba91b7d6b3f6\",\"urls\":[\"bzz-raw://51e076dd96e26cc9ea1cf0cfbd92452014405c28deb610240a9276d111b2b211\",\"dweb:/ipfs/QmSAjeSYsQC3j3uhD6tFFvB3KLf9iJDdUgoUwSSTZ2psRk\"]},\"@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol\":{\"keccak256\":\"0x3491510fa4862af1a43f6c860d9cf7392240196540cd3c0eea79d374d419c5a1\",\"urls\":[\"bzz-raw://3e51386d74eb723d3acaaddafce1dd0b4082ad4c10ddba6b9fc154aad2930d02\",\"dweb:/ipfs/QmcA8Huap1c7YjdVjx5TGasxKNMLgsa3XyLvQUaMa1nMt8\"]},\"@openzeppelin/contracts-ethereum-package/contracts/access/Roles.sol\":{\"keccak256\":\"0xb002c378d7b82a101bd659c341518953ca0919d342c0a400196982c0e7e7bcdb\",\"urls\":[\"bzz-raw://00a788c4631466c220b385bdd100c571d24b2deccd657615cfbcef6cadf669a4\",\"dweb:/ipfs/QmTEwDbjJNxmMNCDMqtuou3dyM8Wtp8Q9NFvn7SAVM7Jf3\"]},\"@openzeppelin/contracts-ethereum-package/contracts/access/roles/MinterRole.sol\":{\"keccak256\":\"0xdf50b7ae128ae6234bf297a03a7622b3d146734479b26b749052e61ee9dae650\",\"urls\":[\"bzz-raw://93218d23526253d8e8634e5f5be8c21e3c46f12992eae378b202ca22d48564a0\",\"dweb:/ipfs/QmfG4XhTbsxnzCGXgsvxWmuJtU8snNaMEpW9drGde2yY6S\"]},\"@openzeppelin/contracts-ethereum-package/contracts/drafts/Counters.sol\":{\"keccak256\":\"0x5be8533c5950173dc2b77b75108fae6e6c5449aedadde3385ba457394aad2384\",\"urls\":[\"bzz-raw://d429fb04f5b31d909dc759d0f88e28055b80b4dd43e5def4dffc947fa0609229\",\"dweb:/ipfs/QmaY9idX5CwLLtjjTQAdiiaDSrncgafkatUZXTbbajpz8b\"]},\"@openzeppelin/contracts-ethereum-package/contracts/introspection/ERC165.sol\":{\"keccak256\":\"0x77dba70b279e47f7f6941b433a26ba51b8484b557d250d3a78075ecea5a9b01d\",\"urls\":[\"bzz-raw://946383a175d8b051ab44a6a6001b09ad09403aae6af0280d9532f1fde557ba7f\",\"dweb:/ipfs/QmeTQrn4DJWnZyf7v3FRGfP7CLzESNNtFAsDDhakWH2zfp\"]},\"@openzeppelin/contracts-ethereum-package/contracts/introspection/IERC165.sol\":{\"keccak256\":\"0xe0ed10f53955c35eecb02724538650a155aa940be3f0a54cd3bde6c6b0c6e48c\",\"urls\":[\"bzz-raw://7dcfda88e3225987245908c3296f3559752647036804325ebfaa9fd1545161c3\",\"dweb:/ipfs/QmXxx5rHfLL57zdgyyyG9MMv4XGN7bpVSc2MuDcaCgto6u\"]},\"@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol\":{\"keccak256\":\"0x640b6dee7a4b830bdfd52b5031a07fc2b12209f5b2e29e5d364a7d37f69d8076\",\"urls\":[\"bzz-raw://31113152e1ddb78fe7a4197f247591ca894e93f916867beb708d8e747b6cc74f\",\"dweb:/ipfs/QmbZaJyXdpsYGykVhHH9qpVGQg9DGCxE2QufbCUy3daTgq\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol\":{\"keccak256\":\"0x85a33ccd7456c0e6ff481e9e307871bdeb62faf586dcdb7a45af12b54bc6781c\",\"urls\":[\"bzz-raw://8bc02bbffd7e9620e7412f73484ae33f186fdf9956b5b6d59dcfa5bdf98b0a7a\",\"dweb:/ipfs/QmbfGnTzEt45Qajpg9U8jEAnz8gnyqVQByjw72PatcUQpD\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Enumerable.sol\":{\"keccak256\":\"0x46b471beac241540af38bf756c5c15b1662ede1c6826bdbda1865daa975e17e2\",\"urls\":[\"bzz-raw://284575184b15dc9e8f2d5b5fe0af433348ab272f35715d63b78e9824e735f200\",\"dweb:/ipfs/QmfRwqexUjB4bBtmxsYBQa631jLAVPBgjoXUcGRrh3d7iA\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721Metadata.sol\":{\"keccak256\":\"0xd784ed0d69d9e1ed7de89c33295d6e354619902dd6bf7324635b9daa23fb2d43\",\"urls\":[\"bzz-raw://18b5a41fbd2d4fb65618dcdb64823043a9b040d8a489fb101483f90e178bcc11\",\"dweb:/ipfs/QmdTW12VL7wQg2ip1cYLMLUb48zhWTv7Wj6yUhQB85yrVQ\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721MetadataMintable.sol\":{\"keccak256\":\"0x1a4a7d5e495009d435ece44f0bd2af5cb978f40fd3f569abd095c674dbaa6da9\",\"urls\":[\"bzz-raw://6381555b1eb1383da3cf1322b13d2b54cadad776fc35544f1ae819025be3a8f4\",\"dweb:/ipfs/QmViikCSYeJiiUvrokD3U3qny97ZSRDtnN5MaWxe4rtTRQ\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/IERC721.sol\":{\"keccak256\":\"0x3481053b3fbcb2cc24d40f208f1d65a1381febbed382eaba0f6ef7ce2296dac0\",\"urls\":[\"bzz-raw://9a44cef44872a5051402b8a3e00c18c4b36f75c8394c11b71e78abdb81ffe8ca\",\"dweb:/ipfs/QmYnuiJaRrBpPbC2YnQbK8MwDVtY68dpY18ir1GZeBZrh5\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/IERC721Enumerable.sol\":{\"keccak256\":\"0x6a3efb9d8c3c6467f308592675407fceae553543d90c287d4f7370b7c2638774\",\"urls\":[\"bzz-raw://5f003d160f9b7a296d724fd58e3ef545dab049536d089d0e5af4c9984db55a7e\",\"dweb:/ipfs/QmaZHGFYVa89vvjHq7uxQhg3P5vaAhY323VYEpuuma4us2\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/IERC721Metadata.sol\":{\"keccak256\":\"0xf83b0e3cfc9d22e6ab413d8881a7e55384a9ebfd1d78ab8b9ce4f0cb6ee2fcf8\",\"urls\":[\"bzz-raw://e618ab3e1bb35d7f98c80213b5c0d563c3d47ecf9bf701b0cce3b1bcbefe815a\",\"dweb:/ipfs/QmeRYHm9BZ67gM4QCdrN3mecRAbVMrB3pRoo26jwoZWvdr\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/IERC721Receiver.sol\":{\"keccak256\":\"0x042048c375daca04b31e31c91bbae912b84b5eb818c4e31b2deb530fd2305342\",\"urls\":[\"bzz-raw://d877a87c5e29b9ffca3e334378058c051a4e012fd3635039681003a9376baf1f\",\"dweb:/ipfs/QmR45snf93cFXtB71TZcmoGy9DbcMha8CqgkDKaLvhjXZK\"]},\"@openzeppelin/contracts-ethereum-package/contracts/utils/Address.sol\":{\"keccak256\":\"0x1a8e5072509c5ea7365eb1d48030b9be865140c8fb779968da0a459a0e174a11\",\"urls\":[\"bzz-raw://03335b7b07c7c8c8d613cfdd8ec39a0b5ec133ee510bf2fe6cc5a496767bef4b\",\"dweb:/ipfs/Qmebp4nzPja645c9yXSdJkGq96oU3am3LUnG2K3R7XxyKf\"]},\"@openzeppelin/upgrades/contracts/Initializable.sol\":{\"keccak256\":\"0x9bfec92e36234ecc99b5d37230acb6cd1f99560233753162204104a4897e8721\",\"urls\":[\"bzz-raw://5cf7c208583d4d046d75bd99f5507412ab01cce9dd9f802ce9768a416d93ea2f\",\"dweb:/ipfs/QmcQS1BBMPpVEkXP3qzwSjxHNrqDek8YeR7xbVWDC9ApC7\"]}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b506101f4806100206000396000f3fe6080604052600436106100295760003560e01c80637f07bfdc14610066578063aedcca81146100a1575b6040805162461bcd60e51b815260206004820152600d60248201526c49276d204d616c6963696f757360981b604482015290519081900360640190fd5b34801561007257600080fd5b5061009f6004803603604081101561008957600080fd5b506001600160a01b0381351690602001356100d3565b005b61009f600480360360608110156100b757600080fd5b506001600160a01b038135169060208101359060400135610149565b816001600160a01b03166333289a46826040518263ffffffff1660e01b815260040180828152602001915050602060405180830381600087803b15801561011957600080fd5b505af115801561012d573d6000803e3d6000fd5b505050506040513d602081101561014357600080fd5b50505050565b826001600160a01b0316633eb76de734848461c3506040518563ffffffff1660e01b81526004018084815260200183815260200182815260200193505050506000604051808303818588803b1580156101a157600080fd5b505af11580156101b5573d6000803e3d6000fd5b505050505050505056fea265627a7a723158200a137168c2634ff473a46c0902f0291fb22af3f37893284f728d5db229790cb964736f6c63430005110032",
+  "deployedBytecode": "0x6080604052600436106100295760003560e01c80637f07bfdc14610066578063aedcca81146100a1575b6040805162461bcd60e51b815260206004820152600d60248201526c49276d204d616c6963696f757360981b604482015290519081900360640190fd5b34801561007257600080fd5b5061009f6004803603604081101561008957600080fd5b506001600160a01b0381351690602001356100d3565b005b61009f600480360360608110156100b757600080fd5b506001600160a01b038135169060208101359060400135610149565b816001600160a01b03166333289a46826040518263ffffffff1660e01b815260040180828152602001915050602060405180830381600087803b15801561011957600080fd5b505af115801561012d573d6000803e3d6000fd5b505050506040513d602081101561014357600080fd5b50505050565b826001600160a01b0316633eb76de734848461c3506040518563ffffffff1660e01b81526004018084815260200183815260200182815260200193505050506000604051808303818588803b1580156101a157600080fd5b505af11580156101b5573d6000803e3d6000fd5b505050505050505056fea265627a7a723158200a137168c2634ff473a46c0902f0291fb22af3f37893284f728d5db229790cb964736f6c63430005110032",
+  "sourceMap": "62:486:11:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;62:486:11;;;;;;;",
+  "deployedSourceMap": "62:486:11:-;;;;;;;;;;;;;;;;;;;;;;;516:23;;;-1:-1:-1;;;516:23:11;;;;;;;;;;;;-1:-1:-1;;;516:23:11;;;;;;;;;;;;;;322:150;;8:9:-1;5:2;;;30:1;27;20:12;5:2;322:150:11;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;-1:-1;;;;;;322:150:11;;;;;;;;:::i;:::-;;95:221;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;-1:-1;;;;;;95:221:11;;;;;;;;;;;;;:::i;322:150::-;427:14;-1:-1:-1;;;;;427:30:11;;458:6;427:38;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;427:38:11;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;427:38:11;;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;-1:-1;;;;322:150:11:o;95:221::-;241:14;-1:-1:-1;;;;;241:25:11;;273:9;284:7;293:8;303:5;241:68;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;241:68:11;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;241:68:11;;;;;95:221;;;:::o",
+  "source": "pragma solidity 0.5.17;\n\nimport \"../WildcardSteward_v3.sol\";\n\ncontract SendBlockAttacker {\n    function buyOnBehalf(\n        WildcardSteward_v3 stewardAddress,\n        uint256 tokenId,\n        uint256 newPrice\n    ) public payable {\n        stewardAddress.buyAuction.value(msg.value)(tokenId, newPrice, 50000);\n    }\n\n    function withdrawDeposit(WildcardSteward_v3 stewardAddress, uint256 amount)\n        public\n    {\n        stewardAddress.withdrawDeposit(amount);\n    }\n\n    function() external payable {\n        revert(\"I'm Malicious\");\n    }\n}\n",
+  "sourcePath": "/home/jasoons/Documents/code/contracts/contracts/tests/SendBlockAttacker.sol",
   "ast": {
-    "absolutePath": "/home/jasoons/Documents/clean-code/contracts/contracts/tests/SendBlockAttacker.sol",
+    "absolutePath": "/home/jasoons/Documents/code/contracts/contracts/tests/SendBlockAttacker.sol",
     "exportedSymbols": {
       "SendBlockAttacker": [
-        5166
+        8139
       ]
     },
-    "id": 5167,
+    "id": 8140,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 5120,
+        "id": 8092,
         "literals": [
           "solidity",
           "0.5",
-          ".16"
+          ".17"
         ],
         "nodeType": "PragmaDirective",
-        "src": "0:23:10"
+        "src": "0:23:11"
       },
       {
-        "absolutePath": "/home/jasoons/Documents/clean-code/contracts/contracts/WildcardSteward_v2.sol",
-        "file": "../WildcardSteward_v2.sol",
-        "id": 5121,
+        "absolutePath": "/home/jasoons/Documents/code/contracts/contracts/WildcardSteward_v3.sol",
+        "file": "../WildcardSteward_v3.sol",
+        "id": 8093,
         "nodeType": "ImportDirective",
-        "scope": 5167,
-        "sourceUnit": 4860,
-        "src": "25:35:10",
+        "scope": 8140,
+        "sourceUnit": 7832,
+        "src": "25:35:11",
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -96,18 +96,18 @@
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 5166,
+        "id": 8139,
         "linearizedBaseContracts": [
-          5166
+          8139
         ],
         "name": "SendBlockAttacker",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "body": {
-              "id": 5142,
+              "id": 8115,
               "nodeType": "Block",
-              "src": "231:71:10",
+              "src": "231:85:11",
               "statements": [
                 {
                   "expression": {
@@ -115,12 +115,12 @@
                     "arguments": [
                       {
                         "argumentTypes": null,
-                        "id": 5138,
+                        "id": 8110,
                         "name": "tokenId",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 5125,
-                        "src": "277:7:10",
+                        "referencedDeclaration": 8097,
+                        "src": "284:7:11",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
                           "typeString": "uint256"
@@ -128,16 +128,34 @@
                       },
                       {
                         "argumentTypes": null,
-                        "id": 5139,
+                        "id": 8111,
                         "name": "newPrice",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 5127,
-                        "src": "286:8:10",
+                        "referencedDeclaration": 8099,
+                        "src": "293:8:11",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
                           "typeString": "uint256"
                         }
+                      },
+                      {
+                        "argumentTypes": null,
+                        "hexValue": "3530303030",
+                        "id": 8112,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "number",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "303:5:11",
+                        "subdenomination": null,
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_rational_50000_by_1",
+                          "typeString": "int_const 50000"
+                        },
+                        "value": "50000"
                       }
                     ],
                     "expression": {
@@ -149,6 +167,10 @@
                         {
                           "typeIdentifier": "t_uint256",
                           "typeString": "uint256"
+                        },
+                        {
+                          "typeIdentifier": "t_rational_50000_by_1",
+                          "typeString": "int_const 50000"
                         }
                       ],
                       "arguments": [
@@ -156,18 +178,18 @@
                           "argumentTypes": null,
                           "expression": {
                             "argumentTypes": null,
-                            "id": 5135,
+                            "id": 8107,
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 8293,
-                            "src": "266:3:10",
+                            "referencedDeclaration": 11341,
+                            "src": "273:3:11",
                             "typeDescriptions": {
                               "typeIdentifier": "t_magic_message",
                               "typeString": "msg"
                             }
                           },
-                          "id": 5136,
+                          "id": 8108,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -175,7 +197,7 @@
                           "memberName": "value",
                           "nodeType": "MemberAccess",
                           "referencedDeclaration": null,
-                          "src": "266:9:10",
+                          "src": "273:9:11",
                           "typeDescriptions": {
                             "typeIdentifier": "t_uint256",
                             "typeString": "uint256"
@@ -193,32 +215,32 @@
                           "argumentTypes": null,
                           "expression": {
                             "argumentTypes": null,
-                            "id": 5130,
+                            "id": 8102,
                             "name": "stewardAddress",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 5123,
-                            "src": "241:14:10",
+                            "referencedDeclaration": 8095,
+                            "src": "241:14:11",
                             "typeDescriptions": {
-                              "typeIdentifier": "t_contract$_WildcardSteward_v2_$4859",
-                              "typeString": "contract WildcardSteward_v2"
+                              "typeIdentifier": "t_contract$_WildcardSteward_v3_$7831",
+                              "typeString": "contract WildcardSteward_v3"
                             }
                           },
-                          "id": 5133,
+                          "id": 8105,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
                           "lValueRequested": false,
-                          "memberName": "buy",
+                          "memberName": "buyAuction",
                           "nodeType": "MemberAccess",
-                          "referencedDeclaration": 4493,
-                          "src": "241:18:10",
+                          "referencedDeclaration": 7137,
+                          "src": "241:25:11",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_function_external_payable$_t_uint256_$_t_uint256_$returns$__$",
-                            "typeString": "function (uint256,uint256) payable external"
+                            "typeIdentifier": "t_function_external_payable$_t_uint256_$_t_uint256_$_t_uint256_$returns$__$",
+                            "typeString": "function (uint256,uint256,uint256) payable external"
                           }
                         },
-                        "id": 5134,
+                        "id": 8106,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -226,13 +248,13 @@
                         "memberName": "value",
                         "nodeType": "MemberAccess",
                         "referencedDeclaration": null,
-                        "src": "241:24:10",
+                        "src": "241:31:11",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_function_setvalue_pure$_t_uint256_$returns$_t_function_external_payable$_t_uint256_$_t_uint256_$returns$__$value_$",
-                          "typeString": "function (uint256) pure returns (function (uint256,uint256) payable external)"
+                          "typeIdentifier": "t_function_setvalue_pure$_t_uint256_$returns$_t_function_external_payable$_t_uint256_$_t_uint256_$_t_uint256_$returns$__$value_$",
+                          "typeString": "function (uint256) pure returns (function (uint256,uint256,uint256) payable external)"
                         }
                       },
-                      "id": 5137,
+                      "id": 8109,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -240,13 +262,13 @@
                       "lValueRequested": false,
                       "names": [],
                       "nodeType": "FunctionCall",
-                      "src": "241:35:10",
+                      "src": "241:42:11",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_function_external_payable$_t_uint256_$_t_uint256_$returns$__$value",
-                        "typeString": "function (uint256,uint256) payable external"
+                        "typeIdentifier": "t_function_external_payable$_t_uint256_$_t_uint256_$_t_uint256_$returns$__$value",
+                        "typeString": "function (uint256,uint256,uint256) payable external"
                       }
                     },
-                    "id": 5140,
+                    "id": 8113,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -254,52 +276,52 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "241:54:10",
+                    "src": "241:68:11",
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 5141,
+                  "id": 8114,
                   "nodeType": "ExpressionStatement",
-                  "src": "241:54:10"
+                  "src": "241:68:11"
                 }
               ]
             },
             "documentation": null,
-            "id": 5143,
+            "id": 8116,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "buyOnBehalf",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 5128,
+              "id": 8100,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5123,
+                  "id": 8095,
                   "name": "stewardAddress",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5143,
-                  "src": "125:33:10",
+                  "scope": 8116,
+                  "src": "125:33:11",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_WildcardSteward_v2_$4859",
-                    "typeString": "contract WildcardSteward_v2"
+                    "typeIdentifier": "t_contract$_WildcardSteward_v3_$7831",
+                    "typeString": "contract WildcardSteward_v3"
                   },
                   "typeName": {
                     "contractScope": null,
-                    "id": 5122,
-                    "name": "WildcardSteward_v2",
+                    "id": 8094,
+                    "name": "WildcardSteward_v3",
                     "nodeType": "UserDefinedTypeName",
-                    "referencedDeclaration": 4859,
-                    "src": "125:18:10",
+                    "referencedDeclaration": 7831,
+                    "src": "125:18:11",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_WildcardSteward_v2_$4859",
-                      "typeString": "contract WildcardSteward_v2"
+                      "typeIdentifier": "t_contract$_WildcardSteward_v3_$7831",
+                      "typeString": "contract WildcardSteward_v3"
                     }
                   },
                   "value": null,
@@ -307,11 +329,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 5125,
+                  "id": 8097,
                   "name": "tokenId",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5143,
-                  "src": "168:15:10",
+                  "scope": 8116,
+                  "src": "168:15:11",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -319,10 +341,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5124,
+                    "id": 8096,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "168:7:10",
+                    "src": "168:7:11",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -333,11 +355,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 5127,
+                  "id": 8099,
                   "name": "newPrice",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5143,
-                  "src": "193:16:10",
+                  "scope": 8116,
+                  "src": "193:16:11",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -345,10 +367,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5126,
+                    "id": 8098,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "193:7:10",
+                    "src": "193:7:11",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -358,25 +380,25 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "115:100:10"
+              "src": "115:100:11"
             },
             "returnParameters": {
-              "id": 5129,
+              "id": 8101,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "231:0:10"
+              "src": "231:0:11"
             },
-            "scope": 5166,
-            "src": "95:207:10",
+            "scope": 8139,
+            "src": "95:221:11",
             "stateMutability": "payable",
             "superFunction": null,
             "visibility": "public"
           },
           {
             "body": {
-              "id": 5156,
+              "id": 8129,
               "nodeType": "Block",
-              "src": "403:55:10",
+              "src": "417:55:11",
               "statements": [
                 {
                   "expression": {
@@ -384,12 +406,12 @@
                     "arguments": [
                       {
                         "argumentTypes": null,
-                        "id": 5153,
+                        "id": 8126,
                         "name": "amount",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 5147,
-                        "src": "444:6:10",
+                        "referencedDeclaration": 8120,
+                        "src": "458:6:11",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
                           "typeString": "uint256"
@@ -405,32 +427,32 @@
                       ],
                       "expression": {
                         "argumentTypes": null,
-                        "id": 5150,
+                        "id": 8123,
                         "name": "stewardAddress",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 5145,
-                        "src": "413:14:10",
+                        "referencedDeclaration": 8118,
+                        "src": "427:14:11",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_WildcardSteward_v2_$4859",
-                          "typeString": "contract WildcardSteward_v2"
+                          "typeIdentifier": "t_contract$_WildcardSteward_v3_$7831",
+                          "typeString": "contract WildcardSteward_v3"
                         }
                       },
-                      "id": 5152,
+                      "id": 8125,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "memberName": "withdrawDeposit",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4581,
-                      "src": "413:30:10",
+                      "referencedDeclaration": 7516,
+                      "src": "427:30:11",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_uint256_$returns$_t_uint256_$",
                         "typeString": "function (uint256) external returns (uint256)"
                       }
                     },
-                    "id": 5154,
+                    "id": 8127,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -438,52 +460,52 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "413:38:10",
+                    "src": "427:38:11",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
                     }
                   },
-                  "id": 5155,
+                  "id": 8128,
                   "nodeType": "ExpressionStatement",
-                  "src": "413:38:10"
+                  "src": "427:38:11"
                 }
               ]
             },
             "documentation": null,
-            "id": 5157,
+            "id": 8130,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "withdrawDeposit",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 5148,
+              "id": 8121,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5145,
+                  "id": 8118,
                   "name": "stewardAddress",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5157,
-                  "src": "333:33:10",
+                  "scope": 8130,
+                  "src": "347:33:11",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_WildcardSteward_v2_$4859",
-                    "typeString": "contract WildcardSteward_v2"
+                    "typeIdentifier": "t_contract$_WildcardSteward_v3_$7831",
+                    "typeString": "contract WildcardSteward_v3"
                   },
                   "typeName": {
                     "contractScope": null,
-                    "id": 5144,
-                    "name": "WildcardSteward_v2",
+                    "id": 8117,
+                    "name": "WildcardSteward_v3",
                     "nodeType": "UserDefinedTypeName",
-                    "referencedDeclaration": 4859,
-                    "src": "333:18:10",
+                    "referencedDeclaration": 7831,
+                    "src": "347:18:11",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_WildcardSteward_v2_$4859",
-                      "typeString": "contract WildcardSteward_v2"
+                      "typeIdentifier": "t_contract$_WildcardSteward_v3_$7831",
+                      "typeString": "contract WildcardSteward_v3"
                     }
                   },
                   "value": null,
@@ -491,11 +513,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 5147,
+                  "id": 8120,
                   "name": "amount",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5157,
-                  "src": "368:14:10",
+                  "scope": 8130,
+                  "src": "382:14:11",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -503,10 +525,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5146,
+                    "id": 8119,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "368:7:10",
+                    "src": "382:7:11",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -516,25 +538,25 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "332:51:10"
+              "src": "346:51:11"
             },
             "returnParameters": {
-              "id": 5149,
+              "id": 8122,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "403:0:10"
+              "src": "417:0:11"
             },
-            "scope": 5166,
-            "src": "308:150:10",
+            "scope": 8139,
+            "src": "322:150:11",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           },
           {
             "body": {
-              "id": 5164,
+              "id": 8137,
               "nodeType": "Block",
-              "src": "492:40:10",
+              "src": "506:40:11",
               "statements": [
                 {
                   "expression": {
@@ -543,14 +565,14 @@
                       {
                         "argumentTypes": null,
                         "hexValue": "49276d204d616c6963696f7573",
-                        "id": 5161,
+                        "id": 8134,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "kind": "string",
                         "lValueRequested": false,
                         "nodeType": "Literal",
-                        "src": "509:15:10",
+                        "src": "523:15:11",
                         "subdenomination": null,
                         "typeDescriptions": {
                           "typeIdentifier": "t_stringliteral_e2d914067335af1611afb627d0b2924b9bcb5e4872495646ea8ccd9320b103ac",
@@ -566,21 +588,21 @@
                           "typeString": "literal_string \"I'm Malicious\""
                         }
                       ],
-                      "id": 5160,
+                      "id": 8133,
                       "name": "revert",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        8298,
-                        8299
+                        11346,
+                        11347
                       ],
-                      "referencedDeclaration": 8299,
-                      "src": "502:6:10",
+                      "referencedDeclaration": 11347,
+                      "src": "516:6:11",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_revert_pure$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (string memory) pure"
                       }
                     },
-                    "id": 5162,
+                    "id": 8135,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -588,78 +610,78 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "502:23:10",
+                    "src": "516:23:11",
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 5163,
+                  "id": 8136,
                   "nodeType": "ExpressionStatement",
-                  "src": "502:23:10"
+                  "src": "516:23:11"
                 }
               ]
             },
             "documentation": null,
-            "id": 5165,
+            "id": 8138,
             "implemented": true,
             "kind": "fallback",
             "modifiers": [],
             "name": "",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 5158,
+              "id": 8131,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "472:2:10"
+              "src": "486:2:11"
             },
             "returnParameters": {
-              "id": 5159,
+              "id": 8132,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "492:0:10"
+              "src": "506:0:11"
             },
-            "scope": 5166,
-            "src": "464:68:10",
+            "scope": 8139,
+            "src": "478:68:11",
             "stateMutability": "payable",
             "superFunction": null,
             "visibility": "external"
           }
         ],
-        "scope": 5167,
-        "src": "62:472:10"
+        "scope": 8140,
+        "src": "62:486:11"
       }
     ],
-    "src": "0:535:10"
+    "src": "0:549:11"
   },
   "legacyAST": {
-    "absolutePath": "/home/jasoons/Documents/clean-code/contracts/contracts/tests/SendBlockAttacker.sol",
+    "absolutePath": "/home/jasoons/Documents/code/contracts/contracts/tests/SendBlockAttacker.sol",
     "exportedSymbols": {
       "SendBlockAttacker": [
-        5166
+        8139
       ]
     },
-    "id": 5167,
+    "id": 8140,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 5120,
+        "id": 8092,
         "literals": [
           "solidity",
           "0.5",
-          ".16"
+          ".17"
         ],
         "nodeType": "PragmaDirective",
-        "src": "0:23:10"
+        "src": "0:23:11"
       },
       {
-        "absolutePath": "/home/jasoons/Documents/clean-code/contracts/contracts/WildcardSteward_v2.sol",
-        "file": "../WildcardSteward_v2.sol",
-        "id": 5121,
+        "absolutePath": "/home/jasoons/Documents/code/contracts/contracts/WildcardSteward_v3.sol",
+        "file": "../WildcardSteward_v3.sol",
+        "id": 8093,
         "nodeType": "ImportDirective",
-        "scope": 5167,
-        "sourceUnit": 4860,
-        "src": "25:35:10",
+        "scope": 8140,
+        "sourceUnit": 7832,
+        "src": "25:35:11",
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -669,18 +691,18 @@
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 5166,
+        "id": 8139,
         "linearizedBaseContracts": [
-          5166
+          8139
         ],
         "name": "SendBlockAttacker",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "body": {
-              "id": 5142,
+              "id": 8115,
               "nodeType": "Block",
-              "src": "231:71:10",
+              "src": "231:85:11",
               "statements": [
                 {
                   "expression": {
@@ -688,12 +710,12 @@
                     "arguments": [
                       {
                         "argumentTypes": null,
-                        "id": 5138,
+                        "id": 8110,
                         "name": "tokenId",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 5125,
-                        "src": "277:7:10",
+                        "referencedDeclaration": 8097,
+                        "src": "284:7:11",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
                           "typeString": "uint256"
@@ -701,16 +723,34 @@
                       },
                       {
                         "argumentTypes": null,
-                        "id": 5139,
+                        "id": 8111,
                         "name": "newPrice",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 5127,
-                        "src": "286:8:10",
+                        "referencedDeclaration": 8099,
+                        "src": "293:8:11",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
                           "typeString": "uint256"
                         }
+                      },
+                      {
+                        "argumentTypes": null,
+                        "hexValue": "3530303030",
+                        "id": 8112,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "number",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "303:5:11",
+                        "subdenomination": null,
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_rational_50000_by_1",
+                          "typeString": "int_const 50000"
+                        },
+                        "value": "50000"
                       }
                     ],
                     "expression": {
@@ -722,6 +762,10 @@
                         {
                           "typeIdentifier": "t_uint256",
                           "typeString": "uint256"
+                        },
+                        {
+                          "typeIdentifier": "t_rational_50000_by_1",
+                          "typeString": "int_const 50000"
                         }
                       ],
                       "arguments": [
@@ -729,18 +773,18 @@
                           "argumentTypes": null,
                           "expression": {
                             "argumentTypes": null,
-                            "id": 5135,
+                            "id": 8107,
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 8293,
-                            "src": "266:3:10",
+                            "referencedDeclaration": 11341,
+                            "src": "273:3:11",
                             "typeDescriptions": {
                               "typeIdentifier": "t_magic_message",
                               "typeString": "msg"
                             }
                           },
-                          "id": 5136,
+                          "id": 8108,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -748,7 +792,7 @@
                           "memberName": "value",
                           "nodeType": "MemberAccess",
                           "referencedDeclaration": null,
-                          "src": "266:9:10",
+                          "src": "273:9:11",
                           "typeDescriptions": {
                             "typeIdentifier": "t_uint256",
                             "typeString": "uint256"
@@ -766,32 +810,32 @@
                           "argumentTypes": null,
                           "expression": {
                             "argumentTypes": null,
-                            "id": 5130,
+                            "id": 8102,
                             "name": "stewardAddress",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 5123,
-                            "src": "241:14:10",
+                            "referencedDeclaration": 8095,
+                            "src": "241:14:11",
                             "typeDescriptions": {
-                              "typeIdentifier": "t_contract$_WildcardSteward_v2_$4859",
-                              "typeString": "contract WildcardSteward_v2"
+                              "typeIdentifier": "t_contract$_WildcardSteward_v3_$7831",
+                              "typeString": "contract WildcardSteward_v3"
                             }
                           },
-                          "id": 5133,
+                          "id": 8105,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
                           "lValueRequested": false,
-                          "memberName": "buy",
+                          "memberName": "buyAuction",
                           "nodeType": "MemberAccess",
-                          "referencedDeclaration": 4493,
-                          "src": "241:18:10",
+                          "referencedDeclaration": 7137,
+                          "src": "241:25:11",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_function_external_payable$_t_uint256_$_t_uint256_$returns$__$",
-                            "typeString": "function (uint256,uint256) payable external"
+                            "typeIdentifier": "t_function_external_payable$_t_uint256_$_t_uint256_$_t_uint256_$returns$__$",
+                            "typeString": "function (uint256,uint256,uint256) payable external"
                           }
                         },
-                        "id": 5134,
+                        "id": 8106,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -799,13 +843,13 @@
                         "memberName": "value",
                         "nodeType": "MemberAccess",
                         "referencedDeclaration": null,
-                        "src": "241:24:10",
+                        "src": "241:31:11",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_function_setvalue_pure$_t_uint256_$returns$_t_function_external_payable$_t_uint256_$_t_uint256_$returns$__$value_$",
-                          "typeString": "function (uint256) pure returns (function (uint256,uint256) payable external)"
+                          "typeIdentifier": "t_function_setvalue_pure$_t_uint256_$returns$_t_function_external_payable$_t_uint256_$_t_uint256_$_t_uint256_$returns$__$value_$",
+                          "typeString": "function (uint256) pure returns (function (uint256,uint256,uint256) payable external)"
                         }
                       },
-                      "id": 5137,
+                      "id": 8109,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -813,13 +857,13 @@
                       "lValueRequested": false,
                       "names": [],
                       "nodeType": "FunctionCall",
-                      "src": "241:35:10",
+                      "src": "241:42:11",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_function_external_payable$_t_uint256_$_t_uint256_$returns$__$value",
-                        "typeString": "function (uint256,uint256) payable external"
+                        "typeIdentifier": "t_function_external_payable$_t_uint256_$_t_uint256_$_t_uint256_$returns$__$value",
+                        "typeString": "function (uint256,uint256,uint256) payable external"
                       }
                     },
-                    "id": 5140,
+                    "id": 8113,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -827,52 +871,52 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "241:54:10",
+                    "src": "241:68:11",
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 5141,
+                  "id": 8114,
                   "nodeType": "ExpressionStatement",
-                  "src": "241:54:10"
+                  "src": "241:68:11"
                 }
               ]
             },
             "documentation": null,
-            "id": 5143,
+            "id": 8116,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "buyOnBehalf",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 5128,
+              "id": 8100,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5123,
+                  "id": 8095,
                   "name": "stewardAddress",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5143,
-                  "src": "125:33:10",
+                  "scope": 8116,
+                  "src": "125:33:11",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_WildcardSteward_v2_$4859",
-                    "typeString": "contract WildcardSteward_v2"
+                    "typeIdentifier": "t_contract$_WildcardSteward_v3_$7831",
+                    "typeString": "contract WildcardSteward_v3"
                   },
                   "typeName": {
                     "contractScope": null,
-                    "id": 5122,
-                    "name": "WildcardSteward_v2",
+                    "id": 8094,
+                    "name": "WildcardSteward_v3",
                     "nodeType": "UserDefinedTypeName",
-                    "referencedDeclaration": 4859,
-                    "src": "125:18:10",
+                    "referencedDeclaration": 7831,
+                    "src": "125:18:11",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_WildcardSteward_v2_$4859",
-                      "typeString": "contract WildcardSteward_v2"
+                      "typeIdentifier": "t_contract$_WildcardSteward_v3_$7831",
+                      "typeString": "contract WildcardSteward_v3"
                     }
                   },
                   "value": null,
@@ -880,11 +924,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 5125,
+                  "id": 8097,
                   "name": "tokenId",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5143,
-                  "src": "168:15:10",
+                  "scope": 8116,
+                  "src": "168:15:11",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -892,10 +936,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5124,
+                    "id": 8096,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "168:7:10",
+                    "src": "168:7:11",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -906,11 +950,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 5127,
+                  "id": 8099,
                   "name": "newPrice",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5143,
-                  "src": "193:16:10",
+                  "scope": 8116,
+                  "src": "193:16:11",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -918,10 +962,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5126,
+                    "id": 8098,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "193:7:10",
+                    "src": "193:7:11",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -931,25 +975,25 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "115:100:10"
+              "src": "115:100:11"
             },
             "returnParameters": {
-              "id": 5129,
+              "id": 8101,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "231:0:10"
+              "src": "231:0:11"
             },
-            "scope": 5166,
-            "src": "95:207:10",
+            "scope": 8139,
+            "src": "95:221:11",
             "stateMutability": "payable",
             "superFunction": null,
             "visibility": "public"
           },
           {
             "body": {
-              "id": 5156,
+              "id": 8129,
               "nodeType": "Block",
-              "src": "403:55:10",
+              "src": "417:55:11",
               "statements": [
                 {
                   "expression": {
@@ -957,12 +1001,12 @@
                     "arguments": [
                       {
                         "argumentTypes": null,
-                        "id": 5153,
+                        "id": 8126,
                         "name": "amount",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 5147,
-                        "src": "444:6:10",
+                        "referencedDeclaration": 8120,
+                        "src": "458:6:11",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
                           "typeString": "uint256"
@@ -978,32 +1022,32 @@
                       ],
                       "expression": {
                         "argumentTypes": null,
-                        "id": 5150,
+                        "id": 8123,
                         "name": "stewardAddress",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 5145,
-                        "src": "413:14:10",
+                        "referencedDeclaration": 8118,
+                        "src": "427:14:11",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_WildcardSteward_v2_$4859",
-                          "typeString": "contract WildcardSteward_v2"
+                          "typeIdentifier": "t_contract$_WildcardSteward_v3_$7831",
+                          "typeString": "contract WildcardSteward_v3"
                         }
                       },
-                      "id": 5152,
+                      "id": 8125,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "memberName": "withdrawDeposit",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4581,
-                      "src": "413:30:10",
+                      "referencedDeclaration": 7516,
+                      "src": "427:30:11",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_uint256_$returns$_t_uint256_$",
                         "typeString": "function (uint256) external returns (uint256)"
                       }
                     },
-                    "id": 5154,
+                    "id": 8127,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1011,52 +1055,52 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "413:38:10",
+                    "src": "427:38:11",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
                     }
                   },
-                  "id": 5155,
+                  "id": 8128,
                   "nodeType": "ExpressionStatement",
-                  "src": "413:38:10"
+                  "src": "427:38:11"
                 }
               ]
             },
             "documentation": null,
-            "id": 5157,
+            "id": 8130,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "withdrawDeposit",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 5148,
+              "id": 8121,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5145,
+                  "id": 8118,
                   "name": "stewardAddress",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5157,
-                  "src": "333:33:10",
+                  "scope": 8130,
+                  "src": "347:33:11",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_WildcardSteward_v2_$4859",
-                    "typeString": "contract WildcardSteward_v2"
+                    "typeIdentifier": "t_contract$_WildcardSteward_v3_$7831",
+                    "typeString": "contract WildcardSteward_v3"
                   },
                   "typeName": {
                     "contractScope": null,
-                    "id": 5144,
-                    "name": "WildcardSteward_v2",
+                    "id": 8117,
+                    "name": "WildcardSteward_v3",
                     "nodeType": "UserDefinedTypeName",
-                    "referencedDeclaration": 4859,
-                    "src": "333:18:10",
+                    "referencedDeclaration": 7831,
+                    "src": "347:18:11",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_WildcardSteward_v2_$4859",
-                      "typeString": "contract WildcardSteward_v2"
+                      "typeIdentifier": "t_contract$_WildcardSteward_v3_$7831",
+                      "typeString": "contract WildcardSteward_v3"
                     }
                   },
                   "value": null,
@@ -1064,11 +1108,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 5147,
+                  "id": 8120,
                   "name": "amount",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5157,
-                  "src": "368:14:10",
+                  "scope": 8130,
+                  "src": "382:14:11",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1076,10 +1120,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5146,
+                    "id": 8119,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "368:7:10",
+                    "src": "382:7:11",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -1089,25 +1133,25 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "332:51:10"
+              "src": "346:51:11"
             },
             "returnParameters": {
-              "id": 5149,
+              "id": 8122,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "403:0:10"
+              "src": "417:0:11"
             },
-            "scope": 5166,
-            "src": "308:150:10",
+            "scope": 8139,
+            "src": "322:150:11",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           },
           {
             "body": {
-              "id": 5164,
+              "id": 8137,
               "nodeType": "Block",
-              "src": "492:40:10",
+              "src": "506:40:11",
               "statements": [
                 {
                   "expression": {
@@ -1116,14 +1160,14 @@
                       {
                         "argumentTypes": null,
                         "hexValue": "49276d204d616c6963696f7573",
-                        "id": 5161,
+                        "id": 8134,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "kind": "string",
                         "lValueRequested": false,
                         "nodeType": "Literal",
-                        "src": "509:15:10",
+                        "src": "523:15:11",
                         "subdenomination": null,
                         "typeDescriptions": {
                           "typeIdentifier": "t_stringliteral_e2d914067335af1611afb627d0b2924b9bcb5e4872495646ea8ccd9320b103ac",
@@ -1139,21 +1183,21 @@
                           "typeString": "literal_string \"I'm Malicious\""
                         }
                       ],
-                      "id": 5160,
+                      "id": 8133,
                       "name": "revert",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        8298,
-                        8299
+                        11346,
+                        11347
                       ],
-                      "referencedDeclaration": 8299,
-                      "src": "502:6:10",
+                      "referencedDeclaration": 11347,
+                      "src": "516:6:11",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_revert_pure$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (string memory) pure"
                       }
                     },
-                    "id": 5162,
+                    "id": 8135,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1161,57 +1205,57 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "502:23:10",
+                    "src": "516:23:11",
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 5163,
+                  "id": 8136,
                   "nodeType": "ExpressionStatement",
-                  "src": "502:23:10"
+                  "src": "516:23:11"
                 }
               ]
             },
             "documentation": null,
-            "id": 5165,
+            "id": 8138,
             "implemented": true,
             "kind": "fallback",
             "modifiers": [],
             "name": "",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 5158,
+              "id": 8131,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "472:2:10"
+              "src": "486:2:11"
             },
             "returnParameters": {
-              "id": 5159,
+              "id": 8132,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "492:0:10"
+              "src": "506:0:11"
             },
-            "scope": 5166,
-            "src": "464:68:10",
+            "scope": 8139,
+            "src": "478:68:11",
             "stateMutability": "payable",
             "superFunction": null,
             "visibility": "external"
           }
         ],
-        "scope": 5167,
-        "src": "62:472:10"
+        "scope": 8140,
+        "src": "62:486:11"
       }
     ],
-    "src": "0:535:10"
+    "src": "0:549:11"
   },
   "compiler": {
     "name": "solc",
-    "version": "0.5.16+commit.9c3226ce.Emscripten.clang"
+    "version": "0.5.17+commit.d19bba13.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.0.23",
-  "updatedAt": "2020-04-25T19:55:57.060Z",
+  "schemaVersion": "3.2.1",
+  "updatedAt": "2020-07-13T06:59:11.423Z",
   "devdoc": {
     "methods": {}
   },

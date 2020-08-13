@@ -3,8 +3,10 @@ build
 .DS_Store
 .vscode
 artifacts
+cache
 coverage
 .openzeppelin/dev-*.json
 .openzeppelin/.session
 secretsManager.js
 coverage.json
+.coverage*
