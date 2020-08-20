@@ -74,12 +74,6 @@ contract("WildcardSteward admin change", (accounts) => {
       },
     ]);
 
-    if (!isCoverage)
-      assert.equal(
-        owed10min.toString(),
-        expectedPatronageAfter10min.toString()
-      );
-
     // TEST 3:
     // Attempting to change the admin of the contract as a non-admin. Should fail
     await expectRevert(

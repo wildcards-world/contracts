@@ -1,11 +1,11 @@
 {
   "contracts": {
     "WildcardSteward": {
-      "address": "0x436b7c9df96668FEc1499400E0F958193A532a36",
-      "constructorCode": "608060405234801561001057600080fd5b50614cd8806100206000396000f3fe",
-      "bodyBytecodeHash": "ed7f11f23eceaeb667a1fcfbb20e6acf98e7c1c0e27be3afda9869a2bae39dfc",
-      "localBytecodeHash": "400ae41e1431ceb7c5fcfe84b82053b1354b7cc6dc83b0d73c8051b056f6e08e",
-      "deployedBytecodeHash": "400ae41e1431ceb7c5fcfe84b82053b1354b7cc6dc83b0d73c8051b056f6e08e",
+      "address": "0x0B664a2497e562b1040337D820D687bed4c4f6BE",
+      "constructorCode": "608060405234801561001057600080fd5b50612c80806100206000396000f3fe",
+      "bodyBytecodeHash": "4baea267943ea36e59d6ccd77a8f9525957ae8933b38490156ff4346e997e652",
+      "localBytecodeHash": "cf71322ea5b50b51f35de382120075b885762889c900bc9ff523b8a6fa0f10c3",
+      "deployedBytecodeHash": "cf71322ea5b50b51f35de382120075b885762889c900bc9ff523b8a6fa0f10c3",
       "types": null,
       "storage": null
     },
@@ -34,7 +34,7 @@
       {
         "address": "0x6D47CF86F6A490c6410fC082Fd1Ad29CF61492d0",
         "version": "0.1.0",
-        "implementation": "0x436b7c9df96668FEc1499400E0F958193A532a36",
+        "implementation": "0x0B664a2497e562b1040337D820D687bed4c4f6BE",
         "admin": "0x2D66278CF4d3537A7fD5842785570507996812b7",
         "kind": "Upgradeable"
       }
