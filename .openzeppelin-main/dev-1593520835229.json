@@ -1,0 +1,368 @@
+{
+  "contracts": {
+    "ERC721Patronage": {
+      "address": "0x1999c9F99be43305E385c662A63889A3c9c65C6f",
+      "constructorCode": "608060405261278c806100136000396000f3fe",
+      "bodyBytecodeHash": "55ea6c452d2be0ef73222982034892534afe1702b036dccc05c486659878423f",
+      "localBytecodeHash": "61e3fb5ce1195b96dd3839ca7c5985197a49a83960fe132aef34e9082aeea7b8",
+      "deployedBytecodeHash": "61e3fb5ce1195b96dd3839ca7c5985197a49a83960fe132aef34e9082aeea7b8",
+      "types": null,
+      "storage": null
+    },
+    "WildcardSteward": {
+      "address": "0x514DDd62fD89ce1197f3445d39c18A2AC888e3C3",
+      "constructorCode": "608060405234801561001057600080fd5b506124c1806100206000396000f3fe",
+      "bodyBytecodeHash": "c9fd39e10c96a9857004aa0047c807c6edab4598687aaf718908d3114639cb1d",
+      "localBytecodeHash": "53dfb693736f1d97001675fb7f50d68ef8124b30701e3e4110c0190070971e52",
+      "deployedBytecodeHash": "53dfb693736f1d97001675fb7f50d68ef8124b30701e3e4110c0190070971e52",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_mapping<t_uint256>": {
+          "id": "t_mapping<t_uint256>",
+          "valueType": "t_uint256",
+          "label": "mapping(key => uint256)",
+          "kind": "mapping"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_mapping<t_address>": {
+          "id": "t_mapping<t_address>",
+          "valueType": "t_address",
+          "label": "mapping(key => address)",
+          "kind": "mapping"
+        },
+        "t_mapping<t_bool>": {
+          "id": "t_mapping<t_bool>",
+          "valueType": "t_bool",
+          "label": "mapping(key => bool)",
+          "kind": "mapping"
+        },
+        "t_enum<WildcardSteward_v0.StewardState>": {
+          "id": "t_enum<WildcardSteward_v0.StewardState>",
+          "kind": "enum",
+          "label": "WildcardSteward_v0.StewardState",
+          "members": [
+            "Foreclosed",
+            "Owned"
+          ]
+        },
+        "t_mapping<t_enum<WildcardSteward_v0.StewardState>>": {
+          "id": "t_mapping<t_enum<WildcardSteward_v0.StewardState>>",
+          "valueType": "t_enum<WildcardSteward_v0.StewardState>",
+          "label": "mapping(key => WildcardSteward_v0.StewardState)",
+          "kind": "mapping"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 19340,
+          "type": "t_bool",
+          "src": "757:24:38"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 19342,
+          "type": "t_bool",
+          "src": "876:25:38"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 19404,
+          "type": "t_array:50<t_uint256>",
+          "src": "1982:29:38"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "price",
+          "astId": 375,
+          "type": "t_mapping<t_uint256>",
+          "src": "519:40:5"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "assetToken",
+          "astId": 377,
+          "type": "t_address",
+          "src": "574:36:5"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "totalCollected",
+          "astId": 381,
+          "type": "t_mapping<t_uint256>",
+          "src": "632:49:5"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "currentCollected",
+          "astId": 385,
+          "type": "t_mapping<t_uint256>",
+          "src": "719:51:5"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "timeLastCollected",
+          "astId": 389,
+          "type": "t_mapping<t_uint256>",
+          "src": "817:52:5"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "timeLastCollectedPatron",
+          "astId": 393,
+          "type": "t_mapping<t_uint256>",
+          "src": "875:58:5"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "deposit",
+          "astId": 397,
+          "type": "t_mapping<t_uint256>",
+          "src": "939:42:5"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "totalPatronOwnedTokenCost",
+          "astId": 401,
+          "type": "t_mapping<t_uint256>",
+          "src": "987:60:5"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "benefactors",
+          "astId": 405,
+          "type": "t_mapping<t_address>",
+          "src": "1054:46:5"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "benefactorFunds",
+          "astId": 409,
+          "type": "t_mapping<t_uint256>",
+          "src": "1131:50:5"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "currentPatron",
+          "astId": 413,
+          "type": "t_mapping<t_address>",
+          "src": "1188:48:5"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "patrons",
+          "astId": 419,
+          "type": "t_mapping<t_bool>",
+          "src": "1291:59:5"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "timeHeld",
+          "astId": 425,
+          "type": "t_mapping<t_uint256>",
+          "src": "1356:63:5"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "timeAcquired",
+          "astId": 429,
+          "type": "t_mapping<t_uint256>",
+          "src": "1426:47:5"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "patronageNumerator",
+          "astId": 433,
+          "type": "t_mapping<t_uint256>",
+          "src": "1503:53:5"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "patronageDenominator",
+          "astId": 435,
+          "type": "t_uint256",
+          "src": "1562:35:5"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "state",
+          "astId": 442,
+          "type": "t_mapping<t_enum<WildcardSteward_v0.StewardState>>",
+          "src": "1646:45:5"
+        },
+        {
+          "contract": "WildcardSteward_v0",
+          "path": "contracts/WildcardSteward_v0.sol",
+          "label": "admin",
+          "astId": 444,
+          "type": "t_address",
+          "src": "1698:20:5"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "MintManager": {
+      "address": "0x56807D7f113010Ccc651E5D50b0F136E3Bc0A9c5",
+      "constructorCode": "608060405234801561001057600080fd5b50610570806100206000396000f3fe",
+      "bodyBytecodeHash": "b292e443b37d661ba0e7e6d5a35d5141a1d4b5f2a369cb0f2f434d94972a5390",
+      "localBytecodeHash": "e88c08c783812adc6607d8e4c90ccf7ecae97c4e5d156d4130812d44e1328061",
+      "deployedBytecodeHash": "e88c08c783812adc6607d8e4c90ccf7ecae97c4e5d156d4130812d44e1328061",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 19340,
+          "type": "t_bool",
+          "src": "757:24:38"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 19342,
+          "type": "t_bool",
+          "src": "876:25:38"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 19404,
+          "type": "t_array:50<t_uint256>",
+          "src": "1982:29:38"
+        },
+        {
+          "contract": "MintManager_v2",
+          "path": "contracts/MintManager_v2.sol",
+          "label": "admin",
+          "astId": 277,
+          "type": "t_address",
+          "src": "234:20:4"
+        },
+        {
+          "contract": "MintManager_v2",
+          "path": "contracts/MintManager_v2.sol",
+          "label": "steward",
+          "astId": 279,
+          "type": "t_address",
+          "src": "260:22:4"
+        },
+        {
+          "contract": "MintManager_v2",
+          "path": "contracts/MintManager_v2.sol",
+          "label": "token",
+          "astId": 281,
+          "type": "t_address",
+          "src": "288:27:4"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    }
+  },
+  "solidityLibs": {},
+  "proxies": {
+    "wildcards-contracts/WildcardSteward": [
+      {
+        "address": "0xF10E82E81CF8162890b216647ED33f692731E1Dc",
+        "version": "0.1.0",
+        "implementation": "0x514DDd62fD89ce1197f3445d39c18A2AC888e3C3",
+        "admin": "0x6836474f63FB8fA1Aa491b207488c9421C051544",
+        "kind": "Upgradeable"
+      }
+    ],
+    "wildcards-contracts/ERC721Patronage": [
+      {
+        "address": "0x8719D62C5cC16a048A29a9a5B0785B8Ce13d2231",
+        "version": "0.1.0",
+        "implementation": "0x1999c9F99be43305E385c662A63889A3c9c65C6f",
+        "admin": "0x6836474f63FB8fA1Aa491b207488c9421C051544",
+        "kind": "Upgradeable"
+      }
+    ]
+  },
+  "manifestVersion": "2.2",
+  "version": "0.1.0",
+  "proxyAdmin": {
+    "address": "0x6836474f63FB8fA1Aa491b207488c9421C051544"
+  }
+}

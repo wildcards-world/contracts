@@ -25,6 +25,28 @@ module.exports = {
       gasPrice: 45000000000, // 10 gwei
       skipDryRun: true,
     },
+    mumbai: {
+      network_id: 80001,
+      provider: new HDWalletProvider(
+        mnemonic,
+        "https://rpc-mumbai.matic.today",
+        0
+      ),
+      // gas: 4700000,
+      gasPrice: 2000000000, // 2 gwei
+      skipDryRun: true,
+    },
+    matic: {
+      network_id: 137,
+      provider: new HDWalletProvider(
+        mnemonic,
+        "https://rpc-mainnet.matic.network",
+        0
+      ),
+      // gas: 4700000,
+      gasPrice: 2000000000, // 2 gwei
+      skipDryRun: true,
+    },
     rinkeby: {
       network_id: 4,
       provider: new HDWalletProvider(mnemonic, rinkebyProviderUrl, 0),

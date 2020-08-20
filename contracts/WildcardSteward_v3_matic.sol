@@ -5,7 +5,7 @@ import "./MintManager_v2.sol";
 
 // import "@nomiclabs/buidler/console.sol";
 
-contract WildcardSteward_v3 is Initializable {
+contract WildcardSteward_v3_matic is Initializable {
     /*
     This smart contract collects patronage from current owner through a Harberger tax model and 
     takes stewardship of the asset token if the patron can't pay anymore.
@@ -64,6 +64,8 @@ contract WildcardSteward_v3 is Initializable {
     mapping(address => uint256) public timeLastCollectedBenefactor; // make my name consistent please
     mapping(address => uint256) public benefactorCredit;
     address public withdrawCheckerAdmin;
+
+    mapping(uint256 => bool) public withdrawalNonceUsed; // if true, the nonce (part of a withdrawal signature) has already been used for a withdrawal.
 
     /*
     31536000 seconds = 365 days
@@ -192,6 +194,7 @@ contract WildcardSteward_v3 is Initializable {
         uint256 _auctionEndPrice,
         uint256 _auctionLength
     ) public initializer {
+        emit UpgradeToV3();
         assetToken = ERC721Patronage_v1(_assetToken);
         admin = _admin;
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
@@ -274,86 +277,6 @@ contract WildcardSteward_v3 is Initializable {
                 );
             }
         }
-    }
-
-    function upgradeToV3(
-        uint256[] memory tokens,
-        address _withdrawCheckerAdmin,
-        uint256 _auctionStartPrice,
-        uint256 _auctionEndPrice,
-        uint256 _auctionLength
-    ) public notNullAddress(_withdrawCheckerAdmin) {
-        emit UpgradeToV3();
-        // This function effectively needs to call both _collectPatronage and _collectPatronagePatron from the v2 contract.
-        require(withdrawCheckerAdmin == address(0));
-        withdrawCheckerAdmin = _withdrawCheckerAdmin;
-        // For each token
-        for (uint8 i = 0; i < tokens.length; ++i) {
-            uint256 tokenId = tokens[i];
-            address currentOwner = assetToken.ownerOf(tokenId);
-
-            uint256 timeSinceTokenLastCollection = now.sub(
-                deprecated_timeLastCollected[tokenId]
-            );
-
-            // NOTE: for this upgrade we make sure no tokens are foreclosed, or close to foreclosing
-            uint256 collection = price[tokenId]
-                .mul(timeSinceTokenLastCollection)
-                .mul(patronageNumerator[tokenId])
-                .div(yearTimePatronagDenominator);
-
-            // set the timeLastCollectedPatron for that tokens owner to 'now'.
-            // timeLastCollected[tokenId] = now; // This variable is depricated, no need to update it.
-            if (timeLastCollectedPatron[currentOwner] < now) {
-                // set subtract patronage owed for the Patron from their deposit.
-                deposit[currentOwner] = deposit[currentOwner].sub(
-                    patronageOwedPatron(currentOwner)
-                );
-
-                timeLastCollectedPatron[currentOwner] = now;
-            }
-
-            // Add the amount collected for current token to the benefactorFunds.
-            benefactorFunds[benefactors[tokenId]] = benefactorFunds[benefactors[tokenId]]
-                .add(collection);
-
-            // Emit an event for the graph to pickup this action (the last time this event will ever be emited)
-            emit CollectPatronage(
-                tokenId,
-                currentOwner,
-                deposit[currentOwner],
-                collection
-            );
-
-            // mint required loyalty tokens
-            mintManager.tokenMint(
-                currentOwner,
-                timeSinceTokenLastCollection, // this should always be > 0
-                globalTokenGenerationRate // instead of this -> tokenGenerationRate[tokenId] hard code to save gas
-            );
-            emit CollectLoyalty(
-                currentOwner,
-                timeSinceTokenLastCollection.mul(globalTokenGenerationRate)
-            ); // OPTIMIZE ME
-
-            // Add the tokens generation rate to the totalPatronTokenGenerationRate of the current owner
-            totalPatronTokenGenerationRate[currentOwner] = totalPatronTokenGenerationRate[currentOwner]
-                .add(globalTokenGenerationRate);
-
-            address tokenBenefactor = benefactors[tokenId];
-            // add the scaled tokens price to the `totalBenefactorTokenNumerator`
-            totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
-                .add(price[tokenId].mul(patronageNumerator[tokenId]));
-
-            if (timeLastCollectedBenefactor[tokenBenefactor] == 0) {
-                timeLastCollectedBenefactor[tokenBenefactor] = now;
-            }
-        }
-        _changeAuctionParameters(
-            _auctionStartPrice,
-            _auctionEndPrice,
-            _auctionLength
-        );
     }
 
     function changeReceivingBenefactor(
@@ -702,14 +625,17 @@ contract WildcardSteward_v3 is Initializable {
     function hasher(
         address benefactor,
         uint256 maxAmount,
-        uint256 expiry
+        uint256 expiry,
+        uint256 nonce
     ) public view returns (bytes32) {
         // In ethereum you have to prepend all signature hashes with this message (supposedly to prevent people from)
         return
             keccak256(
                 abi.encodePacked(
                     "\x19Ethereum Signed Message:\n32",
-                    keccak256(abi.encodePacked(benefactor, maxAmount, expiry))
+                    keccak256(
+                        abi.encodePacked(benefactor, maxAmount, expiry, nonce)
+                    )
                 )
             );
     }
@@ -718,6 +644,7 @@ contract WildcardSteward_v3 is Initializable {
         address payable benefactor,
         uint256 maxAmount,
         uint256 expiry,
+        uint256 nonce,
         bytes32 hash,
         uint8 v,
         bytes32 r,
@@ -727,11 +654,13 @@ contract WildcardSteward_v3 is Initializable {
             ecrecover(hash, v, r, s) == withdrawCheckerAdmin,
             "no permission to withdraw"
         );
+        require(!withdrawalNonceUsed[nonce], "nonce already used");
         require(
-            hash == hasher(benefactor, maxAmount, expiry),
+            hash == hasher(benefactor, maxAmount, expiry, nonce),
             "incorrect hash"
         );
         require(now < expiry, "coupon expired");
+        withdrawalNonceUsed[nonce] = true;
 
         _updateBenefactorBalance(benefactor);
 
