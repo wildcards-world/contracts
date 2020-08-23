@@ -4,7 +4,8 @@
     "ERC721Patronage": "ERC721Patronage_v1",
     "WildcardSteward": "WildcardSteward_v3_matic",
     "ERC20PatronageReceipt": "ERC20PatronageReceipt_v2_upgradable",
-    "MintManager": "MintManager_v2"
+    "MintManager": "MintManager_v2",
+    "ERC20PatronageReceipt_upgradable": "ERC20PatronageReceipt_v2_upgradable"
   },
   "dependencies": {},
   "name": "matic-deploy",
