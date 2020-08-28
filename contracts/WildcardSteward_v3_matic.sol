@@ -1,7 +1,7 @@
-pragma solidity 0.5.17;
+pragma solidity 0.6.12;
 
-import "./ERC721Patronage_v1.sol";
 import "./MintManager_v2.sol";
+import "./ERC721Patronage_v1.sol";
 
 // import "@nomiclabs/buidler/console.sol";
 
@@ -78,6 +78,8 @@ contract WildcardSteward_v3_matic is Initializable {
     //       - this can be done since all tokens have the exact same tokenGenerationRate - and hardcoding saves gas.
     uint256 public constant globalTokenGenerationRate = 11574074074074;
     uint256 public constant yearTimePatronagDenominator = 31536000000000000000;
+
+    IERC20Mintable public paymentToken; // ERC721 NFT.
 
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
     event PriceChange(uint256 indexed tokenId, uint256 newPrice);

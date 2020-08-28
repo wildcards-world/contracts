@@ -1,5 +1,5 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
-contract IERC20Mintable {
-    function mint(address account, uint256 amount) public returns (bool);
+interface IERC20Mintable {
+    function mint(address account, uint256 amount) external;
 }

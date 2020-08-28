@@ -4,9 +4,9 @@ const { time } = require("@openzeppelin/test-helpers");
 const { promisify } = require("util");
 
 const NUM_SECONDS_IN_YEAR = "31536000";
-const STEWARD_CONTRACT_NAME = "./WildcardSteward_v3.sol";
+const STEWARD_CONTRACT_NAME = "./WildcardSteward_v3_matic.sol";
 const ERC721_CONTRACT_NAME = "./ERC721Patronage_v1.sol";
-const ERC20_CONTRACT_NAME = "./ERC20PatronageReceipt_v2.sol";
+const ERC20_CONTRACT_NAME = "./ERC20PatronageReceipt_v2_upgradable.sol";
 const MINT_MANAGER_CONTRACT_NAME = "./MintManager_v2.sol";
 const SENT_ATTACKER_CONTRACT_NAME = "./tests/SendBlockAttacker.sol";
 const abi = require("ethereumjs-abi");
@@ -39,9 +39,15 @@ const initialize = async (
   const erc721 = await ERC721token.new({ from: admin });
   const steward = await WildcardSteward.new({ from: admin });
   const mintManager = await MintManager.new({ from: admin });
-  const erc20 = await ERC20token.new("Wildcards Loyalty Token", "WLT", 18, {
+  const erc20 = await ERC20token.new({
     from: admin,
   });
+  await erc20.setup(
+    "Wildcards Loyalty Token",
+    "WLT",
+    mintManager.address,
+    admin
+  );
   await mintManager.initialize(admin, steward.address, erc20.address, {
     from: admin,
   });
@@ -53,11 +59,12 @@ const initialize = async (
     steward.address,
     "ALWAYSFORSALETestToken",
     "AFSTT",
+    steward.address,
     admin,
     { from: admin }
   );
-  await erc721.addMinter(steward.address, { from: admin });
-  await erc721.renounceMinter({ from: admin });
+  // await erc721.addMinter(steward.address, { from: admin });
+  // await erc721.renounceMinter({ from: admin });
   // TODO: use this to make the contract address of the token deturministic: https://ethereum.stackexchange.com/a/46960/4642
   // address _assetToken,
   // address _admin,
@@ -154,12 +161,13 @@ const withdrawBenefactorFundsAll = async (
   expiry,
   from
 ) => {
+  const randomNonce = Math.floor(Math.random() * 10000000);
   const hash =
     "0x" +
     abi
       .soliditySHA3(
-        ["address", "uint256", "uint256"],
-        [benefactor, maxAmount, expiry]
+        ["address", "uint256", "uint256", "uint256"],
+        [benefactor, maxAmount, expiry, randomNonce]
       )
       .toString("hex");
 
@@ -184,11 +192,11 @@ const withdrawBenefactorFundsAll = async (
   //   sigDecoded.s
   // );
   // const recoveredAddress = ethUtil.pubToAddress(recoveredPub).toString("hex");
-
   return await steward.withdrawBenefactorFundsToValidated(
     benefactor,
     maxAmount,
     expiry,
+    randomNonce,
     prefixedHash,
     v,
     r,
