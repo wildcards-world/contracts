@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 contract Initializable {
     bool private initialized;
@@ -128,6 +128,7 @@ contract URIFixer is
     ERC721MetadataMintable
 {
     address public steward;
+
     // mapping(uint256 => bytes32) _tokenURInew;
 
     function setOwner(address upgradeAdmin) public {

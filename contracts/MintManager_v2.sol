@@ -1,8 +1,8 @@
-pragma solidity 0.5.17;
+pragma solidity 0.6.12;
 
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol";
+import "./mod/ERC721.sol";
 import "./interfaces/IERC20Mintable.sol";
-
+import "@nomiclabs/buidler/console.sol";
 
 contract MintManager_v2 is Initializable {
     using SafeMath for uint256;

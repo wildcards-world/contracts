@@ -1,23 +1,23 @@
-pragma solidity 0.5.17;
+pragma solidity 0.6.12;
 
-import "../WildcardSteward_v3.sol";
+import "../WildcardSteward_v3_matic.sol";
 
 contract SendBlockAttacker {
     function buyOnBehalf(
-        WildcardSteward_v3 stewardAddress,
+        WildcardSteward_v3_matic stewardAddress,
         uint256 tokenId,
         uint256 newPrice
     ) public payable {
         stewardAddress.buyAuction.value(msg.value)(tokenId, newPrice, 50000);
     }
 
-    function withdrawDeposit(WildcardSteward_v3 stewardAddress, uint256 amount)
+    function withdrawDeposit(WildcardSteward_v3_matic stewardAddress, uint256 amount)
         public
     {
         stewardAddress.withdrawDeposit(amount);
     }
 
-    function() external payable {
+    function fallback() external payable {
         revert("I'm Malicious");
     }
 }

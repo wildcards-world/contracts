@@ -17,7 +17,7 @@
   "author": "santiago@openzeppelin.com",
   "license": "MIT",
   "dependencies": {
-    "@openzeppelin/contracts-ethereum-package": "^2.5.0",
+    "@openzeppelin/contracts-ethereum-package": "^3.0.0",
     "@openzeppelin/upgrades": "^2.5.3",
     "@truffle/hdwallet-provider": "^1.0.33",
     "buidler-gas-reporter": "^0.1.3",
@@ -32,7 +32,7 @@
     "@openzeppelin/test-helpers": "^0.5.1",
     "chai": "^4.2.0",
     "eth-gas-reporter": "^0.2.17",
-    "ethereumjs-abi": "^0.6.8",
+    "ethereumjs-abi": "^0.6.12",
     "ethereumjs-util": "^7.0.2",
     "truffle": "^5.0.38"
   }
