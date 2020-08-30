@@ -13,4 +13,6 @@ interface IERC20Mintable {
         external
         virtual
         returns (bool);
+
+    function balanceOf(address account) external virtual view returns (uint256);
 }

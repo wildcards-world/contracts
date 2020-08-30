@@ -3,7 +3,7 @@ pragma solidity 0.6.12;
 import "./MintManager_v2.sol";
 import "./ERC721Patronage_v1.sol";
 
-// import "@nomiclabs/buidler/console.sol";
+import "@nomiclabs/buidler/console.sol";
 
 contract WildcardSteward_v3_matic is Initializable {
     /*
@@ -194,13 +194,15 @@ contract WildcardSteward_v3_matic is Initializable {
         address _withdrawCheckerAdmin,
         uint256 _auctionStartPrice,
         uint256 _auctionEndPrice,
-        uint256 _auctionLength
+        uint256 _auctionLength,
+        address _paymentToken
     ) public initializer {
         emit UpgradeToV3();
         assetToken = ERC721Patronage_v1(_assetToken);
         admin = _admin;
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
         mintManager = MintManager_v2(_mintManager);
+        paymentToken = IERC20Mintable(_paymentToken);
         _changeAuctionParameters(
             _auctionStartPrice,
             _auctionEndPrice,
@@ -699,6 +701,8 @@ contract WildcardSteward_v3_matic is Initializable {
                     );
                 }
             } else {
+                uint256 contractBalance = paymentToken.balanceOf(address(this));
+
                 if (sendErc20(availableToWithdraw, benefactor)) {
                     benefactorFunds[benefactor] = 0;
                     emit WithdrawBenefactorFunds(
@@ -808,6 +812,7 @@ contract WildcardSteward_v3_matic is Initializable {
             price[tokenId] == previousPrice,
             "must specify current price accurately"
         );
+        address owner = assetToken.ownerOf(tokenId);
 
         _distributePurchaseProceeds(tokenId);
 
@@ -915,15 +920,16 @@ contract WildcardSteward_v3_matic is Initializable {
             address payable payableCurrentPatron = address(
                 uint160(tokenPatron)
             );
-            (bool transferSuccess, ) = payableCurrentPatron
-                .call
-                .gas(2300)
-                .value(previousOwnerProceedsFromSale)("");
-            if (!transferSuccess) {
-                deposit[tokenPatron] = deposit[tokenPatron].add(
-                    previousOwnerProceedsFromSale
-                );
-            }
+            // (bool transferSuccess, ) = payableCurrentPatron
+            //     .call
+            //     .gas(2300)
+            //     .value(previousOwnerProceedsFromSale)("");
+            // if (!transferSuccess) {
+            //     deposit[tokenPatron] = deposit[tokenPatron].add(
+            //         previousOwnerProceedsFromSale
+            //     );
+            // }
+            sendErc20(previousOwnerProceedsFromSale, tokenPatron);
         } else {
             deposit[tokenPatron] = deposit[tokenPatron].add(
                 previousOwnerProceedsFromSale
@@ -982,9 +988,6 @@ contract WildcardSteward_v3_matic is Initializable {
 
         deposit[msg.sender] = deposit[msg.sender].sub(_wei);
 
-        sendErc20(_wei, msg.sender);
-
-        // (bool transferSuccess, ) = msg.sender.call.gas(2300).value(_wei)("");
         if (!sendErc20(_wei, msg.sender)) {
             revert("withdrawal failed");
         }

@@ -1,4 +1,4 @@
-const { BN, ether, balance, time } = require("@openzeppelin/test-helpers");
+const { BN, ether, time } = require("@openzeppelin/test-helpers");
 const { promisify } = require("util");
 const {
   setupTimeManager,
@@ -12,7 +12,7 @@ const {
 const one = new BN(1);
 
 contract("WildcardSteward Benefactor collection", (accounts) => {
-  let steward;
+  let steward, paymentToken;
 
   const patronageNumerator = "12000000000000";
   const patronageDenominator = "1000000000000";
@@ -95,9 +95,11 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
       auctionStartPrice,
       auctionEndPrice,
       auctionDuration,
-      tokenDetails
+      tokenDetails,
+      [benefactor1, benefactor2, patron2, patron1]
     );
     steward = result.steward;
+    paymentToken = result.paymentToken;
     withdrawMaxPermissioned = async (benefactor) =>
       withdrawBenefactorFundsAll(
         steward,
@@ -114,16 +116,15 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
   it("steward: benefactor withdrawal. A token is owned for 1 year.", async () => {
     const tokenPrice = ether("0.01");
     const deposit = ether("0.5");
-    await steward.buyAuction(1, tokenPrice, percentageForWildcards, {
+    await steward.buyAuction(1, tokenPrice, percentageForWildcards, deposit, {
       from: accounts[2],
-      value: deposit,
     });
 
     let timestampBefore = (
       await web3.eth.getBlock(await web3.eth.getBlockNumber())
     ).timestamp;
 
-    const balTrack = await balance.tracker(benefactor1);
+    const balanceBefore = await paymentToken.balanceOf(benefactor1);
     await setNextTxTimestamp(time.duration.days(365));
 
     await withdrawMaxPermissioned(benefactor1);
@@ -133,8 +134,9 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
       .mul(new BN(patronageNumerator))
       .div(new BN(patronageDenominator))
       .div(time.duration.days(365));
+    const balanceAfter = await paymentToken.balanceOf(benefactor1);
     if (!isCoverage)
-      assert.equal((await balTrack.delta()).toString(), due.toString());
+      assert.equal(balanceAfter.sub(balanceBefore).toString(), due.toString());
   });
 
   // it("steward: benefactor withdrawal. A token is owned for 1 year.", async () => {
@@ -176,9 +178,10 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
           tokenDetails[1].token,
           tokenPrice,
           percentageForWildcards,
+          // TODO: investigate why setting this deposit to a lower value causes a contract revert (eg deposit causes a revert)
+          deposit.mul(new BN(10)),
           {
             from: patron2,
-            value: deposit.mul(new BN(10)),
           }
         )
       );
@@ -188,9 +191,10 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
           tokenDetails[0].token,
           tokenPrice,
           percentageForWildcards,
+          deposit,
           {
             from: patron1,
-            value: deposit,
+            // value: deposit,
           }
         )
       );
@@ -204,7 +208,7 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
         "foreclosure time should be 10 minutes after purchase"
       );
 
-      const balTrack = await balance.tracker(benefactor1);
+      const balanceBefore = await paymentToken.balanceOf(benefactor1);
       const withdrawBenefactorFundstimestamp = await setNextTxTimestamp(
         time.duration.minutes(20).add(one)
       );
@@ -225,8 +229,12 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
         },
       ]);
 
+      const balanceAfter = await paymentToken.balanceOf(benefactor1);
       if (!isCoverage)
-        assert.equal((await balTrack.delta()).toString(), totalDue.toString());
+        assert.equal(
+          balanceAfter.sub(balanceBefore).toString(),
+          totalDue.toString()
+        );
 
       const benefactorCreditBefore = await steward.benefactorCredit.call(
         benefactor1
@@ -313,7 +321,7 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
           "The benefactor scaled cost should be half (since half the tokens were foreclosed)"
         );
 
-        const balTrack2 = await balance.tracker(benefactor1);
+        const balanceBefore2 = await paymentToken.balanceOf(benefactor1);
         await setNextTxTimestamp(time.duration.minutes(40));
 
         // the amount of credit should be tenMinPatronageAt1Eth;
@@ -351,7 +359,8 @@ contract("WildcardSteward Benefactor collection", (accounts) => {
           },
         ]);
 
-        const changeInBenefactorBalance = await balTrack2.delta();
+        const balanceAfter2 = await paymentToken.balanceOf(benefactor1);
+        const changeInBenefactorBalance = balanceAfter2.sub(balanceBefore2);
         assert.isTrue(
           // NOTE: due to division error, can be off by 1...
           Math.abs(changeInBenefactorBalance.sub(totalDueInSecondWithdrawal)) <=
