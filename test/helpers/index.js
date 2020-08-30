@@ -104,6 +104,7 @@ const initialize = async (
     steward,
     mintManager,
     erc20,
+    paymentToken,
   };
 };
 
