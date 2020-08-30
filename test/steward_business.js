@@ -182,11 +182,7 @@ contract("WildcardSteward owed", (accounts) => {
     const patronDepositAfterSecondSale1 = await steward.deposit.call(
       accounts[2]
     );
-    console.log(
-      "before",
-      patronDepositAfterSecondSale1.toString(),
-      accounts[2]
-    );
+
     await steward.buy(
       tokenDetails[1].token,
       ether("1"),
@@ -201,7 +197,6 @@ contract("WildcardSteward owed", (accounts) => {
     const patronDepositAfterSecondSale2 = await steward.deposit.call(
       accounts[2]
     );
-    console.log("after", patronDepositAfterSecondSale2.toString(), accounts[2]);
 
     const balancePatronAfterSecondSale = await paymentToken.balanceOf(
       accounts[2]
@@ -209,7 +204,6 @@ contract("WildcardSteward owed", (accounts) => {
     const patronDepositAfterSecondSale = await steward.deposit.call(
       accounts[2]
     );
-    console.log(patronDepositAfterSecondSale.toString(), accounts[2]);
 
     const secondSaleArtistCut = token2Price
       .mul(artistCommission)
@@ -225,14 +219,6 @@ contract("WildcardSteward owed", (accounts) => {
     //Checking once no more tokens are owned, the deposit is set to zero
     assert.equal(patronDepositAfterSecondSale.toString(), "0");
     //Checking owner gets deposit back on sale of final token plus sale price too.
-    console.log(
-      balancePatronAfterSecondSale.toString(),
-      balancePatronAfterFirstSale
-        .add(token2Price.sub(secondSaleArtistCut).sub(secondSaleWildcardsCut))
-        .add(patronDepositAfterFirstSale)
-        .sub(patronageDueFromHoldingTokensSale2)
-        .toString()
-    );
     if (!isCoverage)
       assert.equal(
         balancePatronAfterSecondSale.toString(),

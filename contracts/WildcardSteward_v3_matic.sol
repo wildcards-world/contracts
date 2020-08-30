@@ -236,7 +236,7 @@ contract WildcardSteward_v3_matic is Initializable {
 
     function listNewTokens(
         uint256[] memory tokens,
-        address payable[] memory _benefactors,
+        address[] memory _benefactors,
         uint256[] memory _patronageNumerator,
         address[] memory _artists,
         uint256[] memory _artistCommission,
@@ -285,7 +285,7 @@ contract WildcardSteward_v3_matic is Initializable {
 
     function changeReceivingBenefactor(
         uint256 tokenId,
-        address payable _newReceivingBenefactor
+        address _newReceivingBenefactor
     )
         public
         onlyReceivingBenefactorOrAdmin(tokenId)
@@ -316,7 +316,7 @@ contract WildcardSteward_v3_matic is Initializable {
     // It should only be called once all their tokens also changeReceivingBenefactor
     function changeReceivingBenefactorDeposit(
         address oldBenfactor,
-        address payable _newReceivingBenefactor
+        address _newReceivingBenefactor
     )
         public
         onlyAdmin
@@ -614,7 +614,7 @@ contract WildcardSteward_v3_matic is Initializable {
             ); // 365 days * 1000000000000
     }
 
-    function withdrawBenefactorFundsTo(address payable benefactor) public {
+    function withdrawBenefactorFundsTo(address benefactor) public {
         _updateBenefactorBalance(benefactor);
 
         uint256 availableToWithdraw = benefactorFunds[benefactor];
@@ -664,7 +664,7 @@ contract WildcardSteward_v3_matic is Initializable {
     }
 
     function withdrawBenefactorFundsToValidated(
-        address payable benefactor,
+        address benefactor,
         uint256 maxAmount,
         uint256 expiry,
         uint256 nonce,
@@ -800,7 +800,6 @@ contract WildcardSteward_v3_matic is Initializable {
         uint256 depositAmount
     )
         public
-        payable
         collectPatronageAndSettleBenefactor(tokenId)
         collectPatronagePatron(msg.sender)
         priceGreaterThanZero(_newPrice)
@@ -812,12 +811,12 @@ contract WildcardSteward_v3_matic is Initializable {
             price[tokenId] == previousPrice,
             "must specify current price accurately"
         );
+        receiveErc20(depositAmount.add(price[tokenId]), msg.sender);
         address owner = assetToken.ownerOf(tokenId);
 
         _distributePurchaseProceeds(tokenId);
 
         wildcardsPercentages[tokenId] = wildcardsPercentage;
-        receiveErc20(depositAmount.add(price[tokenId]), msg.sender);
         deposit[msg.sender] = deposit[msg.sender].add(depositAmount);
         transferAssetTokenTo(
             tokenId,
@@ -835,7 +834,6 @@ contract WildcardSteward_v3_matic is Initializable {
         uint256 depositAmount
     )
         public
-        payable
         collectPatronageAndSettleBenefactor(tokenId)
         collectPatronagePatron(msg.sender)
         priceGreaterThanZero(_newPrice)
@@ -917,9 +915,7 @@ contract WildcardSteward_v3_matic is Initializable {
                 deposit[tokenPatron]
             );
             deposit[tokenPatron] = 0;
-            address payable payableCurrentPatron = address(
-                uint160(tokenPatron)
-            );
+            // address payableCurrentPatron = address(uint160(tokenPatron));
             // (bool transferSuccess, ) = payableCurrentPatron
             //     .call
             //     .gas(2300)
@@ -929,6 +925,7 @@ contract WildcardSteward_v3_matic is Initializable {
             //         previousOwnerProceedsFromSale
             //     );
             // }
+
             sendErc20(previousOwnerProceedsFromSale, tokenPatron);
         } else {
             deposit[tokenPatron] = deposit[tokenPatron].add(
