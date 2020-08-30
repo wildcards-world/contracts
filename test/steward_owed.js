@@ -22,6 +22,7 @@ const one = new BN(1);
 contract("WildcardSteward owed", (accounts) => {
   let erc721;
   let steward;
+  let paymentToken;
 
   const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
@@ -99,9 +100,11 @@ contract("WildcardSteward owed", (accounts) => {
       auctionStartPrice,
       auctionEndPrice,
       auctionDuration,
-      tokenDetails
+      tokenDetails,
+      [accounts[2], accounts[3]]
     );
     steward = result.steward;
+    paymentToken = result.paymentToken;
     erc721 = result.erc721;
 
     withdrawMaxPermissioned = async (benefactor) =>
@@ -118,18 +121,16 @@ contract("WildcardSteward owed", (accounts) => {
   });
 
   it("steward: owed. transfer without steward (fail)", async () => {
-    await steward.buyAuction(1, ether("1"), 50000, {
+    await steward.buyAuction(1, ether("1"), 50000, ether("1"), {
       from: accounts[2],
-      value: ether("1"),
     });
     await expectRevert.unspecified(
       erc721.transferFrom(accounts[2], accounts[1], 42, { from: accounts[2] })
     );
   });
   it("steward: owed. check patronage owed after 1 second.", async () => {
-    await steward.buyAuction(1, ether("1"), 50000, {
+    await steward.buyAuction(1, ether("1"), 50000, ether("1"), {
       from: accounts[2],
-      value: ether("1"),
     });
 
     await setTimestamp(1);
@@ -147,9 +148,8 @@ contract("WildcardSteward owed", (accounts) => {
   });
 
   it("steward: owed. check patronage owed after 1 year.", async () => {
-    await steward.buyAuction(1, ether("1"), 50000, {
+    await steward.buyAuction(1, ether("1"), 50000, ether("1"), {
       from: accounts[2],
-      value: ether("1"),
     });
 
     await setTimestamp(time.duration.days(365));
@@ -171,9 +171,8 @@ contract("WildcardSteward owed", (accounts) => {
 
   it("steward: owed. collect patronage successfully after 10 minutes.", async () => {
     const price = ether("1");
-    await steward.buyAuction(tokenDetails[0].token, price, 50000, {
+    await steward.buyAuction(tokenDetails[0].token, price, 50000, ether("1"), {
       from: accounts[2],
-      value: ether("1"),
     });
 
     const measurementTimestamp = await setTimestamp(time.duration.minutes(10));
@@ -229,9 +228,8 @@ contract("WildcardSteward owed", (accounts) => {
   it("steward: owed. collect patronage successfully after 10min and again after 10min.", async () => {
     const price = ether("1");
     const initialBuyTimestamp = await txTimestamp(
-      steward.buyAuction(tokenDetails[0].token, price, 50000, {
+      steward.buyAuction(tokenDetails[0].token, price, 50000, ether("1"), {
         from: accounts[2],
-        value: ether("1"),
       })
     );
 
@@ -290,10 +288,15 @@ contract("WildcardSteward owed", (accounts) => {
 
     // 10min of patronage
     const initialBuyTimestamp = await txTimestamp(
-      steward.buyAuction(tokenDetails[0].token, price, 50000, {
-        from: accounts[2],
-        value: tenMinPatronageAt1Eth,
-      })
+      steward.buyAuction(
+        tokenDetails[0].token,
+        price,
+        50000,
+        tenMinPatronageAt1Eth,
+        {
+          from: accounts[2],
+        }
+      )
     );
 
     await setNextTxTimestamp(tenMinutes.add(one));
@@ -345,9 +348,8 @@ contract("WildcardSteward owed", (accounts) => {
 
   it("steward: owed. Deposit zero after 10min of patronage (after 10min) [success].", async () => {
     // 10min of patronage
-    await steward.buyAuction(1, ether("1"), 50000, {
+    await steward.buyAuction(1, ether("1"), 50000, tenMinPatronageAt1Eth, {
       from: accounts[2],
-      value: tenMinPatronageAt1Eth,
     });
 
     await setTimestamp(time.duration.minutes(10));
@@ -363,9 +365,8 @@ contract("WildcardSteward owed", (accounts) => {
   it("steward: owed. Foreclose Time is 10min into future on 10min patronage deposit [success].", async () => {
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
-    await steward.buyAuction(1, ether("1"), 50000, {
+    await steward.buyAuction(1, ether("1"), 50000, totalToBuy, {
       from: accounts[2],
-      value: totalToBuy,
     });
 
     const forecloseTime = await steward.foreclosureTime.call(1);
@@ -381,10 +382,15 @@ contract("WildcardSteward owed", (accounts) => {
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
     const initialBuyTime = await txTimestamp(
-      steward.buyAuction(tokenDetails[0].token, price, wildcardsSplit, {
-        from: accounts[2],
-        value: totalToBuy,
-      })
+      steward.buyAuction(
+        tokenDetails[0].token,
+        price,
+        wildcardsSplit,
+        totalToBuy,
+        {
+          from: accounts[2],
+        }
+      )
     );
 
     let secondBuyTime = await setNextTxTimestamp(
@@ -395,9 +401,9 @@ contract("WildcardSteward owed", (accounts) => {
       tokenDetails[0].token,
       price2,
       wildcardsSplit,
+      totalToBuy, // Paying the 1eth auction price plus totaltobuy
       {
         from: accounts[3],
-        value: secondBuyValue, // Paying the 1eth auction price plus totaltobuy
       }
     ); // will foreclose and then buy
 
@@ -447,14 +453,19 @@ contract("WildcardSteward owed", (accounts) => {
   it("steward: owed. collect patronage by benefactor after 10min.", async () => {
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
-    await steward.buyAuction(tokenDetails[0].token, ether("1"), 50000, {
-      from: accounts[2],
-      value: totalToBuy,
-    });
+    await steward.buyAuction(
+      tokenDetails[0].token,
+      ether("1"),
+      50000,
+      totalToBuy,
+      {
+        from: accounts[2],
+      }
+    );
     await setNextTxTimestamp(time.duration.minutes(10).add(one));
     await steward._collectPatronageAndSettleBenefactor(tokenDetails[0].token); // will foreclose
 
-    const balTrack = await balance.tracker(benefactorAddress);
+    const balanceBefore = await paymentToken.balanceOf(benefactorAddress);
 
     await withdrawMaxPermissioned(benefactorAddress);
 
@@ -463,15 +474,17 @@ contract("WildcardSteward owed", (accounts) => {
     );
 
     assert.equal(benefactorFund.toString(), "0");
-    const delta = await balTrack.delta();
-    assert.equal(delta.toString(), totalToBuy.toString());
+    const balanceAfter = await paymentToken.balanceOf(benefactorAddress);
+    assert.equal(
+      balanceAfter.sub(balanceBefore).toString(),
+      totalToBuy.toString()
+    );
   });
   it("steward: owed. collect patronage. 10min deposit. 20min Foreclose.", async () => {
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
-    await steward.buyAuction(1, ether("1"), 50000, {
+    await steward.buyAuction(1, ether("1"), 50000, totalToBuy, {
       from: accounts[2],
-      value: totalToBuy,
     });
 
     await setTimestamp(time.duration.minutes(20));
@@ -519,24 +532,28 @@ contract("WildcardSteward owed", (accounts) => {
     assert.equal(steward.address, currentOwner);
   });
   it("steward: owed. deposit wei success from many accounts", async () => {
-    await steward.buyAuction(1, ether("1"), 50000, {
+    await steward.buyAuction(1, ether("1"), 50000, ether("2"), {
       from: accounts[2],
-      value: ether("2"),
     });
-    await steward.depositWei({ from: accounts[2], value: ether("1") });
-    await steward.depositWeiPatron(accounts[2], {
-      from: accounts[3],
-      value: ether("1"),
-    });
+    await steward.depositWei(ether("1"), { from: accounts[2] });
+    // NOTE: this function has been disabled temporarily for security reasons.
+    // await steward.depositWeiPatron(accounts[2], ether("1"), {
+    //   from: accounts[3],
+    // });
     const deposit = await steward.deposit.call(accounts[2]);
-    assert.equal(deposit.toString(), ether("4").toString());
+    assert.equal(deposit.toString(), ether("3").toString());
   });
 
   it("steward: owed. change price to zero [fail]", async () => {
-    await steward.buyAuction(tokenDetails[0].token, ether("1"), 50000, {
-      from: accounts[2],
-      value: ether("2"),
-    });
+    await steward.buyAuction(
+      tokenDetails[0].token,
+      ether("1"),
+      50000,
+      ether("2"),
+      {
+        from: accounts[2],
+      }
+    );
     await expectRevert(
       steward.changePrice(tokenDetails[0].token, "0", { from: accounts[2] }),
       "incorrect price"
@@ -544,10 +561,15 @@ contract("WildcardSteward owed", (accounts) => {
   });
 
   it("steward: owed. change price to more [success]", async () => {
-    await steward.buyAuction(tokenDetails[0].token, ether("1"), 50000, {
-      from: accounts[2],
-      value: ether("2"),
-    });
+    await steward.buyAuction(
+      tokenDetails[0].token,
+      ether("1"),
+      50000,
+      ether("2"),
+      {
+        from: accounts[2],
+      }
+    );
     const txReceipt = await steward.changePrice(
       tokenDetails[0].token,
       ether("3"),
@@ -561,10 +583,15 @@ contract("WildcardSteward owed", (accounts) => {
   });
 
   it("steward: owed. change price to less [success]", async () => {
-    await steward.buyAuction(tokenDetails[0].token, ether("1"), 50000, {
-      from: accounts[2],
-      value: ether("2"),
-    });
+    await steward.buyAuction(
+      tokenDetails[0].token,
+      ether("1"),
+      50000,
+      ether("2"),
+      {
+        from: accounts[2],
+      }
+    );
     await steward.changePrice(tokenDetails[0].token, ether("0.5"), {
       from: accounts[2],
     });
@@ -573,9 +600,8 @@ contract("WildcardSteward owed", (accounts) => {
   });
 
   it("steward: owed. change price to less with another account [fail]", async () => {
-    await steward.buyAuction(1, ether("1"), 50000, {
+    await steward.buyAuction(1, ether("1"), 50000, ether("2"), {
       from: accounts[2],
-      value: ether("2"),
     });
     await expectRevert(
       steward.changePrice(tokenDetails[0].token, ether("0.5"), {
@@ -586,10 +612,15 @@ contract("WildcardSteward owed", (accounts) => {
   });
 
   it("steward: owed. withdraw whole deposit into foreclosure [succeed]", async () => {
-    await steward.buyAuction(tokenDetails[0].token, ether("1"), 50000, {
-      from: accounts[2],
-      value: ether("2"),
-    });
+    await steward.buyAuction(
+      tokenDetails[0].token,
+      ether("1"),
+      50000,
+      ether("2"),
+      {
+        from: accounts[2],
+      }
+    );
     const deposit = await steward.deposit.call(accounts[2]);
     await setNextTxTimestamp(5);
     const amountUsed = patronageDue([
@@ -609,9 +640,8 @@ contract("WildcardSteward owed", (accounts) => {
   });
 
   it("steward: owed. withdraw whole deposit through exit into foreclosure after 10min [succeed]", async () => {
-    await steward.buyAuction(1, ether("1"), 50000, {
+    await steward.buyAuction(1, ether("1"), 50000, ether("2"), {
       from: accounts[2],
-      value: ether("2"),
     });
     await setNextTxTimestamp(time.duration.minutes(10));
     await steward.exit({ from: accounts[2] });
@@ -622,10 +652,15 @@ contract("WildcardSteward owed", (accounts) => {
   });
 
   it("steward: owed. withdraw some deposit [succeeds]", async () => {
-    await steward.buyAuction(tokenDetails[0].token, ether("1"), 50000, {
-      from: accounts[2],
-      value: ether("2"),
-    });
+    await steward.buyAuction(
+      tokenDetails[0].token,
+      ether("1"),
+      50000,
+      ether("2"),
+      {
+        from: accounts[2],
+      }
+    );
     await setNextTxTimestamp(5);
     const amountUsed = patronageDue([
       {
@@ -645,9 +680,8 @@ contract("WildcardSteward owed", (accounts) => {
   });
 
   it("steward: owed. withdraw more than exists [fail]", async () => {
-    await steward.buyAuction(1, ether("1"), 50000, {
+    await steward.buyAuction(1, ether("1"), 50000, ether("2"), {
       from: accounts[2],
-      value: ether("2"),
     });
     await expectRevert(
       steward.withdrawDeposit(ether("4"), { from: accounts[2] }),
@@ -662,9 +696,8 @@ contract("WildcardSteward owed", (accounts) => {
   // });
 
   it("steward: owed. Bought once, bought again from same account [success]", async () => {
-    await steward.buyAuction(1, ether("1"), 50000, {
+    await steward.buyAuction(1, ether("1"), 50000, ether("2"), {
       from: accounts[2],
-      value: ether("2"),
     });
     const deposit = await steward.deposit.call(accounts[2]);
     const price = await steward.price.call(1);
@@ -674,9 +707,8 @@ contract("WildcardSteward owed", (accounts) => {
     assert.equal(price.toString(), ether("1").toString());
     assert.equal(state, 1);
     assert.equal(currentOwner, accounts[2]);
-    await steward.buy(1, ether("1"), ether("1"), 50000, {
+    await steward.buy(1, ether("1"), ether("1"), 50000, ether("1"), {
       from: accounts[2],
-      value: ether("2"),
     });
     const deposit2 = await steward.deposit.call(accounts[2]);
     const price2 = await steward.price.call(1);
@@ -688,9 +720,8 @@ contract("WildcardSteward owed", (accounts) => {
     assert.equal(currentOwner2, accounts[2]);
   });
   it("steward: owed. Bought once, bought again from another account [success]", async () => {
-    await steward.buyAuction(1, ether("1"), 50000, {
+    await steward.buyAuction(1, ether("1"), 50000, ether("2"), {
       from: accounts[2],
-      value: ether("2"),
     });
     const deposit = await steward.deposit.call(accounts[2]);
     const price = await steward.price.call(1);
@@ -700,9 +731,8 @@ contract("WildcardSteward owed", (accounts) => {
     assert.equal(price.toString(), ether("1").toString());
     assert.equal(state, 1);
     assert.equal(currentOwner, accounts[2]);
-    await steward.buy(1, ether("1"), ether("1"), 50000, {
+    await steward.buy(1, ether("1"), ether("1"), 50000, ether("1"), {
       from: accounts[3],
-      value: ether("2"),
     });
     const deposit2 = await steward.deposit.call(accounts[3]);
     const price2 = await steward.price.call(1);
@@ -715,9 +745,8 @@ contract("WildcardSteward owed", (accounts) => {
   });
 
   it("steward: owed. Bought once, bought again from another account after 10min [success]", async () => {
-    await steward.buyAuction(1, ether("1"), 50000, {
+    await steward.buyAuction(1, ether("1"), 50000, ether("2"), {
       from: accounts[2],
-      value: ether("2"),
     });
     const deposit = await steward.deposit.call(accounts[2]);
     const price = await steward.price.call(1);
@@ -734,9 +763,8 @@ contract("WildcardSteward owed", (accounts) => {
     const balTrack = await balance.tracker(accounts[2]);
     const preBuy = await balTrack.get();
     const preDeposit = await steward.deposit.call(accounts[2]);
-    await steward.buy(1, ether("1"), ether("1"), 50000, {
+    await steward.buy(1, ether("1"), ether("1"), 50000, ether("1"), {
       from: accounts[3],
-      value: ether("2"),
       gasPrice: "1000000000",
     }); // 1 gwei
 
@@ -758,10 +786,15 @@ contract("WildcardSteward owed", (accounts) => {
   it("steward: owed: deposit wei, change price, withdrawing deposit in foreclosure state [fail]", async () => {
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
-    await steward.buyAuction(tokenDetails[0].token, ether("1"), 50000, {
-      from: accounts[2],
-      value: totalToBuy,
-    });
+    await steward.buyAuction(
+      tokenDetails[0].token,
+      ether("1"),
+      50000,
+      totalToBuy,
+      {
+        from: accounts[2],
+      }
+    );
     await setNextTxTimestamp(time.duration.minutes(20)); // into foreclosure state
 
     // await expectRevert(steward.depositWei({ from: accounts[2], value: ether('1') }), "Foreclosed");
@@ -780,16 +813,14 @@ contract("WildcardSteward owed", (accounts) => {
   it("steward: owed: goes into foreclosure state & bought from another account [success]", async () => {
     // 10min of patronage
     const totalToBuy = new BN(tenMinPatronageAt1Eth);
-    await steward.buyAuction(1, ether("1"), 50000, {
+    await steward.buyAuction(1, ether("1"), 50000, totalToBuy, {
       from: accounts[2],
-      value: totalToBuy,
     });
     await setNextTxTimestamp(time.duration.minutes(11000000)); // into foreclosure state
 
     // price should be 1 still at the instant it forecloses.
-    await steward.buyAuction(1, ether("2"), 50000, {
+    await steward.buyAuction(1, ether("2"), 50000, totalToBuy, {
       from: accounts[3],
-      value: totalToBuy,
     });
 
     const deposit = await steward.deposit.call(accounts[3]);
