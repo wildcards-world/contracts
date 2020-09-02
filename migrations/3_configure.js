@@ -7,6 +7,8 @@ const ERC20PatronageReceipt_v2 = artifacts.require(
 
 const { ConfigManager } = require("@openzeppelin/cli");
 
+const paymentTokenAddress = "0xc170F308756aD9C20364233B555A11a559578587";
+
 async function deploy(options, accounts) {
   const patronageERC721 = await ERC721Patronage_v1.deployed();
   const patronageERC20 = await ERC20PatronageReceipt_v2.deployed();
@@ -18,18 +20,20 @@ async function deploy(options, accounts) {
     steward.address,
     "WildcardsTokens",
     "WT",
-    steward.address
+    steward.address,
+    accounts[0]
   );
 
   console.log("2");
 
-  await patronageERC20.addMinter(steward.address);
-  console.log("3");
-  await patronageERC20.renounceMinter();
-  console.log("4");
+  await patronageERC20.setup(
+    "Wildcards Loyalty Token",
+    "WLT",
+    mintManager.address,
+    accounts[0]
+  );
 
   //STEWARD
-
   await steward.initialize(
     // address _assetToken,
     patronageERC721.address,
@@ -45,6 +49,7 @@ async function deploy(options, accounts) {
     "5000000000000000000", // 5 DAI
     // uint256 _auctionLength
     "604800", // 1week = 60*60*24*7
+    paymentTokenAddress,
     { from: accounts[0] }
   );
 

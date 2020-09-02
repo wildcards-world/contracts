@@ -38,13 +38,13 @@ async function deploy(options, accounts) {
   const patronageReceiptToken = await create({
     ...options,
     contractAlias: "ERC20PatronageReceipt_upgradable",
-    methodName: "setup",
-    methodArgs: ["Wildcards Loyalty Token", "WLT", 18, accounts[0]],
+    // methodName: "setup",
+    // methodArgs: ["Wildcards Loyalty Token", "WLT", accounts[0], accounts[0]],
   });
   console.log("6");
 }
 
-module.exports = function(deployer, networkName, accounts) {
+module.exports = function (deployer, networkName, accounts) {
   deployer.then(async () => {
     // Don't try to deploy/migrate the contracts for tests
     if (networkName === "test") {
