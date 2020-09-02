@@ -40,6 +40,10 @@ contract ERC721Patronage_v1 is ERC721UpgradeSafe, AccessControlUpgradeSafe {
         return true;
     }
 
+    function isMinter(address account) public view returns (bool) {
+        return hasRole(MINTER_ROLE, account);
+    }
+
     function _isApprovedOrOwner(address spender, uint256 tokenId)
         internal
         override
