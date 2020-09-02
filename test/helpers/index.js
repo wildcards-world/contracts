@@ -1,5 +1,5 @@
 const { BN } = require("@openzeppelin/test-helpers");
-const { time } = require("@openzeppelin/test-helpers");
+const { time, ether } = require("@openzeppelin/test-helpers");
 
 const { promisify } = require("util");
 
@@ -34,7 +34,8 @@ const initialize = async (
   auctionStartPrice,
   auctionEndPrice,
   auctionLength,
-  tokenParameters
+  tokenParameters,
+  accountsToMintPaymentTokensFor = []
 ) => {
   const erc721 = await ERC721token.new({ from: admin });
   const steward = await WildcardSteward.new({ from: admin });
@@ -48,6 +49,10 @@ const initialize = async (
     mintManager.address,
     admin
   );
+  const paymentToken = await ERC20token.new({
+    from: admin,
+  });
+  await paymentToken.setup("Payment Token", "TESTDAI", admin, admin);
   await mintManager.initialize(admin, steward.address, erc20.address, {
     from: admin,
   });
@@ -62,6 +67,14 @@ const initialize = async (
     steward.address,
     admin,
     { from: admin }
+  );
+  await Promise.all(
+    accountsToMintPaymentTokensFor.map(async (account) => {
+      await paymentToken.mint(account, ether("100"));
+      await paymentToken.approve(steward.address, ether("50"), {
+        from: account,
+      });
+    })
   );
   // await erc721.addMinter(steward.address, { from: admin });
   // await erc721.renounceMinter({ from: admin });
@@ -80,7 +93,8 @@ const initialize = async (
     withdrawCheckerAdmin,
     auctionStartPrice,
     auctionEndPrice,
-    auctionLength
+    auctionLength,
+    paymentToken.address
   );
 
   await launchTokens(steward, tokenParameters);
@@ -90,6 +104,7 @@ const initialize = async (
     steward,
     mintManager,
     erc20,
+    paymentToken,
   };
 };
 

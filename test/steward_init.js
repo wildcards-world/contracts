@@ -47,7 +47,8 @@ contract("WildcardSteward", (accounts) => {
       auctionStartPrice,
       auctionEndPrice,
       auctionDuration,
-      tokenDetails
+      tokenDetails,
+      [accounts[2]]
     );
     steward = result.steward;
     erc721 = result.erc721;
@@ -98,9 +99,8 @@ contract("WildcardSteward", (accounts) => {
   // next collect patronage event?
   it("steward: init: deposit wei fail [foreclosed or don't own any tokens]", async () => {
     await expectRevert(
-      steward.depositWei({
+      steward.depositWei(ether("1"), {
         from: accounts[2],
-        value: ether("1"),
       }),
       "no tokens"
     );
@@ -109,9 +109,8 @@ contract("WildcardSteward", (accounts) => {
   it("steward: init: wait time. deposit wei fail [foreclosed]", async () => {
     await time.increase(1000); // 1000 seconds, arbitrary
     await expectRevert(
-      steward.depositWei({
+      steward.depositWei(ether("1"), {
         from: accounts[2],
-        value: ether("1"),
       }),
       "no tokens"
     );
@@ -126,9 +125,8 @@ contract("WildcardSteward", (accounts) => {
 
   it("steward: init: buy with 1 ether but 0 price [fail on price]", async () => {
     await expectRevert(
-      steward.buy(0, 0, web3.utils.toWei("0", "ether"), 50000, {
+      steward.buy(0, 0, web3.utils.toWei("0", "ether"), 50000, ether("1"), {
         from: accounts[2],
-        value: ether("1"),
       }),
       "Price is zero"
     );
@@ -138,31 +136,29 @@ contract("WildcardSteward", (accounts) => {
   // But this should never be an issue as intial token price should never be 0
   // and therefore safemath will prevent this. See next test.
   it("steward: init: buyAuction with zero wei [fail payable]", async () => {
-    await steward.buyAuction(0, 1000, 50000, {
+    await steward.buyAuction(0, 1000, 50000, web3.utils.toWei("0", "ether"), {
       from: accounts[2],
-      value: web3.utils.toWei("0", "ether"),
     });
   });
 
-  it("steward: init: buyAuction with zero wei [fail payable]", async () => {
-    await steward.changeAuctionParameters(ether("1"), ether("0.05"), 86400, {
-      from: accounts[0],
-    });
+  // This test isn't relevant to erc20 tokens
+  // it("steward: init: buyAuction with zero wei [fail payable]", async () => {
+  //   await steward.changeAuctionParameters(ether("1"), ether("0.05"), 86400, {
+  //     from: accounts[0],
+  //   });
 
-    await expectRevert(
-      steward.buyAuction(0, 1000, 50000, {
-        from: accounts[2],
-        value: web3.utils.toWei("0", "ether"),
-      }),
-      "SafeMath: subtraction overflow"
-    );
-  });
+  //   await expectRevert(
+  //     steward.buyAuction(0, 1000, 50000, web3.utils.toWei("0", "ether"), {
+  //       from: accounts[2],
+  //     }),
+  //     "SafeMath: subtraction overflow"
+  //   );
+  // });
 
   it("steward: init: buyAuction with 1 ether but 0 price [fail on price]", async () => {
     await expectRevert(
-      steward.buyAuction(0, 0, 50000, {
+      steward.buyAuction(0, 0, 50000, ether("1"), {
         from: accounts[2],
-        value: ether("1"),
       }),
       "Price is zero"
     );
@@ -170,9 +166,8 @@ contract("WildcardSteward", (accounts) => {
 
   it("steward: init: Cannot buy foreclosed token using normal buy function", async () => {
     await expectRevert(
-      steward.buy(0, ether("1"), ether("1"), 50000, {
+      steward.buy(0, ether("1"), ether("1"), 50000, ether("1"), {
         from: accounts[2],
-        value: ether("1"),
       }),
       "token on auction"
     );
@@ -183,15 +178,13 @@ contract("WildcardSteward", (accounts) => {
       from: accounts[0],
     });
 
-    await steward.buyAuction(0, ether("1"), 50000, {
+    await steward.buyAuction(0, ether("1"), 50000, ether("1"), {
       from: accounts[2],
-      value: ether("1"),
     });
 
     await expectRevert(
-      steward.buyAuction(0, ether("1"), 50000, {
+      steward.buyAuction(0, ether("1"), 50000, ether("2"), {
         from: accounts[2],
-        value: ether("2"),
       }),
       "token not foreclosed"
     );
@@ -202,10 +195,15 @@ contract("WildcardSteward", (accounts) => {
       from: accounts[0],
     });
 
-    const txReceipt = await steward.buyAuction(0, ether("1"), 50000, {
-      from: accounts[2],
-      value: ether("1"),
-    });
+    const txReceipt = await steward.buyAuction(
+      0,
+      ether("1"),
+      50000,
+      ether("1"),
+      {
+        from: accounts[2],
+      }
+    );
     expectEvent(txReceipt, "Buy", { owner: accounts[2], price: ether("1") });
     const deposit = await steward.deposit.call(accounts[2]);
     const price = await steward.price.call(0);
@@ -220,9 +218,8 @@ contract("WildcardSteward", (accounts) => {
       from: accounts[0],
     });
     await expectRevert(
-      steward.buyAuction(5, ether("1"), 50000, {
+      steward.buyAuction(5, ether("1"), 50000, ether("2"), {
         from: accounts[2],
-        value: ether("2"),
       }),
       "owner query for nonexistent token"
     );

@@ -14,7 +14,7 @@ const {
 } = require("./helpers");
 
 contract("WildcardSteward owed", (accounts) => {
-  let steward;
+  let steward, paymentToken;
 
   const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
@@ -75,9 +75,11 @@ contract("WildcardSteward owed", (accounts) => {
       auctionStartPrice,
       auctionEndPrice,
       auctionDuration,
-      tokenDetails
+      tokenDetails,
+      [accounts[2], accounts[3]]
     );
     steward = result.steward;
+    paymentToken = result.paymentToken;
   });
 
   it("steward: multi-token-deposit. On token buy, check that the remaining deposit is sent back to patron only if it is their only token", async () => {
@@ -91,9 +93,9 @@ contract("WildcardSteward owed", (accounts) => {
         tokenDetails[0].token,
         token1Price,
         defaultPercentageForWildcards,
+        ether("1"),
         {
           from: accounts[2],
-          value: ether("1"),
           gasPrice: 0,
         }
       )
@@ -103,26 +105,24 @@ contract("WildcardSteward owed", (accounts) => {
       tokenDetails[1].token,
       token2Price,
       tenPercentForWildcards,
+      ether("1"),
       {
         from: accounts[2],
-        value: ether("1"),
         gasPrice: 0,
       }
     );
 
     const patronDepositBeforeSale = await steward.deposit.call(accounts[2]);
-    const balancePatronBeforeSale = new BN(
-      await web3.eth.getBalance(accounts[2])
-    );
+    const balancePatronBeforeSale = await paymentToken.balanceOf(accounts[2]);
     // When first token is bought, deposit should remain.
     await steward.buy(
       tokenDetails[0].token,
       ether("1"),
       ether("1"),
       defaultPercentageForWildcards,
+      ether("2"),
       {
         from: accounts[3],
-        value: ether("2"),
         gasPrice: 0,
       }
     );
@@ -135,8 +135,8 @@ contract("WildcardSteward owed", (accounts) => {
       .div(percentageCutPrecision);
 
     const patronDepositAfterFirstSale = await steward.deposit.call(accounts[2]);
-    const balancePatronAfterFirstSale = new BN(
-      await web3.eth.getBalance(accounts[2])
+    const balancePatronAfterFirstSale = await paymentToken.balanceOf(
+      accounts[2]
     );
 
     const patronageDueFromHoldingTokensSale1 = patronageDue([
@@ -178,20 +178,28 @@ contract("WildcardSteward owed", (accounts) => {
     );
 
     //Second token then bought. Deposit should now be added back the patrons balance
+
+    const patronDepositAfterSecondSale1 = await steward.deposit.call(
+      accounts[2]
+    );
+
     await steward.buy(
       tokenDetails[1].token,
       ether("1"),
       token2Price,
       defaultPercentageForWildcards,
+      ether("3"),
       {
         from: accounts[3],
-        value: ether("3"),
         gasPrice: 0,
       }
     );
+    const patronDepositAfterSecondSale2 = await steward.deposit.call(
+      accounts[2]
+    );
 
-    const balancePatronAfterSecondSale = new BN(
-      await web3.eth.getBalance(accounts[2])
+    const balancePatronAfterSecondSale = await paymentToken.balanceOf(
+      accounts[2]
     );
     const patronDepositAfterSecondSale = await steward.deposit.call(
       accounts[2]
@@ -222,8 +230,8 @@ contract("WildcardSteward owed", (accounts) => {
         "The user should get back their full deposit + sale price on last token sale."
       );
 
-    const balanceArtistBeforeWithdraw = new BN(
-      await web3.eth.getBalance(accounts[9])
+    const balanceArtistBeforeWithdraw = await paymentToken.balanceOf(
+      accounts[9]
     );
 
     const artistDepositAfterSecondSale = await steward.deposit.call(
@@ -239,8 +247,8 @@ contract("WildcardSteward owed", (accounts) => {
       gasPrice: 0,
     });
 
-    const balanceArtistAfterWithdraw = new BN(
-      await web3.eth.getBalance(accounts[9])
+    const balanceArtistAfterWithdraw = await paymentToken.balanceOf(
+      accounts[9]
     );
 
     assert.equal(

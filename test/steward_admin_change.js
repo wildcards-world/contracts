@@ -36,7 +36,8 @@ contract("WildcardSteward admin change", (accounts) => {
       ether("1"),
       ether("0.05"),
       86400,
-      animalDetails
+      animalDetails,
+      [accounts[2]]
     );
     erc721 = result.erc721;
     erc20 = result.erc20;
@@ -46,9 +47,9 @@ contract("WildcardSteward admin change", (accounts) => {
 
   it("steward: admin-change. On admin change, check that only the admin can change the admin address. Also checking withdraw benfactor funds can be called", async () => {
     //Buy a token
-    await steward.buyAuction(testTokenId1, ether("1"), 50000, {
+    await steward.buyAuction(testTokenId1, ether("1"), 50000, ether("1"), {
       from: accounts[2],
-      value: ether("2", "ether"),
+      // value: ether("2", "ether"),
     });
     const priceOfToken1 = await steward.price.call(testTokenId1);
 

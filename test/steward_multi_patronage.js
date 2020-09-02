@@ -62,7 +62,8 @@ contract("WildcardSteward owed", (accounts) => {
       auctionStartPrice,
       auctionEndPrice,
       auctionDuration,
-      tokenDetails
+      tokenDetails,
+      [accounts[2]]
     );
     steward = result.steward;
 
@@ -79,9 +80,8 @@ contract("WildcardSteward owed", (accounts) => {
 
     //Buying 1st token and setting selling price to 1 eth. With 1 eth deposit.
     const buyTx1BlockTime = await txTimestamp(
-      steward.buyAuction(testTokenId1, ether("1"), 50000, {
+      steward.buyAuction(testTokenId1, ether("1"), 50000, ether("1"), {
         from: accounts[2],
-        value: ether("1"),
       })
     );
     const lastCollectedPatronT0 = await steward.timeLastCollectedPatron.call(
@@ -140,8 +140,8 @@ contract("WildcardSteward owed", (accounts) => {
       testTokenId2,
       ether("2"),
       50000,
-
-      { from: accounts[2], value: ether("1") }
+      ether("1"),
+      { from: accounts[2] }
     );
     const benefactorFundsT20 = await steward.benefactorFunds.call(accounts[8]);
     const buyToken2BlockTime = (

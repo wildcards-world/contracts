@@ -2,7 +2,7 @@ const { BN, ether, time } = require("@openzeppelin/test-helpers");
 const { patronageDue, setupTimeManager, initialize } = require("./helpers");
 
 contract("WildcardSteward owed", (accounts) => {
-  let steward;
+  let steward, paymentToken;
   const patronageNumerator = "12000000000000";
   const artistAddress = accounts[9];
   const artistCommission = 0;
@@ -67,61 +67,77 @@ contract("WildcardSteward owed", (accounts) => {
       auctionStartPrice,
       auctionEndPrice,
       auctionDuration,
-      tokenDetails
+      tokenDetails,
+      [accounts[2], accounts[3]]
     );
     steward = result.steward;
+    paymentToken = result.paymentToken;
   });
 
   it("steward: multi-token-deposit. On token buy, check that the remaining deposit is sent back to patron only if it is their only token", async () => {
     //Buying 2 tokens. Setting selling price to 1 and 2 eth respectively. Sending 1 eth each for deposit.
     const buy1time = await txTimestamp(
-      steward.buyAuction(tokenDetails[0].token, ether("1"), 50000, {
+      steward.buyAuction(tokenDetails[0].token, ether("1"), 50000, ether("1"), {
         from: accounts[2],
-        value: ether("1"),
       })
     );
     const token2price = ether("2");
     const buy2time = await txTimestamp(
-      steward.buyAuction(tokenDetails[1].token, token2price, 50000, {
-        from: accounts[2],
-        value: ether("1"),
-      })
+      steward.buyAuction(
+        tokenDetails[1].token,
+        token2price,
+        50000,
+        ether("1"),
+        {
+          from: accounts[2],
+        }
+      )
     );
 
     const priceOftoken1 = await steward.price.call(tokenDetails[0].token);
     const priceOftoken2 = await steward.price.call(tokenDetails[1].token);
 
     const patronDepositBeforeSale = await steward.deposit.call(accounts[2]);
-    const balancePatronBeforeSale = new BN(
-      await web3.eth.getBalance(accounts[2])
-    );
+    const balancePatronBeforeSale = await paymentToken.balanceOf(accounts[2]);
 
     // TIME INCREASES HERE BY 10 MIN
     await setNextTxTimestamp(time.duration.minutes(10));
 
     // When first token is bought, deposit should remain.
     const sell1time = await txTimestamp(
-      steward.buy(tokenDetails[0].token, ether("1"), ether("1"), 50000, {
-        from: accounts[3],
-        value: ether("2"),
-      })
+      steward.buy(
+        tokenDetails[0].token,
+        ether("1"),
+        ether("1"),
+        50000,
+        ether("2"),
+        {
+          from: accounts[3],
+        }
+      )
     );
 
     const patronDepositAfterFirstSale = await steward.deposit.call(accounts[2]);
-    const balancePatronAfterFirstSale = new BN(
-      await web3.eth.getBalance(accounts[2])
+    const balancePatronAfterFirstSale = await paymentToken.balanceOf(
+      accounts[2]
     );
 
     //Second token then bought. Deposit should now be added back the patrons balance
     const sell2time = await txTimestamp(
-      steward.buy(tokenDetails[1].token, ether("1"), priceOftoken2, 50000, {
-        from: accounts[3],
-        value: ether("3"),
-      })
+      steward.buy(
+        tokenDetails[1].token,
+        ether("1"),
+        priceOftoken2,
+        50000,
+        ether("3"),
+        {
+          from: accounts[3],
+        }
+      )
     );
 
-    const balancePatronAfterSecondSale = new BN(
-      await web3.eth.getBalance(accounts[2])
+    const balancePatronAfterSecondSale = await paymentToken.balanceOf(
+      accounts[2]
     );
     const patronDepositAfterSecondSale = await steward.deposit.call(
       accounts[2]

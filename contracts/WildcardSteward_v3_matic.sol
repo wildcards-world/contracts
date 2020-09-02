@@ -3,7 +3,7 @@ pragma solidity 0.6.12;
 import "./MintManager_v2.sol";
 import "./ERC721Patronage_v1.sol";
 
-// import "@nomiclabs/buidler/console.sol";
+import "@nomiclabs/buidler/console.sol";
 
 contract WildcardSteward_v3_matic is Initializable {
     /*
@@ -194,13 +194,15 @@ contract WildcardSteward_v3_matic is Initializable {
         address _withdrawCheckerAdmin,
         uint256 _auctionStartPrice,
         uint256 _auctionEndPrice,
-        uint256 _auctionLength
+        uint256 _auctionLength,
+        address _paymentToken
     ) public initializer {
         emit UpgradeToV3();
         assetToken = ERC721Patronage_v1(_assetToken);
         admin = _admin;
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
         mintManager = MintManager_v2(_mintManager);
+        paymentToken = IERC20Mintable(_paymentToken);
         _changeAuctionParameters(
             _auctionStartPrice,
             _auctionEndPrice,
@@ -234,7 +236,7 @@ contract WildcardSteward_v3_matic is Initializable {
 
     function listNewTokens(
         uint256[] memory tokens,
-        address payable[] memory _benefactors,
+        address[] memory _benefactors,
         uint256[] memory _patronageNumerator,
         address[] memory _artists,
         uint256[] memory _artistCommission,
@@ -283,7 +285,7 @@ contract WildcardSteward_v3_matic is Initializable {
 
     function changeReceivingBenefactor(
         uint256 tokenId,
-        address payable _newReceivingBenefactor
+        address _newReceivingBenefactor
     )
         public
         onlyReceivingBenefactorOrAdmin(tokenId)
@@ -314,7 +316,7 @@ contract WildcardSteward_v3_matic is Initializable {
     // It should only be called once all their tokens also changeReceivingBenefactor
     function changeReceivingBenefactorDeposit(
         address oldBenfactor,
-        address payable _newReceivingBenefactor
+        address _newReceivingBenefactor
     )
         public
         onlyAdmin
@@ -514,11 +516,30 @@ contract WildcardSteward_v3_matic is Initializable {
         }
     }
 
-    function safeSend(uint256 _wei, address payable recipient)
+    // function safeSend(uint256 _wei, address payable recipient)
+    //     internal
+    //     returns (bool transferSuccess)
+    // {
+    //     (transferSuccess, ) = recipient.call.gas(2300).value(_wei)("");
+    // }
+
+    function sendErc20(uint256 _wei, address recipient)
         internal
         returns (bool transferSuccess)
     {
-        (transferSuccess, ) = recipient.call.gas(2300).value(_wei)("");
+        // try adaiContract.redeem(amount)  {
+        return paymentToken.transfer(recipient, _wei);
+        // } catch {
+        //   emit ADaiRedeemFailed();
+        //   adaiContract.transfer(msg.sender, amount);
+        // }
+    }
+
+    function receiveErc20(uint256 amount, address from)
+        internal
+        returns (bool transferSuccess)
+    {
+        return paymentToken.transferFrom(msg.sender, address(this), amount);
     }
 
     // if credit balance exists,
@@ -593,7 +614,7 @@ contract WildcardSteward_v3_matic is Initializable {
             ); // 365 days * 1000000000000
     }
 
-    function withdrawBenefactorFundsTo(address payable benefactor) public {
+    function withdrawBenefactorFundsTo(address benefactor) public {
         _updateBenefactorBalance(benefactor);
 
         uint256 availableToWithdraw = benefactorFunds[benefactor];
@@ -612,7 +633,7 @@ contract WildcardSteward_v3_matic is Initializable {
             benefactorWithdrawalSafetyDiscount;
 
         benefactorFunds[benefactor] = benefactorWithdrawalSafetyDiscount;
-        if (safeSend(amountToWithdraw, benefactor)) {
+        if (sendErc20(amountToWithdraw, benefactor)) {
             emit WithdrawBenefactorFundsWithSafetyDelay(
                 benefactor,
                 amountToWithdraw
@@ -643,7 +664,7 @@ contract WildcardSteward_v3_matic is Initializable {
     }
 
     function withdrawBenefactorFundsToValidated(
-        address payable benefactor,
+        address benefactor,
         uint256 maxAmount,
         uint256 expiry,
         uint256 nonce,
@@ -670,7 +691,7 @@ contract WildcardSteward_v3_matic is Initializable {
 
         if (availableToWithdraw > 0) {
             if (availableToWithdraw > maxAmount) {
-                if (safeSend(maxAmount, benefactor)) {
+                if (sendErc20(maxAmount, benefactor)) {
                     benefactorFunds[benefactor] = availableToWithdraw.sub(
                         maxAmount
                     );
@@ -680,7 +701,9 @@ contract WildcardSteward_v3_matic is Initializable {
                     );
                 }
             } else {
-                if (safeSend(availableToWithdraw, benefactor)) {
+                uint256 contractBalance = paymentToken.balanceOf(address(this));
+
+                if (sendErc20(availableToWithdraw, benefactor)) {
                     benefactorFunds[benefactor] = 0;
                     emit WithdrawBenefactorFunds(
                         benefactor,
@@ -730,13 +753,15 @@ contract WildcardSteward_v3_matic is Initializable {
         emit RemainingDepositUpdate(tokenPatron, deposit[tokenPatron]);
     }
 
-    function depositWei() public payable {
-        depositWeiPatron(msg.sender);
+    function depositWei(uint256 amount) public {
+        depositWeiPatron(msg.sender, amount);
     }
 
-    function depositWeiPatron(address patron) public payable {
+    // Which the 'approve' function in erc20 this function is unsafe to be public.
+    function depositWeiPatron(address patron, uint256 amount) internal {
         require(totalPatronOwnedTokenCost[patron] > 0, "no tokens");
-        deposit[patron] = deposit[patron].add(msg.value);
+        deposit[patron] = deposit[patron].add(amount);
+        receiveErc20(amount, patron);
         emit RemainingDepositUpdate(patron, deposit[patron]);
     }
 
@@ -771,10 +796,10 @@ contract WildcardSteward_v3_matic is Initializable {
         uint256 tokenId,
         uint256 _newPrice,
         uint256 previousPrice,
-        uint256 wildcardsPercentage
+        uint256 wildcardsPercentage,
+        uint256 depositAmount
     )
         public
-        payable
         collectPatronageAndSettleBenefactor(tokenId)
         collectPatronagePatron(msg.sender)
         priceGreaterThanZero(_newPrice)
@@ -786,12 +811,13 @@ contract WildcardSteward_v3_matic is Initializable {
             price[tokenId] == previousPrice,
             "must specify current price accurately"
         );
+        receiveErc20(depositAmount.add(price[tokenId]), msg.sender);
+        address owner = assetToken.ownerOf(tokenId);
 
         _distributePurchaseProceeds(tokenId);
 
         wildcardsPercentages[tokenId] = wildcardsPercentage;
-        uint256 remainingValueForDeposit = msg.value.sub(price[tokenId]);
-        deposit[msg.sender] = deposit[msg.sender].add(remainingValueForDeposit);
+        deposit[msg.sender] = deposit[msg.sender].add(depositAmount);
         transferAssetTokenTo(
             tokenId,
             assetToken.ownerOf(tokenId),
@@ -804,10 +830,10 @@ contract WildcardSteward_v3_matic is Initializable {
     function buyAuction(
         uint256 tokenId,
         uint256 _newPrice,
-        uint256 wildcardsPercentage
+        uint256 wildcardsPercentage,
+        uint256 depositAmount
     )
         public
-        payable
         collectPatronageAndSettleBenefactor(tokenId)
         collectPatronagePatron(msg.sender)
         priceGreaterThanZero(_newPrice)
@@ -820,14 +846,16 @@ contract WildcardSteward_v3_matic is Initializable {
         );
         require(now >= tokenAuctionBeginTimestamp[tokenId], "not on auction");
         uint256 auctionTokenPrice = _auctionPrice(tokenId);
-        uint256 remainingValueForDeposit = msg.value.sub(auctionTokenPrice);
+
+        // uint256 remainingValueForDeposit = msg.value.sub(auctionTokenPrice);
 
         _distributeAuctionProceeds(tokenId);
 
         state[tokenId] = StewardState.Owned;
 
         wildcardsPercentages[tokenId] = wildcardsPercentage;
-        deposit[msg.sender] = deposit[msg.sender].add(remainingValueForDeposit);
+        receiveErc20(depositAmount.add(auctionTokenPrice), msg.sender);
+        deposit[msg.sender] = deposit[msg.sender].add(depositAmount);
         transferAssetTokenTo(
             tokenId,
             assetToken.ownerOf(tokenId),
@@ -887,18 +915,18 @@ contract WildcardSteward_v3_matic is Initializable {
                 deposit[tokenPatron]
             );
             deposit[tokenPatron] = 0;
-            address payable payableCurrentPatron = address(
-                uint160(tokenPatron)
-            );
-            (bool transferSuccess, ) = payableCurrentPatron
-                .call
-                .gas(2300)
-                .value(previousOwnerProceedsFromSale)("");
-            if (!transferSuccess) {
-                deposit[tokenPatron] = deposit[tokenPatron].add(
-                    previousOwnerProceedsFromSale
-                );
-            }
+            // address payableCurrentPatron = address(uint160(tokenPatron));
+            // (bool transferSuccess, ) = payableCurrentPatron
+            //     .call
+            //     .gas(2300)
+            //     .value(previousOwnerProceedsFromSale)("");
+            // if (!transferSuccess) {
+            //     deposit[tokenPatron] = deposit[tokenPatron].add(
+            //         previousOwnerProceedsFromSale
+            //     );
+            // }
+
+            sendErc20(previousOwnerProceedsFromSale, tokenPatron);
         } else {
             deposit[tokenPatron] = deposit[tokenPatron].add(
                 previousOwnerProceedsFromSale
@@ -957,8 +985,7 @@ contract WildcardSteward_v3_matic is Initializable {
 
         deposit[msg.sender] = deposit[msg.sender].sub(_wei);
 
-        (bool transferSuccess, ) = msg.sender.call.gas(2300).value(_wei)("");
-        if (!transferSuccess) {
+        if (!sendErc20(_wei, msg.sender)) {
             revert("withdrawal failed");
         }
     }

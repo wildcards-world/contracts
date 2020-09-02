@@ -69,7 +69,8 @@ contract("WildcardSteward owed", (accounts) => {
       auctionStartPrice,
       auctionEndPrice,
       auctionDuration,
-      tokenDetails
+      tokenDetails,
+      [accounts[2], accounts[3], accounts[4]]
     );
     steward = result.steward;
 
@@ -132,16 +133,17 @@ contract("WildcardSteward owed", (accounts) => {
       halfAuctionDuration
     );
     const msgValue = ether("1");
+    const remainingDepositCalc = msgValue.sub(predictedCostOfToken);
+
     await steward.buyAuction(
       newTokens[0].token,
       tokenPrice,
       percentageForWildcards,
+      remainingDepositCalc,
       {
         from: accounts[2],
-        value: msgValue,
       }
     );
-    const remainingDepositCalc = msgValue.sub(predictedCostOfToken);
     const actualDeposit = await steward.deposit.call(accounts[2]);
     if (!isCoverage) {
       assert.equal(actualDeposit.toString(), remainingDepositCalc.toString());
@@ -156,16 +158,16 @@ contract("WildcardSteward owed", (accounts) => {
       auctionDuration,
       threeQuartersAuctionDuration
     );
+    let remainingDepositCalc2 = msgValue.sub(costOfToken2);
     await steward.buyAuction(
       newTokens[1].token,
       tokenPrice,
       percentageForWildcards,
+      remainingDepositCalc2,
       {
         from: accounts[3],
-        value: msgValue,
       }
     );
-    let remainingDepositCalc2 = msgValue.sub(costOfToken2);
     let actualDeposit2 = await steward.deposit.call(accounts[3]);
     if (!isCoverage) {
       assert.equal(actualDeposit2.toString(), remainingDepositCalc2.toString());
@@ -178,9 +180,9 @@ contract("WildcardSteward owed", (accounts) => {
       newTokens[2].token,
       tokenPrice,
       percentageForWildcards,
+      msgValue, // since auction ends at 0
       {
         from: accounts[4],
-        value: msgValue,
       }
     );
     let actualDeposit3 = await steward.deposit.call(accounts[4]);
@@ -202,9 +204,9 @@ contract("WildcardSteward owed", (accounts) => {
       tokenDetails[0].token,
       newSalePrice,
       percentageForWildcards,
+      tenMinPatronageAt1Eth,
       {
         from: accounts[2],
-        value: tenMinPatronageAt1Eth,
       }
     );
 
@@ -222,17 +224,17 @@ contract("WildcardSteward owed", (accounts) => {
     );
     const msgValue = ether("2");
 
+    const remainingDepositCalc = msgValue.sub(costOfToken1);
     await steward.buyAuction(
       tokenDetails[0].token,
       newSalePrice,
       percentageForWildcards,
+      remainingDepositCalc,
       {
         from: accounts[3],
-        value: msgValue,
       }
     );
 
-    const remainingDepositCalc = msgValue.sub(costOfToken1);
     const actualDeposit = await steward.deposit.call(accounts[3]);
     assert.equal(actualDeposit.toString(), remainingDepositCalc.toString());
   });
@@ -246,10 +248,16 @@ contract("WildcardSteward owed", (accounts) => {
         from: accounts[0],
       }
     );
-    await steward.buyAuction(0, ether("2"), percentageForWildcards, {
-      from: accounts[2],
-      value: ether("1").add(tenMinPatronageAt1Eth),
-    });
+    await steward.buyAuction(
+      0,
+      ether("2"),
+      percentageForWildcards,
+      tenMinPatronageAt1Eth,
+      {
+        from: accounts[2],
+        // value: ether("1").add(tenMinPatronageAt1Eth),
+      }
+    );
 
     await time.increase(time.duration.minutes(5));
 
@@ -260,12 +268,17 @@ contract("WildcardSteward owed", (accounts) => {
     await time.increase(time.duration.seconds(90000));
     let msgValue = ether("2");
 
-    await steward.buyAuction(0, ether("2"), percentageForWildcards, {
-      from: accounts[3],
-      value: msgValue,
-    });
-
     let remainingDepositCalc = msgValue.sub(costOfToken1);
+    await steward.buyAuction(
+      0,
+      ether("2"),
+      percentageForWildcards,
+      remainingDepositCalc,
+      {
+        from: accounts[3],
+      }
+    );
+
     let actualDeposit = await steward.deposit.call(accounts[3]);
     assert.equal(actualDeposit.toString(), remainingDepositCalc.toString());
   });
@@ -283,9 +296,9 @@ contract("WildcardSteward owed", (accounts) => {
       tokenDetails[0].token,
       ether("0.2"),
       percentageForWildcards,
+      tenMinPatronageAt1Eth,
       {
         from: accounts[2],
-        value: tenMinPatronageAt1Eth,
       }
     );
     await steward.changeAuctionParameters(
@@ -309,17 +322,17 @@ contract("WildcardSteward owed", (accounts) => {
     );
     let msgValue = ether("2");
 
+    let remainingDepositCalc = msgValue.sub(costOfToken1);
     await steward.buyAuction(
       tokenDetails[0].token,
       ether("2"),
       percentageForWildcards,
+      remainingDepositCalc,
       {
         from: accounts[3],
-        value: msgValue,
       }
     );
 
-    let remainingDepositCalc = msgValue.sub(costOfToken1);
     let actualDeposit = await steward.deposit.call(accounts[3]);
     if (!isCoverage)
       assert.equal(actualDeposit.toString(), remainingDepositCalc.toString());
@@ -351,9 +364,9 @@ contract("WildcardSteward owed", (accounts) => {
         newTokens[0].token,
         ether("0.2"),
         percentageForWildcards,
+        tenMinPatronageAt1Eth,
         {
           from: accounts[2],
-          value: ether("1").add(tenMinPatronageAt1Eth),
         }
       ),
       "not on auction"
@@ -371,17 +384,17 @@ contract("WildcardSteward owed", (accounts) => {
     await setNextTxTimestamp(timeTillLaunch.add(timeAfterTokenLaunchToBuy));
 
     let msgValue = ether("2");
+    let remainingDepositCalc = msgValue.sub(costOfToken1);
     await steward.buyAuction(
       newTokens[0].token,
       ether("2"),
       percentageForWildcards,
+      remainingDepositCalc,
       {
         from: accounts[3],
-        value: msgValue,
       }
     );
 
-    let remainingDepositCalc = msgValue.sub(costOfToken1);
     let actualDeposit = await steward.deposit.call(accounts[3]);
     if (!isCoverage)
       assert.equal(actualDeposit.toString(), remainingDepositCalc.toString());

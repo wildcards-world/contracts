@@ -79,21 +79,32 @@ contract("WildcardSteward owed", (accounts) => {
       auctionStartPrice,
       auctionEndPrice,
       auctionDuration,
-      tokenDetails
+      tokenDetails,
+      [accounts[2], accounts[3]]
     );
     steward = result.steward;
   });
 
   it("steward: multi-token. check patronage of two tokens owed by the same patron after 10 minutes.", async () => {
     // buy 2 tokens, with prices of 1 ether and 2 ether.
-    await steward.buyAuction(tokenDetails[0].token, ether("1"), 50000, {
-      from: accounts[2],
-      value: ether("1"),
-    });
-    await steward.buyAuction(tokenDetails[1].token, ether("2"), 50000, {
-      from: accounts[2],
-      value: ether("1"),
-    });
+    await steward.buyAuction(
+      tokenDetails[0].token,
+      ether("1"),
+      50000,
+      ether("1"),
+      {
+        from: accounts[2],
+      }
+    );
+    await steward.buyAuction(
+      tokenDetails[1].token,
+      ether("2"),
+      50000,
+      ether("1"),
+      {
+        from: accounts[2],
+      }
+    );
 
     await setTimestamp(time.duration.minutes(10));
     const owedPatron = await steward.patronageOwedPatron.call(accounts[2], {
@@ -140,14 +151,24 @@ contract("WildcardSteward owed", (accounts) => {
   // buy 2 tokens, with prices of 1 ether and 2 ether.
   it("steward: multi-token. check patronage of two tokens owed by the same patron after 10 minutes one of the tokens gets bought.", async () => {
     const token1Price = ether("1");
-    await steward.buyAuction(tokenDetails[0].token, token1Price, 50000, {
-      from: accounts[2],
-      value: ether("1"),
-    });
-    await steward.buyAuction(tokenDetails[1].token, ether("2"), 50000, {
-      from: accounts[2],
-      value: web3.utils.toWei("0.1", "ether"),
-    });
+    await steward.buyAuction(
+      tokenDetails[0].token,
+      token1Price,
+      50000,
+      ether("1"),
+      {
+        from: accounts[2],
+      }
+    );
+    await steward.buyAuction(
+      tokenDetails[1].token,
+      ether("2"),
+      50000,
+      web3.utils.toWei("0.1", "ether"),
+      {
+        from: accounts[2],
+      }
+    );
 
     await setTimestamp(time.duration.minutes(10));
 
@@ -181,10 +202,16 @@ contract("WildcardSteward owed", (accounts) => {
       },
     ]);
     // Token 1 bought
-    await steward.buy(tokenDetails[0].token, ether("0.1"), token1Price, 50000, {
-      from: accounts[3],
-      value: ether("1.1"),
-    });
+    await steward.buy(
+      tokenDetails[0].token,
+      ether("0.1"),
+      token1Price,
+      50000,
+      ether("1.1"),
+      {
+        from: accounts[3],
+      }
+    );
     // Time increases
     await setTimestamp(time.duration.minutes(10));
 
