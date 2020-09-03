@@ -1,6 +1,8 @@
 const ERC721Patronage_v0 = artifacts.require("ERC721Patronage_v0");
 const WildcardSteward_v0 = artifacts.require("WildcardSteward_v0");
 
+const {increaseTime, getWeb3 } = require("./testing/index.js");
+
 const tokenData = [
   {
     metadata: {
@@ -186,5 +188,30 @@ module.exports = function(deployer, networkName, accounts) {
       patronageNumerators,
       { from: accounts[0] }
     );
+
+    if (networkName === "subgraphTest") {
+      const web3 = getWeb3("http://localhost:8545")
+      await steward.buy(2, 123568, { from: accounts[1], value: 2234568 });
+      await increaseTime(web3, 2*60); // 2 minutes increase
+      await steward.buy(3, 123568, { from: accounts[1], value: 2234568 });
+      await increaseTime(web3, 2*60); // 2 minutes increase
+      await steward.buy(4, 123568, { from: accounts[1], value: 2234568 });
+      await increaseTime(web3, 2*60); // 2 minutes increase
+      await steward.buy(5, 123568, { from: accounts[1], value: 2234568 });
+      await increaseTime(web3, 2*60); // 2 minutes increase
+      await steward.buy(6, 123568, { from: accounts[1], value: 2234568 });
+      await increaseTime(web3, 2*60); // 2 minutes increase
+      await steward.buy(7, 123568, { from: accounts[1], value: 2234568 });
+      await increaseTime(web3, 2*60); // 2 minutes increase
+      await steward.buy(9, 123568, { from: accounts[1], value: 2234568 });
+      await increaseTime(web3, 2*60); // 2 minutes increase
+      await steward.buy(10, 123568, { from: accounts[1], value: 2234568 });
+      await increaseTime(web3, 2*60); // 2 minutes increase
+      await steward.buy(11, 123568, { from: accounts[1], value: 2234568 });
+      await increaseTime(web3, 2*60); // 2 minutes increase
+      await steward.buy(12, 123568, { from: accounts[1], value: 2234568 });
+      await increaseTime(web3, 2*60); // 2 minutes increase
+      await steward.buy(42, 123568, { from: accounts[1], value: 2234568 });
+    }
   });
 };
