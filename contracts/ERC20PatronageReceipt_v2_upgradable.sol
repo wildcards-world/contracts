@@ -2,14 +2,35 @@ pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol";
-import "@nomiclabs/buidler/console.sol";
+import "./GSNRecipientBase.sol";
+
+// import "@nomiclabs/buidler/console.sol";
 
 contract ERC20PatronageReceipt_v2_upgradable is
+    GSNRecipientBase,
     ERC20UpgradeSafe,
     AccessControlUpgradeSafe
 {
     bytes32 public constant MINTER_ROLE = keccak256("minter");
     bytes32 public constant ADMIN_ROLE = keccak256("admin");
+
+    function _msgSender()
+        internal
+        override(ContextUpgradeSafe, GSNRecipientBase)
+        view
+        returns (address payable)
+    {
+        return GSNRecipientBase._msgSender();
+    }
+
+    function _msgData()
+        internal
+        override(ContextUpgradeSafe, GSNRecipientBase)
+        view
+        returns (bytes memory)
+    {
+        return GSNRecipientBase._msgData();
+    }
 
     function setup(
         string memory name,
@@ -22,6 +43,8 @@ contract ERC20PatronageReceipt_v2_upgradable is
         _setupRole(MINTER_ROLE, minter);
         _setupRole(ADMIN_ROLE, admin);
         _setRoleAdmin(MINTER_ROLE, ADMIN_ROLE);
+
+        GSNRecipientBase.initialize();
     }
 
     function mint(address to, uint256 amount) public {

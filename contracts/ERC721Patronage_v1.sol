@@ -2,12 +2,35 @@ pragma solidity 0.6.12;
 
 import "./mod/ERC721.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol";
+import "./GSNRecipientBase.sol";
 
 // import "./WildcardSteward_v1.sol";
-contract ERC721Patronage_v1 is ERC721UpgradeSafe, AccessControlUpgradeSafe {
+contract ERC721Patronage_v1 is
+    GSNRecipientBase,
+    ERC721UpgradeSafe,
+    AccessControlUpgradeSafe
+{
     address public steward;
     bytes32 public constant MINTER_ROLE = keccak256("minter");
     bytes32 public constant ADMIN_ROLE = keccak256("admin");
+
+    function _msgSender()
+        internal
+        override(ContextUpgradeSafe, GSNRecipientBase)
+        view
+        returns (address payable)
+    {
+        return GSNRecipientBase._msgSender();
+    }
+
+    function _msgData()
+        internal
+        override(ContextUpgradeSafe, GSNRecipientBase)
+        view
+        returns (bytes memory)
+    {
+        return GSNRecipientBase._msgData();
+    }
 
     function setup(
         address _steward,
@@ -21,10 +44,12 @@ contract ERC721Patronage_v1 is ERC721UpgradeSafe, AccessControlUpgradeSafe {
         _setupRole(MINTER_ROLE, minter);
         _setupRole(ADMIN_ROLE, admin);
         _setRoleAdmin(MINTER_ROLE, ADMIN_ROLE);
+
+        GSNRecipientBase.initialize();
     }
 
     // function mint(address to, uint256) public {
-    //     require(hasRole(MINTER_ROLE, msg.sender), "Caller is not a minter");
+    //     require(hasRole(MINTER_ROLE, _msgSender()), "Caller is not a minter");
     //     _mint(to, amount);
     // }
 
@@ -33,7 +58,7 @@ contract ERC721Patronage_v1 is ERC721UpgradeSafe, AccessControlUpgradeSafe {
         uint256 tokenId,
         string memory tokenURI
     ) public returns (bool) {
-        require(hasRole(MINTER_ROLE, msg.sender), "Caller is not a minter");
+        require(hasRole(MINTER_ROLE, _msgSender()), "Caller is not a minter");
 
         _mint(to, tokenId);
         _setTokenURI(tokenId, tokenURI);
@@ -67,7 +92,7 @@ contract ERC721Patronage_v1 is ERC721UpgradeSafe, AccessControlUpgradeSafe {
     }
 
     // function transferFrom(address from, address to, uint256 tokenId) public {
-    //     if (msg.sender != steward) {
+    //     if (_msgSender() != steward) {
     //         WildcardSteward_v1 stewardContract = WildcardSteward_v1(steward);
 
     //         // Calculate remaining deposit for the two addresses involved in transfer.
