@@ -283,6 +283,7 @@ contract WildcardSteward_v3_matic is Initializable {
         }
     }
 
+    // TODO: you need an event in here!
     function changeReceivingBenefactor(
         uint256 tokenId,
         address _newReceivingBenefactor
@@ -311,6 +312,7 @@ contract WildcardSteward_v3_matic is Initializable {
         // NB No fund exchanging here please!
     }
 
+    // TODO: you need an event in here!
     // NB This function is if an organisation loses their keys etc..
     // It will transfer their deposit to their new benefactor address
     // It should only be called once all their tokens also changeReceivingBenefactor
@@ -471,7 +473,6 @@ contract WildcardSteward_v3_matic is Initializable {
     }
 
     // TODO: create a version of this function that only collects patronage (and only settles the benefactor if the token forecloses) - is this needed?
-
     function _collectPatronageAndSettleBenefactor(uint256 tokenId) public {
         address tokenPatron = assetToken.ownerOf(tokenId);
         uint256 newTimeLastCollectedOnForeclosure = _collectPatronagePatron(
@@ -548,7 +549,7 @@ contract WildcardSteward_v3_matic is Initializable {
     // else reduce credit by certain amount.
     // else if credit balance doesn't exist
     // add amount to balance
-
+    // TODO: this function should have an event
     function _updateBenefactorBalance(address benefactor) public {
         uint256 patronageDueBenefactor = patronageDueBenefactor(benefactor);
 
@@ -639,6 +640,7 @@ contract WildcardSteward_v3_matic is Initializable {
                 amountToWithdraw
             );
         } else {
+            // TODO: add an error in unsuccessful withdrawal.
             benefactorFunds[benefactor] = benefactorFunds[benefactor].add(
                 amountToWithdraw
             );
@@ -704,6 +706,7 @@ contract WildcardSteward_v3_matic is Initializable {
                 uint256 contractBalance = paymentToken.balanceOf(address(this));
 
                 if (sendErc20(availableToWithdraw, benefactor)) {
+                    // TODO: re-entrancy
                     benefactorFunds[benefactor] = 0;
                     emit WithdrawBenefactorFunds(
                         benefactor,
