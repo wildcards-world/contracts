@@ -2,10 +2,11 @@ pragma solidity 0.6.12;
 
 import "./MintManager_v2.sol";
 import "./ERC721Patronage_v1.sol";
+import "./GSNRecipientBase.sol";
 
-import "@nomiclabs/buidler/console.sol";
+// import "@nomiclabs/buidler/console.sol";
 
-contract WildcardSteward_v3_matic is Initializable {
+contract WildcardSteward_v3_matic is GSNRecipientBase {
     /*
     This smart contract collects patronage from current owner through a Harberger tax model and 
     takes stewardship of the asset token if the patron can't pay anymore.
@@ -122,18 +123,18 @@ contract WildcardSteward_v3_matic is Initializable {
     event ChangeAuctionParameters();
 
     modifier onlyPatron(uint256 tokenId) {
-        require(msg.sender == assetToken.ownerOf(tokenId), "Not patron");
+        require(_msgSender() == assetToken.ownerOf(tokenId), "Not patron");
         _;
     }
 
     modifier onlyAdmin() {
-        require(msg.sender == admin, "Not admin");
+        require(_msgSender() == admin, "Not admin");
         _;
     }
 
     modifier onlyReceivingBenefactorOrAdmin(uint256 tokenId) {
         require(
-            msg.sender == benefactors[tokenId] || msg.sender == admin,
+            _msgSender() == benefactors[tokenId] || _msgSender() == admin,
             "Not benefactor or admin"
         );
         _;
@@ -208,6 +209,8 @@ contract WildcardSteward_v3_matic is Initializable {
             _auctionEndPrice,
             _auctionLength
         );
+
+        GSNRecipientBase.initialize();
     }
 
     function uintToStr(uint256 _i)
@@ -532,7 +535,7 @@ contract WildcardSteward_v3_matic is Initializable {
         return paymentToken.transfer(recipient, _wei);
         // } catch {
         //   emit ADaiRedeemFailed();
-        //   adaiContract.transfer(msg.sender, amount);
+        //   adaiContract.transfer(_msgSender(), amount);
         // }
     }
 
@@ -540,7 +543,7 @@ contract WildcardSteward_v3_matic is Initializable {
         internal
         returns (bool transferSuccess)
     {
-        return paymentToken.transferFrom(msg.sender, address(this), amount);
+        return paymentToken.transferFrom(_msgSender(), address(this), amount);
     }
 
     // if credit balance exists,
@@ -757,7 +760,7 @@ contract WildcardSteward_v3_matic is Initializable {
     }
 
     function depositWei(uint256 amount) public {
-        depositWeiPatron(msg.sender, amount);
+        depositWeiPatron(_msgSender(), amount);
     }
 
     // Which the 'approve' function in erc20 this function is unsafe to be public.
@@ -804,9 +807,9 @@ contract WildcardSteward_v3_matic is Initializable {
     )
         public
         collectPatronageAndSettleBenefactor(tokenId)
-        collectPatronagePatron(msg.sender)
+        collectPatronagePatron(_msgSender())
         priceGreaterThanZero(_newPrice)
-        youCurrentlyAreNotInDefault(msg.sender)
+        youCurrentlyAreNotInDefault(_msgSender())
         validWildcardsPercentage(wildcardsPercentage, tokenId)
     {
         require(state[tokenId] == StewardState.Owned, "token on auction");
@@ -814,20 +817,20 @@ contract WildcardSteward_v3_matic is Initializable {
             price[tokenId] == previousPrice,
             "must specify current price accurately"
         );
-        receiveErc20(depositAmount.add(price[tokenId]), msg.sender);
+        receiveErc20(depositAmount.add(price[tokenId]), _msgSender());
         address owner = assetToken.ownerOf(tokenId);
 
         _distributePurchaseProceeds(tokenId);
 
         wildcardsPercentages[tokenId] = wildcardsPercentage;
-        deposit[msg.sender] = deposit[msg.sender].add(depositAmount);
+        deposit[_msgSender()] = deposit[_msgSender()].add(depositAmount);
         transferAssetTokenTo(
             tokenId,
             assetToken.ownerOf(tokenId),
-            msg.sender,
+            _msgSender(),
             _newPrice
         );
-        emit Buy(tokenId, msg.sender, _newPrice);
+        emit Buy(tokenId, _msgSender(), _newPrice);
     }
 
     function buyAuction(
@@ -838,9 +841,9 @@ contract WildcardSteward_v3_matic is Initializable {
     )
         public
         collectPatronageAndSettleBenefactor(tokenId)
-        collectPatronagePatron(msg.sender)
+        collectPatronagePatron(_msgSender())
         priceGreaterThanZero(_newPrice)
-        youCurrentlyAreNotInDefault(msg.sender)
+        youCurrentlyAreNotInDefault(_msgSender())
         validWildcardsPercentage(wildcardsPercentage, tokenId)
     {
         require(
@@ -857,15 +860,15 @@ contract WildcardSteward_v3_matic is Initializable {
         state[tokenId] = StewardState.Owned;
 
         wildcardsPercentages[tokenId] = wildcardsPercentage;
-        receiveErc20(depositAmount.add(auctionTokenPrice), msg.sender);
-        deposit[msg.sender] = deposit[msg.sender].add(depositAmount);
+        receiveErc20(depositAmount.add(auctionTokenPrice), _msgSender());
+        deposit[_msgSender()] = deposit[_msgSender()].add(depositAmount);
         transferAssetTokenTo(
             tokenId,
             assetToken.ownerOf(tokenId),
-            msg.sender,
+            _msgSender(),
             _newPrice
         );
-        emit Buy(tokenId, msg.sender, _newPrice);
+        emit Buy(tokenId, _msgSender(), _newPrice);
     }
 
     function _distributeAuctionProceeds(uint256 tokenId) internal {
@@ -954,7 +957,7 @@ contract WildcardSteward_v3_matic is Initializable {
         uint256 newPriceScaled = _newPrice.mul(patronageNumerator[tokenId]);
         address tokenBenefactor = benefactors[tokenId];
 
-        totalPatronOwnedTokenCost[msg.sender] = totalPatronOwnedTokenCost[msg
+        totalPatronOwnedTokenCost[_msgSender()] = totalPatronOwnedTokenCost[msg
             .sender]
             .sub(oldPriceScaled)
             .add(newPriceScaled);
@@ -969,26 +972,26 @@ contract WildcardSteward_v3_matic is Initializable {
 
     function withdrawDeposit(uint256 _wei)
         public
-        collectPatronagePatron(msg.sender)
+        collectPatronagePatron(_msgSender())
         returns (uint256)
     {
         _withdrawDeposit(_wei);
     }
 
     function withdrawBenefactorFunds() public {
-        withdrawBenefactorFundsTo(msg.sender);
+        withdrawBenefactorFundsTo(_msgSender());
     }
 
-    function exit() public collectPatronagePatron(msg.sender) {
-        _withdrawDeposit(deposit[msg.sender]);
+    function exit() public collectPatronagePatron(_msgSender()) {
+        _withdrawDeposit(deposit[_msgSender()]);
     }
 
     function _withdrawDeposit(uint256 _wei) internal {
-        require(deposit[msg.sender] >= _wei, "withdrawing too much");
+        require(deposit[_msgSender()] >= _wei, "withdrawing too much");
 
-        deposit[msg.sender] = deposit[msg.sender].sub(_wei);
+        deposit[_msgSender()] = deposit[_msgSender()].sub(_wei);
 
-        if (!sendErc20(_wei, msg.sender)) {
+        if (!sendErc20(_wei, _msgSender())) {
             revert("withdrawal failed");
         }
     }
