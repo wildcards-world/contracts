@@ -56,7 +56,7 @@ contract WildcardSteward_v3_matic is GSNRecipientBase {
     uint256 public auctionLength;
 
     mapping(uint256 => address) public artistAddresses; //mapping from tokenID to the artists address
-    mapping(uint256 => uint256) public wildcardsPercentages; // mapping from tokenID to the percentage sale cut of wildcards for each token
+    mapping(uint256 => uint256) public serviceProviderPercentages; // mapping from tokenID to the percentage sale cut of wildcards for each token
     mapping(uint256 => uint256) public artistPercentages; // tokenId to artist percetages. To make it configurable. 10 000 = 100%
     mapping(uint256 => uint256) public tokenAuctionBeginTimestamp;
 
@@ -177,13 +177,14 @@ contract WildcardSteward_v3_matic is GSNRecipientBase {
         _;
     }
     modifier validWildcardsPercentage(
-        uint256 wildcardsPercentage,
+        uint256 serviceProviderPercentage,
         uint256 tokenID
     ) {
         require(
-            wildcardsPercentage >= 50000 &&
-                wildcardsPercentage <= (1000000 - artistPercentages[tokenID]), // not sub safemath. Is this okay?
-            "wildcards commision not between 5% and 100%"
+            serviceProviderPercentage >= 50000 &&
+                serviceProviderPercentage <=
+                (1000000 - artistPercentages[tokenID]), // not sub safemath. Is this okay?
+            "commision not between 5% and 100%"
         );
         _;
     }
@@ -802,7 +803,7 @@ contract WildcardSteward_v3_matic is GSNRecipientBase {
         uint256 tokenId,
         uint256 _newPrice,
         uint256 previousPrice,
-        uint256 wildcardsPercentage,
+        uint256 serviceProviderPercentage,
         uint256 depositAmount
     )
         public
@@ -810,7 +811,7 @@ contract WildcardSteward_v3_matic is GSNRecipientBase {
         collectPatronagePatron(_msgSender())
         priceGreaterThanZero(_newPrice)
         youCurrentlyAreNotInDefault(_msgSender())
-        validWildcardsPercentage(wildcardsPercentage, tokenId)
+        validWildcardsPercentage(serviceProviderPercentage, tokenId)
     {
         require(state[tokenId] == StewardState.Owned, "token on auction");
         require(
@@ -822,7 +823,7 @@ contract WildcardSteward_v3_matic is GSNRecipientBase {
 
         _distributePurchaseProceeds(tokenId);
 
-        wildcardsPercentages[tokenId] = wildcardsPercentage;
+        serviceProviderPercentages[tokenId] = serviceProviderPercentage;
         deposit[_msgSender()] = deposit[_msgSender()].add(depositAmount);
         transferAssetTokenTo(
             tokenId,
@@ -836,7 +837,7 @@ contract WildcardSteward_v3_matic is GSNRecipientBase {
     function buyAuction(
         uint256 tokenId,
         uint256 _newPrice,
-        uint256 wildcardsPercentage,
+        uint256 serviceProviderPercentage,
         uint256 depositAmount
     )
         public
@@ -844,7 +845,7 @@ contract WildcardSteward_v3_matic is GSNRecipientBase {
         collectPatronagePatron(_msgSender())
         priceGreaterThanZero(_newPrice)
         youCurrentlyAreNotInDefault(_msgSender())
-        validWildcardsPercentage(wildcardsPercentage, tokenId)
+        validWildcardsPercentage(serviceProviderPercentage, tokenId)
     {
         require(
             state[tokenId] == StewardState.Foreclosed,
@@ -859,7 +860,7 @@ contract WildcardSteward_v3_matic is GSNRecipientBase {
 
         state[tokenId] = StewardState.Owned;
 
-        wildcardsPercentages[tokenId] = wildcardsPercentage;
+        serviceProviderPercentages[tokenId] = serviceProviderPercentage;
         receiveErc20(depositAmount.add(auctionTokenPrice), _msgSender());
         deposit[_msgSender()] = deposit[_msgSender()].add(depositAmount);
         transferAssetTokenTo(
@@ -891,11 +892,11 @@ contract WildcardSteward_v3_matic is GSNRecipientBase {
         uint256 totalAmount = price[tokenId];
         address tokenPatron = assetToken.ownerOf(tokenId);
         // Wildcards percentage calc
-        if (wildcardsPercentages[tokenId] == 0) {
-            wildcardsPercentages[tokenId] = 50000;
+        if (serviceProviderPercentages[tokenId] == 0) {
+            serviceProviderPercentages[tokenId] = 50000;
         }
         uint256 wildcardsAmount = totalAmount
-            .mul(wildcardsPercentages[tokenId])
+            .mul(serviceProviderPercentages[tokenId])
             .div(1000000);
 
         // Artist percentage calc
