@@ -4,11 +4,14 @@ import "./mod/ERC721.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol";
 import "./GSNRecipientBase.sol";
 
+import "@opengsn/gsn/contracts/interfaces/IKnowForwarderAddress.sol";
+
 // import "./WildcardSteward_v1.sol";
 contract ERC721Patronage_v1 is
     GSNRecipientBase,
     ERC721UpgradeSafe,
-    AccessControlUpgradeSafe
+    AccessControlUpgradeSafe,
+    IKnowForwarderAddress
 {
     address public steward;
     bytes32 public constant MINTER_ROLE = keccak256("minter");
@@ -106,4 +109,14 @@ contract ERC721Patronage_v1 is
 
     //     ERC721.transferFrom(from, to, tokenId);
     // }
+
+    function getTrustedForwarder() public override view returns (address) {
+        return trustedForwarder;
+    }
+
+    function setTrustedForwarder(address forwarder) public {
+        require(hasRole(ADMIN_ROLE, _msgSender()), "Caller is not a admin");
+
+        trustedForwarder = forwarder;
+    }
 }

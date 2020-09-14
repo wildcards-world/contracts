@@ -4,12 +4,15 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol
 import "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol";
 import "./GSNRecipientBase.sol";
 
+import "@opengsn/gsn/contracts/interfaces/IKnowForwarderAddress.sol";
+
 // import "@nomiclabs/buidler/console.sol";
 
 contract ERC20PatronageReceipt_v2_upgradable is
     GSNRecipientBase,
     ERC20UpgradeSafe,
-    AccessControlUpgradeSafe
+    AccessControlUpgradeSafe,
+    IKnowForwarderAddress
 {
     bytes32 public constant MINTER_ROLE = keccak256("minter");
     bytes32 public constant ADMIN_ROLE = keccak256("admin");
@@ -65,5 +68,15 @@ contract ERC20PatronageReceipt_v2_upgradable is
         // For now anyone can burn...
         // require(hasRole(BURNER_ROLE, _msgSender()), "Caller is not a burner");
         _burn(from, amount);
+    }
+
+    function getTrustedForwarder() public override view returns (address) {
+        return trustedForwarder;
+    }
+
+    function setTrustedForwarder(address forwarder) public {
+        require(hasRole(ADMIN_ROLE, _msgSender()), "Caller is not a admin");
+
+        trustedForwarder = forwarder;
     }
 }

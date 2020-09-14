@@ -4,9 +4,11 @@ import "./MintManager_v2.sol";
 import "./ERC721Patronage_v1.sol";
 import "./GSNRecipientBase.sol";
 
+import "@opengsn/gsn/contracts/interfaces/IKnowForwarderAddress.sol";
+
 // import "@nomiclabs/buidler/console.sol";
 
-contract WildcardSteward_v3_matic is GSNRecipientBase {
+contract WildcardSteward_v3_matic is GSNRecipientBase, IKnowForwarderAddress {
     /*
     This smart contract collects patronage from current owner through a Harberger tax model and 
     takes stewardship of the asset token if the patron can't pay anymore.
@@ -212,6 +214,14 @@ contract WildcardSteward_v3_matic is GSNRecipientBase {
         );
 
         GSNRecipientBase.initialize();
+    }
+
+    function getTrustedForwarder() public override view returns (address) {
+        return trustedForwarder;
+    }
+
+    function setTrustedForwarder(address forwarder) public onlyAdmin {
+        trustedForwarder = forwarder;
     }
 
     function uintToStr(uint256 _i)
