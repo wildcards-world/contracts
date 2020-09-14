@@ -1,9 +1,20 @@
 import "@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/GSN/GSNRecipient.sol";
+import "@opengsn/gsn/contracts/utils/MinLibBytes.sol";
 
 contract GSNRecipientBase is ContextUpgradeSafe, GSNRecipientUpgradeSafe {
     function initialize() public {
         __GSNRecipient_init();
+    }
+
+    /*
+     * Forwarder singleton we accept calls from
+     */
+    address internal trustedForwarder;
+
+    // This function is copy/pasted from the gsn library...
+    function isTrustedForwarder(address forwarder) public view returns (bool) {
+        return forwarder == trustedForwarder;
     }
 
     function acceptRelayedCall(
@@ -36,6 +47,21 @@ contract GSNRecipientBase is ContextUpgradeSafe, GSNRecipientUpgradeSafe {
         bytes32
     ) internal override {}
 
+    // function _msgSender()
+    //     internal
+    //     virtual
+    //     view
+    //     returns (address payable)
+    // {
+    //     return GSNRecipientUpgradeSafe._msgSender();
+    // }
+
+    /**
+     * return the sender of this call.
+     * if the call came through our trusted forwarder, return the original sender.
+     * otherwise, return `msg.sender`.
+     * should be used in the contract anywhere instead of msg.sender
+     */
     function _msgSender()
         internal
         virtual
@@ -43,7 +69,18 @@ contract GSNRecipientBase is ContextUpgradeSafe, GSNRecipientUpgradeSafe {
         view
         returns (address payable)
     {
-        return GSNRecipientUpgradeSafe._msgSender();
+        if (msg.data.length >= 24 && isTrustedForwarder(msg.sender)) {
+            // At this point we know that the sender is a trusted forwarder,
+            // so we trust that the last bytes of msg.data are the verified sender address.
+            // extract sender address from the end of msg.data
+            return
+                address(
+                    uint160(
+                        MinLibBytes.readAddress(msg.data, msg.data.length - 20)
+                    )
+                );
+        }
+        return msg.sender;
     }
 
     function _msgData()
