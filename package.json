@@ -1,7 +1,7 @@
 {
-  "name": "example-truffle-migrate",
+  "name": "harberger-tax-contracts",
   "version": "2.5.3",
-  "description": "OpenZeppelin SDK example: using truffle migrations",
+  "description": "Harberger tax upgradable contracts",
   "main": "index.js",
   "private": true,
   "scripts": {
@@ -14,7 +14,7 @@
     "check": "truffle exec index.js --network local",
     "deploy": "npx truffle exec scripts/deploy.js"
   },
-  "author": "santiago@openzeppelin.com",
+  "author": "jason@wildcards.world",
   "license": "MIT",
   "dependencies": {
     "@opengsn/gsn": "^2.0.0-beta.1.3",
