@@ -211,7 +211,11 @@ module.exports = function(deployer, networkName, accounts) {
       await increaseTime(web3, 2*60); // 2 minutes increase
       await steward.buy(12, 123568, { from: accounts[1], value: 2234568 });
       await increaseTime(web3, 2*60); // 2 minutes increase
-      await steward.buy(42, 123568, { from: accounts[1], value: 2234568 });
+      await steward.changePrice(12, 87654321, { from: accounts[1] });
+      await increaseTime(web3, 2*60); // 2 minutes increase
+      console.log("buy - " + steward.address + " buying the token");
+      const buyResult = await steward.buy(42, 123568, { from: accounts[1], value: 2234568 });
+      console.log("result of the purchase ", buyResult);
     }
   });
 };
