@@ -1,17 +1,17 @@
 pragma solidity ^0.6.0;
 
-import "@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/IERC721Metadata.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/IERC721Enumerable.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/IERC721Receiver.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/introspection/ERC165.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/utils/Address.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/utils/EnumerableSet.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/utils/EnumerableMap.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
+import "../../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/GSN/Context.sol";
+import "../../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC721/IERC721.sol";
+import "../../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC721/IERC721Metadata.sol";
+import "../../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC721/IERC721Enumerable.sol";
+import "../../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC721/IERC721Receiver.sol";
+import "../../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/introspection/ERC165.sol";
+import "../../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/math/SafeMath.sol";
+import "../../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/utils/Address.sol";
+import "../../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/utils/EnumerableSet.sol";
+import "../../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/utils/EnumerableMap.sol";
+import "../../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/utils/Strings.sol";
+import "../../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol";
 
 /**
  * @title ERC721 Non-Fungible Token Standard basic implementation

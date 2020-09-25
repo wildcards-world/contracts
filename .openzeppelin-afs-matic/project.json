@@ -1,0 +1,21 @@
+{
+  "manifestVersion": "2.2",
+  "contracts": {
+    "ERC20PatronageReceipt_upgradable": "ERC20PatronageReceipt_v2_upgradable",
+    "ERC721Patronage": "ERC721Patronage_v1",
+    "WildcardSteward": "WildcardSteward_v3_matic",
+    "MintManager": "MintManager_v2",
+    "AFSSteward": "AFSSteward_v3_matic"
+  },
+  "dependencies": {},
+  "name": "matic-deploy",
+  "version": "2.5.3",
+  "compiler": {
+    "compilerSettings": {
+      "optimizer": {}
+    },
+    "typechain": {
+      "enabled": false
+    }
+  }
+}

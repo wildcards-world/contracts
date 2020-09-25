@@ -1,10 +1,10 @@
 pragma solidity ^0.6.0;
 
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol";
+import "../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol";
+import "../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/access/AccessControl.sol";
 import "./GSNRecipientBase.sol";
 
-import "@opengsn/gsn/contracts/interfaces/IKnowForwarderAddress.sol";
+import "../vendered/gsn-2.0.0-beta.1.3/contracts/interfaces/IKnowForwarderAddressGsn.sol";
 
 // import "@nomiclabs/buidler/console.sol";
 
@@ -12,7 +12,7 @@ contract ERC20PatronageReceipt_v2_upgradable is
     GSNRecipientBase,
     ERC20UpgradeSafe,
     AccessControlUpgradeSafe,
-    IKnowForwarderAddress
+    IKnowForwarderAddressGsn
 {
     bytes32 public constant MINTER_ROLE = keccak256("minter");
     bytes32 public constant ADMIN_ROLE = keccak256("admin");
@@ -57,6 +57,7 @@ contract ERC20PatronageReceipt_v2_upgradable is
     }
 
     function addMinter(address minter) public {
+        require(hasRole(ADMIN_ROLE, _msgSender()), "Caller not admin");
         grantRole(MINTER_ROLE, minter);
     }
 

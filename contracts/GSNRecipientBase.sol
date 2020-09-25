@@ -1,6 +1,6 @@
-import "@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/GSN/GSNRecipient.sol";
-import "@opengsn/gsn/contracts/utils/MinLibBytes.sol";
+import "../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/GSN/Context.sol";
+import "../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/GSN/GSNRecipient.sol";
+import "../vendered/gsn-2.0.0-beta.1.3/contracts/utils/MinLibBytes.sol";
 
 contract GSNRecipientBase is ContextUpgradeSafe, GSNRecipientUpgradeSafe {
     function initialize() public {

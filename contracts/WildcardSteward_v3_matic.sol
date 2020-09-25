@@ -1,14 +1,24 @@
 pragma solidity 0.6.12;
 
-import "./MintManager_v2.sol";
-import "./ERC721Patronage_v1.sol";
-import "./GSNRecipientBase.sol";
+import "../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/math/SafeMath.sol";
+import "../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol";
 
-import "@opengsn/gsn/contracts/interfaces/IKnowForwarderAddress.sol";
+import "./ERC721Patronage_v1.sol";
+import "./interfaces/IMintManager.sol";
+import "./interfaces/IERC721Patronage.sol";
+import "./interfaces/IERC20Mintable.sol";
+// import "./GSNRecipientBase.sol";
+
+import "../vendered/gsn-2.0.0-beta.1.3/contracts/BaseRelayRecipient.sol";
+import "../vendered/gsn-2.0.0-beta.1.3/contracts/interfaces/IKnowForwarderAddressGsn.sol";
 
 // import "@nomiclabs/buidler/console.sol";
 
-contract WildcardSteward_v3_matic is GSNRecipientBase, IKnowForwarderAddress {
+contract WildcardSteward_v3_matic is
+    Initializable,
+    BaseRelayRecipient,
+    IKnowForwarderAddressGsn
+{
     /*
     This smart contract collects patronage from current owner through a Harberger tax model and 
     takes stewardship of the asset token if the patron can't pay anymore.
@@ -21,7 +31,7 @@ contract WildcardSteward_v3_matic is GSNRecipientBase, IKnowForwarderAddress {
     */
     using SafeMath for uint256;
     mapping(uint256 => uint256) public price; //in wei
-    ERC721Patronage_v1 public assetToken; // ERC721 NFT.
+    IERC721Patronage public assetToken; // ERC721 NFT.
 
     mapping(uint256 => uint256) deprecated_totalCollected; // THIS VALUE IS DEPRECATED
     mapping(uint256 => uint256) deprecated_currentCollected; // THIS VALUE IS DEPRECATED
@@ -51,7 +61,7 @@ contract WildcardSteward_v3_matic is GSNRecipientBase, IKnowForwarderAddress {
     //////////////// NEW variables in v2///////////////////
     mapping(uint256 => uint256) deprecated_tokenGenerationRate; // we can reuse the patronage denominator
 
-    MintManager_v2 public mintManager;
+    IMintManager public mintManager;
     //////////////// NEW variables in v3 ///////////////////
     uint256 public auctionStartPrice;
     uint256 public auctionEndPrice;
@@ -82,7 +92,7 @@ contract WildcardSteward_v3_matic is GSNRecipientBase, IKnowForwarderAddress {
     uint256 public constant globalTokenGenerationRate = 11574074074074;
     uint256 public constant yearTimePatronagDenominator = 31536000000000000000;
 
-    IERC20Mintable public paymentToken; // ERC721 NFT.
+    IERC20Mintable public paymentToken; // ERC20 token used as payment.
 
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
     event PriceChange(uint256 indexed tokenId, uint256 newPrice);
@@ -199,13 +209,14 @@ contract WildcardSteward_v3_matic is GSNRecipientBase, IKnowForwarderAddress {
         uint256 _auctionStartPrice,
         uint256 _auctionEndPrice,
         uint256 _auctionLength,
-        address _paymentToken
+        address _paymentToken,
+        address _trustedForwarder
     ) public initializer {
         emit UpgradeToV3();
-        assetToken = ERC721Patronage_v1(_assetToken);
+        assetToken = IERC721Patronage(_assetToken);
         admin = _admin;
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
-        mintManager = MintManager_v2(_mintManager);
+        mintManager = IMintManager(_mintManager);
         paymentToken = IERC20Mintable(_paymentToken);
         _changeAuctionParameters(
             _auctionStartPrice,
@@ -213,7 +224,7 @@ contract WildcardSteward_v3_matic is GSNRecipientBase, IKnowForwarderAddress {
             _auctionLength
         );
 
-        GSNRecipientBase.initialize();
+        setTrustedForwarder(_trustedForwarder);
     }
 
     function getTrustedForwarder() public override view returns (address) {
@@ -565,10 +576,10 @@ contract WildcardSteward_v3_matic is GSNRecipientBase, IKnowForwarderAddress {
     // add amount to balance
     // TODO: this function should have an event
     function _updateBenefactorBalance(address benefactor) public {
-        uint256 patronageDueBenefactor = patronageDueBenefactor(benefactor);
+        uint256 patronageDueForBenefactor = patronageDueBenefactor(benefactor);
 
-        if (patronageDueBenefactor > 0) {
-            _increaseBenefactorBalance(benefactor, patronageDueBenefactor);
+        if (patronageDueForBenefactor > 0) {
+            _increaseBenefactorBalance(benefactor, patronageDueForBenefactor);
         }
 
         timeLastCollectedBenefactor[benefactor] = now;
@@ -1069,5 +1080,22 @@ contract WildcardSteward_v3_matic is GSNRecipientBase, IKnowForwarderAddress {
             .sub(scaledPrice);
 
         assetToken.transferFrom(_currentOwner, address(this), tokenId);
+    }
+
+    function versionRecipient()
+        external
+        virtual
+        override
+        view
+        returns (string memory)
+    {
+        return "1.0";
+    }
+
+    // THIS CODE IS PURELY FOR TESTING GSN - IT DOES NOTHING!
+    event TestEvent(address sender, address paymentTokenAdr, address randomArg);
+
+    function testFunctionThatDoesNothing(address randomArg) public {
+        emit TestEvent(_msgSender(), address(paymentToken), randomArg);
     }
 }
