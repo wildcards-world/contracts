@@ -7,7 +7,7 @@ const ERC20PatronageReceipt_v2 = artifacts.require(
 
 const { ConfigManager } = require("@openzeppelin/cli");
 
-const paymentTokenAddress = "0xc170F308756aD9C20364233B555A11a559578587";
+const paymentTokenAddress = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063";
 
 async function deploy(options, accounts) {
   const patronageERC721 = await ERC721Patronage_v1.deployed();
@@ -33,6 +33,12 @@ async function deploy(options, accounts) {
     accounts[0]
   );
 
+  // GSN TESTING!
+  await patronageERC20.addMinter(accounts[0]);
+  // await patronageERC20.setTrustedForwarder(
+  //   "0x844849A90479a12FFc549c8Da98E362575FF78d7"
+  // );
+
   //STEWARD
   await steward.initialize(
     // address _assetToken,
@@ -50,6 +56,8 @@ async function deploy(options, accounts) {
     // uint256 _auctionLength
     "604800", // 1week = 60*60*24*7
     paymentTokenAddress,
+    // address _trustedForwarder
+    "0x2358F93930F8c593B3D545E6bE23e23663A54fEE",
     { from: accounts[0] }
   );
 

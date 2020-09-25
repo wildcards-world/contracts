@@ -23,6 +23,6 @@ module.exports = {
       enabled: true,
       runs: 200,
     },
-    evmVersion: "constantinople",
+    evmVersion: "istanbul",
   },
 };

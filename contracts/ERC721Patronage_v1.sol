@@ -1,17 +1,17 @@
 pragma solidity 0.6.12;
 
 import "./mod/ERC721.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol";
+import "../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/access/AccessControl.sol";
 import "./GSNRecipientBase.sol";
 
-import "@opengsn/gsn/contracts/interfaces/IKnowForwarderAddress.sol";
+import "../vendered/gsn-2.0.0-beta.1.3/contracts/interfaces/IKnowForwarderAddressGsn.sol";
 
 // import "./WildcardSteward_v1.sol";
 contract ERC721Patronage_v1 is
     GSNRecipientBase,
     ERC721UpgradeSafe,
     AccessControlUpgradeSafe,
-    IKnowForwarderAddress
+    IKnowForwarderAddressGsn
 {
     address public steward;
     bytes32 public constant MINTER_ROLE = keccak256("minter");

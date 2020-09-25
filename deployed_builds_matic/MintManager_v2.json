@@ -97,36 +97,30 @@
       "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.5.17+commit.d19bba13\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":true,\"inputs\":[],\"name\":\"admin\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"_admin\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_steward\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"}],\"name\":\"initialize\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"steward\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"token\",\"outputs\":[{\"internalType\":\"contract IERC20Mintable\",\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"receiverOfTokens\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"time\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"mintRate\",\"type\":\"uint256\"}],\"name\":\"tokenMint\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/home/jasoons/Documents/code/contracts/contracts/MintManager_v2.sol\":\"MintManager_v2\"},\"evmVersion\":\"constantinople\",\"libraries\":{},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/jasoons/Documents/code/contracts/contracts/MintManager_v2.sol\":{\"keccak256\":\"0x606c3aef08ff721963518cc286fb1c9c549d7604f677210da09ef1fbbbb8e878\",\"urls\":[\"bzz-raw://d11d0f46982d8c2f8a9583c36314c4f72685aa6b0d80645271ec0c5d5e5d7754\",\"dweb:/ipfs/QmUHh5oUybAByJmSM5wxG6vj2Vc1ui5ExeN3hLxaTRVNhe\"]},\"/home/jasoons/Documents/code/contracts/contracts/interfaces/IERC20Mintable.sol\":{\"keccak256\":\"0xd6b7b2f04556bef9f396e9061dee9c28aafde086c6693af1fb0421bbf0bb9f08\",\"urls\":[\"bzz-raw://14ea8e5fcf8f4467ba83e92a8648c1675dfa5004432aa95641a6743ad385ca4c\",\"dweb:/ipfs/QmPziXuvAELCJiK64jNRxMDi3hBGqJJcMwe8RAN486ySKD\"]},\"@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol\":{\"keccak256\":\"0x3491510fa4862af1a43f6c860d9cf7392240196540cd3c0eea79d374d419c5a1\",\"urls\":[\"bzz-raw://3e51386d74eb723d3acaaddafce1dd0b4082ad4c10ddba6b9fc154aad2930d02\",\"dweb:/ipfs/QmcA8Huap1c7YjdVjx5TGasxKNMLgsa3XyLvQUaMa1nMt8\"]},\"@openzeppelin/contracts-ethereum-package/contracts/drafts/Counters.sol\":{\"keccak256\":\"0x5be8533c5950173dc2b77b75108fae6e6c5449aedadde3385ba457394aad2384\",\"urls\":[\"bzz-raw://d429fb04f5b31d909dc759d0f88e28055b80b4dd43e5def4dffc947fa0609229\",\"dweb:/ipfs/QmaY9idX5CwLLtjjTQAdiiaDSrncgafkatUZXTbbajpz8b\"]},\"@openzeppelin/contracts-ethereum-package/contracts/introspection/ERC165.sol\":{\"keccak256\":\"0x77dba70b279e47f7f6941b433a26ba51b8484b557d250d3a78075ecea5a9b01d\",\"urls\":[\"bzz-raw://946383a175d8b051ab44a6a6001b09ad09403aae6af0280d9532f1fde557ba7f\",\"dweb:/ipfs/QmeTQrn4DJWnZyf7v3FRGfP7CLzESNNtFAsDDhakWH2zfp\"]},\"@openzeppelin/contracts-ethereum-package/contracts/introspection/IERC165.sol\":{\"keccak256\":\"0xe0ed10f53955c35eecb02724538650a155aa940be3f0a54cd3bde6c6b0c6e48c\",\"urls\":[\"bzz-raw://7dcfda88e3225987245908c3296f3559752647036804325ebfaa9fd1545161c3\",\"dweb:/ipfs/QmXxx5rHfLL57zdgyyyG9MMv4XGN7bpVSc2MuDcaCgto6u\"]},\"@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol\":{\"keccak256\":\"0x640b6dee7a4b830bdfd52b5031a07fc2b12209f5b2e29e5d364a7d37f69d8076\",\"urls\":[\"bzz-raw://31113152e1ddb78fe7a4197f247591ca894e93f916867beb708d8e747b6cc74f\",\"dweb:/ipfs/QmbZaJyXdpsYGykVhHH9qpVGQg9DGCxE2QufbCUy3daTgq\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol\":{\"keccak256\":\"0x85a33ccd7456c0e6ff481e9e307871bdeb62faf586dcdb7a45af12b54bc6781c\",\"urls\":[\"bzz-raw://8bc02bbffd7e9620e7412f73484ae33f186fdf9956b5b6d59dcfa5bdf98b0a7a\",\"dweb:/ipfs/QmbfGnTzEt45Qajpg9U8jEAnz8gnyqVQByjw72PatcUQpD\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/IERC721.sol\":{\"keccak256\":\"0x3481053b3fbcb2cc24d40f208f1d65a1381febbed382eaba0f6ef7ce2296dac0\",\"urls\":[\"bzz-raw://9a44cef44872a5051402b8a3e00c18c4b36f75c8394c11b71e78abdb81ffe8ca\",\"dweb:/ipfs/QmYnuiJaRrBpPbC2YnQbK8MwDVtY68dpY18ir1GZeBZrh5\"]},\"@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/IERC721Receiver.sol\":{\"keccak256\":\"0x042048c375daca04b31e31c91bbae912b84b5eb818c4e31b2deb530fd2305342\",\"urls\":[\"bzz-raw://d877a87c5e29b9ffca3e334378058c051a4e012fd3635039681003a9376baf1f\",\"dweb:/ipfs/QmR45snf93cFXtB71TZcmoGy9DbcMha8CqgkDKaLvhjXZK\"]},\"@openzeppelin/contracts-ethereum-package/contracts/utils/Address.sol\":{\"keccak256\":\"0x1a8e5072509c5ea7365eb1d48030b9be865140c8fb779968da0a459a0e174a11\",\"urls\":[\"bzz-raw://03335b7b07c7c8c8d613cfdd8ec39a0b5ec133ee510bf2fe6cc5a496767bef4b\",\"dweb:/ipfs/Qmebp4nzPja645c9yXSdJkGq96oU3am3LUnG2K3R7XxyKf\"]},\"@openzeppelin/upgrades/contracts/Initializable.sol\":{\"keccak256\":\"0x9bfec92e36234ecc99b5d37230acb6cd1f99560233753162204104a4897e8721\",\"urls\":[\"bzz-raw://5cf7c208583d4d046d75bd99f5507412ab01cce9dd9f802ce9768a416d93ea2f\",\"dweb:/ipfs/QmcQS1BBMPpVEkXP3qzwSjxHNrqDek8YeR7xbVWDC9ApC7\"]}},\"version\":1}",
+  "metadata": "{\"compiler\":{\"version\":\"0.5.17+commit.d19bba13\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":true,\"inputs\":[],\"name\":\"admin\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"_admin\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_steward\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"}],\"name\":\"initialize\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"steward\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"token\",\"outputs\":[{\"internalType\":\"contract IERC20Mintable\",\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"receiverOfTokens\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"time\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"mintRate\",\"type\":\"uint256\"}],\"name\":\"tokenMint\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/home/jasoons/Documents/code/contracts/contracts/MintManager_v2.sol\":\"MintManager_v2\"},\"evmVersion\":\"constantinople\",\"libraries\":{},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/jasoons/Documents/code/contracts/contracts/MintManager_v2.sol\":{\"keccak256\":\"0x606c3aef08ff721963518cc286fb1c9c549d7604f677210da09ef1fbbbb8e878\",\"urls\":[\"bzz-raw://d11d0f46982d8c2f8a9583c36314c4f72685aa6b0d80645271ec0c5d5e5d7754\",\"dweb:/ipfs/QmUHh5oUybAByJmSM5wxG6vj2Vc1ui5ExeN3hLxaTRVNhe\"]},\"/home/jasoons/Documents/code/contracts/contracts/interfaces/IERC20Mintable.sol\":{\"keccak256\":\"0xd6b7b2f04556bef9f396e9061dee9c28aafde086c6693af1fb0421bbf0bb9f08\",\"urls\":[\"bzz-raw://14ea8e5fcf8f4467ba83e92a8648c1675dfa5004432aa95641a6743ad385ca4c\",\"dweb:/ipfs/QmPziXuvAELCJiK64jNRxMDi3hBGqJJcMwe8RAN486ySKD\"]},\"../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/GSN/Context.sol\":{\"keccak256\":\"0x3491510fa4862af1a43f6c860d9cf7392240196540cd3c0eea79d374d419c5a1\",\"urls\":[\"bzz-raw://3e51386d74eb723d3acaaddafce1dd0b4082ad4c10ddba6b9fc154aad2930d02\",\"dweb:/ipfs/QmcA8Huap1c7YjdVjx5TGasxKNMLgsa3XyLvQUaMa1nMt8\"]},\"../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/drafts/Counters.sol\":{\"keccak256\":\"0x5be8533c5950173dc2b77b75108fae6e6c5449aedadde3385ba457394aad2384\",\"urls\":[\"bzz-raw://d429fb04f5b31d909dc759d0f88e28055b80b4dd43e5def4dffc947fa0609229\",\"dweb:/ipfs/QmaY9idX5CwLLtjjTQAdiiaDSrncgafkatUZXTbbajpz8b\"]},\"../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/introspection/ERC165.sol\":{\"keccak256\":\"0x77dba70b279e47f7f6941b433a26ba51b8484b557d250d3a78075ecea5a9b01d\",\"urls\":[\"bzz-raw://946383a175d8b051ab44a6a6001b09ad09403aae6af0280d9532f1fde557ba7f\",\"dweb:/ipfs/QmeTQrn4DJWnZyf7v3FRGfP7CLzESNNtFAsDDhakWH2zfp\"]},\"../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/introspection/IERC165.sol\":{\"keccak256\":\"0xe0ed10f53955c35eecb02724538650a155aa940be3f0a54cd3bde6c6b0c6e48c\",\"urls\":[\"bzz-raw://7dcfda88e3225987245908c3296f3559752647036804325ebfaa9fd1545161c3\",\"dweb:/ipfs/QmXxx5rHfLL57zdgyyyG9MMv4XGN7bpVSc2MuDcaCgto6u\"]},\"../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/math/SafeMath.sol\":{\"keccak256\":\"0x640b6dee7a4b830bdfd52b5031a07fc2b12209f5b2e29e5d364a7d37f69d8076\",\"urls\":[\"bzz-raw://31113152e1ddb78fe7a4197f247591ca894e93f916867beb708d8e747b6cc74f\",\"dweb:/ipfs/QmbZaJyXdpsYGykVhHH9qpVGQg9DGCxE2QufbCUy3daTgq\"]},\"../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC721/ERC721.sol\":{\"keccak256\":\"0x85a33ccd7456c0e6ff481e9e307871bdeb62faf586dcdb7a45af12b54bc6781c\",\"urls\":[\"bzz-raw://8bc02bbffd7e9620e7412f73484ae33f186fdf9956b5b6d59dcfa5bdf98b0a7a\",\"dweb:/ipfs/QmbfGnTzEt45Qajpg9U8jEAnz8gnyqVQByjw72PatcUQpD\"]},\"../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC721/IERC721.sol\":{\"keccak256\":\"0x3481053b3fbcb2cc24d40f208f1d65a1381febbed382eaba0f6ef7ce2296dac0\",\"urls\":[\"bzz-raw://9a44cef44872a5051402b8a3e00c18c4b36f75c8394c11b71e78abdb81ffe8ca\",\"dweb:/ipfs/QmYnuiJaRrBpPbC2YnQbK8MwDVtY68dpY18ir1GZeBZrh5\"]},\"../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC721/IERC721Receiver.sol\":{\"keccak256\":\"0x042048c375daca04b31e31c91bbae912b84b5eb818c4e31b2deb530fd2305342\",\"urls\":[\"bzz-raw://d877a87c5e29b9ffca3e334378058c051a4e012fd3635039681003a9376baf1f\",\"dweb:/ipfs/QmR45snf93cFXtB71TZcmoGy9DbcMha8CqgkDKaLvhjXZK\"]},\"../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/utils/Address.sol\":{\"keccak256\":\"0x1a8e5072509c5ea7365eb1d48030b9be865140c8fb779968da0a459a0e174a11\",\"urls\":[\"bzz-raw://03335b7b07c7c8c8d613cfdd8ec39a0b5ec133ee510bf2fe6cc5a496767bef4b\",\"dweb:/ipfs/Qmebp4nzPja645c9yXSdJkGq96oU3am3LUnG2K3R7XxyKf\"]},\"@openzeppelin/upgrades/contracts/Initializable.sol\":{\"keccak256\":\"0x9bfec92e36234ecc99b5d37230acb6cd1f99560233753162204104a4897e8721\",\"urls\":[\"bzz-raw://5cf7c208583d4d046d75bd99f5507412ab01cce9dd9f802ce9768a416d93ea2f\",\"dweb:/ipfs/QmcQS1BBMPpVEkXP3qzwSjxHNrqDek8YeR7xbVWDC9ApC7\"]}},\"version\":1}",
   "bytecode": "0x608060405234801561001057600080fd5b50610570806100206000396000f3fe608060405234801561001057600080fd5b50600436106100575760003560e01c80632ee913011461005c578063637eea1914610090578063c0c53b8b146100b4578063f851a440146100ec578063fc0c546a146100f4575b600080fd5b61008e6004803603606081101561007257600080fd5b506001600160a01b0381351690602081013590604001356100fc565b005b610098610291565b604080516001600160a01b039092168252519081900360200190f35b61008e600480360360608110156100ca57600080fd5b506001600160a01b0381358116916020810135821691604090910135166102a0565b610098610382565b610098610391565b6034546001600160a01b03163314610149576040805162461bcd60e51b815260206004820152600b60248201526a139bdd081cdd195dd85c9960aa1b604482015290519081900360640190fd5b600061015b838363ffffffff6103a016565b90506000610181606461017584601463ffffffff6103a016565b9063ffffffff61040216565b603554604080516340c10f1960e01b81526001600160a01b0389811660048301526024820187905291519394509116916340c10f19916044808201926020929091908290030181600087803b1580156101d957600080fd5b505af11580156101ed573d6000803e3d6000fd5b505050506040513d602081101561020357600080fd5b5050603554603354604080516340c10f1960e01b81526001600160a01b03928316600482015260248101859052905191909216916340c10f199160448083019260209291908290030181600087803b15801561025e57600080fd5b505af1158015610272573d6000803e3d6000fd5b505050506040513d602081101561028857600080fd5b50505050505050565b6034546001600160a01b031681565b600054610100900460ff16806102b957506102b9610444565b806102c7575060005460ff16155b6103025760405162461bcd60e51b815260040180806020018281038252602e81526020018061050e602e913960400191505060405180910390fd5b600054610100900460ff1615801561032d576000805460ff1961ff0019909116610100171660011790555b603380546001600160a01b038087166001600160a01b031992831617909255603480548684169083161790556035805492851692909116919091179055801561037c576000805461ff00191690555b50505050565b6033546001600160a01b031681565b6035546001600160a01b031681565b6000826103af575060006103fc565b828202828482816103bc57fe5b04146103f95760405162461bcd60e51b81526004018080602001828103825260218152602001806104ed6021913960400191505060405180910390fd5b90505b92915050565b60006103f983836040518060400160405280601a81526020017f536166654d6174683a206469766973696f6e206279207a65726f00000000000081525061044a565b303b1590565b600081836104d65760405162461bcd60e51b81526004018080602001828103825283818151815260200191508051906020019080838360005b8381101561049b578181015183820152602001610483565b50505050905090810190601f1680156104c85780820380516001836020036101000a031916815260200191505b509250505060405180910390fd5b5060008385816104e257fe5b049594505050505056fe536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f77436f6e747261637420696e7374616e63652068617320616c7265616479206265656e20696e697469616c697a6564a265627a7a7231582054a320dbc077cc9356f9a7e795b7c5b6ecfbbb05fd1c9c997deed2d15b42048964736f6c63430005110032",
   "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100575760003560e01c80632ee913011461005c578063637eea1914610090578063c0c53b8b146100b4578063f851a440146100ec578063fc0c546a146100f4575b600080fd5b61008e6004803603606081101561007257600080fd5b506001600160a01b0381351690602081013590604001356100fc565b005b610098610291565b604080516001600160a01b039092168252519081900360200190f35b61008e600480360360608110156100ca57600080fd5b506001600160a01b0381358116916020810135821691604090910135166102a0565b610098610382565b610098610391565b6034546001600160a01b03163314610149576040805162461bcd60e51b815260206004820152600b60248201526a139bdd081cdd195dd85c9960aa1b604482015290519081900360640190fd5b600061015b838363ffffffff6103a016565b90506000610181606461017584601463ffffffff6103a016565b9063ffffffff61040216565b603554604080516340c10f1960e01b81526001600160a01b0389811660048301526024820187905291519394509116916340c10f19916044808201926020929091908290030181600087803b1580156101d957600080fd5b505af11580156101ed573d6000803e3d6000fd5b505050506040513d602081101561020357600080fd5b5050603554603354604080516340c10f1960e01b81526001600160a01b03928316600482015260248101859052905191909216916340c10f199160448083019260209291908290030181600087803b15801561025e57600080fd5b505af1158015610272573d6000803e3d6000fd5b505050506040513d602081101561028857600080fd5b50505050505050565b6034546001600160a01b031681565b600054610100900460ff16806102b957506102b9610444565b806102c7575060005460ff16155b6103025760405162461bcd60e51b815260040180806020018281038252602e81526020018061050e602e913960400191505060405180910390fd5b600054610100900460ff1615801561032d576000805460ff1961ff0019909116610100171660011790555b603380546001600160a01b038087166001600160a01b031992831617909255603480548684169083161790556035805492851692909116919091179055801561037c576000805461ff00191690555b50505050565b6033546001600160a01b031681565b6035546001600160a01b031681565b6000826103af575060006103fc565b828202828482816103bc57fe5b04146103f95760405162461bcd60e51b81526004018080602001828103825260218152602001806104ed6021913960400191505060405180910390fd5b90505b92915050565b60006103f983836040518060400160405280601a81526020017f536166654d6174683a206469766973696f6e206279207a65726f00000000000081525061044a565b303b1590565b600081836104d65760405162461bcd60e51b81526004018080602001828103825283818151815260200191508051906020019080838360005b8381101561049b578181015183820152602001610483565b50505050905090810190601f1680156104c85780820380516001836020036101000a031916815260200191505b509250505060405180910390fd5b5060008385816104e257fe5b049594505050505056fe536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f77436f6e747261637420696e7374616e63652068617320616c7265616479206265656e20696e697469616c697a6564a265627a7a7231582054a320dbc077cc9356f9a7e795b7c5b6ecfbbb05fd1c9c997deed2d15b42048964736f6c63430005110032",
   "sourceMap": "154:880:4:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;154:880:4;;;;;;;",
   "deployedSourceMap": "154:880:4:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;154:880:4;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;648:384;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;-1:-1;;;;;;648:384:4;;;;;;;;;;;;;:::i;:::-;;260:22;;;:::i;:::-;;;;-1:-1:-1;;;;;260:22:4;;;;;;;;;;;;;;424:218;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;-1:-1;;;;;;424:218:4;;;;;;;;;;;;;;;;;;;:::i;234:20::-;;;:::i;288:27::-;;;:::i;648:384::-;377:7;;-1:-1:-1;;;;;377:7:4;363:10;:21;355:45;;;;;-1:-1:-1;;;355:45:4;;;;;;;;;;;;-1:-1:-1;;;355:45:4;;;;;;;;;;;;;;;786:27;816:18;:4;825:8;816:18;:8;:18;:::i;:::-;786:48;-1:-1:-1;844:31:4;878:36;910:3;878:27;786:48;902:2;878:27;:23;:27;:::i;:::-;:31;:36;:31;:36;:::i;:::-;924:5;;:49;;;-1:-1:-1;;;924:49:4;;-1:-1:-1;;;;;924:49:4;;;;;;;;;;;;;;;844:70;;-1:-1:-1;924:5:4;;;:10;;:49;;;;;;;;;;;;;;;:5;;:49;;;5:2:-1;;;;30:1;27;20:12;5:2;924:49:4;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;924:49:4;;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;-1:-1;;983:5:4;;994;;983:42;;;-1:-1:-1;;;983:42:4;;-1:-1:-1;;;;;994:5:4;;;983:42;;;;;;;;;;;;:5;;;;;:10;;:42;;;;;924:49;;983:42;;;;;;;:5;;:42;;;5:2:-1;;;;30:1;27;20:12;5:2;983:42:4;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;983:42:4;;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;-1:-1;;;;;;;648:384:4:o;260:22::-;;;-1:-1:-1;;;;;260:22:4;;:::o;424:218::-;1024:12:35;;;;;;;;:31;;;1040:15;:13;:15::i;:::-;1024:47;;;-1:-1:-1;1060:11:35;;;;1059:12;1024:47;1016:106;;;;-1:-1:-1;;;1016:106:35;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1129:19;1152:12;;;;;;1151:13;1170:80;;;;1198:12;:19;;-1:-1:-1;;;;1198:19:35;;;;;1225:18;1213:4;1225:18;;;1170:80;553:5:4;:14;;-1:-1:-1;;;;;553:14:4;;;-1:-1:-1;;;;;;553:14:4;;;;;;;577:7;:18;;;;;;;;;;;605:5;:30;;;;;;;;;;;;;;;1264:55:35;;;;1307:5;1292:20;;-1:-1:-1;;1292:20:35;;;1264:55;424:218:4;;;;:::o;234:20::-;;;-1:-1:-1;;;;;234:20:4;;:::o;288:27::-;;;-1:-1:-1;;;;;288:27:4;;:::o;2159:459:20:-;2217:7;2458:6;2454:45;;-1:-1:-1;2487:1:20;2480:8;;2454:45;2521:5;;;2525:1;2521;:5;:1;2544:5;;;;;:10;2536:56;;;;-1:-1:-1;;;2536:56:20;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2610:1;-1:-1:-1;2159:459:20;;;;;:::o;3073:130::-;3131:7;3157:39;3161:1;3164;3157:39;;;;;;;;;;;;;;;;;:3;:39::i;1409:498:35:-;1820:4;1864:17;1895:7;1409:498;:::o;3718:338:20:-;3804:7;3904:12;3897:5;3889:28;;;;-1:-1:-1;;;3889:28:20;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;23:1:-1;8:100;33:3;30:1;27:10;8:100;;;90:11;;;84:18;71:11;;;64:39;52:2;45:10;8:100;;;12:14;3889:28:20;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3927:9;3943:1;3939;:5;;;;;;;3718:338;-1:-1:-1;;;;;3718:338:20:o",
-  "source": "pragma solidity 0.5.17;\n\nimport \"@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol\";\nimport \"./interfaces/IERC20Mintable.sol\";\n\n\ncontract MintManager_v2 is Initializable {\n    using SafeMath for uint256;\n\n    address public admin;\n    address public steward;\n    IERC20Mintable public token;\n\n    modifier onlySteward() {\n        require(msg.sender == steward, \"Not steward\");\n        _;\n    }\n\n    function initialize(\n        address _admin,\n        address _steward,\n        address _token\n    ) public initializer {\n        admin = _admin;\n        steward = _steward;\n        token = IERC20Mintable(_token);\n    }\n\n    function tokenMint(\n        address receiverOfTokens,\n        uint256 time,\n        uint256 mintRate\n    ) external onlySteward {\n        uint256 amountToMintForUser = time.mul(mintRate);\n        uint256 amountToMintForTreasury = amountToMintForUser.mul(20).div(100);\n        token.mint(receiverOfTokens, amountToMintForUser);\n        token.mint(admin, amountToMintForTreasury);\n    }\n}\n",
+  "source": "pragma solidity 0.5.17;\n\nimport \"../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC721/ERC721.sol\";\nimport \"./interfaces/IERC20Mintable.sol\";\n\n\ncontract MintManager_v2 is Initializable {\n    using SafeMath for uint256;\n\n    address public admin;\n    address public steward;\n    IERC20Mintable public token;\n\n    modifier onlySteward() {\n        require(msg.sender == steward, \"Not steward\");\n        _;\n    }\n\n    function initialize(\n        address _admin,\n        address _steward,\n        address _token\n    ) public initializer {\n        admin = _admin;\n        steward = _steward;\n        token = IERC20Mintable(_token);\n    }\n\n    function tokenMint(\n        address receiverOfTokens,\n        uint256 time,\n        uint256 mintRate\n    ) external onlySteward {\n        uint256 amountToMintForUser = time.mul(mintRate);\n        uint256 amountToMintForTreasury = amountToMintForUser.mul(20).div(100);\n        token.mint(receiverOfTokens, amountToMintForUser);\n        token.mint(admin, amountToMintForTreasury);\n    }\n}\n",
   "sourcePath": "/home/jasoons/Documents/code/contracts/contracts/MintManager_v2.sol",
   "ast": {
     "absolutePath": "/home/jasoons/Documents/code/contracts/contracts/MintManager_v2.sol",
     "exportedSymbols": {
-      "MintManager_v2": [
-        284
-      ]
+      "MintManager_v2": [284]
     },
     "id": 285,
     "nodeType": "SourceUnit",
     "nodes": [
       {
         "id": 189,
-        "literals": [
-          "solidity",
-          "0.5",
-          ".17"
-        ],
+        "literals": ["solidity", "0.5", ".17"],
         "nodeType": "PragmaDirective",
         "src": "0:23:4"
       },
       {
-        "absolutePath": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
-        "file": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
+        "absolutePath": "../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC721/ERC721.sol",
+        "file": "../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC721/ERC721.sol",
         "id": 190,
         "nodeType": "ImportDirective",
         "scope": 285,
@@ -167,17 +161,12 @@
             "src": "181:13:4"
           }
         ],
-        "contractDependencies": [
-          13786
-        ],
+        "contractDependencies": [13786],
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
         "id": 284,
-        "linearizedBaseContracts": [
-          284,
-          13786
-        ],
+        "linearizedBaseContracts": [284, 13786],
         "name": "MintManager_v2",
         "nodeType": "ContractDefinition",
         "nodes": [
@@ -394,10 +383,7 @@
                       "id": 204,
                       "name": "require",
                       "nodeType": "Identifier",
-                      "overloadedDeclarations": [
-                        13804,
-                        13805
-                      ],
+                      "overloadedDeclarations": [13804, 13805],
                       "referencedDeclaration": 13805,
                       "src": "355:7:4",
                       "typeDescriptions": {
@@ -759,9 +745,7 @@
               "src": "776:256:4",
               "statements": [
                 {
-                  "assignments": [
-                    252
-                  ],
+                  "assignments": [252],
                   "declarations": [
                     {
                       "constant": false,
@@ -860,9 +844,7 @@
                   "src": "786:48:4"
                 },
                 {
-                  "assignments": [
-                    259
-                  ],
+                  "assignments": [259],
                   "declarations": [
                     {
                       "constant": false,
@@ -1333,26 +1315,20 @@
   "legacyAST": {
     "absolutePath": "/home/jasoons/Documents/code/contracts/contracts/MintManager_v2.sol",
     "exportedSymbols": {
-      "MintManager_v2": [
-        284
-      ]
+      "MintManager_v2": [284]
     },
     "id": 285,
     "nodeType": "SourceUnit",
     "nodes": [
       {
         "id": 189,
-        "literals": [
-          "solidity",
-          "0.5",
-          ".17"
-        ],
+        "literals": ["solidity", "0.5", ".17"],
         "nodeType": "PragmaDirective",
         "src": "0:23:4"
       },
       {
-        "absolutePath": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
-        "file": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol",
+        "absolutePath": "../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC721/ERC721.sol",
+        "file": "../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC721/ERC721.sol",
         "id": 190,
         "nodeType": "ImportDirective",
         "scope": 285,
@@ -1393,17 +1369,12 @@
             "src": "181:13:4"
           }
         ],
-        "contractDependencies": [
-          13786
-        ],
+        "contractDependencies": [13786],
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
         "id": 284,
-        "linearizedBaseContracts": [
-          284,
-          13786
-        ],
+        "linearizedBaseContracts": [284, 13786],
         "name": "MintManager_v2",
         "nodeType": "ContractDefinition",
         "nodes": [
@@ -1620,10 +1591,7 @@
                       "id": 204,
                       "name": "require",
                       "nodeType": "Identifier",
-                      "overloadedDeclarations": [
-                        13804,
-                        13805
-                      ],
+                      "overloadedDeclarations": [13804, 13805],
                       "referencedDeclaration": 13805,
                       "src": "355:7:4",
                       "typeDescriptions": {
@@ -1985,9 +1953,7 @@
               "src": "776:256:4",
               "statements": [
                 {
-                  "assignments": [
-                    252
-                  ],
+                  "assignments": [252],
                   "declarations": [
                     {
                       "constant": false,
@@ -2086,9 +2052,7 @@
                   "src": "786:48:4"
                 },
                 {
-                  "assignments": [
-                    259
-                  ],
+                  "assignments": [259],
                   "declarations": [
                     {
                       "constant": false,
