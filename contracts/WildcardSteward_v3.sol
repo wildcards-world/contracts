@@ -167,10 +167,10 @@ contract WildcardSteward_v3 is Initializable {
         require(checkAddress != address(0), "null address");
         _;
     }
-    modifier notSameAddress(address firstAddress, address secondAddress) {
-        require(firstAddress != secondAddress, "cannot be same address");
-        _;
-    }
+    // modifier notSameAddress(address firstAddress, address secondAddress) {
+    //     require(firstAddress != secondAddress, "cannot be same address");
+    //     _;
+    // }
     modifier validWildcardsPercentage(
         uint256 wildcardsPercentage,
         uint256 tokenID
@@ -276,85 +276,85 @@ contract WildcardSteward_v3 is Initializable {
         }
     }
 
-    function upgradeToV3(
-        uint256[] memory tokens,
-        address _withdrawCheckerAdmin,
-        uint256 _auctionStartPrice,
-        uint256 _auctionEndPrice,
-        uint256 _auctionLength
-    ) public notNullAddress(_withdrawCheckerAdmin) {
-        emit UpgradeToV3();
-        // This function effectively needs to call both _collectPatronage and _collectPatronagePatron from the v2 contract.
-        require(withdrawCheckerAdmin == address(0));
-        withdrawCheckerAdmin = _withdrawCheckerAdmin;
-        // For each token
-        for (uint8 i = 0; i < tokens.length; ++i) {
-            uint256 tokenId = tokens[i];
-            address currentOwner = assetToken.ownerOf(tokenId);
+    // function upgradeToV3(
+    //     uint256[] memory tokens,
+    //     address _withdrawCheckerAdmin,
+    //     uint256 _auctionStartPrice,
+    //     uint256 _auctionEndPrice,
+    //     uint256 _auctionLength
+    // ) public notNullAddress(_withdrawCheckerAdmin) {
+    //     emit UpgradeToV3();
+    //     // This function effectively needs to call both _collectPatronage and _collectPatronagePatron from the v2 contract.
+    //     require(withdrawCheckerAdmin == address(0));
+    //     withdrawCheckerAdmin = _withdrawCheckerAdmin;
+    //     // For each token
+    //     for (uint8 i = 0; i < tokens.length; ++i) {
+    //         uint256 tokenId = tokens[i];
+    //         address currentOwner = assetToken.ownerOf(tokenId);
 
-            uint256 timeSinceTokenLastCollection = now.sub(
-                deprecated_timeLastCollected[tokenId]
-            );
+    //         uint256 timeSinceTokenLastCollection = now.sub(
+    //             deprecated_timeLastCollected[tokenId]
+    //         );
 
-            // NOTE: for this upgrade we make sure no tokens are foreclosed, or close to foreclosing
-            uint256 collection = price[tokenId]
-                .mul(timeSinceTokenLastCollection)
-                .mul(patronageNumerator[tokenId])
-                .div(yearTimePatronagDenominator);
+    //         // NOTE: for this upgrade we make sure no tokens are foreclosed, or close to foreclosing
+    //         uint256 collection = price[tokenId]
+    //             .mul(timeSinceTokenLastCollection)
+    //             .mul(patronageNumerator[tokenId])
+    //             .div(yearTimePatronagDenominator);
 
-            // set the timeLastCollectedPatron for that tokens owner to 'now'.
-            // timeLastCollected[tokenId] = now; // This variable is depricated, no need to update it.
-            if (timeLastCollectedPatron[currentOwner] < now) {
-                // set subtract patronage owed for the Patron from their deposit.
-                deposit[currentOwner] = deposit[currentOwner].sub(
-                    patronageOwedPatron(currentOwner)
-                );
+    //         // set the timeLastCollectedPatron for that tokens owner to 'now'.
+    //         // timeLastCollected[tokenId] = now; // This variable is depricated, no need to update it.
+    //         if (timeLastCollectedPatron[currentOwner] < now) {
+    //             // set subtract patronage owed for the Patron from their deposit.
+    //             deposit[currentOwner] = deposit[currentOwner].sub(
+    //                 patronageOwedPatron(currentOwner)
+    //             );
 
-                timeLastCollectedPatron[currentOwner] = now;
-            }
+    //             timeLastCollectedPatron[currentOwner] = now;
+    //         }
 
-            // Add the amount collected for current token to the benefactorFunds.
-            benefactorFunds[benefactors[tokenId]] = benefactorFunds[benefactors[tokenId]]
-                .add(collection);
+    //         // Add the amount collected for current token to the benefactorFunds.
+    //         benefactorFunds[benefactors[tokenId]] = benefactorFunds[benefactors[tokenId]]
+    //             .add(collection);
 
-            // Emit an event for the graph to pickup this action (the last time this event will ever be emited)
-            emit CollectPatronage(
-                tokenId,
-                currentOwner,
-                deposit[currentOwner],
-                collection
-            );
+    //         // Emit an event for the graph to pickup this action (the last time this event will ever be emited)
+    //         emit CollectPatronage(
+    //             tokenId,
+    //             currentOwner,
+    //             deposit[currentOwner],
+    //             collection
+    //         );
 
-            // mint required loyalty tokens
-            mintManager.tokenMint(
-                currentOwner,
-                timeSinceTokenLastCollection, // this should always be > 0
-                globalTokenGenerationRate // instead of this -> tokenGenerationRate[tokenId] hard code to save gas
-            );
-            emit CollectLoyalty(
-                currentOwner,
-                timeSinceTokenLastCollection.mul(globalTokenGenerationRate)
-            ); // OPTIMIZE ME
+    //         // mint required loyalty tokens
+    //         mintManager.tokenMint(
+    //             currentOwner,
+    //             timeSinceTokenLastCollection, // this should always be > 0
+    //             globalTokenGenerationRate // instead of this -> tokenGenerationRate[tokenId] hard code to save gas
+    //         );
+    //         emit CollectLoyalty(
+    //             currentOwner,
+    //             timeSinceTokenLastCollection.mul(globalTokenGenerationRate)
+    //         ); // OPTIMIZE ME
 
-            // Add the tokens generation rate to the totalPatronTokenGenerationRate of the current owner
-            totalPatronTokenGenerationRate[currentOwner] = totalPatronTokenGenerationRate[currentOwner]
-                .add(globalTokenGenerationRate);
+    //         // Add the tokens generation rate to the totalPatronTokenGenerationRate of the current owner
+    //         totalPatronTokenGenerationRate[currentOwner] = totalPatronTokenGenerationRate[currentOwner]
+    //             .add(globalTokenGenerationRate);
 
-            address tokenBenefactor = benefactors[tokenId];
-            // add the scaled tokens price to the `totalBenefactorTokenNumerator`
-            totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
-                .add(price[tokenId].mul(patronageNumerator[tokenId]));
+    //         address tokenBenefactor = benefactors[tokenId];
+    //         // add the scaled tokens price to the `totalBenefactorTokenNumerator`
+    //         totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
+    //             .add(price[tokenId].mul(patronageNumerator[tokenId]));
 
-            if (timeLastCollectedBenefactor[tokenBenefactor] == 0) {
-                timeLastCollectedBenefactor[tokenBenefactor] = now;
-            }
-        }
-        _changeAuctionParameters(
-            _auctionStartPrice,
-            _auctionEndPrice,
-            _auctionLength
-        );
-    }
+    //         if (timeLastCollectedBenefactor[tokenBenefactor] == 0) {
+    //             timeLastCollectedBenefactor[tokenBenefactor] = now;
+    //         }
+    //     }
+    //     _changeAuctionParameters(
+    //         _auctionStartPrice,
+    //         _auctionEndPrice,
+    //         _auctionLength
+    //     );
+    // }
 
     function changeReceivingBenefactor(
         uint256 tokenId,
@@ -384,36 +384,36 @@ contract WildcardSteward_v3 is Initializable {
         // NB No fund exchanging here please!
     }
 
-    // NB This function is if an organisation loses their keys etc..
-    // It will transfer their deposit to their new benefactor address
-    // It should only be called once all their tokens also changeReceivingBenefactor
-    function changeReceivingBenefactorDeposit(
-        address oldBenfactor,
-        address payable _newReceivingBenefactor
-    )
-        public
-        onlyAdmin
-        notNullAddress(_newReceivingBenefactor)
-        notSameAddress(oldBenfactor, _newReceivingBenefactor)
-    {
-        require(benefactorFunds[oldBenfactor] > 0, "no funds");
+    // // NB This function is if an organisation loses their keys etc..
+    // // It will transfer their deposit to their new benefactor address
+    // // It should only be called once all their tokens also changeReceivingBenefactor
+    // function changeReceivingBenefactorDeposit(
+    //     address oldBenfactor,
+    //     address payable _newReceivingBenefactor
+    // )
+    //     public
+    //     onlyAdmin
+    //     notNullAddress(_newReceivingBenefactor)
+    //     notSameAddress(oldBenfactor, _newReceivingBenefactor)
+    // {
+    //     require(benefactorFunds[oldBenfactor] > 0, "no funds");
 
-        benefactorFunds[_newReceivingBenefactor] = benefactorFunds[_newReceivingBenefactor]
-            .add(benefactorFunds[oldBenfactor]);
-        benefactorFunds[oldBenfactor] = 0;
-    }
+    //     benefactorFunds[_newReceivingBenefactor] = benefactorFunds[_newReceivingBenefactor]
+    //         .add(benefactorFunds[oldBenfactor]);
+    //     benefactorFunds[oldBenfactor] = 0;
+    // }
 
     function changeAdmin(address _admin) public onlyAdmin {
         admin = _admin;
     }
 
-    function changeWithdrawCheckerAdmin(address _withdrawCheckerAdmin)
-        public
-        onlyAdmin
-        notNullAddress(_withdrawCheckerAdmin)
-    {
-        withdrawCheckerAdmin = _withdrawCheckerAdmin;
-    }
+    // function changeWithdrawCheckerAdmin(address _withdrawCheckerAdmin)
+    //     public
+    //     onlyAdmin
+    //     notNullAddress(_withdrawCheckerAdmin)
+    // {
+    //     withdrawCheckerAdmin = _withdrawCheckerAdmin;
+    // }
 
     function changeArtistAddressAndCommission(
         uint256 tokenId,
@@ -618,16 +618,16 @@ contract WildcardSteward_v3 is Initializable {
         uint256 patronageDueBenefactor
     ) internal {
         if (benefactorCredit[benefactor] > 0) {
-            if (patronageDueBenefactor < benefactorCredit[benefactor]) {
-                benefactorCredit[benefactor] = benefactorCredit[benefactor].sub(
-                    patronageDueBenefactor
-                );
-            } else {
-                benefactorFunds[benefactor] = patronageDueBenefactor.sub(
-                    benefactorCredit[benefactor]
-                );
-                benefactorCredit[benefactor] = 0;
-            }
+            // if (patronageDueBenefactor < benefactorCredit[benefactor]) {
+            //     benefactorCredit[benefactor] = benefactorCredit[benefactor].sub(
+            //         patronageDueBenefactor
+            //     );
+            // } else {
+            //     benefactorFunds[benefactor] = patronageDueBenefactor.sub(
+            //         benefactorCredit[benefactor]
+            //     );
+            //     benefactorCredit[benefactor] = 0;
+            // }
         } else {
             benefactorFunds[benefactor] = benefactorFunds[benefactor].add(
                 patronageDueBenefactor
@@ -640,16 +640,16 @@ contract WildcardSteward_v3 is Initializable {
         uint256 amountOverCredited
     ) internal {
         if (benefactorFunds[benefactor] > 0) {
-            if (amountOverCredited <= benefactorFunds[benefactor]) {
-                benefactorFunds[benefactor] = benefactorFunds[benefactor].sub(
-                    amountOverCredited
-                );
-            } else {
-                benefactorCredit[benefactor] = amountOverCredited.sub(
-                    benefactorFunds[benefactor]
-                );
-                benefactorFunds[benefactor] = 0;
-            }
+            // if (amountOverCredited <= benefactorFunds[benefactor]) {
+            //     benefactorFunds[benefactor] = benefactorFunds[benefactor].sub(
+            //         amountOverCredited
+            //     );
+            // } else {
+            //     benefactorCredit[benefactor] = amountOverCredited.sub(
+            //         benefactorFunds[benefactor]
+            //     );
+            //     benefactorFunds[benefactor] = 0;
+            // }
         } else {
             benefactorCredit[benefactor] = benefactorCredit[benefactor].add(
                 amountOverCredited
@@ -682,21 +682,21 @@ contract WildcardSteward_v3 is Initializable {
             "no funds"
         );
 
-        // NOTE: no need for safe-maths, above require prevents issues.
-        uint256 amountToWithdraw = availableToWithdraw -
-            benefactorWithdrawalSafetyDiscount;
+        // // NOTE: no need for safe-maths, above require prevents issues.
+        // uint256 amountToWithdraw = availableToWithdraw -
+        //     benefactorWithdrawalSafetyDiscount;
 
-        benefactorFunds[benefactor] = benefactorWithdrawalSafetyDiscount;
-        if (safeSend(amountToWithdraw, benefactor)) {
-            emit WithdrawBenefactorFundsWithSafetyDelay(
-                benefactor,
-                amountToWithdraw
-            );
-        } else {
-            benefactorFunds[benefactor] = benefactorFunds[benefactor].add(
-                amountToWithdraw
-            );
-        }
+        // benefactorFunds[benefactor] = benefactorWithdrawalSafetyDiscount;
+        // if (safeSend(amountToWithdraw, benefactor)) {
+        //     emit WithdrawBenefactorFundsWithSafetyDelay(
+        //         benefactor,
+        //         amountToWithdraw
+        //     );
+        // } else {
+        //     benefactorFunds[benefactor] = benefactorFunds[benefactor].add(
+        //         amountToWithdraw
+        //     );
+        // }
     }
 
     function hasher(
@@ -739,15 +739,15 @@ contract WildcardSteward_v3 is Initializable {
 
         if (availableToWithdraw > 0) {
             if (availableToWithdraw > maxAmount) {
-                if (safeSend(maxAmount, benefactor)) {
-                    benefactorFunds[benefactor] = availableToWithdraw.sub(
-                        maxAmount
-                    );
-                    emit WithdrawBenefactorFunds(
-                        benefactor,
-                        availableToWithdraw
-                    );
-                }
+                //     if (safeSend(maxAmount, benefactor)) {
+                //         benefactorFunds[benefactor] = availableToWithdraw.sub(
+                //             maxAmount
+                //         );
+                //         emit WithdrawBenefactorFunds(
+                //             benefactor,
+                //             availableToWithdraw
+                //         );
+                //     }
             } else {
                 if (safeSend(availableToWithdraw, benefactor)) {
                     benefactorFunds[benefactor] = 0;
@@ -927,7 +927,7 @@ contract WildcardSteward_v3 is Initializable {
         address tokenPatron = assetToken.ownerOf(tokenId);
         // Wildcards percentage calc
         if (wildcardsPercentages[tokenId] == 0) {
-            wildcardsPercentages[tokenId] = 50000;
+            // wildcardsPercentages[tokenId] = 50000;
         }
         uint256 wildcardsAmount = totalAmount
             .mul(wildcardsPercentages[tokenId])

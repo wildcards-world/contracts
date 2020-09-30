@@ -8,6 +8,10 @@ module.exports = {
     "WildcardSteward_v2.sol",
     "patches_and_utilities/URIFixer.sol",
     "tests/SendBlockAttacker.sol",
+    "previousVersions/ERC721Patronage_v0.sol",
+    "previousVersions/WildcardSteward_v0.sol",
+    "previousVersions/WildcardSteward_v1.sol",
+    "previousVersions/WildcardSteward_v2.sol",
   ],
   providerOptions: {
     default_balance_ether: 3000,
