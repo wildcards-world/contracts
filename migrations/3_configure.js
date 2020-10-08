@@ -56,8 +56,6 @@ async function deploy(options, accounts) {
     // uint256 _auctionLength
     "604800", // 1week = 60*60*24*7
     paymentTokenAddress,
-    // address _trustedForwarder
-    "0x2358F93930F8c593B3D545E6bE23e23663A54fEE",
     { from: accounts[0] }
   );
 
