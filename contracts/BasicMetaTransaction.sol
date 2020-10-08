@@ -1,7 +1,8 @@
 pragma solidity ^0.6.0;
 
 // import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
+// import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
+import "../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/math/SafeMath.sol";
 
 contract BasicMetaTransaction {
     using SafeMath for uint256;

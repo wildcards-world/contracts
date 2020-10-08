@@ -210,7 +210,7 @@ contract WildcardSteward_v3_matic is
         uint256 _auctionStartPrice,
         uint256 _auctionEndPrice,
         uint256 _auctionLength,
-        address _paymentToken,
+        address _paymentToken
     ) public initializer {
         emit UpgradeToV3();
         assetToken = IERC721Patronage(_assetToken);
