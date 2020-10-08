@@ -5,6 +5,7 @@ const {
   mnemonic,
   mainnetProviderUrl,
   rinkebyProviderUrl,
+  kovanProviderUrl,
   goerliProviderUrl,
 } = require("./secretsManager.js");
 // let HDWalletProvider = function(mnemonic, providerUrl, index) {};
@@ -54,6 +55,13 @@ module.exports = {
       gasPrice: 10000000000, // 10 gwe
       skipDryRun: true,
     },
+    kovan: {
+      network_id: 42,
+      provider: new HDWalletProvider(mnemonic, kovanProviderUrl, 0),
+      // gas: 47000000,
+      gasPrice: 10000000000, // 10 gwei
+      skipDryRun: true,
+    },
     goerli: {
       network_id: 5,
       provider: new HDWalletProvider(mnemonic, goerliProviderUrl, 0),
@@ -65,13 +73,13 @@ module.exports = {
       host: blockchainNodeHost, // Localhost (default: none)
       port: 8545, // Standard Ethereum port (default: none)
       network_id: "*", // Any network (default: none)
-      gasPrice: 1000000000, // 1 gwei
+      gasPrice: 1000000000, // 0.1 gwei
     },
     test: {
       host: blockchainNodeHost, // Localhost (default: none)
       port: 8545, // Standard Ethereum port (default: none)
       network_id: "*", // Any network (default: none)
-      gasPrice: 100000000, // 1 gwei
+      gasPrice: 100000000, // 0.1 gwei
     },
   },
   mocha: {

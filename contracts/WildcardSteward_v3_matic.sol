@@ -7,17 +7,18 @@ import "./ERC721Patronage_v1.sol";
 import "./interfaces/IMintManager.sol";
 import "./interfaces/IERC721Patronage.sol";
 import "./interfaces/IERC20Mintable.sol";
+
+import "./BasicMetaTransaction.sol";
 // import "./GSNRecipientBase.sol";
 
-import "../vendered/gsn-2.0.0-beta.1.3/contracts/BaseRelayRecipient.sol";
-import "../vendered/gsn-2.0.0-beta.1.3/contracts/interfaces/IKnowForwarderAddressGsn.sol";
+// import "../vendered/gsn-2.0.0-beta.1.3/contracts/BaseRelayRecipient.sol";
+// import "../vendered/gsn-2.0.0-beta.1.3/contracts/interfaces/IKnowForwarderAddressGsn.sol";
 
 // import "@nomiclabs/buidler/console.sol";
 
 contract WildcardSteward_v3_matic is
     Initializable,
-    BaseRelayRecipient,
-    IKnowForwarderAddressGsn
+    BasicMetaTransaction
 {
     /*
     This smart contract collects patronage from current owner through a Harberger tax model and 
@@ -135,18 +136,18 @@ contract WildcardSteward_v3_matic is
     event ChangeAuctionParameters();
 
     modifier onlyPatron(uint256 tokenId) {
-        require(_msgSender() == assetToken.ownerOf(tokenId), "Not patron");
+        require(msgSender() == assetToken.ownerOf(tokenId), "Not patron");
         _;
     }
 
     modifier onlyAdmin() {
-        require(_msgSender() == admin, "Not admin");
+        require(msgSender() == admin, "Not admin");
         _;
     }
 
     modifier onlyReceivingBenefactorOrAdmin(uint256 tokenId) {
         require(
-            _msgSender() == benefactors[tokenId] || _msgSender() == admin,
+            msgSender() == benefactors[tokenId] || msgSender() == admin,
             "Not benefactor or admin"
         );
         _;
@@ -210,7 +211,6 @@ contract WildcardSteward_v3_matic is
         uint256 _auctionEndPrice,
         uint256 _auctionLength,
         address _paymentToken,
-        address _trustedForwarder
     ) public initializer {
         emit UpgradeToV3();
         assetToken = IERC721Patronage(_assetToken);
@@ -223,16 +223,6 @@ contract WildcardSteward_v3_matic is
             _auctionEndPrice,
             _auctionLength
         );
-
-        setTrustedForwarder(_trustedForwarder);
-    }
-
-    function getTrustedForwarder() public override view returns (address) {
-        return trustedForwarder;
-    }
-
-    function setTrustedForwarder(address forwarder) public onlyAdmin {
-        trustedForwarder = forwarder;
     }
 
     function uintToStr(uint256 _i)
@@ -557,7 +547,7 @@ contract WildcardSteward_v3_matic is
         return paymentToken.transfer(recipient, _wei);
         // } catch {
         //   emit ADaiRedeemFailed();
-        //   adaiContract.transfer(_msgSender(), amount);
+        //   adaiContract.transfer(msgSender(), amount);
         // }
     }
 
@@ -565,7 +555,7 @@ contract WildcardSteward_v3_matic is
         internal
         returns (bool transferSuccess)
     {
-        return paymentToken.transferFrom(_msgSender(), address(this), amount);
+        return paymentToken.transferFrom(msgSender(), address(this), amount);
     }
 
     // if credit balance exists,
@@ -782,7 +772,7 @@ contract WildcardSteward_v3_matic is
     }
 
     function depositWei(uint256 amount) public {
-        depositWeiPatron(_msgSender(), amount);
+        depositWeiPatron(msgSender(), amount);
     }
 
     // Which the 'approve' function in erc20 this function is unsafe to be public.
@@ -829,9 +819,9 @@ contract WildcardSteward_v3_matic is
     )
         public
         collectPatronageAndSettleBenefactor(tokenId)
-        collectPatronagePatron(_msgSender())
+        collectPatronagePatron(msgSender())
         priceGreaterThanZero(_newPrice)
-        youCurrentlyAreNotInDefault(_msgSender())
+        youCurrentlyAreNotInDefault(msgSender())
         validWildcardsPercentage(serviceProviderPercentage, tokenId)
     {
         require(state[tokenId] == StewardState.Owned, "token on auction");
@@ -839,20 +829,20 @@ contract WildcardSteward_v3_matic is
             price[tokenId] == previousPrice,
             "must specify current price accurately"
         );
-        receiveErc20(depositAmount.add(price[tokenId]), _msgSender());
+        receiveErc20(depositAmount.add(price[tokenId]), msgSender());
         address owner = assetToken.ownerOf(tokenId);
 
         _distributePurchaseProceeds(tokenId);
 
         serviceProviderPercentages[tokenId] = serviceProviderPercentage;
-        deposit[_msgSender()] = deposit[_msgSender()].add(depositAmount);
+        deposit[msgSender()] = deposit[msgSender()].add(depositAmount);
         transferAssetTokenTo(
             tokenId,
             assetToken.ownerOf(tokenId),
-            _msgSender(),
+            msgSender(),
             _newPrice
         );
-        emit Buy(tokenId, _msgSender(), _newPrice);
+        emit Buy(tokenId, msgSender(), _newPrice);
     }
 
     function buyAuction(
@@ -863,9 +853,9 @@ contract WildcardSteward_v3_matic is
     )
         public
         collectPatronageAndSettleBenefactor(tokenId)
-        collectPatronagePatron(_msgSender())
+        collectPatronagePatron(msgSender())
         priceGreaterThanZero(_newPrice)
-        youCurrentlyAreNotInDefault(_msgSender())
+        youCurrentlyAreNotInDefault(msgSender())
         validWildcardsPercentage(serviceProviderPercentage, tokenId)
     {
         require(
@@ -882,15 +872,15 @@ contract WildcardSteward_v3_matic is
         state[tokenId] = StewardState.Owned;
 
         serviceProviderPercentages[tokenId] = serviceProviderPercentage;
-        receiveErc20(depositAmount.add(auctionTokenPrice), _msgSender());
-        deposit[_msgSender()] = deposit[_msgSender()].add(depositAmount);
+        receiveErc20(depositAmount.add(auctionTokenPrice), msgSender());
+        deposit[msgSender()] = deposit[msgSender()].add(depositAmount);
         transferAssetTokenTo(
             tokenId,
             assetToken.ownerOf(tokenId),
-            _msgSender(),
+            msgSender(),
             _newPrice
         );
-        emit Buy(tokenId, _msgSender(), _newPrice);
+        emit Buy(tokenId, msgSender(), _newPrice);
     }
 
     function _distributeAuctionProceeds(uint256 tokenId) internal {
@@ -979,7 +969,7 @@ contract WildcardSteward_v3_matic is
         uint256 newPriceScaled = _newPrice.mul(patronageNumerator[tokenId]);
         address tokenBenefactor = benefactors[tokenId];
 
-        totalPatronOwnedTokenCost[_msgSender()] = totalPatronOwnedTokenCost[msg
+        totalPatronOwnedTokenCost[msgSender()] = totalPatronOwnedTokenCost[msg
             .sender]
             .sub(oldPriceScaled)
             .add(newPriceScaled);
@@ -994,26 +984,26 @@ contract WildcardSteward_v3_matic is
 
     function withdrawDeposit(uint256 _wei)
         public
-        collectPatronagePatron(_msgSender())
+        collectPatronagePatron(msgSender())
         returns (uint256)
     {
         _withdrawDeposit(_wei);
     }
 
     function withdrawBenefactorFunds() public {
-        withdrawBenefactorFundsTo(_msgSender());
+        withdrawBenefactorFundsTo(msgSender());
     }
 
-    function exit() public collectPatronagePatron(_msgSender()) {
-        _withdrawDeposit(deposit[_msgSender()]);
+    function exit() public collectPatronagePatron(msgSender()) {
+        _withdrawDeposit(deposit[msgSender()]);
     }
 
     function _withdrawDeposit(uint256 _wei) internal {
-        require(deposit[_msgSender()] >= _wei, "withdrawing too much");
+        require(deposit[msgSender()] >= _wei, "withdrawing too much");
 
-        deposit[_msgSender()] = deposit[_msgSender()].sub(_wei);
+        deposit[msgSender()] = deposit[msgSender()].sub(_wei);
 
-        if (!sendErc20(_wei, _msgSender())) {
+        if (!sendErc20(_wei, msgSender())) {
             revert("withdrawal failed");
         }
     }
@@ -1082,20 +1072,11 @@ contract WildcardSteward_v3_matic is
         assetToken.transferFrom(_currentOwner, address(this), tokenId);
     }
 
-    function versionRecipient()
-        external
-        virtual
-        override
-        view
-        returns (string memory)
-    {
-        return "1.0";
-    }
 
     // THIS CODE IS PURELY FOR TESTING GSN - IT DOES NOTHING!
     event TestEvent(address sender, address paymentTokenAdr, address randomArg);
 
     function testFunctionThatDoesNothing(address randomArg) public {
-        emit TestEvent(_msgSender(), address(paymentToken), randomArg);
+        emit TestEvent(msgSender(), address(paymentToken), randomArg);
     }
 }
