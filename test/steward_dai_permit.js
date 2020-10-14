@@ -14,6 +14,7 @@ const testHelpers = require("@openzeppelin/test-helpers");
 const patronageCalculator = multiPatronageCalculator();
 
 contract("WildcardSteward owed", (accounts) => {
+  // console.log({ accounts, web3 });
   let steward, daiContract;
   const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
@@ -81,7 +82,7 @@ contract("WildcardSteward owed", (accounts) => {
   });
 
   // buy auction timing correct
-  it("steward: auction. Initial price auction works.", async () => {
+  it("steward: auction with Dai `permit`.", async () => {
     const newTokens = [
       {
         ...tokenDefaults,
@@ -101,10 +102,6 @@ contract("WildcardSteward owed", (accounts) => {
     const tokenPrice = ether("1");
 
     const halfAuctionDuration = auctionDuration.div(new BN(2));
-    const threeQuartersAuctionDuration = auctionDuration
-      .div(new BN(4))
-      .mul(new BN(3));
-    const quarterAuctionDuration = auctionDuration.div(new BN(4));
 
     // CHECK 1: price of token functions correctly for auction after half the time is up
     await setNextTxTimestamp(halfAuctionDuration); // Price should now be 0.5eth to buy
@@ -116,27 +113,13 @@ contract("WildcardSteward owed", (accounts) => {
     );
     const msgValue = ether("1");
     const remainingDepositCalc = msgValue.sub(predictedCostOfToken);
-    // NOTE: the `web3.givenProvider` wasn't working, so tested using this hdwallet-provider also, which didn't work either. FML...
-    // const HDWalletProvider = require("@truffle/hdwallet-provider");
-    // provider = new HDWalletProvider(
-    //   "rookie dolphin castle lawsuit spawn kingdom alone cabbage below invest insane scissors",
-    //   "http://localhost:8545"
-    // );
-    // provider = new HDWalletProvider({
-    //   mnemonic: {
-    //     phrase:
-    //       "rookie dolphin castle lawsuit spawn kingdom alone cabbage below invest insane scissors",
-    //   },
-    //   providerOrUrl: "http://localhost:8545",
-    // });
 
     let { nonce, expiry, v, r, s } = await daiPermitGeneration(
-      web3.givenProvider, // web3,// provider,
+      web3.currentProvider,
       daiContract,
       accounts[2],
       steward.address
     );
-    console.log("results", { nonce, expiry, v, r, s });
     await steward.buyAuctionWithPermit(
       // uint256 nonce,
       nonce,
