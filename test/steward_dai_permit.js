@@ -7,13 +7,14 @@ const {
   isCoverage,
   waitTillBeginningOfSecond,
   launchTokens,
+  daiPermitGeneration,
 } = require("./helpers");
 const testHelpers = require("@openzeppelin/test-helpers");
 
 const patronageCalculator = multiPatronageCalculator();
 
 contract("WildcardSteward owed", (accounts) => {
-  let steward;
+  let steward, daiContract;
   const patronageNumerator = "12000000000000";
   const tokenGenerationRate = 10; // should depend on token
   const benefactorAddress = accounts[8];
@@ -70,9 +71,11 @@ contract("WildcardSteward owed", (accounts) => {
       auctionEndPrice,
       auctionDuration,
       tokenDetails,
-      [accounts[2], accounts[3], accounts[4]]
+      [accounts[2], accounts[3], accounts[4]],
+      false
     );
     steward = result.steward;
+    daiContract = result.paymentToken;
 
     if (isCoverage) await waitTillBeginningOfSecond();
   });
@@ -113,11 +116,47 @@ contract("WildcardSteward owed", (accounts) => {
     );
     const msgValue = ether("1");
     const remainingDepositCalc = msgValue.sub(predictedCostOfToken);
+    // NOTE: the `web3.givenProvider` wasn't working, so tested using this hdwallet-provider also, which didn't work either. FML...
+    // const HDWalletProvider = require("@truffle/hdwallet-provider");
+    // provider = new HDWalletProvider(
+    //   "rookie dolphin castle lawsuit spawn kingdom alone cabbage below invest insane scissors",
+    //   "http://localhost:8545"
+    // );
+    // provider = new HDWalletProvider({
+    //   mnemonic: {
+    //     phrase:
+    //       "rookie dolphin castle lawsuit spawn kingdom alone cabbage below invest insane scissors",
+    //   },
+    //   providerOrUrl: "http://localhost:8545",
+    // });
 
-    await steward.buyAuction(
+    let { nonce, expiry, v, r, s } = await daiPermitGeneration(
+      web3.givenProvider, // web3,// provider,
+      daiContract,
+      accounts[2],
+      steward.address
+    );
+    console.log("results", { nonce, expiry, v, r, s });
+    await steward.buyAuctionWithPermit(
+      // uint256 nonce,
+      nonce,
+      // uint256 expiry,
+      expiry,
+      // bool allowed,
+      true,
+      // uint8 v,
+      v,
+      // bytes32 r,
+      r,
+      // bytes32 s,
+      s,
+      // uint256 tokenId,
       newTokens[0].token,
+      // uint256 _newPrice,
       tokenPrice,
+      // uint256 serviceProviderPercentage,
       percentageForWildcards,
+      // uint256 depositAmount
       remainingDepositCalc,
       {
         from: accounts[2],
@@ -128,43 +167,5 @@ contract("WildcardSteward owed", (accounts) => {
       assert.equal(actualDeposit.toString(), remainingDepositCalc.toString());
       assert.equal(actualDeposit.toString(), ether("0.5").toString());
     }
-
-    // CHECK 2: price of token functions correctly for auction after 3/4 time is up
-    await time.increase(quarterAuctionDuration.sub(new BN(1)));
-    let costOfToken2 = auctionCalculator(
-      auctionStartPrice,
-      auctionEndPrice,
-      auctionDuration,
-      threeQuartersAuctionDuration
-    );
-    let remainingDepositCalc2 = msgValue.sub(costOfToken2);
-    await steward.buyAuction(
-      newTokens[1].token,
-      tokenPrice,
-      percentageForWildcards,
-      remainingDepositCalc2,
-      {
-        from: accounts[3],
-      }
-    );
-    let actualDeposit2 = await steward.deposit.call(accounts[3]);
-    if (!isCoverage) {
-      assert.equal(actualDeposit2.toString(), remainingDepositCalc2.toString());
-      assert.equal(actualDeposit2.toString(), ether("0.75").toString());
-    }
-
-    // CHECK 3: If auction is over, minprice is returned.
-    await time.increase(halfAuctionDuration); // must be more than quarterAuctionDuration - auction should be over, min price of 0
-    await steward.buyAuction(
-      newTokens[2].token,
-      tokenPrice,
-      percentageForWildcards,
-      msgValue, // since auction ends at 0
-      {
-        from: accounts[4],
-      }
-    );
-    let actualDeposit3 = await steward.deposit.call(accounts[4]);
-    assert.equal(actualDeposit3.toString(), msgValue.toString());
   });
 });
