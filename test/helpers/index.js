@@ -18,6 +18,7 @@ const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
 const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
 const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
 const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
+const Dai = artifacts.require("./Dai.sol");
 
 const launchTokens = async (steward, tokenParameters) => {
   return await steward.listNewTokens(
@@ -52,10 +53,10 @@ const initialize = async (
     mintManager.address,
     admin
   );
-  const paymentToken = await ERC20token.new({
+  const networkId = 31337; // This is the default networkId used by buidler - BE CAREFUL, might cause issues with other test runners?
+  const paymentToken = await Dai.new(networkId, {
     from: admin,
   });
-  await paymentToken.setup("Payment Token", "TESTDAI", admin, admin);
   await mintManager.initialize(admin, steward.address, erc20.address, {
     from: admin,
   });
@@ -236,7 +237,6 @@ const daiPermitGeneration = async (
   // nonce,
   expiry = Number.MAX_SAFE_INTEGER
 ) => {
-  console.log("Before Sign");
   const result = await signDaiPermit(
     provider,
     daiContract.address,
@@ -244,7 +244,6 @@ const daiPermitGeneration = async (
     spender,
     expiry
   );
-  console.log("AFTER - Sign");
 
   return result;
 };

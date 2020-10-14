@@ -10,7 +10,7 @@ import "./interfaces/IERC721Patronage.sol";
 
 import "./BasicMetaTransaction.sol";
 
-import "./TestDai.sol";
+import "./Dai.sol";
 
 // import "./GSNRecipientBase.sol";
 
