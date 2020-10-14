@@ -6,9 +6,12 @@ import "../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Ini
 import "./ERC721Patronage_v1.sol";
 import "./interfaces/IMintManager.sol";
 import "./interfaces/IERC721Patronage.sol";
-import "./interfaces/IERC20Mintable.sol";
+// import "./interfaces/IERC20Mintable.sol";
 
 import "./BasicMetaTransaction.sol";
+
+import "./testDai.sol";
+
 // import "./GSNRecipientBase.sol";
 
 // import "../vendered/gsn-2.0.0-beta.1.3/contracts/BaseRelayRecipient.sol";
@@ -16,10 +19,7 @@ import "./BasicMetaTransaction.sol";
 
 // import "@nomiclabs/buidler/console.sol";
 
-contract WildcardSteward_v3_matic is
-    Initializable,
-    BasicMetaTransaction
-{
+contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
     /*
     This smart contract collects patronage from current owner through a Harberger tax model and 
     takes stewardship of the asset token if the patron can't pay anymore.
@@ -93,7 +93,7 @@ contract WildcardSteward_v3_matic is
     uint256 public constant globalTokenGenerationRate = 11574074074074;
     uint256 public constant yearTimePatronagDenominator = 31536000000000000000;
 
-    IERC20Mintable public paymentToken; // ERC20 token used as payment.
+    Dai public paymentToken; // ERC20 token used as payment.
 
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
     event PriceChange(uint256 indexed tokenId, uint256 newPrice);
@@ -217,7 +217,7 @@ contract WildcardSteward_v3_matic is
         admin = _admin;
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
         mintManager = IMintManager(_mintManager);
-        paymentToken = IERC20Mintable(_paymentToken);
+        paymentToken = Dai(_paymentToken);
         _changeAuctionParameters(
             _auctionStartPrice,
             _auctionEndPrice,
@@ -690,6 +690,7 @@ contract WildcardSteward_v3_matic is
         bytes32 r,
         bytes32 s
     ) public {
+        hash = hasher(benefactor, maxAmount, expiry, nonce);
         require(
             ecrecover(hash, v, r, s) == withdrawCheckerAdmin,
             "no permission to withdraw"
@@ -775,6 +776,22 @@ contract WildcardSteward_v3_matic is
         depositWeiPatron(msgSender(), amount);
     }
 
+    function depositWithPermit(
+        address holder,
+        address spender,
+        uint256 nonce,
+        uint256 expiry,
+        bool allowed,
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        address patron,
+        uint256 amount
+    ) external {
+        paymentToken.permit(holder, spender, nonce, expiry, allowed, v, r, s);
+        depositWeiPatron(patron, amount);
+    }
+
     // Which the 'approve' function in erc20 this function is unsafe to be public.
     function depositWeiPatron(address patron, uint256 amount) internal {
         require(totalPatronOwnedTokenCost[patron] > 0, "no tokens");
@@ -810,6 +827,31 @@ contract WildcardSteward_v3_matic is
         }
     }
 
+    function buyWithPermit(
+        address holder,
+        address spender,
+        uint256 nonce,
+        uint256 expiry,
+        bool allowed,
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        uint256 tokenId,
+        uint256 _newPrice,
+        uint256 previousPrice,
+        uint256 serviceProviderPercentage,
+        uint256 depositAmount
+    ) external {
+        paymentToken.permit(holder, spender, nonce, expiry, allowed, v, r, s);
+        buy(
+            tokenId,
+            _newPrice,
+            previousPrice,
+            serviceProviderPercentage,
+            depositAmount
+        );
+    }
+
     function buy(
         uint256 tokenId,
         uint256 _newPrice,
@@ -843,6 +885,29 @@ contract WildcardSteward_v3_matic is
             _newPrice
         );
         emit Buy(tokenId, msgSender(), _newPrice);
+    }
+
+    function buyAuctionWithPermit(
+        address holder,
+        address spender,
+        uint256 nonce,
+        uint256 expiry,
+        bool allowed,
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        uint256 tokenId,
+        uint256 _newPrice,
+        uint256 serviceProviderPercentage,
+        uint256 depositAmount
+    ) external {
+        paymentToken.permit(holder, spender, nonce, expiry, allowed, v, r, s);
+        buyAuction(
+            tokenId,
+            _newPrice,
+            serviceProviderPercentage,
+            depositAmount
+        );
     }
 
     function buyAuction(
@@ -1071,7 +1136,6 @@ contract WildcardSteward_v3_matic is
 
         assetToken.transferFrom(_currentOwner, address(this), tokenId);
     }
-
 
     // THIS CODE IS PURELY FOR TESTING GSN - IT DOES NOTHING!
     event TestEvent(address sender, address paymentTokenAdr, address randomArg);

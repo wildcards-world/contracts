@@ -28,6 +28,7 @@ const launchTokens = async (steward, tokenParameters) => {
     tokenParameters.map((item) => item.releaseDate)
   );
 };
+
 const initialize = async (
   admin,
   withdrawCheckerAdmin,
@@ -223,6 +224,123 @@ const withdrawBenefactorFundsAll = async (
   );
 };
 
+const daiPermitGeneration = async (
+  holder,
+  spender,
+  // nonce,
+  expiry,
+  allowed,
+  daiContract
+) => {
+    //   // bytes32 public constant PERMIT_TYPEHASH = keccak256("Permit(address holder,address spender,uint256 nonce,uint256 expiry,bool allowed)");
+    // bytes32
+    //     public constant PERMIT_TYPEHASH = 0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb;
+
+    //   string public constant name = "Dai Stablecoin";
+    // string public constant version = "1";     
+  // DOMAIN_SEPARATOR = keccak256(
+       //   abi.encode(
+       //     keccak256(
+       //       "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+       //     ),
+       //     keccak256(bytes(name)),
+       //     keccak256(bytes(version)),
+       //     chainId_,
+       //     address(this)
+       //   )
+       // );
+
+       //   bytes32 digest = keccak256(
+       //     abi.encodePacked(
+       //         "\x19\x01",
+       //         DOMAIN_SEPARATOR,
+       //         keccak256(
+       //             abi.encode(
+       //                 PERMIT_TYPEHASH,
+       //                 holder,
+       //                 spender,
+       //                 nonce,
+       //                 expiry,
+       //                 allowed
+       //             )
+       //         )
+       //     )
+       // );
+
+      const DOMAIN_SEPARATOR = "0x" +
+         abi
+           .soliditySHA3(
+             ["address", "bytes32", "bytes32", "bytes32"],
+             [
+                keccak256(
+                  "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                ),
+                keccak256(bytes(name)),
+                keccak256(bytes(version)),
+                chainId_,
+                address(this)
+              ]
+           )
+           .toString("hex");
+      //  const DOMAIN_SEPARATOR = keccak256(
+      //    abi.encode(
+      //      keccak256(
+      //        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+      //      ),
+      //      keccak256(bytes(name)),
+      //      keccak256(bytes(version)),
+      //      chainId_,
+      //      address(this)
+      //    )
+      //  );
+
+       const randomNonce = Math.floor(Math.random() * 10000000);
+       const hash =
+         "0x" +
+         abi
+           .soliditySHA3(
+             ["address", "uint256", "uint256", "uint256"],
+             [benefactor, maxAmount, expiry, randomNonce]
+           )
+           .toString("hex");
+
+       const signature = await web3.eth.sign(hash, withdrawCheckerAdmin);
+
+       const { r, s, v } = ethUtil.fromRpcSig(signature);
+       // NOTE: The below 3 lines do the same thing as the above line, kept for reference.
+       // const r = signature.slice(0, 66);
+       // const s = "0x" + signature.slice(66, 130);
+       // const v = web3.utils.toDecimal("0x" + signature.slice(130, 132));
+
+       // this prefix is required by the `ecrecover` builtin solidity function (other than that it is pretty arbitrary)
+       const prefix = "\x19Ethereum Signed Message:\n32";
+       const prefixedBytes = web3.utils.fromAscii(prefix) + hash.slice(2);
+       const prefixedHash = web3.utils.sha3(prefixedBytes, { encoding: "hex" });
+
+       // // For reforence, how to recover a signature with javascript.
+       // const recoveredPub = ethUtil.ecrecover(
+       //   ethUtil.toBuffer(prefixedHash),
+       //   sigDecoded.v,
+       //   sigDecoded.r,
+       //   sigDecoded.s
+       // );
+       // const recoveredAddress = ethUtil.pubToAddress(recoveredPub).toString("hex");
+       return await steward.withdrawBenefactorFundsToValidated(
+         benefactor,
+         maxAmount,
+         expiry,
+         randomNonce,
+         prefixedHash,
+         v,
+         r,
+         s,
+         {
+           from: from || benefactor,
+           gasPrice: "0", // Set gas price to 0 for simplicity
+         }
+       );
+     };
+
 module.exports = {
   STEWARD_CONTRACT_NAME,
   ERC721_CONTRACT_NAME,
@@ -284,6 +402,18 @@ module.exports = {
       (totalTokens, token) =>
         totalTokens.add(
           new BN(token.tokenGenerationRate).mul(new BN(token.timeHeld))
+        ),
+      new BN("0")
+    );
+    return totalTokens;
+  },
+};
+        ),
+      new BN("0")
+    );
+    return totalTokens;
+  },
+};
         ),
       new BN("0")
     );
