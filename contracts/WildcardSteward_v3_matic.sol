@@ -157,10 +157,6 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
         _collectPatronageAndSettleBenefactor(tokenId);
         _;
     }
-    modifier revertOnPurpose {
-        require(false, "this is wrong...");
-        _;
-    }
 
     modifier collectPatronagePatron(address tokenPatron) {
         _collectPatronagePatron(tokenPatron);
@@ -942,7 +938,6 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
         uint256 depositAmount
     )
         public
-        // revertOnPurpose
         collectPatronageAndSettleBenefactor(tokenId)
         collectPatronagePatron(msgSender())
         priceGreaterThanZero(_newPrice)

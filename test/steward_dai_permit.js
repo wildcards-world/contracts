@@ -120,9 +120,7 @@ contract("WildcardSteward owed", (accounts) => {
       accounts[2],
       steward.address
     );
-    console.log("PERMIT", { nonce, expiry, v, r, s });
-
-    let result = await steward.buyAuctionWithPermit(
+    await steward.buyAuctionWithPermit(
       // uint256 nonce,
       nonce,
       // uint256 expiry,
@@ -147,7 +145,6 @@ contract("WildcardSteward owed", (accounts) => {
         from: accounts[2],
       }
     );
-    // console.log("The deposit result", { result });
     const actualDeposit = await steward.deposit.call(accounts[2]);
     if (!isCoverage) {
       assert.equal(actualDeposit.toString(), remainingDepositCalc.toString());
