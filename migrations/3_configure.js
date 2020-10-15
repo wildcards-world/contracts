@@ -1,4 +1,5 @@
 const ERC721Patronage_v1 = artifacts.require("ERC721Patronage_v1");
+const Dai = artifacts.require("./Dai.sol");
 const WildcardSteward_v3_matic = artifacts.require("WildcardSteward_v3_matic");
 const MintManager_v2 = artifacts.require("MintManager_v2");
 const ERC20PatronageReceipt_v2 = artifacts.require(
@@ -7,13 +8,27 @@ const ERC20PatronageReceipt_v2 = artifacts.require(
 
 const { ConfigManager } = require("@openzeppelin/cli");
 
-const paymentTokenAddress = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063";
+async function deploy(options, accounts, deployer) {
+  let paymentTokenAddress = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063";
+  if (options.networkName != "matic") {
+    const networkId = await web3.eth.net.getId();
+    console.log("NETWORK ID", networkId);
+    const paymentToken = await deployer.deploy(Dai, networkId, {
+      from: accounts[0],
+    });
+    paymentTokenAddress = paymentToken.address;
+  }
+  console.log({ paymentTokenAddress });
 
-async function deploy(options, accounts) {
   const patronageERC721 = await ERC721Patronage_v1.deployed();
   const patronageERC20 = await ERC20PatronageReceipt_v2.deployed();
   const steward = await WildcardSteward_v3_matic.deployed();
   const mintManager = await MintManager_v2.deployed();
+
+  console.log("mintManager:", mintManager.address);
+  console.log("steward:", steward.address);
+  console.log("patronageToken:", patronageERC721.address);
+  console.log("patronageReceiptToken:", patronageERC20.address);
 
   console.log("1");
   await patronageERC721.setup(
@@ -34,7 +49,7 @@ async function deploy(options, accounts) {
   );
 
   // GSN TESTING!
-  await patronageERC20.addMinter(accounts[0]);
+  // await patronageERC20.addMinter(accounts[0]);
   // await patronageERC20.setTrustedForwarder(
   //   "0x844849A90479a12FFc549c8Da98E362575FF78d7"
   // );
@@ -82,6 +97,7 @@ module.exports = function(deployer, networkName, accounts) {
       network: networkName,
       from: accounts[0],
     });
-    await deploy({ network, txParams }, accounts);
+
+    await deploy({ network, txParams }, accounts, deployer);
   });
 };
