@@ -745,8 +745,6 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
 
         uint256 timeSinceLastMint;
 
-        require(false, "-- here");
-
         if (
             patronageOwedByTokenPatron > 0 &&
             patronageOwedByTokenPatron > deposit[tokenPatron]
@@ -951,7 +949,6 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
         youCurrentlyAreNotInDefault(msgSender())
         validWildcardsPercentage(serviceProviderPercentage, tokenId)
     {
-        require(false, "this is wrong...");
         require(
             state[tokenId] == StewardState.Foreclosed,
             "token not foreclosed"

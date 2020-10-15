@@ -33,6 +33,7 @@ contract MintManager_v2 is Initializable {
     ) external onlySteward {
         uint256 amountToMintForUser = time.mul(mintRate);
         uint256 amountToMintForTreasury = amountToMintForUser.mul(20).div(100);
+
         token.mint(receiverOfTokens, amountToMintForUser);
         token.mint(admin, amountToMintForTreasury);
     }

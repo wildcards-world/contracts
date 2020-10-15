@@ -82,7 +82,7 @@ async function deploy(options, accounts, deployer) {
     // address _steward,
     steward.address,
     // address _token
-    patronageERC721.address,
+    patronageERC20.address,
     { from: accounts[0] }
   );
 }

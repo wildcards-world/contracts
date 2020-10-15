@@ -52,7 +52,7 @@ contract ERC20PatronageReceipt_v2_upgradable is
 
     function mint(address to, uint256 amount) public {
         require(hasRole(MINTER_ROLE, _msgSender()), "Caller is not a minter");
-        // require(hasRole(MINTER_ROLE, _msgSender()), "Caller is not a minter");
+
         _mint(to, amount);
     }
 
