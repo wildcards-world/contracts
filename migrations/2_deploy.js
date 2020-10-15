@@ -42,9 +42,14 @@ async function deploy(options, accounts) {
     // methodArgs: ["Wildcards Loyalty Token", "WLT", accounts[0], accounts[0]],
   });
   console.log("6");
+  console.log("addresses:");
+  console.log("mintManager:", mintManager.address);
+  console.log("steward:", steward.address);
+  console.log("patronageToken:", patronageToken.address);
+  console.log("patronageReceiptToken:", patronageReceiptToken.address);
 }
 
-module.exports = function (deployer, networkName, accounts) {
+module.exports = function(deployer, networkName, accounts) {
   deployer.then(async () => {
     // Don't try to deploy/migrate the contracts for tests
     if (networkName === "test") {

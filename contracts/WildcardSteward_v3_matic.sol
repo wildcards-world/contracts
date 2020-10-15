@@ -157,6 +157,10 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
         _collectPatronageAndSettleBenefactor(tokenId);
         _;
     }
+    modifier revertOnPurpose {
+        require(false, "this is wrong...");
+        _;
+    }
 
     modifier collectPatronagePatron(address tokenPatron) {
         _collectPatronagePatron(tokenPatron);
@@ -741,6 +745,8 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
 
         uint256 timeSinceLastMint;
 
+        require(false, "-- here");
+
         if (
             patronageOwedByTokenPatron > 0 &&
             patronageOwedByTokenPatron > deposit[tokenPatron]
@@ -777,8 +783,6 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
     }
 
     function depositWithPermit(
-        address holder,
-        address spender,
         uint256 nonce,
         uint256 expiry,
         bool allowed,
@@ -788,7 +792,16 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
         address patron,
         uint256 amount
     ) external {
-        paymentToken.permit(holder, spender, nonce, expiry, allowed, v, r, s);
+        paymentToken.permit(
+            msgSender(),
+            address(this),
+            nonce,
+            expiry,
+            allowed,
+            v,
+            r,
+            s
+        );
         depositWeiPatron(patron, amount);
     }
 
@@ -931,12 +944,14 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
         uint256 depositAmount
     )
         public
+        // revertOnPurpose
         collectPatronageAndSettleBenefactor(tokenId)
         collectPatronagePatron(msgSender())
         priceGreaterThanZero(_newPrice)
         youCurrentlyAreNotInDefault(msgSender())
         validWildcardsPercentage(serviceProviderPercentage, tokenId)
     {
+        require(false, "this is wrong...");
         require(
             state[tokenId] == StewardState.Foreclosed,
             "token not foreclosed"
