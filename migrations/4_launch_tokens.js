@@ -93,101 +93,127 @@ module.exports = function(deployer, networkName, accounts) {
     if (networkName != "matic") {
       const paymentToken = await Dai.deployed();
 
-      await paymentToken.mint(accounts[1], ether("10000"));
-      // await paymentToken.approve(steward.address, ether("50000000"), {
-      //   from: accounts[1],
-      // });
+      await paymentToken.mint(accounts[1], ether("100000"));
+      await paymentToken.approve(steward.address, ether("50000000"), {
+        from: accounts[1],
+      });
+      await steward.buyAuction("26", ether("50"), 50000, ether("5000"), {
+        from: accounts[1],
+      });
+      // await buyAuctionPermit(
+      //   web3.currentProvider,
+      //   steward,
+      //   paymentToken,
+      //   accounts[1],
+      //   "26",
+      //   ether("60"),
+      //   ether("5050")
+      // );
 
-      await buyAuctionPermit(
-        web3.currentProvider,
-        steward,
-        paymentToken,
-        accounts[1],
-        "26",
-        ether("60"),
-        ether("5050")
-      );
-
-      await buyAuctionPermit(
-        web3.currentProvider,
-        steward,
-        paymentToken,
-        accounts[1],
-        "27",
-        ether("55"),
-        ether("5000")
-      );
-      await paymentToken.mint(accounts[2], ether("10000"));
-      await buyAuctionPermit(
-        web3.currentProvider,
-        steward,
-        paymentToken,
-        accounts[2],
-        "28",
-        ether("60"),
-        ether("5050")
-      );
-      await paymentToken.mint(accounts[3], ether("10000"));
-      await buyAuctionPermit(
-        web3.currentProvider,
-        steward,
-        paymentToken,
-        accounts[3],
-        "29",
-        ether("65"),
-        ether("8000")
-      );
+      await paymentToken.approve(steward.address, ether("50000000"), {
+        from: accounts[1],
+      });
+      await steward.buyAuction("27", ether("55"), 50000, ether("5000"), {
+        from: accounts[1],
+      });
+      // await buyAuctionPermit(
+      //   web3.currentProvider,
+      //   steward,
+      //   paymentToken,
+      //   accounts[1],
+      //   "27",
+      //   ether("55"),
+      //   ether("5000")
+      // );
+      await paymentToken.mint(accounts[2], ether("100000"));
+      await paymentToken.approve(steward.address, ether("50000000"), {
+        from: accounts[2],
+      });
+      await steward.buyAuction("28", ether("60"), 50000, ether("5050"), {
+        from: accounts[2],
+      });
+      // await buyAuctionPermit(
+      //   web3.currentProvider,
+      //   steward,
+      //   paymentToken,
+      //   accounts[2],
+      //   "28",
+      //   ether("60"),
+      //   ether("5050")
+      // );
+      await paymentToken.mint(accounts[3], ether("100000"));
+      await paymentToken.approve(steward.address, ether("50000000"), {
+        from: accounts[3],
+      });
+      await steward.buyAuction("29", ether("65"), 50000, ether("8000"), {
+        from: accounts[3],
+      });
+      // await buyAuctionPermit(
+      //   web3.currentProvider,
+      //   steward,
+      //   paymentToken,
+      //   accounts[3],
+      //   "29",
+      //   ether("65"),
+      //   ether("8000")
+      // );
 
       // User 2 adds more deposit
-      let { nonce, expiry, v, r, s } = await daiPermitGeneration(
-        web3.currentProvider,
-        paymentToken,
-        accounts[2],
-        steward.address
-      );
-      await steward.depositWithPermit(
-        nonce,
-        expiry,
-        true,
-        v,
-        r,
-        s,
-        accounts[2],
-        ether("68"),
-        {
-          from: accounts[2],
-        }
-      );
+      await steward.depositWei(ether("68"), {
+        from: accounts[2],
+      });
+      // let { nonce, expiry, v, r, s } = await daiPermitGeneration(
+      //   web3.currentProvider,
+      //   paymentToken,
+      //   accounts[2],
+      //   steward.address
+      // );
+      // await steward.depositWithPermit(
+      //   nonce,
+      //   expiry,
+      //   true,
+      //   v,
+      //   r,
+      //   s,
+      //   accounts[2],
+      //   ether("68"),
+      //   {
+      //     from: accounts[2],
+      //   }
+      // );
 
       // User 3 buys user 1's token
-      let {
-        nonce: nonce2,
-        expiry: expiry2,
-        v: v2,
-        r: r2,
-        s: s2,
-      } = await daiPermitGeneration(
-        web3.currentProvider,
-        paymentToken,
-        accounts[3],
-        steward.address
-      );
-      await steward.buyWithPermit(
-        nonce2,
-        expiry2,
-        true,
-        v2,
-        r2,
-        s2,
-        "27",
-        ether("88"),
-        ether("55"),
-        50000,
-        ether("456"),
-        {
-          from: accounts[3],
-        }
-      );
+      await steward.buy("27", ether("88"), ether("55"), 50000, ether("456"), {
+        from: accounts[3],
+      });
+      // let {
+      //   nonce: nonce2,
+      //   expiry: expiry2,
+      //   v: v2,
+      //   r: r2,
+      //   s: s2,
+      // } = await daiPermitGeneration(
+      //   web3.currentProvider,
+      //   paymentToken,
+      //   accounts[3],
+      //   steward.address
+      // );
+      // await steward.buyWithPermit(
+      //   nonce2,
+      //   expiry2,
+      //   true,
+      //   v2,
+      //   r2,
+      //   s2,
+      //   "27",
+      //   ether("88"),
+      //   ether("55"),
+      //   50000,
+      //   ether("456"),
+      //   {
+      //     from: accounts[3],
+      //   }
+      // );
     }
   });
 };

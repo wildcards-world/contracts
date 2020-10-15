@@ -10,6 +10,7 @@ const { ConfigManager } = require("@openzeppelin/cli");
 
 async function deploy(options, accounts, deployer) {
   let paymentTokenAddress = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063";
+  // If it isn't matic mainnet, deploy our own dai implementation.
   if (options.networkName != "matic") {
     const networkId = await web3.eth.net.getId();
     console.log("NETWORK ID", networkId);
@@ -24,11 +25,6 @@ async function deploy(options, accounts, deployer) {
   const patronageERC20 = await ERC20PatronageReceipt_v2.deployed();
   const steward = await WildcardSteward_v3_matic.deployed();
   const mintManager = await MintManager_v2.deployed();
-
-  console.log("mintManager:", mintManager.address);
-  console.log("steward:", steward.address);
-  console.log("patronageToken:", patronageERC721.address);
-  console.log("patronageReceiptToken:", patronageERC20.address);
 
   console.log("1");
   await patronageERC721.setup(
