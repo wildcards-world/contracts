@@ -2,6 +2,7 @@ const { BN } = require("@openzeppelin/test-helpers");
 const { time, ether } = require("@openzeppelin/test-helpers");
 
 const { promisify } = require("util");
+const { signDaiPermit } = require("eth-permit");
 
 const NUM_SECONDS_IN_YEAR = "31536000";
 const STEWARD_CONTRACT_NAME = "./WildcardSteward_v3_matic.sol";
@@ -17,6 +18,7 @@ const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
 const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
 const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
 const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
+const Dai = artifacts.require("./Dai.sol");
 
 const launchTokens = async (steward, tokenParameters) => {
   return await steward.listNewTokens(
@@ -36,7 +38,8 @@ const initialize = async (
   auctionEndPrice,
   auctionLength,
   tokenParameters,
-  accountsToMintPaymentTokensFor = []
+  accountsToMintPaymentTokensFor = [],
+  approveDai = true
 ) => {
   const erc721 = await ERC721token.new({ from: admin });
   const steward = await WildcardSteward.new({ from: admin });
@@ -50,10 +53,10 @@ const initialize = async (
     mintManager.address,
     admin
   );
-  const paymentToken = await ERC20token.new({
+  const networkId = 31337; // This is the default networkId used by buidler - BE CAREFUL, might cause issues with other test runners?
+  const paymentToken = await Dai.new(networkId, {
     from: admin,
   });
-  await paymentToken.setup("Payment Token", "TESTDAI", admin, admin);
   await mintManager.initialize(admin, steward.address, erc20.address, {
     from: admin,
   });
@@ -72,9 +75,11 @@ const initialize = async (
   await Promise.all(
     accountsToMintPaymentTokensFor.map(async (account) => {
       await paymentToken.mint(account, ether("100"));
-      await paymentToken.approve(steward.address, ether("50"), {
-        from: account,
-      });
+      if (approveDai) {
+        await paymentToken.approve(steward.address, ether("50"), {
+          from: account,
+        });
+      }
     })
   );
   // await erc721.addMinter(steward.address, { from: admin });
@@ -225,121 +230,23 @@ const withdrawBenefactorFundsAll = async (
 };
 
 const daiPermitGeneration = async (
+  provider,
+  daiContract,
   holder,
   spender,
   // nonce,
-  expiry,
-  allowed,
-  daiContract
+  expiry = Number.MAX_SAFE_INTEGER
 ) => {
-    //   // bytes32 public constant PERMIT_TYPEHASH = keccak256("Permit(address holder,address spender,uint256 nonce,uint256 expiry,bool allowed)");
-    // bytes32
-    //     public constant PERMIT_TYPEHASH = 0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb;
+  const result = await signDaiPermit(
+    provider,
+    daiContract.address,
+    holder,
+    spender,
+    expiry
+  );
 
-    //   string public constant name = "Dai Stablecoin";
-    // string public constant version = "1";     
-  // DOMAIN_SEPARATOR = keccak256(
-       //   abi.encode(
-       //     keccak256(
-       //       "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-       //     ),
-       //     keccak256(bytes(name)),
-       //     keccak256(bytes(version)),
-       //     chainId_,
-       //     address(this)
-       //   )
-       // );
-
-       //   bytes32 digest = keccak256(
-       //     abi.encodePacked(
-       //         "\x19\x01",
-       //         DOMAIN_SEPARATOR,
-       //         keccak256(
-       //             abi.encode(
-       //                 PERMIT_TYPEHASH,
-       //                 holder,
-       //                 spender,
-       //                 nonce,
-       //                 expiry,
-       //                 allowed
-       //             )
-       //         )
-       //     )
-       // );
-
-      const DOMAIN_SEPARATOR = "0x" +
-         abi
-           .soliditySHA3(
-             ["address", "bytes32", "bytes32", "bytes32"],
-             [
-                keccak256(
-                  "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-                ),
-                keccak256(bytes(name)),
-                keccak256(bytes(version)),
-                chainId_,
-                address(this)
-              ]
-           )
-           .toString("hex");
-      //  const DOMAIN_SEPARATOR = keccak256(
-      //    abi.encode(
-      //      keccak256(
-      //        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-      //      ),
-      //      keccak256(bytes(name)),
-      //      keccak256(bytes(version)),
-      //      chainId_,
-      //      address(this)
-      //    )
-      //  );
-
-       const randomNonce = Math.floor(Math.random() * 10000000);
-       const hash =
-         "0x" +
-         abi
-           .soliditySHA3(
-             ["address", "uint256", "uint256", "uint256"],
-             [benefactor, maxAmount, expiry, randomNonce]
-           )
-           .toString("hex");
-
-       const signature = await web3.eth.sign(hash, withdrawCheckerAdmin);
-
-       const { r, s, v } = ethUtil.fromRpcSig(signature);
-       // NOTE: The below 3 lines do the same thing as the above line, kept for reference.
-       // const r = signature.slice(0, 66);
-       // const s = "0x" + signature.slice(66, 130);
-       // const v = web3.utils.toDecimal("0x" + signature.slice(130, 132));
-
-       // this prefix is required by the `ecrecover` builtin solidity function (other than that it is pretty arbitrary)
-       const prefix = "\x19Ethereum Signed Message:\n32";
-       const prefixedBytes = web3.utils.fromAscii(prefix) + hash.slice(2);
-       const prefixedHash = web3.utils.sha3(prefixedBytes, { encoding: "hex" });
-
-       // // For reforence, how to recover a signature with javascript.
-       // const recoveredPub = ethUtil.ecrecover(
-       //   ethUtil.toBuffer(prefixedHash),
-       //   sigDecoded.v,
-       //   sigDecoded.r,
-       //   sigDecoded.s
-       // );
-       // const recoveredAddress = ethUtil.pubToAddress(recoveredPub).toString("hex");
-       return await steward.withdrawBenefactorFundsToValidated(
-         benefactor,
-         maxAmount,
-         expiry,
-         randomNonce,
-         prefixedHash,
-         v,
-         r,
-         s,
-         {
-           from: from || benefactor,
-           gasPrice: "0", // Set gas price to 0 for simplicity
-         }
-       );
-     };
+  return result;
+};
 
 module.exports = {
   STEWARD_CONTRACT_NAME,
@@ -354,6 +261,7 @@ module.exports = {
   globalTokenGenerationRate,
   isCoverage,
   waitTillBeginningOfSecond,
+  daiPermitGeneration,
   //patronage per token = price * amountOfTime * patronageNumerator/ patronageDenominator / 365 days;
   multiPatronageCalculator: () => (timeInSeconds, tokenArray) => {
     const totalPatronage = tokenArray.reduce(
@@ -402,18 +310,6 @@ module.exports = {
       (totalTokens, token) =>
         totalTokens.add(
           new BN(token.tokenGenerationRate).mul(new BN(token.timeHeld))
-        ),
-      new BN("0")
-    );
-    return totalTokens;
-  },
-};
-        ),
-      new BN("0")
-    );
-    return totalTokens;
-  },
-};
         ),
       new BN("0")
     );

@@ -10,7 +10,7 @@ import "./interfaces/IERC721Patronage.sol";
 
 import "./BasicMetaTransaction.sol";
 
-import "./testDai.sol";
+import "./Dai.sol";
 
 // import "./GSNRecipientBase.sol";
 
@@ -828,8 +828,6 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
     }
 
     function buyWithPermit(
-        address holder,
-        address spender,
         uint256 nonce,
         uint256 expiry,
         bool allowed,
@@ -842,7 +840,16 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
         uint256 serviceProviderPercentage,
         uint256 depositAmount
     ) external {
-        paymentToken.permit(holder, spender, nonce, expiry, allowed, v, r, s);
+        paymentToken.permit(
+            msgSender(),
+            address(this),
+            nonce,
+            expiry,
+            allowed,
+            v,
+            r,
+            s
+        );
         buy(
             tokenId,
             _newPrice,
@@ -888,8 +895,6 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
     }
 
     function buyAuctionWithPermit(
-        address holder,
-        address spender,
         uint256 nonce,
         uint256 expiry,
         bool allowed,
@@ -901,7 +906,16 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
         uint256 serviceProviderPercentage,
         uint256 depositAmount
     ) external {
-        paymentToken.permit(holder, spender, nonce, expiry, allowed, v, r, s);
+        paymentToken.permit(
+            msgSender(),
+            address(this),
+            nonce,
+            expiry,
+            allowed,
+            v,
+            r,
+            s
+        );
         buyAuction(
             tokenId,
             _newPrice,

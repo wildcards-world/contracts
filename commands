@@ -1,0 +1,84 @@
+: 1600000243:0;npx gsn deploy
+: 1600000275:0;npx gsn fund-paymaster
+: 1600000291:0;npx gsn paymaster-fund
+: 1600000336:0;npx gsn-run-relay --Workdir . --DevMode --RelayHubAddress 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B &
+: 1600000351:0;npx gsn --help
+: 1600000368:0;npx gsn --helpnpx gsn deploy-relay-hub
+: 1600000370:0;npx gsn deploy-relay-hub
+
+
+: ganache-cli -d -k 'istanbul' -l 1e8 -m "case priority seek winter uphold brother alarm various glide run soul fork"
+
+gsn fund-paymaster
+npm i -g ngrok
+gsn relayer-run --Workdir . --DevMode --RelayHubAddress 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B --EthereumNodeUrl http://localhost:8545
+gsn relayer-run --Workdir ./ --DevMode --RelayHubAddress 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B --EthereumNodeUrl http://localhost:8545
+mkdir relay-workdir
+gsn relayer-run --Workdir ./relay-workdir --DevMode --RelayHubAddress 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B --EthereumNodeUrl http://localhost:8545
+pwd
+gsn relayer-run --Workdir /home/jasoons/Documents/code/matic-work/matic-tutorial/relay-workdir --DevMode --RelayHubAddress 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B --EthereumNodeUrl http://localhost:8545
+gsn relayer-run --workdir /home/jasoons/Documents/code/matic-work/matic-tutorial/relay-workdir --DevMode --RelayHubAddress 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B --EthereumNodeUrl http://localhost:8545
+gsn relayer-run --workdir /home/jasoons/Documents/code/matic-work/matic-tutorial/relay-workdir --devmode --RelayHubAddress 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B --EthereumNodeUrl http://localhost:8545
+gsn relayer-run --workdir /home/jasoons/Documents/code/matic-work/matic-tutorial/relay-workdir --RelayHubAddress 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B --EthereumNodeUrl http://localhost:8545
+gsn relayer-run --workdir /home/jasoons/Documents/code/matic-work/matic-tutorial/relay-workdir --relayhubaddress 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B --EthereumNodeUrl http://localhost:8545
+gsn relayer-run --workdir /home/jasoons/Documents/code/matic-work/matic-tutorial/relay-workdir --relayhubaddress "0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B" --EthereumNodeUrl http://localhost:8545
+gsn relayer-run --workdir /home/jasoons/Documents/code/matic-work/matic-tutorial/relay-workdir --relayhubaddress="0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B" --EthereumNodeUrl http://localhost:8545
+gsn relayer-run --help
+gsn relayer-run --RelayHubAddress "0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B"
+gsn relayer-run
+gsn relayer-run --ethereumNodeUrl http://localhost:8545 --versionRegistryAddress 
+gsn relayer-run --ethereumNodeUrl http://localhost:8545 --versionRegistryAddress http://localhost:8545
+gsn relayer-run --ethereumNodeUrl http://localhost:8545 --versionRegistryAddress "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550"
+gsn relayer-run --ethereumNodeUrl http://localhost:8545
+gsn relayer-run --ethereumNodeUrl http://localhost:8545 --relayHubAddress "0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B"
+gsn relayer-run --ethereumNodeUrl http://localhost:8545 --relayHubAddress "0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B" --url http://localhost
+gsn relayer-run --ethereumNodeUrl http://localhost:8545 --relayHubAddress "0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B" --url http://localhost --workdir ./relay-workdir
+cat mnemonic
+
+TESTNET:
+ganache-cli -d -k 'istanbul' -l 1e8 -m "case priority seek winter uphold brother alarm various glide run soul fork"
+gsn deploy
+gsn paymaster-fund --paymaster "0x0C00CFE8EbB34fE7C31d4915a43Cde211e9F0F3B"
+gsn relayer-register
+gsn relayer-run --ethereumNodeUrl http://localhost:8545 --relayHubAddress "0x2167016491369C0820F054FC92A301B97c4C0413" --url http://localhost --workdir ./relay-workdir
+
+
+Send funds to server's address:
+0x2529419e239d463a1abb4462f415d0379d0eb0dc
+
+
+  RelayHub: 0x2167016491369C0820F054FC92A301B97c4C0413
+  StakeManager: 0xF9EF5090550E55d3408411d6D23361A1363f13b1
+  Penalizer: 0x270d0a520f1921c476FeECba08Ff965a389d49C7
+  VersionRegistry: 0xB8bAa0b4bd356b3f643047DF729F62F401F4DB2d
+  Forwarder: 0x844849A90479a12FFc549c8Da98E362575FF78d7
+  Paymaster (Default): 0x0C00CFE8EbB34fE7C31d4915a43Cde211e9F0F3B
+
+
+*********
+PROD:
+*********
+ganache-cli -d -k 'istanbul' -l 1e8 -m "stick expire stage purse slam blouse anxiety novel anxiety carbon earn sugar"
+gsn deploy
+gsn paymaster-fund --paymaster "0xe22B466Bb94147054F6AA5c3046DB5551F865293"
+gsn relayer-register
+gsn relayer-run --ethereumNodeUrl http://localhost:8545 --relayHubAddress "0x85e86Fe0CB753d538c07579A0786BaE6BF8bc6Cc" --url http://localhost --workdir ./relay-workdir
+
+Worker address:
+0x04796343871d1812164ace87c1bb8649ff924065
+
+Send funds to server's address:
+0x2529419e239d463a1abb4462f415d0379d0eb0dc
+
+  RelayHub: 0x85e86Fe0CB753d538c07579A0786BaE6BF8bc6Cc
+  StakeManager: 0xc59136849C672A016bCf3c0a915274a01bf65bD6
+  Penalizer: 0x0c351DDBC029bfEB18d6A7E759bf8B9475e8982d
+  VersionRegistry: 0xD4308a5B759b9dc477cB9a26FE5cC29dB8f26AbD
+  Forwarder: 0x2358F93930F8c593B3D545E6bE23e23663A54fEE
+  Paymaster (Default): 0xe22B466Bb94147054F6AA5c3046DB5551F865293
+
+
+Admin/deployer address
+(0) 0xCd1D79Dd3f91225aAfA6184D9405Ee9a39A416ff (100 ETH)
+
+(0) 0x9da599dd0d7e0a7a3fd673edd3bf5572da7bd3eb942206f59cd7f60a81a779a6
