@@ -847,7 +847,7 @@
         "id": 3722,
         "nodeType": "ImportDirective",
         "scope": 3910,
-        "sourceUnit": 10690,
+        "sourceUnit": 10707,
         "src": "25:100:3",
         "symbolAliases": [],
         "unitAlias": ""
@@ -858,7 +858,7 @@
         "id": 3723,
         "nodeType": "ImportDirective",
         "scope": 3910,
-        "sourceUnit": 9873,
+        "sourceUnit": 9890,
         "src": "126:103:3",
         "symbolAliases": [],
         "unitAlias": ""
@@ -869,7 +869,7 @@
         "id": 3724,
         "nodeType": "ImportDirective",
         "scope": 3910,
-        "sourceUnit": 4258,
+        "sourceUnit": 4275,
         "src": "230:32:3",
         "symbolAliases": [],
         "unitAlias": ""
@@ -880,7 +880,7 @@
         "id": 3725,
         "nodeType": "ImportDirective",
         "scope": 3910,
-        "sourceUnit": 12019,
+        "sourceUnit": 12036,
         "src": "264:90:3",
         "symbolAliases": [],
         "unitAlias": ""
@@ -895,10 +895,10 @@
               "id": 3726,
               "name": "GSNRecipientBase",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 4257,
+              "referencedDeclaration": 4274,
               "src": "453:16:3",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_GSNRecipientBase_$4257",
+                "typeIdentifier": "t_contract$_GSNRecipientBase_$4274",
                 "typeString": "contract GSNRecipientBase"
               }
             },
@@ -913,10 +913,10 @@
               "id": 3728,
               "name": "ERC20UpgradeSafe",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 10689,
+              "referencedDeclaration": 10706,
               "src": "475:16:3",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_ERC20UpgradeSafe_$10689",
+                "typeIdentifier": "t_contract$_ERC20UpgradeSafe_$10706",
                 "typeString": "contract ERC20UpgradeSafe"
               }
             },
@@ -931,10 +931,10 @@
               "id": 3730,
               "name": "AccessControlUpgradeSafe",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 9872,
+              "referencedDeclaration": 9889,
               "src": "497:24:3",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_AccessControlUpgradeSafe_$9872",
+                "typeIdentifier": "t_contract$_AccessControlUpgradeSafe_$9889",
                 "typeString": "contract AccessControlUpgradeSafe"
               }
             },
@@ -949,10 +949,10 @@
               "id": 3732,
               "name": "IKnowForwarderAddressGsn",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 12018,
+              "referencedDeclaration": 12035,
               "src": "527:24:3",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_IKnowForwarderAddressGsn_$12018",
+                "typeIdentifier": "t_contract$_IKnowForwarderAddressGsn_$12035",
                 "typeString": "contract IKnowForwarderAddressGsn"
               }
             },
@@ -962,15 +962,15 @@
           }
         ],
         "contractDependencies": [
-          4257,
-          8792,
-          9173,
-          9507,
-          9582,
-          9872,
-          10689,
-          10767,
-          12018
+          4274,
+          8809,
+          9190,
+          9524,
+          9599,
+          9889,
+          10706,
+          10784,
+          12035
         ],
         "contractKind": "contract",
         "documentation": null,
@@ -978,15 +978,15 @@
         "id": 3909,
         "linearizedBaseContracts": [
           3909,
-          12018,
-          9872,
-          10689,
-          10767,
-          4257,
-          9173,
-          8792,
-          9507,
-          9582
+          12035,
+          9889,
+          10706,
+          10784,
+          4274,
+          9190,
+          8809,
+          9524,
+          9599
         ],
         "name": "ERC20PatronageReceipt_v2_upgradable",
         "nodeType": "ContractDefinition",
@@ -1159,8 +1159,8 @@
           },
           {
             "baseFunctions": [
-              4243,
-              8776
+              4260,
+              8793
             ],
             "body": {
               "id": 3755,
@@ -1179,10 +1179,10 @@
                         "name": "GSNRecipientBase",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4257,
+                        "referencedDeclaration": 4274,
                         "src": "845:16:3",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_GSNRecipientBase_$4257_$",
+                          "typeIdentifier": "t_type$_t_contract$_GSNRecipientBase_$4274_$",
                           "typeString": "type(contract GSNRecipientBase)"
                         }
                       },
@@ -1193,7 +1193,7 @@
                       "lValueRequested": false,
                       "memberName": "_msgSender",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4243,
+                      "referencedDeclaration": 4260,
                       "src": "845:27:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_view$__$returns$_t_address_payable_$",
@@ -1238,10 +1238,10 @@
                   "id": 3745,
                   "name": "ContextUpgradeSafe",
                   "nodeType": "UserDefinedTypeName",
-                  "referencedDeclaration": 8792,
+                  "referencedDeclaration": 8809,
                   "src": "739:18:3",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_ContextUpgradeSafe_$8792",
+                    "typeIdentifier": "t_contract$_ContextUpgradeSafe_$8809",
                     "typeString": "contract ContextUpgradeSafe"
                   }
                 },
@@ -1250,10 +1250,10 @@
                   "id": 3746,
                   "name": "GSNRecipientBase",
                   "nodeType": "UserDefinedTypeName",
-                  "referencedDeclaration": 4257,
+                  "referencedDeclaration": 4274,
                   "src": "759:16:3",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_GSNRecipientBase_$4257",
+                    "typeIdentifier": "t_contract$_GSNRecipientBase_$4274",
                     "typeString": "contract GSNRecipientBase"
                   }
                 }
@@ -1310,8 +1310,8 @@
           },
           {
             "baseFunctions": [
-              4256,
-              8787
+              4273,
+              8804
             ],
             "body": {
               "id": 3768,
@@ -1330,10 +1330,10 @@
                         "name": "GSNRecipientBase",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4257,
+                        "referencedDeclaration": 4274,
                         "src": "1044:16:3",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_GSNRecipientBase_$4257_$",
+                          "typeIdentifier": "t_type$_t_contract$_GSNRecipientBase_$4274_$",
                           "typeString": "type(contract GSNRecipientBase)"
                         }
                       },
@@ -1344,7 +1344,7 @@
                       "lValueRequested": false,
                       "memberName": "_msgData",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4256,
+                      "referencedDeclaration": 4273,
                       "src": "1044:25:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_view$__$returns$_t_bytes_memory_ptr_$",
@@ -1389,10 +1389,10 @@
                   "id": 3758,
                   "name": "ContextUpgradeSafe",
                   "nodeType": "UserDefinedTypeName",
-                  "referencedDeclaration": 8792,
+                  "referencedDeclaration": 8809,
                   "src": "941:18:3",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_ContextUpgradeSafe_$8792",
+                    "typeIdentifier": "t_contract$_ContextUpgradeSafe_$8809",
                     "typeString": "contract ContextUpgradeSafe"
                   }
                 },
@@ -1401,10 +1401,10 @@
                   "id": 3759,
                   "name": "GSNRecipientBase",
                   "nodeType": "UserDefinedTypeName",
-                  "referencedDeclaration": 4257,
+                  "referencedDeclaration": 4274,
                   "src": "961:16:3",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_GSNRecipientBase_$4257",
+                    "typeIdentifier": "t_contract$_GSNRecipientBase_$4274",
                     "typeString": "contract GSNRecipientBase"
                   }
                 }
@@ -1512,10 +1512,10 @@
                         "name": "ERC20UpgradeSafe",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 10689,
+                        "referencedDeclaration": 10706,
                         "src": "1239:16:3",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_ERC20UpgradeSafe_$10689_$",
+                          "typeIdentifier": "t_type$_t_contract$_ERC20UpgradeSafe_$10706_$",
                           "typeString": "type(contract ERC20UpgradeSafe)"
                         }
                       },
@@ -1526,7 +1526,7 @@
                       "lValueRequested": false,
                       "memberName": "__ERC20_init_unchained",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 10234,
+                      "referencedDeclaration": 10251,
                       "src": "1239:39:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_string_memory_ptr_$_t_string_memory_ptr_$returns$__$",
@@ -1564,10 +1564,10 @@
                         "name": "AccessControlUpgradeSafe",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 9872,
+                        "referencedDeclaration": 9889,
                         "src": "1302:24:3",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_AccessControlUpgradeSafe_$9872_$",
+                          "typeIdentifier": "t_type$_t_contract$_AccessControlUpgradeSafe_$9889_$",
                           "typeString": "type(contract AccessControlUpgradeSafe)"
                         }
                       },
@@ -1578,7 +1578,7 @@
                       "lValueRequested": false,
                       "memberName": "__AccessControl_init_unchained",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 9611,
+                      "referencedDeclaration": 9628,
                       "src": "1302:55:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$__$returns$__$",
@@ -1650,7 +1650,7 @@
                       "name": "_setupRole",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 9803,
+                      "referencedDeclaration": 9820,
                       "src": "1369:10:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$__$",
@@ -1722,7 +1722,7 @@
                       "name": "_setupRole",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 9803,
+                      "referencedDeclaration": 9820,
                       "src": "1410:10:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$__$",
@@ -1794,7 +1794,7 @@
                       "name": "_setRoleAdmin",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 9819,
+                      "referencedDeclaration": 9836,
                       "src": "1449:13:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_bytes32_$returns$__$",
@@ -1832,10 +1832,10 @@
                         "name": "GSNRecipientBase",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4257,
+                        "referencedDeclaration": 4274,
                         "src": "1498:16:3",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_GSNRecipientBase_$4257_$",
+                          "typeIdentifier": "t_type$_t_contract$_GSNRecipientBase_$4274_$",
                           "typeString": "type(contract GSNRecipientBase)"
                         }
                       },
@@ -1846,7 +1846,7 @@
                       "lValueRequested": false,
                       "memberName": "initialize",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4135,
+                      "referencedDeclaration": 4152,
                       "src": "1498:27:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$__$returns$__$",
@@ -1889,7 +1889,7 @@
                   "name": "initializer",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 9555,
+                  "referencedDeclaration": 9572,
                   "src": "1217:11:3",
                   "typeDescriptions": {
                     "typeIdentifier": "t_modifier$__$",
@@ -2111,7 +2111,7 @@
                           "name": "hasRole",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 9666,
+                          "referencedDeclaration": 9683,
                           "src": "1607:7:3",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_internal_view$_t_bytes32_$_t_address_$returns$_t_bool_$",
@@ -2242,7 +2242,7 @@
                       "name": "_mint",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 10561,
+                      "referencedDeclaration": 10578,
                       "src": "1679:5:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_uint256_$returns$__$",
@@ -2430,7 +2430,7 @@
                           "name": "hasRole",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 9666,
+                          "referencedDeclaration": 9683,
                           "src": "1769:7:3",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_internal_view$_t_bytes32_$_t_address_$returns$_t_bool_$",
@@ -2561,7 +2561,7 @@
                       "name": "grantRole",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 9741,
+                      "referencedDeclaration": 9758,
                       "src": "1833:9:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$__$",
@@ -2718,7 +2718,7 @@
                       "name": "renounceRole",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 9789,
+                      "referencedDeclaration": 9806,
                       "src": "1919:12:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$__$",
@@ -2825,7 +2825,7 @@
                       "name": "_burn",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 10617,
+                      "referencedDeclaration": 10634,
                       "src": "2152:5:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_uint256_$returns$__$",
@@ -2940,7 +2940,7 @@
           },
           {
             "baseFunctions": [
-              12017
+              12034
             ],
             "body": {
               "id": 3888,
@@ -2954,7 +2954,7 @@
                     "name": "trustedForwarder",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 4137,
+                    "referencedDeclaration": 4154,
                     "src": "2271:16:3",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -3105,7 +3105,7 @@
                           "name": "hasRole",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 9666,
+                          "referencedDeclaration": 9683,
                           "src": "2373:7:3",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_internal_view$_t_bytes32_$_t_address_$returns$_t_bool_$",
@@ -3204,7 +3204,7 @@
                       "name": "trustedForwarder",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 4137,
+                      "referencedDeclaration": 4154,
                       "src": "2443:16:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
@@ -3330,7 +3330,7 @@
         "id": 3722,
         "nodeType": "ImportDirective",
         "scope": 3910,
-        "sourceUnit": 10690,
+        "sourceUnit": 10707,
         "src": "25:100:3",
         "symbolAliases": [],
         "unitAlias": ""
@@ -3341,7 +3341,7 @@
         "id": 3723,
         "nodeType": "ImportDirective",
         "scope": 3910,
-        "sourceUnit": 9873,
+        "sourceUnit": 9890,
         "src": "126:103:3",
         "symbolAliases": [],
         "unitAlias": ""
@@ -3352,7 +3352,7 @@
         "id": 3724,
         "nodeType": "ImportDirective",
         "scope": 3910,
-        "sourceUnit": 4258,
+        "sourceUnit": 4275,
         "src": "230:32:3",
         "symbolAliases": [],
         "unitAlias": ""
@@ -3363,7 +3363,7 @@
         "id": 3725,
         "nodeType": "ImportDirective",
         "scope": 3910,
-        "sourceUnit": 12019,
+        "sourceUnit": 12036,
         "src": "264:90:3",
         "symbolAliases": [],
         "unitAlias": ""
@@ -3378,10 +3378,10 @@
               "id": 3726,
               "name": "GSNRecipientBase",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 4257,
+              "referencedDeclaration": 4274,
               "src": "453:16:3",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_GSNRecipientBase_$4257",
+                "typeIdentifier": "t_contract$_GSNRecipientBase_$4274",
                 "typeString": "contract GSNRecipientBase"
               }
             },
@@ -3396,10 +3396,10 @@
               "id": 3728,
               "name": "ERC20UpgradeSafe",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 10689,
+              "referencedDeclaration": 10706,
               "src": "475:16:3",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_ERC20UpgradeSafe_$10689",
+                "typeIdentifier": "t_contract$_ERC20UpgradeSafe_$10706",
                 "typeString": "contract ERC20UpgradeSafe"
               }
             },
@@ -3414,10 +3414,10 @@
               "id": 3730,
               "name": "AccessControlUpgradeSafe",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 9872,
+              "referencedDeclaration": 9889,
               "src": "497:24:3",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_AccessControlUpgradeSafe_$9872",
+                "typeIdentifier": "t_contract$_AccessControlUpgradeSafe_$9889",
                 "typeString": "contract AccessControlUpgradeSafe"
               }
             },
@@ -3432,10 +3432,10 @@
               "id": 3732,
               "name": "IKnowForwarderAddressGsn",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 12018,
+              "referencedDeclaration": 12035,
               "src": "527:24:3",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_IKnowForwarderAddressGsn_$12018",
+                "typeIdentifier": "t_contract$_IKnowForwarderAddressGsn_$12035",
                 "typeString": "contract IKnowForwarderAddressGsn"
               }
             },
@@ -3445,15 +3445,15 @@
           }
         ],
         "contractDependencies": [
-          4257,
-          8792,
-          9173,
-          9507,
-          9582,
-          9872,
-          10689,
-          10767,
-          12018
+          4274,
+          8809,
+          9190,
+          9524,
+          9599,
+          9889,
+          10706,
+          10784,
+          12035
         ],
         "contractKind": "contract",
         "documentation": null,
@@ -3461,15 +3461,15 @@
         "id": 3909,
         "linearizedBaseContracts": [
           3909,
-          12018,
-          9872,
-          10689,
-          10767,
-          4257,
-          9173,
-          8792,
-          9507,
-          9582
+          12035,
+          9889,
+          10706,
+          10784,
+          4274,
+          9190,
+          8809,
+          9524,
+          9599
         ],
         "name": "ERC20PatronageReceipt_v2_upgradable",
         "nodeType": "ContractDefinition",
@@ -3642,8 +3642,8 @@
           },
           {
             "baseFunctions": [
-              4243,
-              8776
+              4260,
+              8793
             ],
             "body": {
               "id": 3755,
@@ -3662,10 +3662,10 @@
                         "name": "GSNRecipientBase",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4257,
+                        "referencedDeclaration": 4274,
                         "src": "845:16:3",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_GSNRecipientBase_$4257_$",
+                          "typeIdentifier": "t_type$_t_contract$_GSNRecipientBase_$4274_$",
                           "typeString": "type(contract GSNRecipientBase)"
                         }
                       },
@@ -3676,7 +3676,7 @@
                       "lValueRequested": false,
                       "memberName": "_msgSender",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4243,
+                      "referencedDeclaration": 4260,
                       "src": "845:27:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_view$__$returns$_t_address_payable_$",
@@ -3721,10 +3721,10 @@
                   "id": 3745,
                   "name": "ContextUpgradeSafe",
                   "nodeType": "UserDefinedTypeName",
-                  "referencedDeclaration": 8792,
+                  "referencedDeclaration": 8809,
                   "src": "739:18:3",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_ContextUpgradeSafe_$8792",
+                    "typeIdentifier": "t_contract$_ContextUpgradeSafe_$8809",
                     "typeString": "contract ContextUpgradeSafe"
                   }
                 },
@@ -3733,10 +3733,10 @@
                   "id": 3746,
                   "name": "GSNRecipientBase",
                   "nodeType": "UserDefinedTypeName",
-                  "referencedDeclaration": 4257,
+                  "referencedDeclaration": 4274,
                   "src": "759:16:3",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_GSNRecipientBase_$4257",
+                    "typeIdentifier": "t_contract$_GSNRecipientBase_$4274",
                     "typeString": "contract GSNRecipientBase"
                   }
                 }
@@ -3793,8 +3793,8 @@
           },
           {
             "baseFunctions": [
-              4256,
-              8787
+              4273,
+              8804
             ],
             "body": {
               "id": 3768,
@@ -3813,10 +3813,10 @@
                         "name": "GSNRecipientBase",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4257,
+                        "referencedDeclaration": 4274,
                         "src": "1044:16:3",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_GSNRecipientBase_$4257_$",
+                          "typeIdentifier": "t_type$_t_contract$_GSNRecipientBase_$4274_$",
                           "typeString": "type(contract GSNRecipientBase)"
                         }
                       },
@@ -3827,7 +3827,7 @@
                       "lValueRequested": false,
                       "memberName": "_msgData",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4256,
+                      "referencedDeclaration": 4273,
                       "src": "1044:25:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_view$__$returns$_t_bytes_memory_ptr_$",
@@ -3872,10 +3872,10 @@
                   "id": 3758,
                   "name": "ContextUpgradeSafe",
                   "nodeType": "UserDefinedTypeName",
-                  "referencedDeclaration": 8792,
+                  "referencedDeclaration": 8809,
                   "src": "941:18:3",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_ContextUpgradeSafe_$8792",
+                    "typeIdentifier": "t_contract$_ContextUpgradeSafe_$8809",
                     "typeString": "contract ContextUpgradeSafe"
                   }
                 },
@@ -3884,10 +3884,10 @@
                   "id": 3759,
                   "name": "GSNRecipientBase",
                   "nodeType": "UserDefinedTypeName",
-                  "referencedDeclaration": 4257,
+                  "referencedDeclaration": 4274,
                   "src": "961:16:3",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_GSNRecipientBase_$4257",
+                    "typeIdentifier": "t_contract$_GSNRecipientBase_$4274",
                     "typeString": "contract GSNRecipientBase"
                   }
                 }
@@ -3995,10 +3995,10 @@
                         "name": "ERC20UpgradeSafe",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 10689,
+                        "referencedDeclaration": 10706,
                         "src": "1239:16:3",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_ERC20UpgradeSafe_$10689_$",
+                          "typeIdentifier": "t_type$_t_contract$_ERC20UpgradeSafe_$10706_$",
                           "typeString": "type(contract ERC20UpgradeSafe)"
                         }
                       },
@@ -4009,7 +4009,7 @@
                       "lValueRequested": false,
                       "memberName": "__ERC20_init_unchained",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 10234,
+                      "referencedDeclaration": 10251,
                       "src": "1239:39:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_string_memory_ptr_$_t_string_memory_ptr_$returns$__$",
@@ -4047,10 +4047,10 @@
                         "name": "AccessControlUpgradeSafe",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 9872,
+                        "referencedDeclaration": 9889,
                         "src": "1302:24:3",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_AccessControlUpgradeSafe_$9872_$",
+                          "typeIdentifier": "t_type$_t_contract$_AccessControlUpgradeSafe_$9889_$",
                           "typeString": "type(contract AccessControlUpgradeSafe)"
                         }
                       },
@@ -4061,7 +4061,7 @@
                       "lValueRequested": false,
                       "memberName": "__AccessControl_init_unchained",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 9611,
+                      "referencedDeclaration": 9628,
                       "src": "1302:55:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$__$returns$__$",
@@ -4133,7 +4133,7 @@
                       "name": "_setupRole",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 9803,
+                      "referencedDeclaration": 9820,
                       "src": "1369:10:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$__$",
@@ -4205,7 +4205,7 @@
                       "name": "_setupRole",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 9803,
+                      "referencedDeclaration": 9820,
                       "src": "1410:10:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$__$",
@@ -4277,7 +4277,7 @@
                       "name": "_setRoleAdmin",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 9819,
+                      "referencedDeclaration": 9836,
                       "src": "1449:13:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_bytes32_$returns$__$",
@@ -4315,10 +4315,10 @@
                         "name": "GSNRecipientBase",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4257,
+                        "referencedDeclaration": 4274,
                         "src": "1498:16:3",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_GSNRecipientBase_$4257_$",
+                          "typeIdentifier": "t_type$_t_contract$_GSNRecipientBase_$4274_$",
                           "typeString": "type(contract GSNRecipientBase)"
                         }
                       },
@@ -4329,7 +4329,7 @@
                       "lValueRequested": false,
                       "memberName": "initialize",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4135,
+                      "referencedDeclaration": 4152,
                       "src": "1498:27:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$__$returns$__$",
@@ -4372,7 +4372,7 @@
                   "name": "initializer",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 9555,
+                  "referencedDeclaration": 9572,
                   "src": "1217:11:3",
                   "typeDescriptions": {
                     "typeIdentifier": "t_modifier$__$",
@@ -4594,7 +4594,7 @@
                           "name": "hasRole",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 9666,
+                          "referencedDeclaration": 9683,
                           "src": "1607:7:3",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_internal_view$_t_bytes32_$_t_address_$returns$_t_bool_$",
@@ -4725,7 +4725,7 @@
                       "name": "_mint",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 10561,
+                      "referencedDeclaration": 10578,
                       "src": "1679:5:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_uint256_$returns$__$",
@@ -4913,7 +4913,7 @@
                           "name": "hasRole",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 9666,
+                          "referencedDeclaration": 9683,
                           "src": "1769:7:3",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_internal_view$_t_bytes32_$_t_address_$returns$_t_bool_$",
@@ -5044,7 +5044,7 @@
                       "name": "grantRole",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 9741,
+                      "referencedDeclaration": 9758,
                       "src": "1833:9:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$__$",
@@ -5201,7 +5201,7 @@
                       "name": "renounceRole",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 9789,
+                      "referencedDeclaration": 9806,
                       "src": "1919:12:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$__$",
@@ -5308,7 +5308,7 @@
                       "name": "_burn",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 10617,
+                      "referencedDeclaration": 10634,
                       "src": "2152:5:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_uint256_$returns$__$",
@@ -5423,7 +5423,7 @@
           },
           {
             "baseFunctions": [
-              12017
+              12034
             ],
             "body": {
               "id": 3888,
@@ -5437,7 +5437,7 @@
                     "name": "trustedForwarder",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 4137,
+                    "referencedDeclaration": 4154,
                     "src": "2271:16:3",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -5588,7 +5588,7 @@
                           "name": "hasRole",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 9666,
+                          "referencedDeclaration": 9683,
                           "src": "2373:7:3",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_internal_view$_t_bytes32_$_t_address_$returns$_t_bool_$",
@@ -5687,7 +5687,7 @@
                       "name": "trustedForwarder",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 4137,
+                      "referencedDeclaration": 4154,
                       "src": "2443:16:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
@@ -5913,12 +5913,12 @@
           "type": "event"
         }
       },
-      "address": "0x7311243214ea4BEf3099b4388f3E50FBFeBd2d9f",
-      "updated_at": 1602774110168
+      "address": "0xA19975Bd7b2D25FEC5AC0769DE1242dc6910C87a",
+      "updated_at": 1602828105690
     }
   },
   "schemaVersion": "3.2.3",
-  "updatedAt": "2020-10-15T15:02:49.276Z",
+  "updatedAt": "2020-10-16T06:02:53.667Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

@@ -17,6 +17,9 @@ contract ERC721Patronage_v1 is
     bytes32 public constant MINTER_ROLE = keccak256("minter");
     bytes32 public constant ADMIN_ROLE = keccak256("admin");
 
+    event MinterAdded(address indexed account);
+    event MinterRemoved(address indexed account);
+
     function _msgSender()
         internal
         override(ContextUpgradeSafe, GSNRecipientBase)
@@ -88,10 +91,14 @@ contract ERC721Patronage_v1 is
 
     function addMinter(address minter) public {
         grantRole(MINTER_ROLE, minter);
+
+        emit MinterAdded(minter);
     }
 
     function renounceMinter() public {
         renounceRole(MINTER_ROLE, _msgSender());
+
+        emit MinterRemoved(_msgSender());
     }
 
     // function transferFrom(address from, address to, uint256 tokenId) public {
