@@ -34,7 +34,6 @@ async function deploy(options, accounts, deployer) {
     steward.address,
     accounts[0]
   );
-
   console.log("2");
 
   await patronageERC20.setup(

@@ -17,6 +17,7 @@ contract ERC721Patronage_v1 is
     bytes32 public constant MINTER_ROLE = keccak256("minter");
     bytes32 public constant ADMIN_ROLE = keccak256("admin");
 
+    event Init();
     event MinterAdded(address indexed account);
     event MinterRemoved(address indexed account);
 
@@ -52,6 +53,8 @@ contract ERC721Patronage_v1 is
         _setRoleAdmin(MINTER_ROLE, ADMIN_ROLE);
 
         GSNRecipientBase.initialize();
+
+        emit Init();
     }
 
     // function mint(address to, uint256) public {
@@ -90,12 +93,14 @@ contract ERC721Patronage_v1 is
     }
 
     function addMinter(address minter) public {
+        require(hasRole(ADMIN_ROLE, _msgSender()), "Caller not admin");
         grantRole(MINTER_ROLE, minter);
 
         emit MinterAdded(minter);
     }
 
     function renounceMinter() public {
+        require(hasRole(ADMIN_ROLE, _msgSender()), "Caller not admin");
         renounceRole(MINTER_ROLE, _msgSender());
 
         emit MinterRemoved(_msgSender());

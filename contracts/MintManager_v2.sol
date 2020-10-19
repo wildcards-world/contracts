@@ -11,6 +11,9 @@ contract MintManager_v2 is Initializable {
     address public steward;
     IERC20Mintable public token;
 
+    event Init();
+
+
     modifier onlySteward() {
         require(msg.sender == steward, "Not steward");
         _;
@@ -24,6 +27,8 @@ contract MintManager_v2 is Initializable {
         admin = _admin;
         steward = _steward;
         token = IERC20Mintable(_token);
+
+        emit Init();
     }
 
     function tokenMint(
