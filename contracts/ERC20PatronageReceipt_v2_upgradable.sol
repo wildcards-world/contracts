@@ -17,6 +17,10 @@ contract ERC20PatronageReceipt_v2_upgradable is
     bytes32 public constant MINTER_ROLE = keccak256("minter");
     bytes32 public constant ADMIN_ROLE = keccak256("admin");
 
+    event Init();
+    event MinterAdded(address indexed account);
+    event MinterRemoved(address indexed account);
+
     function _msgSender()
         internal
         override(ContextUpgradeSafe, GSNRecipientBase)
@@ -48,6 +52,8 @@ contract ERC20PatronageReceipt_v2_upgradable is
         _setRoleAdmin(MINTER_ROLE, ADMIN_ROLE);
 
         GSNRecipientBase.initialize();
+
+        emit Init();
     }
 
     function mint(address to, uint256 amount) public {
@@ -59,10 +65,15 @@ contract ERC20PatronageReceipt_v2_upgradable is
     function addMinter(address minter) public {
         require(hasRole(ADMIN_ROLE, _msgSender()), "Caller not admin");
         grantRole(MINTER_ROLE, minter);
+
+        emit MinterAdded(minter);
     }
 
     function renounceMinter() public {
+        require(hasRole(ADMIN_ROLE, _msgSender()), "Caller not admin");
         renounceRole(MINTER_ROLE, _msgSender());
+
+        emit MinterRemoved(_msgSender());
     }
 
     function burn(address from, uint256 amount) public {
