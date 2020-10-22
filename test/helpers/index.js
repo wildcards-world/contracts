@@ -237,6 +237,7 @@ const daiPermitGeneration = async (
   // nonce,
   expiry = Number.MAX_SAFE_INTEGER
 ) => {
+
   const result = await signDaiPermit(
     provider,
     daiContract.address,
