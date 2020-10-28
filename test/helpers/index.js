@@ -3,6 +3,8 @@ const { time, ether } = require("@openzeppelin/test-helpers");
 
 const { promisify } = require("util");
 const { signDaiPermit } = require("eth-permit");
+const sigUtils = require('eth-sig-util');
+const ethUtils = require('ethereumjs-util');
 
 const NUM_SECONDS_IN_YEAR = "31536000";
 const STEWARD_CONTRACT_NAME = "./WildcardSteward_v3_matic.sol";
@@ -18,7 +20,7 @@ const ERC721token = artifacts.require(ERC721_CONTRACT_NAME);
 const WildcardSteward = artifacts.require(STEWARD_CONTRACT_NAME);
 const ERC20token = artifacts.require(ERC20_CONTRACT_NAME);
 const MintManager = artifacts.require(MINT_MANAGER_CONTRACT_NAME);
-const Dai = artifacts.require("./Dai.sol");
+const DaiMatic = artifacts.require("./DaiMatic.sol");
 
 const launchTokens = async (steward, tokenParameters) => {
   return await steward.listNewTokens(
@@ -39,7 +41,7 @@ const initialize = async (
   auctionLength,
   tokenParameters,
   accountsToMintPaymentTokensFor = [],
-  approveDai = true
+  approveDaiMatic = true
 ) => {
   const erc721 = await ERC721token.new({ from: admin });
   const steward = await WildcardSteward.new({ from: admin });
@@ -53,10 +55,14 @@ const initialize = async (
     mintManager.address,
     admin
   );
-  const networkId = 31337; // This is the default networkId used by buidler - BE CAREFUL, might cause issues with other test runners?
-  const paymentToken = await Dai.new(networkId, {
+  // const networkId = 31337; // This is the default networkId used by buidler - BE CAREFUL, might cause issues with other test runners?
+  const paymentToken = await DaiMatic.new({
     from: admin,
   });
+  await paymentToken.initialize("(PoS) Dai Stablecoin",
+        "DAI",
+        18,
+        admin);
   await mintManager.initialize(admin, steward.address, erc20.address, {
     from: admin,
   });
@@ -75,7 +81,7 @@ const initialize = async (
   await Promise.all(
     accountsToMintPaymentTokensFor.map(async (account) => {
       await paymentToken.mint(account, ether("100"));
-      if (approveDai) {
+      if (approveDaiMatic) {
         await paymentToken.approve(steward.address, ether("50"), {
           from: account,
         });
@@ -229,24 +235,102 @@ const withdrawBenefactorFundsAll = async (
   );
 };
 
+const getTypedData = ({ name, version, chainId, verifyingContract, nonce, holder, spender, expiry, allowed }) => {
+  return {
+    types: {
+      EIP712Domain: [{
+        name: 'name',
+        type: 'string'
+      }, {
+        name: 'version',
+        type: 'string'
+      }, {
+        name: 'verifyingContract',
+        type: 'address'
+      }, {
+        name: 'salt',
+        type: 'bytes32'
+      }],
+      Permit: [
+        {
+          name: 'holder',
+          type: 'address'
+        },
+        {
+          name: 'spender',
+          type: 'address'
+        },
+        {
+          name: 'nonce',
+          type: 'uint256'
+        },
+        {
+          name: 'expiry',
+          type: 'uint256'
+        },
+        {
+          name: 'allowed',
+          type: 'bool'
+        }
+      ]
+    },
+    domain: {
+      name,
+      version,
+      verifyingContract,
+      salt: '0x' + chainId.toString(16).padStart(64, '0')
+    },
+    primaryType: 'Permit',
+    message: {
+      holder,
+      spender,
+      nonce,
+      expiry: expiry || 0,
+      allowed
+    }
+  }
+}
+const getSignatureParameters = (signature) => {
+  const r = signature.slice(0, 66)
+  const s = '0x'.concat(signature.slice(66, 130))
+  const _v = '0x'.concat(signature.slice(130, 132))
+  let v = parseInt(_v)
+  if (![27, 28].includes(v)) v += 27
+  return { r, s, v }
+}
+
 const daiPermitGeneration = async (
   provider,
   daiContract,
   holder,
   spender,
   // nonce,
-  expiry = Number.MAX_SAFE_INTEGER
+  expiry = 0
 ) => {
+  const name = await daiContract.name()
+  const chainId = await daiContract.getChainId()
+  const nonce = await daiContract.getNonce(holder)
 
-  const result = await signDaiPermit(
-    provider,
-    daiContract.address,
+  let params ={
+    name,
+    version: '1',
+    chainId: chainId,
+    verifyingContract: daiContract.address,
+    nonce: '0x' + nonce.toString(16),
     holder,
     spender,
-    expiry
-  );
+    expiry: 0,
+    allowed: true
+  };
 
-  return result;
+
+  let typedData = getTypedData(params)
+
+  const sig = sigUtils.signTypedData(ethUtils.toBuffer("0xb5546e25f9324e63ef077e2ce63ccdc54b4d84b1866c5606945c3039580bdf47"), {
+    data: typedData
+  })
+
+  return {nonce, expiry, ...getSignatureParameters(sig)}
 };
 
 module.exports = {

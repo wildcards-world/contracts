@@ -10,7 +10,7 @@ import "./interfaces/IERC721Patronage.sol";
 
 import "./BasicMetaTransaction.sol";
 
-import "./Dai.sol";
+import "./interfaces/IDai.sol";
 
 // import "./GSNRecipientBase.sol";
 
@@ -93,7 +93,7 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
     uint256 public constant globalTokenGenerationRate = 11574074074074;
     uint256 public constant yearTimePatronagDenominator = 31536000000000000000;
 
-    Dai public paymentToken; // ERC20 token used as payment.
+    IDai public paymentToken; // ERC20 token used as payment.
 
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
     event PriceChange(uint256 indexed tokenId, uint256 newPrice);
@@ -217,7 +217,7 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
         admin = _admin;
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
         mintManager = IMintManager(_mintManager);
-        paymentToken = Dai(_paymentToken);
+        paymentToken = IDai(_paymentToken);
         _changeAuctionParameters(
             _auctionStartPrice,
             _auctionEndPrice,
