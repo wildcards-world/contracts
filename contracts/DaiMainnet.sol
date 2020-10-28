@@ -15,7 +15,7 @@
 
 pragma solidity 0.6.12;
 
-contract Dai {
+contract DaiMainnet {
     // // --- Auth ---
     // mapping(address => uint256) public wards;
 

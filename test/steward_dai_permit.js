@@ -13,7 +13,7 @@ const testHelpers = require("@openzeppelin/test-helpers");
 
 const patronageCalculator = multiPatronageCalculator();
 
-contract("WildcardSteward owed", (accounts) => {
+contract("WildcardSteward Dai permit", (accounts) => {
   // console.log({ accounts, web3 });
   let steward, daiContract;
   const patronageNumerator = "12000000000000";
@@ -120,10 +120,12 @@ contract("WildcardSteward owed", (accounts) => {
       accounts[2],
       steward.address
     );
+    console.log("THE ACCOUNT!!!",accounts[2]);
     await steward.buyAuctionWithPermit(
       // uint256 nonce,
       nonce,
       // uint256 expiry,
+      // 0,
       expiry,
       // bool allowed,
       true,
