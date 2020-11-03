@@ -120,7 +120,7 @@ contract("WildcardSteward Dai permit", (accounts) => {
       accounts[2],
       steward.address
     );
-    console.log("THE ACCOUNT!!!",accounts[2]);
+
     await steward.buyAuctionWithPermit(
       // uint256 nonce,
       nonce,
