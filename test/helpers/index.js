@@ -3,8 +3,8 @@ const { time, ether } = require("@openzeppelin/test-helpers");
 
 const { promisify } = require("util");
 const { signDaiPermit } = require("eth-permit");
-const sigUtils = require('eth-sig-util');
-const ethUtils = require('ethereumjs-util');
+const sigUtils = require("eth-sig-util");
+const ethUtils = require("ethereumjs-util");
 
 const NUM_SECONDS_IN_YEAR = "31536000";
 const STEWARD_CONTRACT_NAME = "./WildcardSteward_v3_matic.sol";
@@ -59,10 +59,7 @@ const initialize = async (
   const paymentToken = await DaiMatic.new({
     from: admin,
   });
-  await paymentToken.initialize("(PoS) Dai Stablecoin",
-        "DAI",
-        18,
-        admin);
+  await paymentToken.initialize("(PoS) Dai Stablecoin", "DAI", 18, admin);
   await mintManager.initialize(admin, steward.address, erc20.address, {
     from: admin,
   });
@@ -235,69 +232,84 @@ const withdrawBenefactorFundsAll = async (
   );
 };
 
-const getTypedData = ({ name, version, chainId, verifyingContract, nonce, holder, spender, expiry, allowed }) => {
+const getTypedData = ({
+  name,
+  version,
+  chainId,
+  verifyingContract,
+  nonce,
+  holder,
+  spender,
+  expiry,
+  allowed,
+}) => {
   return {
     types: {
-      EIP712Domain: [{
-        name: 'name',
-        type: 'string'
-      }, {
-        name: 'version',
-        type: 'string'
-      }, {
-        name: 'verifyingContract',
-        type: 'address'
-      }, {
-        name: 'salt',
-        type: 'bytes32'
-      }],
+      EIP712Domain: [
+        {
+          name: "name",
+          type: "string",
+        },
+        {
+          name: "version",
+          type: "string",
+        },
+        {
+          name: "verifyingContract",
+          type: "address",
+        },
+        {
+          name: "salt",
+          type: "bytes32",
+        },
+      ],
       Permit: [
         {
-          name: 'holder',
-          type: 'address'
+          name: "holder",
+          type: "address",
         },
         {
-          name: 'spender',
-          type: 'address'
+          name: "spender",
+          type: "address",
         },
         {
-          name: 'nonce',
-          type: 'uint256'
+          name: "nonce",
+          type: "uint256",
         },
         {
-          name: 'expiry',
-          type: 'uint256'
+          name: "expiry",
+          type: "uint256",
         },
         {
-          name: 'allowed',
-          type: 'bool'
-        }
-      ]
+          name: "allowed",
+          type: "bool",
+        },
+      ],
     },
     domain: {
       name,
       version,
       verifyingContract,
-      salt: '0x' + chainId.toString(16).padStart(64, '0')
+      salt: "0x" + chainId.toString(16).padStart(64, "0"),
     },
-    primaryType: 'Permit',
+    primaryType: "Permit",
     message: {
       holder,
       spender,
       nonce,
       expiry: expiry || 0,
-      allowed
-    }
-  }
-}
+      allowed,
+    },
+  };
+};
 const getSignatureParameters = (signature) => {
-  const r = signature.slice(0, 66)
-  const s = '0x'.concat(signature.slice(66, 130))
-  const _v = '0x'.concat(signature.slice(130, 132))
-  let v = parseInt(_v)
-  if (![27, 28].includes(v)) v += 27
-  return { r, s, v }
-}
+  const r = signature.slice(0, 66);
+  const s = "0x".concat(signature.slice(66, 130));
+  const _v = "0x".concat(signature.slice(130, 132));
+  let v = parseInt(_v);
+  if (![27, 28].includes(v)) v += 27;
+  return { r, s, v };
+};
 
 const daiPermitGeneration = async (
   provider,
@@ -307,31 +319,142 @@ const daiPermitGeneration = async (
   // nonce,
   expiry = 0
 ) => {
-  const name = await daiContract.name()
-  const chainId = await daiContract.getChainId()
-  console.log({chainId})
-  const nonce = await daiContract.getNonce(holder)
+  const name = await daiContract.name();
+  const chainId = await daiContract.getChainId();
+  const nonce = await daiContract.getNonce(holder);
 
-  let params ={
+  console.log({ nonce: nonce.toString() });
+  let params = {
     name,
-    version: '1',
-    chainId: chainId,
-    verifyingContract: daiContract.address,
-    nonce: '0x' + nonce.toString(16),
-    holder,
-    spender,
-    expiry: expiry,
-    allowed: true
+    version: "1",
+    chainId: new BN(5),
+    verifyingContract: "0xea9d8a947dD7eBa9cF883c4aa71f18aD5A9c06bB",
+    nonce: "0",
+    holder: "0xd3Cbce59318B2E570883719c8165F9390A12BdD6",
+    spender: "0xf02Bb5b595Af96597b82f39F5de265E77Dc75CbC",
+    expiry: "0",
+    allowed: true,
   };
+  // let params = {
+  //   name,
+  //   version: "1",
+  //   chainId: chainId,
+  //   verifyingContract: daiContract.address,
+  //   nonce: "0x" + nonce.toString(16),
+  //   holder,
+  //   spender,
+  //   expiry: expiry,
+  //   allowed: true,
+  // };
 
+  let typedData = getTypedData(params);
 
-  let typedData = getTypedData(params)
+  console.log("typedData");
+  console.log(typedData);
+  console.log(JSON.stringify(typedData, null, 2));
 
-  const sig = sigUtils.signTypedData(ethUtils.toBuffer("0xb5546e25f9324e63ef077e2ce63ccdc54b4d84b1866c5606945c3039580bdf47"), {
-    data: typedData
-  })
+  // let thing = {
+  //   types: {
+  //     EIP712Domain: [
+  //       {
+  //         name: "name",
+  //         type: "string",
+  //       },
+  //       {
+  //         name: "version",
+  //         type: "string",
+  //       },
+  //       {
+  //         name: "verifyingContract",
+  //         type: "address",
+  //       },
+  //       {
+  //         name: "salt",
+  //         type: "bytes32",
+  //       },
+  //     ],
+  //     Permit: [
+  //       {
+  //         name: "holder",
+  //         type: "address",
+  //       },
+  //       {
+  //         name: "spender",
+  //         type: "address",
+  //       },
+  //       {
+  //         name: "nonce",
+  //         type: "uint256",
+  //       },
+  //       {
+  //         name: "expiry",
+  //         type: "uint256",
+  //       },
+  //       {
+  //         name: "allowed",
+  //         type: "bool",
+  //       },
+  //     ],
+  //   },
+  //   domain: {
+  //     name: "(PoS) Dai Stablecoin",
+  //     version: "1",
+  //     verifyingContract: "0xea9d8a947dD7eBa9cF883c4aa71f18aD5A9c06bB",
+  //     salt:
+  //       "0x0000000000000000000000000000000000000000000000000000000000000005",
+  //   },
+  //   primaryType: "Permit",
+  //   message: {
+  //     holder: "0xd3Cbce59318B2E570883719c8165F9390A12BdD6",
+  //     spender: "0xf02Bb5b595Af96597b82f39F5de265E77Dc75CbC",
+  //     nonce: "0",
+  //     expiry: "0",
+  //     allowed: true,
+  //   },
+  // };
+  // // NOTE: below is an alternative method to generate the signature - but requires the private key.
+  // const sig = sigUtils.signTypedData(
+  //   ethUtils.toBuffer(
+  //     "PUT PRIVATE KEY STRING HERE"
+  //     // "0xb5546e25f9324e63ef077e2ce63ccdc54b4d84b1866c5606945c3039580bdf47"
+  //   ),
+  //   {
+  //     data: typedData,
+  //   }
+  // );
+  const sig = sigUtils.signTypedData(
+    ethUtils.toBuffer(
+      "0x5cb54049abf5d09d8377aaad3f3e9937f0551db1a4f1e872329dab3738a03620"
+      // "0xb5546e25f9324e63ef077e2ce63ccdc54b4d84b1866c5606945c3039580bdf47"
+    ),
+    {
+      data: typedData,
+    }
+  );
 
-  return {nonce, expiry, ...getSignatureParameters(sig)}
+  console.log("Signature:", sig);
+  console.log("split", getSignatureParameters(sig));
+
+  let from = holder;
+  return new Promise((res, rej) => {
+    provider.send(
+      // provider.sendAsync(
+      {
+        // method: "eth_signTypedData_v3",
+        method: "eth_signTypedData",
+        params: [from, typedData],
+        from,
+      },
+      async (e, r) => {
+        console.log(e, r);
+        if (e) {
+          rej(e);
+        }
+        const sig = r.result;
+        res({ nonce, expiry, ...getSignatureParameters(sig) });
+      }
+    );
+  });
 };
 
 module.exports = {

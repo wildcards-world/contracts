@@ -14,9 +14,15 @@ async function deploy(options, accounts, deployer) {
   if (options.networkName != "matic") {
     const networkId = await web3.eth.net.getId();
     console.log("NETWORK ID", networkId);
-    const paymentToken = await deployer.deploy(Dai, networkId, {
+    const paymentToken = await deployer.deploy(Dai, {
       from: accounts[0],
     });
+    await paymentToken.initialize(
+      "(PoS) Dai Stablecoin",
+      "DAI",
+      18,
+      accounts[0]
+    );
     paymentTokenAddress = paymentToken.address;
   }
   console.log({ paymentTokenAddress });
