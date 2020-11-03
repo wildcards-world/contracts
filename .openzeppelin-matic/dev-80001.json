@@ -1,399 +1,7 @@
 {
   "contracts": {
-    "WildcardSteward": {
-      "address": "0xcE6F11779b8F20c3196354f833A5F140a53821cC",
-      "constructorCode": "608060405234801561001057600080fd5b506156f480620000216000396000f3fe",
-      "bodyBytecodeHash": "d3a84e9383701eb6e272b1b9917a6575cf35843fe22c2681b6f1049b54be7d2c",
-      "localBytecodeHash": "27e761a5f034682a893308d2e5b10f687d8a6bbcfe6bdeef3aa3597eb0f83e3d",
-      "deployedBytecodeHash": "27e761a5f034682a893308d2e5b10f687d8a6bbcfe6bdeef3aa3597eb0f83e3d",
-      "types": {
-        "t_bool": {
-          "id": "t_bool",
-          "kind": "elementary",
-          "label": "bool"
-        },
-        "t_uint256": {
-          "id": "t_uint256",
-          "kind": "elementary",
-          "label": "uint256"
-        },
-        "t_array:50<t_uint256>": {
-          "id": "t_array:50<t_uint256>",
-          "valueType": "t_uint256",
-          "length": "50",
-          "kind": "array",
-          "label": "uint256[50]"
-        },
-        "t_mapping<t_uint256>": {
-          "id": "t_mapping<t_uint256>",
-          "valueType": "t_uint256",
-          "label": "mapping(key => uint256)",
-          "kind": "mapping"
-        },
-        "t_array:100<t_uint256>": {
-          "id": "t_array:100<t_uint256>",
-          "valueType": "t_uint256",
-          "length": "100",
-          "kind": "array",
-          "label": "uint256[100]"
-        },
-        "t_address": {
-          "id": "t_address",
-          "kind": "elementary",
-          "label": "address"
-        },
-        "t_mapping<t_address>": {
-          "id": "t_mapping<t_address>",
-          "valueType": "t_address",
-          "label": "mapping(key => address)",
-          "kind": "mapping"
-        },
-        "t_mapping<t_bool>": {
-          "id": "t_mapping<t_bool>",
-          "valueType": "t_bool",
-          "label": "mapping(key => bool)",
-          "kind": "mapping"
-        },
-        "t_enum<WildcardSteward_v3_matic.StewardState>": {
-          "id": "t_enum<WildcardSteward_v3_matic.StewardState>",
-          "kind": "enum",
-          "label": "WildcardSteward_v3_matic.StewardState",
-          "members": [
-            "Foreclosed",
-            "Owned"
-          ]
-        },
-        "t_mapping<t_enum<WildcardSteward_v3_matic.StewardState>>": {
-          "id": "t_mapping<t_enum<WildcardSteward_v3_matic.StewardState>>",
-          "valueType": "t_enum<WildcardSteward_v3_matic.StewardState>",
-          "label": "mapping(key => WildcardSteward_v3_matic.StewardState)",
-          "kind": "mapping"
-        }
-      },
-      "storage": [
-        {
-          "contract": "Initializable",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
-          "label": "initialized",
-          "astId": 11260,
-          "type": "t_bool",
-          "src": "757:24:21"
-        },
-        {
-          "contract": "Initializable",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
-          "label": "initializing",
-          "astId": 11263,
-          "type": "t_bool",
-          "src": "876:25:21"
-        },
-        {
-          "contract": "Initializable",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
-          "label": "______gap",
-          "astId": 11328,
-          "type": "t_array:50<t_uint256>",
-          "src": "1982:29:21"
-        },
-        {
-          "contract": "BasicMetaTransaction",
-          "path": "contracts/BasicMetaTransaction.sol",
-          "label": "nonces",
-          "astId": 2955,
-          "type": "t_mapping<t_uint256>",
-          "src": "472:42:1"
-        },
-        {
-          "contract": "BasicMetaTransaction",
-          "path": "contracts/BasicMetaTransaction.sol",
-          "label": "______gap",
-          "astId": 2959,
-          "type": "t_array:100<t_uint256>",
-          "src": "551:30:1"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "price",
-          "astId": 6123,
-          "type": "t_mapping<t_uint256>",
-          "src": "1195:40:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "assetToken",
-          "astId": 6125,
-          "type": "t_address",
-          "src": "1250:34:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "deprecated_totalCollected",
-          "astId": 6129,
-          "type": "t_mapping<t_uint256>",
-          "src": "1306:53:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "deprecated_currentCollected",
-          "astId": 6133,
-          "type": "t_mapping<t_uint256>",
-          "src": "1393:55:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "deprecated_timeLastCollected",
-          "astId": 6137,
-          "type": "t_mapping<t_uint256>",
-          "src": "1482:56:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "timeLastCollectedPatron",
-          "astId": 6141,
-          "type": "t_mapping<t_uint256>",
-          "src": "1573:58:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "deposit",
-          "astId": 6145,
-          "type": "t_mapping<t_uint256>",
-          "src": "1637:42:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "totalPatronOwnedTokenCost",
-          "astId": 6149,
-          "type": "t_mapping<t_uint256>",
-          "src": "1685:60:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "benefactors",
-          "astId": 6153,
-          "type": "t_mapping<t_address>",
-          "src": "1752:46:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "benefactorFunds",
-          "astId": 6157,
-          "type": "t_mapping<t_uint256>",
-          "src": "1829:50:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "deprecated_currentPatron",
-          "astId": 6161,
-          "type": "t_mapping<t_address>",
-          "src": "1886:52:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "deprecated_patrons",
-          "astId": 6167,
-          "type": "t_mapping<t_bool>",
-          "src": "2003:63:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "deprecated_timeHeld",
-          "astId": 6173,
-          "type": "t_mapping<t_uint256>",
-          "src": "2085:67:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "deprecated_timeAcquired",
-          "astId": 6177,
-          "type": "t_mapping<t_uint256>",
-          "src": "2172:51:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "patronageNumerator",
-          "astId": 6181,
-          "type": "t_mapping<t_uint256>",
-          "src": "2266:53:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "patronageDenominator",
-          "astId": 6183,
-          "type": "t_uint256",
-          "src": "2325:35:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "state",
-          "astId": 6190,
-          "type": "t_mapping<t_enum<WildcardSteward_v3_matic.StewardState>>",
-          "src": "2409:45:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "admin",
-          "astId": 6192,
-          "type": "t_address",
-          "src": "2461:20:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "deprecated_tokenGenerationRate",
-          "astId": 6196,
-          "type": "t_mapping<t_uint256>",
-          "src": "2548:58:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "mintManager",
-          "astId": 6198,
-          "type": "t_address",
-          "src": "2655:31:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "auctionStartPrice",
-          "astId": 6200,
-          "type": "t_uint256",
-          "src": "2753:32:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "auctionEndPrice",
-          "astId": 6202,
-          "type": "t_uint256",
-          "src": "2791:30:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "auctionLength",
-          "astId": 6204,
-          "type": "t_uint256",
-          "src": "2827:28:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "artistAddresses",
-          "astId": 6208,
-          "type": "t_mapping<t_address>",
-          "src": "2862:50:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "serviceProviderPercentages",
-          "astId": 6212,
-          "type": "t_mapping<t_uint256>",
-          "src": "2964:61:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "artistPercentages",
-          "astId": 6216,
-          "type": "t_mapping<t_uint256>",
-          "src": "3110:52:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "tokenAuctionBeginTimestamp",
-          "astId": 6220,
-          "type": "t_mapping<t_uint256>",
-          "src": "3240:61:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "totalPatronTokenGenerationRate",
-          "astId": 6224,
-          "type": "t_mapping<t_uint256>",
-          "src": "3308:65:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "totalBenefactorTokenNumerator",
-          "astId": 6228,
-          "type": "t_mapping<t_uint256>",
-          "src": "3455:64:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "timeLastCollectedBenefactor",
-          "astId": 6232,
-          "type": "t_mapping<t_uint256>",
-          "src": "3525:62:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "benefactorCredit",
-          "astId": 6236,
-          "type": "t_mapping<t_uint256>",
-          "src": "3627:51:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "withdrawCheckerAdmin",
-          "astId": 6238,
-          "type": "t_address",
-          "src": "3684:35:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "withdrawalNonceUsed",
-          "astId": 6242,
-          "type": "t_mapping<t_bool>",
-          "src": "3726:51:9"
-        },
-        {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
-          "label": "paymentToken",
-          "astId": 6250,
-          "type": "t_address",
-          "src": "4364:24:9"
-        }
-      ],
-      "warnings": {
-        "hasConstructor": false,
-        "hasSelfDestruct": false,
-        "hasDelegateCall": false,
-        "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
-      }
-    },
     "MintManager": {
-      "address": "0x9F56C5c7072Ae9A1267f9eD84Aa8b79125646384",
+      "address": "0x9044E85980D3A80310ABae5487CD4b125727A786",
       "constructorCode": "608060405234801561001057600080fd5b5061055e806100206000396000f3fe",
       "bodyBytecodeHash": "b1604bd724f100c5ad334fb81396f666e8417dccc4001be40774323aeeec6e9e",
       "localBytecodeHash": "3c96b5e2fc0bfc3b134e36d8488aed457da10506f0ea123e0756fad37ac67f83",
@@ -480,8 +88,275 @@
         "uninitializedBaseContracts": []
       }
     },
+    "ERC20PatronageReceipt_upgradable": {
+      "address": "0xB51C290cdCc5C85b7353B9CC06a541090221F7c3",
+      "constructorCode": "608060405234801561001057600080fd5b50612330806100206000396000f3fe",
+      "bodyBytecodeHash": "5536a5e0a34f43560476c3a105d4c2dee6fa695fa94a80c03c1b77b66165c94f",
+      "localBytecodeHash": "798adbd416f10f9630423289b3dbcd66787d00a78c362aa44caed0efe5737391",
+      "deployedBytecodeHash": "798adbd416f10f9630423289b3dbcd66787d00a78c362aa44caed0efe5737391",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_array:49<t_uint256>": {
+          "id": "t_array:49<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "49",
+          "kind": "array",
+          "label": "uint256[49]"
+        },
+        "t_mapping<t_uint256>": {
+          "id": "t_mapping<t_uint256>",
+          "valueType": "t_uint256",
+          "label": "mapping(key => uint256)",
+          "kind": "mapping"
+        },
+        "t_string": {
+          "id": "t_string",
+          "kind": "elementary",
+          "label": "string"
+        },
+        "t_uint8": {
+          "id": "t_uint8",
+          "kind": "elementary",
+          "label": "uint8"
+        },
+        "t_array:44<t_uint256>": {
+          "id": "t_array:44<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "44",
+          "kind": "array",
+          "label": "uint256[44]"
+        },
+        "t_struct<AccessControlUpgradeSafe.RoleData>": {
+          "id": "t_struct<AccessControlUpgradeSafe.RoleData>",
+          "kind": "struct",
+          "label": "AccessControlUpgradeSafe.RoleData",
+          "members": [
+            {
+              "label": "members",
+              "astId": 11366,
+              "type": "t_struct<EnumerableSet.AddressSet>",
+              "src": "1655:32:22"
+            },
+            {
+              "label": "adminRole",
+              "astId": 11368,
+              "type": "t_bytes32",
+              "src": "1697:17:22"
+            }
+          ]
+        },
+        "t_struct<EnumerableSet.AddressSet>": {
+          "id": "t_struct<EnumerableSet.AddressSet>",
+          "kind": "struct",
+          "label": "EnumerableSet.AddressSet",
+          "members": [
+            {
+              "label": "_inner",
+              "astId": 13401,
+              "type": "t_struct<EnumerableSet.Set>",
+              "src": "4644:10:34"
+            }
+          ]
+        },
+        "t_struct<EnumerableSet.Set>": {
+          "id": "t_struct<EnumerableSet.Set>",
+          "kind": "struct",
+          "label": "EnumerableSet.Set",
+          "members": [
+            {
+              "label": "_values",
+              "astId": 13217,
+              "type": "t_array:dyn<t_bytes32>",
+              "src": "1213:17:34"
+            },
+            {
+              "label": "_indexes",
+              "astId": 13221,
+              "type": "t_mapping<t_uint256>",
+              "src": "1364:37:34"
+            }
+          ]
+        },
+        "t_bytes32": {
+          "id": "t_bytes32",
+          "kind": "elementary",
+          "label": "bytes32"
+        },
+        "t_array:dyn<t_bytes32>": {
+          "id": "t_array:dyn<t_bytes32>",
+          "valueType": "t_bytes32",
+          "length": "dyn",
+          "kind": "array",
+          "label": "bytes32[]"
+        },
+        "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>": {
+          "id": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
+          "valueType": "t_struct<AccessControlUpgradeSafe.RoleData>",
+          "label": "mapping(key => AccessControlUpgradeSafe.RoleData)",
+          "kind": "mapping"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 11260,
+          "type": "t_bool",
+          "src": "757:24:21"
+        },
+        {
+          "contract": "Initializable",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 11263,
+          "type": "t_bool",
+          "src": "876:25:21"
+        },
+        {
+          "contract": "Initializable",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 11328,
+          "type": "t_array:50<t_uint256>",
+          "src": "1982:29:21"
+        },
+        {
+          "contract": "ContextUpgradeSafe",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/GSN/Context.sol",
+          "label": "__gap",
+          "astId": 10538,
+          "type": "t_array:50<t_uint256>",
+          "src": "1277:25:17"
+        },
+        {
+          "contract": "GSNRecipientUpgradeSafe",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/GSN/GSNRecipient.sol",
+          "label": "_relayHub",
+          "astId": 10576,
+          "type": "t_address",
+          "src": "1175:25:18"
+        },
+        {
+          "contract": "GSNRecipientUpgradeSafe",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/GSN/GSNRecipient.sol",
+          "label": "__gap",
+          "astId": 10919,
+          "type": "t_array:49<t_uint256>",
+          "src": "10134:25:18"
+        },
+        {
+          "contract": "GSNRecipientBase",
+          "path": "contracts/GSNRecipientBase.sol",
+          "label": "trustedForwarder",
+          "astId": 5823,
+          "type": "t_address",
+          "src": "484:33:6"
+        },
+        {
+          "contract": "ERC20UpgradeSafe",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
+          "label": "_balances",
+          "astId": 11926,
+          "type": "t_mapping<t_uint256>",
+          "src": "1481:46:26"
+        },
+        {
+          "contract": "ERC20UpgradeSafe",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
+          "label": "_allowances",
+          "astId": 11932,
+          "type": "t_mapping<t_uint256>",
+          "src": "1534:69:26"
+        },
+        {
+          "contract": "ERC20UpgradeSafe",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
+          "label": "_totalSupply",
+          "astId": 11934,
+          "type": "t_uint256",
+          "src": "1610:28:26"
+        },
+        {
+          "contract": "ERC20UpgradeSafe",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
+          "label": "_name",
+          "astId": 11936,
+          "type": "t_string",
+          "src": "1645:20:26"
+        },
+        {
+          "contract": "ERC20UpgradeSafe",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
+          "label": "_symbol",
+          "astId": 11938,
+          "type": "t_string",
+          "src": "1671:22:26"
+        },
+        {
+          "contract": "ERC20UpgradeSafe",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
+          "label": "_decimals",
+          "astId": 11940,
+          "type": "t_uint8",
+          "src": "1699:23:26"
+        },
+        {
+          "contract": "ERC20UpgradeSafe",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
+          "label": "__gap",
+          "astId": 12435,
+          "type": "t_array:44<t_uint256>",
+          "src": "11045:25:26"
+        },
+        {
+          "contract": "AccessControlUpgradeSafe",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/access/AccessControl.sol",
+          "label": "_roles",
+          "astId": 11373,
+          "type": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
+          "src": "1727:44:22"
+        },
+        {
+          "contract": "AccessControlUpgradeSafe",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/access/AccessControl.sol",
+          "label": "__gap",
+          "astId": 11618,
+          "type": "t_array:49<t_uint256>",
+          "src": "6927:25:22"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
     "ERC721Patronage": {
-      "address": "0x2D64C55979457f4f8C608EB37aB7742b7D5c45cd",
+      "address": "0xa02C007C01Ee0F09504f521F157C05BED277010e",
       "constructorCode": "608060405234801561001057600080fd5b5061308c806100206000396000f3fe",
       "bodyBytecodeHash": "3636519707e2316399d9a0ee3197a4da7ca77f165aa606ddc4fdae61b93812e1",
       "localBytecodeHash": "857ff2a124525ab623ff821d0929de68b61990a03783f4fd544de9f3e0662512",
@@ -877,12 +752,12 @@
         "uninitializedBaseContracts": []
       }
     },
-    "ERC20PatronageReceipt_upgradable": {
-      "address": "0xDC809FCbAD88f6Ccf79783297D16233e7bc48dC5",
-      "constructorCode": "608060405234801561001057600080fd5b50612330806100206000396000f3fe",
-      "bodyBytecodeHash": "5536a5e0a34f43560476c3a105d4c2dee6fa695fa94a80c03c1b77b66165c94f",
-      "localBytecodeHash": "798adbd416f10f9630423289b3dbcd66787d00a78c362aa44caed0efe5737391",
-      "deployedBytecodeHash": "798adbd416f10f9630423289b3dbcd66787d00a78c362aa44caed0efe5737391",
+    "WildcardSteward": {
+      "address": "0x15AB7918198389f1de310ff2E7F1D6781384cdDA",
+      "constructorCode": "608060405234801561001057600080fd5b506156f480620000216000396000f3fe",
+      "bodyBytecodeHash": "d3a84e9383701eb6e272b1b9917a6575cf35843fe22c2681b6f1049b54be7d2c",
+      "localBytecodeHash": "27e761a5f034682a893308d2e5b10f687d8a6bbcfe6bdeef3aa3597eb0f83e3d",
+      "deployedBytecodeHash": "27e761a5f034682a893308d2e5b10f687d8a6bbcfe6bdeef3aa3597eb0f83e3d",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -901,108 +776,49 @@
           "kind": "array",
           "label": "uint256[50]"
         },
-        "t_address": {
-          "id": "t_address",
-          "kind": "elementary",
-          "label": "address"
-        },
-        "t_array:49<t_uint256>": {
-          "id": "t_array:49<t_uint256>",
-          "valueType": "t_uint256",
-          "length": "49",
-          "kind": "array",
-          "label": "uint256[49]"
-        },
         "t_mapping<t_uint256>": {
           "id": "t_mapping<t_uint256>",
           "valueType": "t_uint256",
           "label": "mapping(key => uint256)",
           "kind": "mapping"
         },
-        "t_string": {
-          "id": "t_string",
-          "kind": "elementary",
-          "label": "string"
-        },
-        "t_uint8": {
-          "id": "t_uint8",
-          "kind": "elementary",
-          "label": "uint8"
-        },
-        "t_array:44<t_uint256>": {
-          "id": "t_array:44<t_uint256>",
+        "t_array:100<t_uint256>": {
+          "id": "t_array:100<t_uint256>",
           "valueType": "t_uint256",
-          "length": "44",
+          "length": "100",
           "kind": "array",
-          "label": "uint256[44]"
+          "label": "uint256[100]"
         },
-        "t_struct<AccessControlUpgradeSafe.RoleData>": {
-          "id": "t_struct<AccessControlUpgradeSafe.RoleData>",
-          "kind": "struct",
-          "label": "AccessControlUpgradeSafe.RoleData",
-          "members": [
-            {
-              "label": "members",
-              "astId": 11366,
-              "type": "t_struct<EnumerableSet.AddressSet>",
-              "src": "1655:32:22"
-            },
-            {
-              "label": "adminRole",
-              "astId": 11368,
-              "type": "t_bytes32",
-              "src": "1697:17:22"
-            }
-          ]
-        },
-        "t_struct<EnumerableSet.AddressSet>": {
-          "id": "t_struct<EnumerableSet.AddressSet>",
-          "kind": "struct",
-          "label": "EnumerableSet.AddressSet",
-          "members": [
-            {
-              "label": "_inner",
-              "astId": 13401,
-              "type": "t_struct<EnumerableSet.Set>",
-              "src": "4644:10:34"
-            }
-          ]
-        },
-        "t_struct<EnumerableSet.Set>": {
-          "id": "t_struct<EnumerableSet.Set>",
-          "kind": "struct",
-          "label": "EnumerableSet.Set",
-          "members": [
-            {
-              "label": "_values",
-              "astId": 13217,
-              "type": "t_array:dyn<t_bytes32>",
-              "src": "1213:17:34"
-            },
-            {
-              "label": "_indexes",
-              "astId": 13221,
-              "type": "t_mapping<t_uint256>",
-              "src": "1364:37:34"
-            }
-          ]
-        },
-        "t_bytes32": {
-          "id": "t_bytes32",
+        "t_address": {
+          "id": "t_address",
           "kind": "elementary",
-          "label": "bytes32"
+          "label": "address"
         },
-        "t_array:dyn<t_bytes32>": {
-          "id": "t_array:dyn<t_bytes32>",
-          "valueType": "t_bytes32",
-          "length": "dyn",
-          "kind": "array",
-          "label": "bytes32[]"
+        "t_mapping<t_address>": {
+          "id": "t_mapping<t_address>",
+          "valueType": "t_address",
+          "label": "mapping(key => address)",
+          "kind": "mapping"
         },
-        "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>": {
-          "id": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
-          "valueType": "t_struct<AccessControlUpgradeSafe.RoleData>",
-          "label": "mapping(key => AccessControlUpgradeSafe.RoleData)",
+        "t_mapping<t_bool>": {
+          "id": "t_mapping<t_bool>",
+          "valueType": "t_bool",
+          "label": "mapping(key => bool)",
+          "kind": "mapping"
+        },
+        "t_enum<WildcardSteward_v3_matic.StewardState>": {
+          "id": "t_enum<WildcardSteward_v3_matic.StewardState>",
+          "kind": "enum",
+          "label": "WildcardSteward_v3_matic.StewardState",
+          "members": [
+            "Foreclosed",
+            "Owned"
+          ]
+        },
+        "t_mapping<t_enum<WildcardSteward_v3_matic.StewardState>>": {
+          "id": "t_mapping<t_enum<WildcardSteward_v3_matic.StewardState>>",
+          "valueType": "t_enum<WildcardSteward_v3_matic.StewardState>",
+          "label": "mapping(key => WildcardSteward_v3_matic.StewardState)",
           "kind": "mapping"
         }
       },
@@ -1032,108 +848,292 @@
           "src": "1982:29:21"
         },
         {
-          "contract": "ContextUpgradeSafe",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/GSN/Context.sol",
-          "label": "__gap",
-          "astId": 10538,
-          "type": "t_array:50<t_uint256>",
-          "src": "1277:25:17"
-        },
-        {
-          "contract": "GSNRecipientUpgradeSafe",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/GSN/GSNRecipient.sol",
-          "label": "_relayHub",
-          "astId": 10576,
-          "type": "t_address",
-          "src": "1175:25:18"
-        },
-        {
-          "contract": "GSNRecipientUpgradeSafe",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/GSN/GSNRecipient.sol",
-          "label": "__gap",
-          "astId": 10919,
-          "type": "t_array:49<t_uint256>",
-          "src": "10134:25:18"
-        },
-        {
-          "contract": "GSNRecipientBase",
-          "path": "contracts/GSNRecipientBase.sol",
-          "label": "trustedForwarder",
-          "astId": 5823,
-          "type": "t_address",
-          "src": "484:33:6"
-        },
-        {
-          "contract": "ERC20UpgradeSafe",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
-          "label": "_balances",
-          "astId": 11926,
+          "contract": "BasicMetaTransaction",
+          "path": "contracts/BasicMetaTransaction.sol",
+          "label": "nonces",
+          "astId": 2955,
           "type": "t_mapping<t_uint256>",
-          "src": "1481:46:26"
+          "src": "472:42:1"
         },
         {
-          "contract": "ERC20UpgradeSafe",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
-          "label": "_allowances",
-          "astId": 11932,
+          "contract": "BasicMetaTransaction",
+          "path": "contracts/BasicMetaTransaction.sol",
+          "label": "______gap",
+          "astId": 2959,
+          "type": "t_array:100<t_uint256>",
+          "src": "551:30:1"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "price",
+          "astId": 6123,
           "type": "t_mapping<t_uint256>",
-          "src": "1534:69:26"
+          "src": "1195:40:9"
         },
         {
-          "contract": "ERC20UpgradeSafe",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
-          "label": "_totalSupply",
-          "astId": 11934,
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "assetToken",
+          "astId": 6125,
+          "type": "t_address",
+          "src": "1250:34:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "deprecated_totalCollected",
+          "astId": 6129,
+          "type": "t_mapping<t_uint256>",
+          "src": "1306:53:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "deprecated_currentCollected",
+          "astId": 6133,
+          "type": "t_mapping<t_uint256>",
+          "src": "1393:55:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "deprecated_timeLastCollected",
+          "astId": 6137,
+          "type": "t_mapping<t_uint256>",
+          "src": "1482:56:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "timeLastCollectedPatron",
+          "astId": 6141,
+          "type": "t_mapping<t_uint256>",
+          "src": "1573:58:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "deposit",
+          "astId": 6145,
+          "type": "t_mapping<t_uint256>",
+          "src": "1637:42:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "totalPatronOwnedTokenCost",
+          "astId": 6149,
+          "type": "t_mapping<t_uint256>",
+          "src": "1685:60:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "benefactors",
+          "astId": 6153,
+          "type": "t_mapping<t_address>",
+          "src": "1752:46:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "benefactorFunds",
+          "astId": 6157,
+          "type": "t_mapping<t_uint256>",
+          "src": "1829:50:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "deprecated_currentPatron",
+          "astId": 6161,
+          "type": "t_mapping<t_address>",
+          "src": "1886:52:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "deprecated_patrons",
+          "astId": 6167,
+          "type": "t_mapping<t_bool>",
+          "src": "2003:63:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "deprecated_timeHeld",
+          "astId": 6173,
+          "type": "t_mapping<t_uint256>",
+          "src": "2085:67:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "deprecated_timeAcquired",
+          "astId": 6177,
+          "type": "t_mapping<t_uint256>",
+          "src": "2172:51:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "patronageNumerator",
+          "astId": 6181,
+          "type": "t_mapping<t_uint256>",
+          "src": "2266:53:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "patronageDenominator",
+          "astId": 6183,
           "type": "t_uint256",
-          "src": "1610:28:26"
+          "src": "2325:35:9"
         },
         {
-          "contract": "ERC20UpgradeSafe",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
-          "label": "_name",
-          "astId": 11936,
-          "type": "t_string",
-          "src": "1645:20:26"
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "state",
+          "astId": 6190,
+          "type": "t_mapping<t_enum<WildcardSteward_v3_matic.StewardState>>",
+          "src": "2409:45:9"
         },
         {
-          "contract": "ERC20UpgradeSafe",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
-          "label": "_symbol",
-          "astId": 11938,
-          "type": "t_string",
-          "src": "1671:22:26"
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "admin",
+          "astId": 6192,
+          "type": "t_address",
+          "src": "2461:20:9"
         },
         {
-          "contract": "ERC20UpgradeSafe",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
-          "label": "_decimals",
-          "astId": 11940,
-          "type": "t_uint8",
-          "src": "1699:23:26"
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "deprecated_tokenGenerationRate",
+          "astId": 6196,
+          "type": "t_mapping<t_uint256>",
+          "src": "2548:58:9"
         },
         {
-          "contract": "ERC20UpgradeSafe",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
-          "label": "__gap",
-          "astId": 12435,
-          "type": "t_array:44<t_uint256>",
-          "src": "11045:25:26"
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "mintManager",
+          "astId": 6198,
+          "type": "t_address",
+          "src": "2655:31:9"
         },
         {
-          "contract": "AccessControlUpgradeSafe",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/access/AccessControl.sol",
-          "label": "_roles",
-          "astId": 11373,
-          "type": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
-          "src": "1727:44:22"
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "auctionStartPrice",
+          "astId": 6200,
+          "type": "t_uint256",
+          "src": "2753:32:9"
         },
         {
-          "contract": "AccessControlUpgradeSafe",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/access/AccessControl.sol",
-          "label": "__gap",
-          "astId": 11618,
-          "type": "t_array:49<t_uint256>",
-          "src": "6927:25:22"
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "auctionEndPrice",
+          "astId": 6202,
+          "type": "t_uint256",
+          "src": "2791:30:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "auctionLength",
+          "astId": 6204,
+          "type": "t_uint256",
+          "src": "2827:28:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "artistAddresses",
+          "astId": 6208,
+          "type": "t_mapping<t_address>",
+          "src": "2862:50:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "serviceProviderPercentages",
+          "astId": 6212,
+          "type": "t_mapping<t_uint256>",
+          "src": "2964:61:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "artistPercentages",
+          "astId": 6216,
+          "type": "t_mapping<t_uint256>",
+          "src": "3110:52:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "tokenAuctionBeginTimestamp",
+          "astId": 6220,
+          "type": "t_mapping<t_uint256>",
+          "src": "3240:61:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "totalPatronTokenGenerationRate",
+          "astId": 6224,
+          "type": "t_mapping<t_uint256>",
+          "src": "3308:65:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "totalBenefactorTokenNumerator",
+          "astId": 6228,
+          "type": "t_mapping<t_uint256>",
+          "src": "3455:64:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "timeLastCollectedBenefactor",
+          "astId": 6232,
+          "type": "t_mapping<t_uint256>",
+          "src": "3525:62:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "benefactorCredit",
+          "astId": 6236,
+          "type": "t_mapping<t_uint256>",
+          "src": "3627:51:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "withdrawCheckerAdmin",
+          "astId": 6238,
+          "type": "t_address",
+          "src": "3684:35:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "withdrawalNonceUsed",
+          "astId": 6242,
+          "type": "t_mapping<t_bool>",
+          "src": "3726:51:9"
+        },
+        {
+          "contract": "WildcardSteward_v3_matic",
+          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "label": "paymentToken",
+          "astId": 6250,
+          "type": "t_address",
+          "src": "4364:24:9"
         }
       ],
       "warnings": {
@@ -1149,37 +1149,37 @@
   "proxies": {
     "matic-deploy/MintManager": [
       {
-        "address": "0x6706b656179b98eF71F0b7b1933d5BE4761d942f",
+        "address": "0xF2D9c34884876a36aF9550EA5A6B260F85eAd8c6",
         "version": "2.5.3",
-        "implementation": "0x9F56C5c7072Ae9A1267f9eD84Aa8b79125646384",
-        "admin": "0x3Ec9E348e7e252C6C0A4f6e7e8Acd3375dDb616a",
+        "implementation": "0x9044E85980D3A80310ABae5487CD4b125727A786",
+        "admin": "0x4C38B5291D882A4552085d1Dc211006306875a59",
         "kind": "Upgradeable"
       }
     ],
     "matic-deploy/WildcardSteward": [
       {
-        "address": "0x4FF99B0a7C638F9d2b4D03ac46B0096Df6b6DB61",
+        "address": "0xD2Dd5BEF69b07090BB183b7F856Df260d1fBf41d",
         "version": "2.5.3",
-        "implementation": "0xcE6F11779b8F20c3196354f833A5F140a53821cC",
-        "admin": "0x3Ec9E348e7e252C6C0A4f6e7e8Acd3375dDb616a",
+        "implementation": "0x15AB7918198389f1de310ff2E7F1D6781384cdDA",
+        "admin": "0x4C38B5291D882A4552085d1Dc211006306875a59",
         "kind": "Upgradeable"
       }
     ],
     "matic-deploy/ERC721Patronage": [
       {
-        "address": "0x0A6995A63e544fC2CB9FEF310794ddF5DfD482ee",
+        "address": "0x6Fcb8458dB48E34a0f96b9172418eC3f6E8b2959",
         "version": "2.5.3",
-        "implementation": "0x2D64C55979457f4f8C608EB37aB7742b7D5c45cd",
-        "admin": "0x3Ec9E348e7e252C6C0A4f6e7e8Acd3375dDb616a",
+        "implementation": "0xa02C007C01Ee0F09504f521F157C05BED277010e",
+        "admin": "0x4C38B5291D882A4552085d1Dc211006306875a59",
         "kind": "Upgradeable"
       }
     ],
     "matic-deploy/ERC20PatronageReceipt_upgradable": [
       {
-        "address": "0xFF5391B0aEd111Bf63EE828568CA5d1B7a8C736a",
+        "address": "0xbFb928A84525A1FE446e8eff3c14d0DE4EAcB514",
         "version": "2.5.3",
-        "implementation": "0xDC809FCbAD88f6Ccf79783297D16233e7bc48dC5",
-        "admin": "0x3Ec9E348e7e252C6C0A4f6e7e8Acd3375dDb616a",
+        "implementation": "0xB51C290cdCc5C85b7353B9CC06a541090221F7c3",
+        "admin": "0x4C38B5291D882A4552085d1Dc211006306875a59",
         "kind": "Upgradeable"
       }
     ]
@@ -1187,6 +1187,6 @@
   "manifestVersion": "2.2",
   "version": "2.5.3",
   "proxyAdmin": {
-    "address": "0x3Ec9E348e7e252C6C0A4f6e7e8Acd3375dDb616a"
+    "address": "0x4C38B5291D882A4552085d1Dc211006306875a59"
   }
 }
