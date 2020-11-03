@@ -1,5 +1,5 @@
 const ERC721Patronage_v1 = artifacts.require("ERC721Patronage_v1");
-const Dai = artifacts.require("./Dai.sol");
+const Dai = artifacts.require("./DaiMatic.sol");
 const WildcardSteward_v3_matic = artifacts.require("WildcardSteward_v3_matic");
 const MintManager_v2 = artifacts.require("MintManager_v2");
 const ERC20PatronageReceipt_v2 = artifacts.require(

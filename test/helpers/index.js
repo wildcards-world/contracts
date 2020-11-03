@@ -309,6 +309,7 @@ const daiPermitGeneration = async (
 ) => {
   const name = await daiContract.name()
   const chainId = await daiContract.getChainId()
+  console.log({chainId})
   const nonce = await daiContract.getNonce(holder)
 
   let params ={
@@ -319,7 +320,7 @@ const daiPermitGeneration = async (
     nonce: '0x' + nonce.toString(16),
     holder,
     spender,
-    expiry: 0,
+    expiry: expiry,
     allowed: true
   };
 
