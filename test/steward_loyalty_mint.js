@@ -265,15 +265,24 @@ contract("WildcardSteward loyalty token", (accounts) => {
     // should only receive 10min of tokens
     const expectedTokens = multiTokenCalculator([
       {
-        timeHeld: timeSince(buy1Timestamp, foreclosureTime).toString(),
+        timeHeld: timeSince(
+          buy1Timestamp,
+          foreclosureTime.sub(new BN(1))
+        ).toString(),
         tokenGenerationRate: globalTokenGenerationRate,
       },
       {
-        timeHeld: timeSince(buy2Timestamp, foreclosureTime).toString(),
+        timeHeld: timeSince(
+          buy2Timestamp,
+          foreclosureTime.sub(new BN(1))
+        ).toString(),
         tokenGenerationRate: globalTokenGenerationRate,
       },
       {
-        timeHeld: timeSince(buy3Timestamp, foreclosureTime).toString(),
+        timeHeld: timeSince(
+          buy3Timestamp,
+          foreclosureTime.sub(new BN(1))
+        ).toString(),
         tokenGenerationRate: globalTokenGenerationRate,
       },
     ]);
