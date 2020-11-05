@@ -451,15 +451,34 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
         }
     }
 
+    // function foreclosureTimePatron(address tokenPatron)
+    //     public
+    //     view
+    //     returns (uint256)
+    // {
+    //     uint256 pps = totalPatronOwnedTokenCost[tokenPatron].div(
+    //         yearTimePatronagDenominator
+    //     );
+    //     return now.add(depositAbleToWithdraw(tokenPatron).div(pps));
+    // }
     function foreclosureTimePatron(address tokenPatron)
         public
         view
         returns (uint256)
     {
-        uint256 pps = totalPatronOwnedTokenCost[tokenPatron].div(
-            yearTimePatronagDenominator
+        uint256 totalPatronYearlyPatronage = totalPatronOwnedTokenCost[tokenPatron];
+        // timeLeftOfDeposit = deposit / (totalPatronYearlyPatronage / yearTimePatronagDenominator)
+        if (totalPatronYearlyPatronage > 0) {
+        return now.add(
+          (
+            (depositAbleToWithdraw(tokenPatron).mul(yearTimePatronagDenominator))
+            // Add this to make sure this is the value rounded up
+            .add(totalPatronYearlyPatronage - 1)
+          ).div(totalPatronYearlyPatronage)
         );
-        return now.add(depositAbleToWithdraw(tokenPatron).div(pps));
+        }else {
+          return 0;
+        }
     }
 
     function foreclosureTime(uint256 tokenId) public view returns (uint256) {

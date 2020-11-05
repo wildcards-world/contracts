@@ -323,95 +323,20 @@ const daiPermitGeneration = async (
   const chainId = await daiContract.getChainId();
   const nonce = await daiContract.getNonce(holder);
 
-  console.log({ nonce: nonce.toString() });
   let params = {
     name,
     version: "1",
-    chainId: new BN(5),
-    verifyingContract: "0xea9d8a947dD7eBa9cF883c4aa71f18aD5A9c06bB",
-    nonce: "0",
-    holder: "0xd3Cbce59318B2E570883719c8165F9390A12BdD6",
-    spender: "0xf02Bb5b595Af96597b82f39F5de265E77Dc75CbC",
-    expiry: "0",
+    chainId: chainId,
+    verifyingContract: daiContract.address,
+    nonce: "0x" + nonce.toString(16),
+    holder,
+    spender,
+    expiry: expiry,
     allowed: true,
   };
-  // let params = {
-  //   name,
-  //   version: "1",
-  //   chainId: chainId,
-  //   verifyingContract: daiContract.address,
-  //   nonce: "0x" + nonce.toString(16),
-  //   holder,
-  //   spender,
-  //   expiry: expiry,
-  //   allowed: true,
-  // };
 
   let typedData = getTypedData(params);
 
-  console.log("typedData");
-  console.log(typedData);
-  console.log(JSON.stringify(typedData, null, 2));
-
-  // let thing = {
-  //   types: {
-  //     EIP712Domain: [
-  //       {
-  //         name: "name",
-  //         type: "string",
-  //       },
-  //       {
-  //         name: "version",
-  //         type: "string",
-  //       },
-  //       {
-  //         name: "verifyingContract",
-  //         type: "address",
-  //       },
-  //       {
-  //         name: "salt",
-  //         type: "bytes32",
-  //       },
-  //     ],
-  //     Permit: [
-  //       {
-  //         name: "holder",
-  //         type: "address",
-  //       },
-  //       {
-  //         name: "spender",
-  //         type: "address",
-  //       },
-  //       {
-  //         name: "nonce",
-  //         type: "uint256",
-  //       },
-  //       {
-  //         name: "expiry",
-  //         type: "uint256",
-  //       },
-  //       {
-  //         name: "allowed",
-  //         type: "bool",
-  //       },
-  //     ],
-  //   },
-  //   domain: {
-  //     name: "(PoS) Dai Stablecoin",
-  //     version: "1",
-  //     verifyingContract: "0xea9d8a947dD7eBa9cF883c4aa71f18aD5A9c06bB",
-  //     salt:
-  //       "0x0000000000000000000000000000000000000000000000000000000000000005",
-  //   },
-  //   primaryType: "Permit",
-  //   message: {
-  //     holder: "0xd3Cbce59318B2E570883719c8165F9390A12BdD6",
-  //     spender: "0xf02Bb5b595Af96597b82f39F5de265E77Dc75CbC",
-  //     nonce: "0",
-  //     expiry: "0",
-  //     allowed: true,
-  //   },
-  // };
   // // NOTE: below is an alternative method to generate the signature - but requires the private key.
   // const sig = sigUtils.signTypedData(
   //   ethUtils.toBuffer(
@@ -422,18 +347,6 @@ const daiPermitGeneration = async (
   //     data: typedData,
   //   }
   // );
-  const sig = sigUtils.signTypedData(
-    ethUtils.toBuffer(
-      "0x5cb54049abf5d09d8377aaad3f3e9937f0551db1a4f1e872329dab3738a03620"
-      // "0xb5546e25f9324e63ef077e2ce63ccdc54b4d84b1866c5606945c3039580bdf47"
-    ),
-    {
-      data: typedData,
-    }
-  );
-
-  console.log("Signature:", sig);
-  console.log("split", getSignatureParameters(sig));
 
   let from = holder;
   return new Promise((res, rej) => {
@@ -446,7 +359,6 @@ const daiPermitGeneration = async (
         from,
       },
       async (e, r) => {
-        console.log(e, r);
         if (e) {
           rej(e);
         }
