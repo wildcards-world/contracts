@@ -912,6 +912,10 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
             price[tokenId] == previousPrice,
             "must specify current price accurately"
         );
+        require(
+            value > price[tokenId],
+            "value sent must be strictly greater than the token price"
+        );
 
         receiveErc20(value, msgSender());
         address owner = assetToken.ownerOf(tokenId);
@@ -975,6 +979,10 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
         );
         require(now >= tokenAuctionBeginTimestamp[tokenId], "not on auction");
         uint256 auctionTokenPrice = _auctionPrice(tokenId);
+        require(
+            value > auctionTokenPrice,
+            "value sent must be strictly greater than the token price"
+        );
 
         _distributeAuctionProceeds(tokenId);
 

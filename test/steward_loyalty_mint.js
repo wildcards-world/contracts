@@ -94,7 +94,7 @@ contract("WildcardSteward loyalty token", (accounts) => {
     // TIME INCREASES HERE BY timeHeld
     await setNextTxTimestamp(time.duration.minutes(timeHeld));
     // First token bought from patron [Collect patronage will therefore be called]
-    await steward.buy(testTokenId1, ether("1"), ether("1"), 50000, ether("1"), {
+    await steward.buy(testTokenId1, ether("1"), ether("1"), 50000, ether("2"), {
       from: accounts[3],
     });
 
