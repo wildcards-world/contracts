@@ -401,7 +401,7 @@ contract("WildcardSteward owed", (accounts) => {
       tokenDetails[0].token,
       price2,
       wildcardsSplit,
-      totalToBuy, // Paying the 1eth auction price plus totaltobuy
+      ether("1").add(totalToBuy), // Paying the 1eth auction price plus totaltobuy
       {
         from: accounts[3],
       }
@@ -707,7 +707,7 @@ contract("WildcardSteward owed", (accounts) => {
     assert.equal(price.toString(), ether("1").toString());
     assert.equal(state, 1);
     assert.equal(currentOwner, accounts[2]);
-    await steward.buy(1, ether("1"), ether("1"), 50000, ether("1"), {
+    await steward.buy(1, ether("1"), ether("1"), 50000, ether("1").add(price), {
       from: accounts[2],
     });
     const deposit2 = await steward.deposit.call(accounts[2]);
@@ -731,7 +731,7 @@ contract("WildcardSteward owed", (accounts) => {
     assert.equal(price.toString(), ether("1").toString());
     assert.equal(state, 1);
     assert.equal(currentOwner, accounts[2]);
-    await steward.buy(1, ether("1"), ether("1"), 50000, ether("1"), {
+    await steward.buy(1, ether("1"), ether("1"), 50000, ether("1").add(price), {
       from: accounts[3],
     });
     const deposit2 = await steward.deposit.call(accounts[3]);
@@ -763,7 +763,7 @@ contract("WildcardSteward owed", (accounts) => {
     const balTrack = await balance.tracker(accounts[2]);
     const preBuy = await balTrack.get();
     const preDeposit = await steward.deposit.call(accounts[2]);
-    await steward.buy(1, ether("1"), ether("1"), 50000, ether("1"), {
+    await steward.buy(1, ether("1"), ether("1"), 50000, ether("1").add(price), {
       from: accounts[3],
       gasPrice: "1000000000",
     }); // 1 gwei
