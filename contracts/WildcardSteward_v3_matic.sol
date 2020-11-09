@@ -466,18 +466,26 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
         view
         returns (uint256)
     {
-        uint256 totalPatronYearlyPatronage = totalPatronOwnedTokenCost[tokenPatron];
+
+            uint256 totalPatronYearlyPatronage
+         = totalPatronOwnedTokenCost[tokenPatron];
         // timeLeftOfDeposit = deposit / (totalPatronYearlyPatronage / yearTimePatronagDenominator)
         if (totalPatronYearlyPatronage > 0) {
-        return now.add(
-          (
-            (depositAbleToWithdraw(tokenPatron).mul(yearTimePatronagDenominator))
-            // Add this to make sure this is the value rounded up
-            .add(totalPatronYearlyPatronage - 1)
-          ).div(totalPatronYearlyPatronage)
-        );
-        }else {
-          return 0;
+            return
+                now.add(
+                    (
+                        (
+                            depositAbleToWithdraw(tokenPatron).mul(
+                                yearTimePatronagDenominator
+                            )
+                        )
+                        // Add this to make sure this is the value rounded up
+                            .add(totalPatronYearlyPatronage - 1)
+                    )
+                        .div(totalPatronYearlyPatronage)
+                );
+        } else {
+            return 0;
         }
     }
 
@@ -864,7 +872,7 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
         uint256 _newPrice,
         uint256 previousPrice,
         uint256 serviceProviderPercentage,
-        uint256 depositAmount
+        uint256 value
     ) external {
         paymentToken.permit(
             msgSender(),
@@ -881,7 +889,7 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
             _newPrice,
             previousPrice,
             serviceProviderPercentage,
-            depositAmount
+            value
         );
     }
 
@@ -890,7 +898,7 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
         uint256 _newPrice,
         uint256 previousPrice,
         uint256 serviceProviderPercentage,
-        uint256 depositAmount
+        uint256 value
     )
         public
         collectPatronageAndSettleBenefactor(tokenId)
@@ -904,13 +912,16 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
             price[tokenId] == previousPrice,
             "must specify current price accurately"
         );
-        receiveErc20(depositAmount.add(price[tokenId]), msgSender());
+
+        receiveErc20(value, msgSender());
         address owner = assetToken.ownerOf(tokenId);
 
         _distributePurchaseProceeds(tokenId);
 
         serviceProviderPercentages[tokenId] = serviceProviderPercentage;
-        deposit[msgSender()] = deposit[msgSender()].add(depositAmount);
+        deposit[msgSender()] = deposit[msgSender()].add(value).sub(
+            price[tokenId]
+        );
         transferAssetTokenTo(
             tokenId,
             assetToken.ownerOf(tokenId),
@@ -930,7 +941,7 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
         uint256 tokenId,
         uint256 _newPrice,
         uint256 serviceProviderPercentage,
-        uint256 depositAmount
+        uint256 value
     ) external {
         paymentToken.permit(
             msgSender(),
@@ -942,19 +953,14 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
             r,
             s
         );
-        buyAuction(
-            tokenId,
-            _newPrice,
-            serviceProviderPercentage,
-            depositAmount
-        );
+        buyAuction(tokenId, _newPrice, serviceProviderPercentage, value);
     }
 
     function buyAuction(
         uint256 tokenId,
         uint256 _newPrice,
         uint256 serviceProviderPercentage,
-        uint256 depositAmount
+        uint256 value
     )
         public
         collectPatronageAndSettleBenefactor(tokenId)
@@ -970,15 +976,15 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
         require(now >= tokenAuctionBeginTimestamp[tokenId], "not on auction");
         uint256 auctionTokenPrice = _auctionPrice(tokenId);
 
-        // uint256 remainingValueForDeposit = msg.value.sub(auctionTokenPrice);
-
         _distributeAuctionProceeds(tokenId);
 
         state[tokenId] = StewardState.Owned;
 
         serviceProviderPercentages[tokenId] = serviceProviderPercentage;
-        receiveErc20(depositAmount.add(auctionTokenPrice), msgSender());
-        deposit[msgSender()] = deposit[msgSender()].add(depositAmount);
+        receiveErc20(value, msgSender());
+        deposit[msgSender()] = deposit[msgSender()].add(value).sub(
+            auctionTokenPrice
+        );
         transferAssetTokenTo(
             tokenId,
             assetToken.ownerOf(tokenId),
@@ -1090,7 +1096,6 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
     function withdrawDeposit(uint256 _wei)
         public
         collectPatronagePatron(msgSender())
-        returns (uint256)
     {
         _withdrawDeposit(_wei);
     }
