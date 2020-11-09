@@ -142,7 +142,7 @@ contract("WildcardSteward Dai permit", (accounts) => {
       // uint256 serviceProviderPercentage,
       percentageForWildcards,
       // uint256 depositAmount
-      remainingDepositCalc,
+      msgValue,
       {
         from: accounts[2],
       }
