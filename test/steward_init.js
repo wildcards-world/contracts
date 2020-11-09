@@ -136,7 +136,7 @@ contract("WildcardSteward", (accounts) => {
   // But this should never be an issue as intial token price should never be 0
   // and therefore safemath will prevent this. See next test.
   it("steward: init: buyAuction with zero wei [fail payable]", async () => {
-    await steward.buyAuction(0, 1000, 50000, web3.utils.toWei("0", "ether"), {
+    await steward.buyAuction(0, 1000, 50000, "1", {
       from: accounts[2],
     });
   });
