@@ -1,7 +1,7 @@
 {
   "contracts": {
     "MintManager": {
-      "address": "0x9044E85980D3A80310ABae5487CD4b125727A786",
+      "address": "0xBfE00F4Cb876b11e9ba89c650d0b6597F5F8Ce44",
       "constructorCode": "608060405234801561001057600080fd5b5061055e806100206000396000f3fe",
       "bodyBytecodeHash": "b1604bd724f100c5ad334fb81396f666e8417dccc4001be40774323aeeec6e9e",
       "localBytecodeHash": "3c96b5e2fc0bfc3b134e36d8488aed457da10506f0ea123e0756fad37ac67f83",
@@ -35,7 +35,7 @@
           "contract": "Initializable",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 11260,
+          "astId": 11275,
           "type": "t_bool",
           "src": "757:24:21"
         },
@@ -43,7 +43,7 @@
           "contract": "Initializable",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 11263,
+          "astId": 11278,
           "type": "t_bool",
           "src": "876:25:21"
         },
@@ -51,7 +51,7 @@
           "contract": "Initializable",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 11328,
+          "astId": 11343,
           "type": "t_array:50<t_uint256>",
           "src": "1982:29:21"
         },
@@ -89,7 +89,7 @@
       }
     },
     "ERC20PatronageReceipt_upgradable": {
-      "address": "0xB51C290cdCc5C85b7353B9CC06a541090221F7c3",
+      "address": "0x72E8eC838208186dA304Bfb7343259E95688A184",
       "constructorCode": "608060405234801561001057600080fd5b50612330806100206000396000f3fe",
       "bodyBytecodeHash": "5536a5e0a34f43560476c3a105d4c2dee6fa695fa94a80c03c1b77b66165c94f",
       "localBytecodeHash": "798adbd416f10f9630423289b3dbcd66787d00a78c362aa44caed0efe5737391",
@@ -154,13 +154,13 @@
           "members": [
             {
               "label": "members",
-              "astId": 11366,
+              "astId": 11381,
               "type": "t_struct<EnumerableSet.AddressSet>",
               "src": "1655:32:22"
             },
             {
               "label": "adminRole",
-              "astId": 11368,
+              "astId": 11383,
               "type": "t_bytes32",
               "src": "1697:17:22"
             }
@@ -173,7 +173,7 @@
           "members": [
             {
               "label": "_inner",
-              "astId": 13401,
+              "astId": 13416,
               "type": "t_struct<EnumerableSet.Set>",
               "src": "4644:10:34"
             }
@@ -186,13 +186,13 @@
           "members": [
             {
               "label": "_values",
-              "astId": 13217,
+              "astId": 13232,
               "type": "t_array:dyn<t_bytes32>",
               "src": "1213:17:34"
             },
             {
               "label": "_indexes",
-              "astId": 13221,
+              "astId": 13236,
               "type": "t_mapping<t_uint256>",
               "src": "1364:37:34"
             }
@@ -222,7 +222,7 @@
           "contract": "Initializable",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 11260,
+          "astId": 11275,
           "type": "t_bool",
           "src": "757:24:21"
         },
@@ -230,7 +230,7 @@
           "contract": "Initializable",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 11263,
+          "astId": 11278,
           "type": "t_bool",
           "src": "876:25:21"
         },
@@ -238,7 +238,7 @@
           "contract": "Initializable",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 11328,
+          "astId": 11343,
           "type": "t_array:50<t_uint256>",
           "src": "1982:29:21"
         },
@@ -246,7 +246,7 @@
           "contract": "ContextUpgradeSafe",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/GSN/Context.sol",
           "label": "__gap",
-          "astId": 10538,
+          "astId": 10553,
           "type": "t_array:50<t_uint256>",
           "src": "1277:25:17"
         },
@@ -254,7 +254,7 @@
           "contract": "GSNRecipientUpgradeSafe",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/GSN/GSNRecipient.sol",
           "label": "_relayHub",
-          "astId": 10576,
+          "astId": 10591,
           "type": "t_address",
           "src": "1175:25:18"
         },
@@ -262,7 +262,7 @@
           "contract": "GSNRecipientUpgradeSafe",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/GSN/GSNRecipient.sol",
           "label": "__gap",
-          "astId": 10919,
+          "astId": 10934,
           "type": "t_array:49<t_uint256>",
           "src": "10134:25:18"
         },
@@ -278,7 +278,7 @@
           "contract": "ERC20UpgradeSafe",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
           "label": "_balances",
-          "astId": 11926,
+          "astId": 11941,
           "type": "t_mapping<t_uint256>",
           "src": "1481:46:26"
         },
@@ -286,7 +286,7 @@
           "contract": "ERC20UpgradeSafe",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
           "label": "_allowances",
-          "astId": 11932,
+          "astId": 11947,
           "type": "t_mapping<t_uint256>",
           "src": "1534:69:26"
         },
@@ -294,7 +294,7 @@
           "contract": "ERC20UpgradeSafe",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
           "label": "_totalSupply",
-          "astId": 11934,
+          "astId": 11949,
           "type": "t_uint256",
           "src": "1610:28:26"
         },
@@ -302,7 +302,7 @@
           "contract": "ERC20UpgradeSafe",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
           "label": "_name",
-          "astId": 11936,
+          "astId": 11951,
           "type": "t_string",
           "src": "1645:20:26"
         },
@@ -310,7 +310,7 @@
           "contract": "ERC20UpgradeSafe",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
           "label": "_symbol",
-          "astId": 11938,
+          "astId": 11953,
           "type": "t_string",
           "src": "1671:22:26"
         },
@@ -318,7 +318,7 @@
           "contract": "ERC20UpgradeSafe",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
           "label": "_decimals",
-          "astId": 11940,
+          "astId": 11955,
           "type": "t_uint8",
           "src": "1699:23:26"
         },
@@ -326,7 +326,7 @@
           "contract": "ERC20UpgradeSafe",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/token/ERC20/ERC20.sol",
           "label": "__gap",
-          "astId": 12435,
+          "astId": 12450,
           "type": "t_array:44<t_uint256>",
           "src": "11045:25:26"
         },
@@ -334,7 +334,7 @@
           "contract": "AccessControlUpgradeSafe",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/access/AccessControl.sol",
           "label": "_roles",
-          "astId": 11373,
+          "astId": 11388,
           "type": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
           "src": "1727:44:22"
         },
@@ -342,406 +342,9 @@
           "contract": "AccessControlUpgradeSafe",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/access/AccessControl.sol",
           "label": "__gap",
-          "astId": 11618,
+          "astId": 11633,
           "type": "t_array:49<t_uint256>",
           "src": "6927:25:22"
-        }
-      ],
-      "warnings": {
-        "hasConstructor": false,
-        "hasSelfDestruct": false,
-        "hasDelegateCall": false,
-        "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
-      }
-    },
-    "ERC721Patronage": {
-      "address": "0xa02C007C01Ee0F09504f521F157C05BED277010e",
-      "constructorCode": "608060405234801561001057600080fd5b5061308c806100206000396000f3fe",
-      "bodyBytecodeHash": "3636519707e2316399d9a0ee3197a4da7ca77f165aa606ddc4fdae61b93812e1",
-      "localBytecodeHash": "857ff2a124525ab623ff821d0929de68b61990a03783f4fd544de9f3e0662512",
-      "deployedBytecodeHash": "857ff2a124525ab623ff821d0929de68b61990a03783f4fd544de9f3e0662512",
-      "types": {
-        "t_bool": {
-          "id": "t_bool",
-          "kind": "elementary",
-          "label": "bool"
-        },
-        "t_uint256": {
-          "id": "t_uint256",
-          "kind": "elementary",
-          "label": "uint256"
-        },
-        "t_array:50<t_uint256>": {
-          "id": "t_array:50<t_uint256>",
-          "valueType": "t_uint256",
-          "length": "50",
-          "kind": "array",
-          "label": "uint256[50]"
-        },
-        "t_address": {
-          "id": "t_address",
-          "kind": "elementary",
-          "label": "address"
-        },
-        "t_array:49<t_uint256>": {
-          "id": "t_array:49<t_uint256>",
-          "valueType": "t_uint256",
-          "length": "49",
-          "kind": "array",
-          "label": "uint256[49]"
-        },
-        "t_mapping<t_bool>": {
-          "id": "t_mapping<t_bool>",
-          "valueType": "t_bool",
-          "label": "mapping(key => bool)",
-          "kind": "mapping"
-        },
-        "t_struct<EnumerableSet.UintSet>": {
-          "id": "t_struct<EnumerableSet.UintSet>",
-          "kind": "struct",
-          "label": "EnumerableSet.UintSet",
-          "members": [
-            {
-              "label": "_inner",
-              "astId": 13510,
-              "type": "t_struct<EnumerableSet.Set>",
-              "src": "6247:10:34"
-            }
-          ]
-        },
-        "t_struct<EnumerableSet.Set>": {
-          "id": "t_struct<EnumerableSet.Set>",
-          "kind": "struct",
-          "label": "EnumerableSet.Set",
-          "members": [
-            {
-              "label": "_values",
-              "astId": 13217,
-              "type": "t_array:dyn<t_bytes32>",
-              "src": "1213:17:34"
-            },
-            {
-              "label": "_indexes",
-              "astId": 13221,
-              "type": "t_mapping<t_uint256>",
-              "src": "1364:37:34"
-            }
-          ]
-        },
-        "t_bytes32": {
-          "id": "t_bytes32",
-          "kind": "elementary",
-          "label": "bytes32"
-        },
-        "t_array:dyn<t_bytes32>": {
-          "id": "t_array:dyn<t_bytes32>",
-          "valueType": "t_bytes32",
-          "length": "dyn",
-          "kind": "array",
-          "label": "bytes32[]"
-        },
-        "t_mapping<t_uint256>": {
-          "id": "t_mapping<t_uint256>",
-          "valueType": "t_uint256",
-          "label": "mapping(key => uint256)",
-          "kind": "mapping"
-        },
-        "t_mapping<t_struct<EnumerableSet.UintSet>>": {
-          "id": "t_mapping<t_struct<EnumerableSet.UintSet>>",
-          "valueType": "t_struct<EnumerableSet.UintSet>",
-          "label": "mapping(key => EnumerableSet.UintSet)",
-          "kind": "mapping"
-        },
-        "t_struct<EnumerableMap.UintToAddressMap>": {
-          "id": "t_struct<EnumerableMap.UintToAddressMap>",
-          "kind": "struct",
-          "label": "EnumerableMap.UintToAddressMap",
-          "members": [
-            {
-              "label": "_inner",
-              "astId": 13035,
-              "type": "t_struct<EnumerableMap.Map>",
-              "src": "5962:10:33"
-            }
-          ]
-        },
-        "t_struct<EnumerableMap.Map>": {
-          "id": "t_struct<EnumerableMap.Map>",
-          "kind": "struct",
-          "label": "EnumerableMap.Map",
-          "members": [
-            {
-              "label": "_entries",
-              "astId": 12767,
-              "type": "t_array:dyn<t_struct<EnumerableMap.MapEntry>>",
-              "src": "1355:19:33"
-            },
-            {
-              "label": "_indexes",
-              "astId": 12771,
-              "type": "t_mapping<t_uint256>",
-              "src": "1524:37:33"
-            }
-          ]
-        },
-        "t_struct<EnumerableMap.MapEntry>": {
-          "id": "t_struct<EnumerableMap.MapEntry>",
-          "kind": "struct",
-          "label": "EnumerableMap.MapEntry",
-          "members": [
-            {
-              "label": "_key",
-              "astId": 12761,
-              "type": "t_bytes32",
-              "src": "1243:12:33"
-            },
-            {
-              "label": "_value",
-              "astId": 12763,
-              "type": "t_bytes32",
-              "src": "1265:14:33"
-            }
-          ]
-        },
-        "t_array:dyn<t_struct<EnumerableMap.MapEntry>>": {
-          "id": "t_array:dyn<t_struct<EnumerableMap.MapEntry>>",
-          "valueType": "t_struct<EnumerableMap.MapEntry>",
-          "length": "dyn",
-          "kind": "array",
-          "label": "EnumerableMap.MapEntry[]"
-        },
-        "t_mapping<t_address>": {
-          "id": "t_mapping<t_address>",
-          "valueType": "t_address",
-          "label": "mapping(key => address)",
-          "kind": "mapping"
-        },
-        "t_string": {
-          "id": "t_string",
-          "kind": "elementary",
-          "label": "string"
-        },
-        "t_mapping<t_string>": {
-          "id": "t_mapping<t_string>",
-          "valueType": "t_string",
-          "label": "mapping(key => string)",
-          "kind": "mapping"
-        },
-        "t_array:41<t_uint256>": {
-          "id": "t_array:41<t_uint256>",
-          "valueType": "t_uint256",
-          "length": "41",
-          "kind": "array",
-          "label": "uint256[41]"
-        },
-        "t_struct<AccessControlUpgradeSafe.RoleData>": {
-          "id": "t_struct<AccessControlUpgradeSafe.RoleData>",
-          "kind": "struct",
-          "label": "AccessControlUpgradeSafe.RoleData",
-          "members": [
-            {
-              "label": "members",
-              "astId": 11366,
-              "type": "t_struct<EnumerableSet.AddressSet>",
-              "src": "1655:32:22"
-            },
-            {
-              "label": "adminRole",
-              "astId": 11368,
-              "type": "t_bytes32",
-              "src": "1697:17:22"
-            }
-          ]
-        },
-        "t_struct<EnumerableSet.AddressSet>": {
-          "id": "t_struct<EnumerableSet.AddressSet>",
-          "kind": "struct",
-          "label": "EnumerableSet.AddressSet",
-          "members": [
-            {
-              "label": "_inner",
-              "astId": 13401,
-              "type": "t_struct<EnumerableSet.Set>",
-              "src": "4644:10:34"
-            }
-          ]
-        },
-        "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>": {
-          "id": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
-          "valueType": "t_struct<AccessControlUpgradeSafe.RoleData>",
-          "label": "mapping(key => AccessControlUpgradeSafe.RoleData)",
-          "kind": "mapping"
-        }
-      },
-      "storage": [
-        {
-          "contract": "Initializable",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
-          "label": "initialized",
-          "astId": 11260,
-          "type": "t_bool",
-          "src": "757:24:21"
-        },
-        {
-          "contract": "Initializable",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
-          "label": "initializing",
-          "astId": 11263,
-          "type": "t_bool",
-          "src": "876:25:21"
-        },
-        {
-          "contract": "Initializable",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
-          "label": "______gap",
-          "astId": 11328,
-          "type": "t_array:50<t_uint256>",
-          "src": "1982:29:21"
-        },
-        {
-          "contract": "ContextUpgradeSafe",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/GSN/Context.sol",
-          "label": "__gap",
-          "astId": 10538,
-          "type": "t_array:50<t_uint256>",
-          "src": "1277:25:17"
-        },
-        {
-          "contract": "GSNRecipientUpgradeSafe",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/GSN/GSNRecipient.sol",
-          "label": "_relayHub",
-          "astId": 10576,
-          "type": "t_address",
-          "src": "1175:25:18"
-        },
-        {
-          "contract": "GSNRecipientUpgradeSafe",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/GSN/GSNRecipient.sol",
-          "label": "__gap",
-          "astId": 10919,
-          "type": "t_array:49<t_uint256>",
-          "src": "10134:25:18"
-        },
-        {
-          "contract": "GSNRecipientBase",
-          "path": "contracts/GSNRecipientBase.sol",
-          "label": "trustedForwarder",
-          "astId": 5823,
-          "type": "t_address",
-          "src": "484:33:6"
-        },
-        {
-          "contract": "ERC165UpgradeSafe",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/introspection/ERC165.sol",
-          "label": "_supportedInterfaces",
-          "astId": 11636,
-          "type": "t_mapping<t_bool>",
-          "src": "546:52:23"
-        },
-        {
-          "contract": "ERC165UpgradeSafe",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/introspection/ERC165.sol",
-          "label": "__gap",
-          "astId": 11693,
-          "type": "t_array:49<t_uint256>",
-          "src": "1841:25:23"
-        },
-        {
-          "contract": "ERC721UpgradeSafe",
-          "path": "contracts/mod/ERC721.sol",
-          "label": "_holderTokens",
-          "astId": 9291,
-          "type": "t_mapping<t_struct<EnumerableSet.UintSet>>",
-          "src": "2095:63:14"
-        },
-        {
-          "contract": "ERC721UpgradeSafe",
-          "path": "contracts/mod/ERC721.sol",
-          "label": "_tokenOwners",
-          "astId": 9293,
-          "type": "t_struct<EnumerableMap.UintToAddressMap>",
-          "src": "2222:51:14"
-        },
-        {
-          "contract": "ERC721UpgradeSafe",
-          "path": "contracts/mod/ERC721.sol",
-          "label": "_tokenApprovals",
-          "astId": 9297,
-          "type": "t_mapping<t_address>",
-          "src": "2329:51:14"
-        },
-        {
-          "contract": "ERC721UpgradeSafe",
-          "path": "contracts/mod/ERC721.sol",
-          "label": "_operatorApprovals",
-          "astId": 9303,
-          "type": "t_mapping<t_bool>",
-          "src": "2435:71:14"
-        },
-        {
-          "contract": "ERC721UpgradeSafe",
-          "path": "contracts/mod/ERC721.sol",
-          "label": "_name",
-          "astId": 9305,
-          "type": "t_string",
-          "src": "2531:20:14"
-        },
-        {
-          "contract": "ERC721UpgradeSafe",
-          "path": "contracts/mod/ERC721.sol",
-          "label": "_symbol",
-          "astId": 9307,
-          "type": "t_string",
-          "src": "2578:22:14"
-        },
-        {
-          "contract": "ERC721UpgradeSafe",
-          "path": "contracts/mod/ERC721.sol",
-          "label": "_tokenURIs",
-          "astId": 9311,
-          "type": "t_mapping<t_string>",
-          "src": "2646:45:14"
-        },
-        {
-          "contract": "ERC721UpgradeSafe",
-          "path": "contracts/mod/ERC721.sol",
-          "label": "_baseURI",
-          "astId": 9313,
-          "type": "t_string",
-          "src": "2714:23:14"
-        },
-        {
-          "contract": "ERC721UpgradeSafe",
-          "path": "contracts/mod/ERC721.sol",
-          "label": "__gap",
-          "astId": 10219,
-          "type": "t_array:41<t_uint256>",
-          "src": "24438:25:14"
-        },
-        {
-          "contract": "AccessControlUpgradeSafe",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/access/AccessControl.sol",
-          "label": "_roles",
-          "astId": 11373,
-          "type": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
-          "src": "1727:44:22"
-        },
-        {
-          "contract": "AccessControlUpgradeSafe",
-          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/access/AccessControl.sol",
-          "label": "__gap",
-          "astId": 11618,
-          "type": "t_array:49<t_uint256>",
-          "src": "6927:25:22"
-        },
-        {
-          "contract": "ERC721Patronage_v1",
-          "path": "contracts/ERC721Patronage_v1.sol",
-          "label": "steward",
-          "astId": 5571,
-          "type": "t_address",
-          "src": "461:22:5"
         }
       ],
       "warnings": {
@@ -753,11 +356,11 @@
       }
     },
     "WildcardSteward": {
-      "address": "0x15AB7918198389f1de310ff2E7F1D6781384cdDA",
-      "constructorCode": "608060405234801561001057600080fd5b506156f480620000216000396000f3fe",
-      "bodyBytecodeHash": "d3a84e9383701eb6e272b1b9917a6575cf35843fe22c2681b6f1049b54be7d2c",
-      "localBytecodeHash": "27e761a5f034682a893308d2e5b10f687d8a6bbcfe6bdeef3aa3597eb0f83e3d",
-      "deployedBytecodeHash": "27e761a5f034682a893308d2e5b10f687d8a6bbcfe6bdeef3aa3597eb0f83e3d",
+      "address": "0x19ae92f8fF063749409c73E1dA900581Bf9f527f",
+      "constructorCode": "608060405234801561001057600080fd5b5061570180620000216000396000f3fe",
+      "bodyBytecodeHash": "526cad89f47c173979fc3efc34419337de0353df10cb6a851f554290a4d6958e",
+      "localBytecodeHash": "7b156accf1a390b75157f5743db8d8a4925b10681baa21bf7f66f709b222c17c",
+      "deployedBytecodeHash": "7b156accf1a390b75157f5743db8d8a4925b10681baa21bf7f66f709b222c17c",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -827,7 +430,7 @@
           "contract": "Initializable",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 11260,
+          "astId": 11275,
           "type": "t_bool",
           "src": "757:24:21"
         },
@@ -835,7 +438,7 @@
           "contract": "Initializable",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 11263,
+          "astId": 11278,
           "type": "t_bool",
           "src": "876:25:21"
         },
@@ -843,7 +446,7 @@
           "contract": "Initializable",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 11328,
+          "astId": 11343,
           "type": "t_array:50<t_uint256>",
           "src": "1982:29:21"
         },
@@ -1143,43 +746,440 @@
         "hasInitialValuesInDeclarations": false,
         "uninitializedBaseContracts": []
       }
+    },
+    "ERC721Patronage": {
+      "address": "0x69B88097E03D75F6BfFc87Ea04e1B91145381566",
+      "constructorCode": "608060405234801561001057600080fd5b5061308c806100206000396000f3fe",
+      "bodyBytecodeHash": "3636519707e2316399d9a0ee3197a4da7ca77f165aa606ddc4fdae61b93812e1",
+      "localBytecodeHash": "857ff2a124525ab623ff821d0929de68b61990a03783f4fd544de9f3e0662512",
+      "deployedBytecodeHash": "857ff2a124525ab623ff821d0929de68b61990a03783f4fd544de9f3e0662512",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_array:49<t_uint256>": {
+          "id": "t_array:49<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "49",
+          "kind": "array",
+          "label": "uint256[49]"
+        },
+        "t_mapping<t_bool>": {
+          "id": "t_mapping<t_bool>",
+          "valueType": "t_bool",
+          "label": "mapping(key => bool)",
+          "kind": "mapping"
+        },
+        "t_struct<EnumerableSet.UintSet>": {
+          "id": "t_struct<EnumerableSet.UintSet>",
+          "kind": "struct",
+          "label": "EnumerableSet.UintSet",
+          "members": [
+            {
+              "label": "_inner",
+              "astId": 13525,
+              "type": "t_struct<EnumerableSet.Set>",
+              "src": "6247:10:34"
+            }
+          ]
+        },
+        "t_struct<EnumerableSet.Set>": {
+          "id": "t_struct<EnumerableSet.Set>",
+          "kind": "struct",
+          "label": "EnumerableSet.Set",
+          "members": [
+            {
+              "label": "_values",
+              "astId": 13232,
+              "type": "t_array:dyn<t_bytes32>",
+              "src": "1213:17:34"
+            },
+            {
+              "label": "_indexes",
+              "astId": 13236,
+              "type": "t_mapping<t_uint256>",
+              "src": "1364:37:34"
+            }
+          ]
+        },
+        "t_bytes32": {
+          "id": "t_bytes32",
+          "kind": "elementary",
+          "label": "bytes32"
+        },
+        "t_array:dyn<t_bytes32>": {
+          "id": "t_array:dyn<t_bytes32>",
+          "valueType": "t_bytes32",
+          "length": "dyn",
+          "kind": "array",
+          "label": "bytes32[]"
+        },
+        "t_mapping<t_uint256>": {
+          "id": "t_mapping<t_uint256>",
+          "valueType": "t_uint256",
+          "label": "mapping(key => uint256)",
+          "kind": "mapping"
+        },
+        "t_mapping<t_struct<EnumerableSet.UintSet>>": {
+          "id": "t_mapping<t_struct<EnumerableSet.UintSet>>",
+          "valueType": "t_struct<EnumerableSet.UintSet>",
+          "label": "mapping(key => EnumerableSet.UintSet)",
+          "kind": "mapping"
+        },
+        "t_struct<EnumerableMap.UintToAddressMap>": {
+          "id": "t_struct<EnumerableMap.UintToAddressMap>",
+          "kind": "struct",
+          "label": "EnumerableMap.UintToAddressMap",
+          "members": [
+            {
+              "label": "_inner",
+              "astId": 13050,
+              "type": "t_struct<EnumerableMap.Map>",
+              "src": "5962:10:33"
+            }
+          ]
+        },
+        "t_struct<EnumerableMap.Map>": {
+          "id": "t_struct<EnumerableMap.Map>",
+          "kind": "struct",
+          "label": "EnumerableMap.Map",
+          "members": [
+            {
+              "label": "_entries",
+              "astId": 12782,
+              "type": "t_array:dyn<t_struct<EnumerableMap.MapEntry>>",
+              "src": "1355:19:33"
+            },
+            {
+              "label": "_indexes",
+              "astId": 12786,
+              "type": "t_mapping<t_uint256>",
+              "src": "1524:37:33"
+            }
+          ]
+        },
+        "t_struct<EnumerableMap.MapEntry>": {
+          "id": "t_struct<EnumerableMap.MapEntry>",
+          "kind": "struct",
+          "label": "EnumerableMap.MapEntry",
+          "members": [
+            {
+              "label": "_key",
+              "astId": 12776,
+              "type": "t_bytes32",
+              "src": "1243:12:33"
+            },
+            {
+              "label": "_value",
+              "astId": 12778,
+              "type": "t_bytes32",
+              "src": "1265:14:33"
+            }
+          ]
+        },
+        "t_array:dyn<t_struct<EnumerableMap.MapEntry>>": {
+          "id": "t_array:dyn<t_struct<EnumerableMap.MapEntry>>",
+          "valueType": "t_struct<EnumerableMap.MapEntry>",
+          "length": "dyn",
+          "kind": "array",
+          "label": "EnumerableMap.MapEntry[]"
+        },
+        "t_mapping<t_address>": {
+          "id": "t_mapping<t_address>",
+          "valueType": "t_address",
+          "label": "mapping(key => address)",
+          "kind": "mapping"
+        },
+        "t_string": {
+          "id": "t_string",
+          "kind": "elementary",
+          "label": "string"
+        },
+        "t_mapping<t_string>": {
+          "id": "t_mapping<t_string>",
+          "valueType": "t_string",
+          "label": "mapping(key => string)",
+          "kind": "mapping"
+        },
+        "t_array:41<t_uint256>": {
+          "id": "t_array:41<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "41",
+          "kind": "array",
+          "label": "uint256[41]"
+        },
+        "t_struct<AccessControlUpgradeSafe.RoleData>": {
+          "id": "t_struct<AccessControlUpgradeSafe.RoleData>",
+          "kind": "struct",
+          "label": "AccessControlUpgradeSafe.RoleData",
+          "members": [
+            {
+              "label": "members",
+              "astId": 11381,
+              "type": "t_struct<EnumerableSet.AddressSet>",
+              "src": "1655:32:22"
+            },
+            {
+              "label": "adminRole",
+              "astId": 11383,
+              "type": "t_bytes32",
+              "src": "1697:17:22"
+            }
+          ]
+        },
+        "t_struct<EnumerableSet.AddressSet>": {
+          "id": "t_struct<EnumerableSet.AddressSet>",
+          "kind": "struct",
+          "label": "EnumerableSet.AddressSet",
+          "members": [
+            {
+              "label": "_inner",
+              "astId": 13416,
+              "type": "t_struct<EnumerableSet.Set>",
+              "src": "4644:10:34"
+            }
+          ]
+        },
+        "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>": {
+          "id": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
+          "valueType": "t_struct<AccessControlUpgradeSafe.RoleData>",
+          "label": "mapping(key => AccessControlUpgradeSafe.RoleData)",
+          "kind": "mapping"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 11275,
+          "type": "t_bool",
+          "src": "757:24:21"
+        },
+        {
+          "contract": "Initializable",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 11278,
+          "type": "t_bool",
+          "src": "876:25:21"
+        },
+        {
+          "contract": "Initializable",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 11343,
+          "type": "t_array:50<t_uint256>",
+          "src": "1982:29:21"
+        },
+        {
+          "contract": "ContextUpgradeSafe",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/GSN/Context.sol",
+          "label": "__gap",
+          "astId": 10553,
+          "type": "t_array:50<t_uint256>",
+          "src": "1277:25:17"
+        },
+        {
+          "contract": "GSNRecipientUpgradeSafe",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/GSN/GSNRecipient.sol",
+          "label": "_relayHub",
+          "astId": 10591,
+          "type": "t_address",
+          "src": "1175:25:18"
+        },
+        {
+          "contract": "GSNRecipientUpgradeSafe",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/GSN/GSNRecipient.sol",
+          "label": "__gap",
+          "astId": 10934,
+          "type": "t_array:49<t_uint256>",
+          "src": "10134:25:18"
+        },
+        {
+          "contract": "GSNRecipientBase",
+          "path": "contracts/GSNRecipientBase.sol",
+          "label": "trustedForwarder",
+          "astId": 5823,
+          "type": "t_address",
+          "src": "484:33:6"
+        },
+        {
+          "contract": "ERC165UpgradeSafe",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/introspection/ERC165.sol",
+          "label": "_supportedInterfaces",
+          "astId": 11651,
+          "type": "t_mapping<t_bool>",
+          "src": "546:52:23"
+        },
+        {
+          "contract": "ERC165UpgradeSafe",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/introspection/ERC165.sol",
+          "label": "__gap",
+          "astId": 11708,
+          "type": "t_array:49<t_uint256>",
+          "src": "1841:25:23"
+        },
+        {
+          "contract": "ERC721UpgradeSafe",
+          "path": "contracts/mod/ERC721.sol",
+          "label": "_holderTokens",
+          "astId": 9306,
+          "type": "t_mapping<t_struct<EnumerableSet.UintSet>>",
+          "src": "2095:63:14"
+        },
+        {
+          "contract": "ERC721UpgradeSafe",
+          "path": "contracts/mod/ERC721.sol",
+          "label": "_tokenOwners",
+          "astId": 9308,
+          "type": "t_struct<EnumerableMap.UintToAddressMap>",
+          "src": "2222:51:14"
+        },
+        {
+          "contract": "ERC721UpgradeSafe",
+          "path": "contracts/mod/ERC721.sol",
+          "label": "_tokenApprovals",
+          "astId": 9312,
+          "type": "t_mapping<t_address>",
+          "src": "2329:51:14"
+        },
+        {
+          "contract": "ERC721UpgradeSafe",
+          "path": "contracts/mod/ERC721.sol",
+          "label": "_operatorApprovals",
+          "astId": 9318,
+          "type": "t_mapping<t_bool>",
+          "src": "2435:71:14"
+        },
+        {
+          "contract": "ERC721UpgradeSafe",
+          "path": "contracts/mod/ERC721.sol",
+          "label": "_name",
+          "astId": 9320,
+          "type": "t_string",
+          "src": "2531:20:14"
+        },
+        {
+          "contract": "ERC721UpgradeSafe",
+          "path": "contracts/mod/ERC721.sol",
+          "label": "_symbol",
+          "astId": 9322,
+          "type": "t_string",
+          "src": "2578:22:14"
+        },
+        {
+          "contract": "ERC721UpgradeSafe",
+          "path": "contracts/mod/ERC721.sol",
+          "label": "_tokenURIs",
+          "astId": 9326,
+          "type": "t_mapping<t_string>",
+          "src": "2646:45:14"
+        },
+        {
+          "contract": "ERC721UpgradeSafe",
+          "path": "contracts/mod/ERC721.sol",
+          "label": "_baseURI",
+          "astId": 9328,
+          "type": "t_string",
+          "src": "2714:23:14"
+        },
+        {
+          "contract": "ERC721UpgradeSafe",
+          "path": "contracts/mod/ERC721.sol",
+          "label": "__gap",
+          "astId": 10234,
+          "type": "t_array:41<t_uint256>",
+          "src": "24438:25:14"
+        },
+        {
+          "contract": "AccessControlUpgradeSafe",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/access/AccessControl.sol",
+          "label": "_roles",
+          "astId": 11388,
+          "type": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
+          "src": "1727:44:22"
+        },
+        {
+          "contract": "AccessControlUpgradeSafe",
+          "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/access/AccessControl.sol",
+          "label": "__gap",
+          "astId": 11633,
+          "type": "t_array:49<t_uint256>",
+          "src": "6927:25:22"
+        },
+        {
+          "contract": "ERC721Patronage_v1",
+          "path": "contracts/ERC721Patronage_v1.sol",
+          "label": "steward",
+          "astId": 5571,
+          "type": "t_address",
+          "src": "461:22:5"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
     }
   },
   "solidityLibs": {},
   "proxies": {
     "matic-deploy/MintManager": [
       {
-        "address": "0xF2D9c34884876a36aF9550EA5A6B260F85eAd8c6",
+        "address": "0x3d0FaFBf0fad00A8a8c4E0639844467BCb40B5be",
         "version": "2.5.3",
-        "implementation": "0x9044E85980D3A80310ABae5487CD4b125727A786",
-        "admin": "0x4C38B5291D882A4552085d1Dc211006306875a59",
+        "implementation": "0xBfE00F4Cb876b11e9ba89c650d0b6597F5F8Ce44",
+        "admin": "0xa88798b039efDC8E8b1F38afD8F3b8EA8Edf8Fe8",
         "kind": "Upgradeable"
       }
     ],
     "matic-deploy/WildcardSteward": [
       {
-        "address": "0xD2Dd5BEF69b07090BB183b7F856Df260d1fBf41d",
+        "address": "0x90ED26DA8ceF71ab3ec6853572677D501Dcc670f",
         "version": "2.5.3",
-        "implementation": "0x15AB7918198389f1de310ff2E7F1D6781384cdDA",
-        "admin": "0x4C38B5291D882A4552085d1Dc211006306875a59",
+        "implementation": "0x19ae92f8fF063749409c73E1dA900581Bf9f527f",
+        "admin": "0xa88798b039efDC8E8b1F38afD8F3b8EA8Edf8Fe8",
         "kind": "Upgradeable"
       }
     ],
     "matic-deploy/ERC721Patronage": [
       {
-        "address": "0x6Fcb8458dB48E34a0f96b9172418eC3f6E8b2959",
+        "address": "0x3e06D855AD800836c66033E9f2a065DDF2839A3C",
         "version": "2.5.3",
-        "implementation": "0xa02C007C01Ee0F09504f521F157C05BED277010e",
-        "admin": "0x4C38B5291D882A4552085d1Dc211006306875a59",
+        "implementation": "0x69B88097E03D75F6BfFc87Ea04e1B91145381566",
+        "admin": "0xa88798b039efDC8E8b1F38afD8F3b8EA8Edf8Fe8",
         "kind": "Upgradeable"
       }
     ],
     "matic-deploy/ERC20PatronageReceipt_upgradable": [
       {
-        "address": "0xbFb928A84525A1FE446e8eff3c14d0DE4EAcB514",
+        "address": "0x1AE376Da2BFFDED7dE60bcb01247f1Ebba7722Ca",
         "version": "2.5.3",
-        "implementation": "0xB51C290cdCc5C85b7353B9CC06a541090221F7c3",
-        "admin": "0x4C38B5291D882A4552085d1Dc211006306875a59",
+        "implementation": "0x72E8eC838208186dA304Bfb7343259E95688A184",
+        "admin": "0xa88798b039efDC8E8b1F38afD8F3b8EA8Edf8Fe8",
         "kind": "Upgradeable"
       }
     ]
@@ -1187,6 +1187,6 @@
   "manifestVersion": "2.2",
   "version": "2.5.3",
   "proxyAdmin": {
-    "address": "0x4C38B5291D882A4552085d1Dc211006306875a59"
+    "address": "0xa88798b039efDC8E8b1F38afD8F3b8EA8Edf8Fe8"
   }
 }
