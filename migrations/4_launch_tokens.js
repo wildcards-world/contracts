@@ -7,7 +7,12 @@ const { daiPermitGeneration } = require("../test/helpers");
 
 const testAccountAddress = "0x8c7A88756EbbF46Ede65E4D678359cAC5f08f7b2";
 
-const starHarbergerTaxRateAnimal = "240" + "0000000000"; // Harberger tax rate of 240% per year
+const twentyPercentMonthlyHarbergerTax = "240" + "0000000000"; // Harberger tax rate of 240% per year
+
+let mareCetAddress = "0x707c0041f6e87411812f9e98fd99c9eddfd0b2a0";
+let lionLandscapes = "0x2b48B87B7d168D0a8b7e1526ff90e10876E46067";
+let zavoraLabAddress = "0x16Aa1E035AAffF67ED35bf7BC00070d8a88ee3C1";
+let oceansResearchAddres = "0x0633de7c301f6e350db531c5f95a4500d9373c51";
 
 const buyAuctionPermit = async (
   provider,
@@ -55,7 +60,6 @@ const buyAuctionPermit = async (
   console.log("after the buy auction");
 };
 module.exports = function(deployer, networkName, accounts) {
-  console.log({ accounts });
   deployer.then(async () => {
     // Don't try to deploy/migrate the contracts for tests
     if (networkName === "test") {
@@ -72,21 +76,16 @@ module.exports = function(deployer, networkName, accounts) {
     console.log("before minting");
     await steward.listNewTokens(
       ["26", "27", "28", "29"],
+      [mareCetAddress, lionLandscapes, zavoraLabAddress, oceansResearchAddres],
       [
-        testAccountAddress,
-        testAccountAddress,
-        testAccountAddress,
-        testAccountAddress,
-      ],
-      [
-        starHarbergerTaxRateAnimal,
-        starHarbergerTaxRateAnimal,
-        starHarbergerTaxRateAnimal,
-        starHarbergerTaxRateAnimal,
+        twentyPercentMonthlyHarbergerTax,
+        twentyPercentMonthlyHarbergerTax,
+        twentyPercentMonthlyHarbergerTax,
+        twentyPercentMonthlyHarbergerTax,
       ],
       [],
       [],
-      [0, 0, 0, 0],
+      [1605106800, 1605279600, 1605452400, 1605625200],
       { from: accounts[0] }
     );
     console.log("After minting");

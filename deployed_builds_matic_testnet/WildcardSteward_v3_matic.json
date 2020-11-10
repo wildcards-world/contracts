@@ -294,8 +294,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -314,8 +313,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -334,8 +332,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [],
@@ -348,8 +345,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [],
@@ -362,8 +358,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [],
@@ -376,8 +371,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [],
@@ -390,8 +384,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -410,8 +403,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -430,8 +422,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -450,8 +441,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -470,8 +460,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -510,8 +499,7 @@
         }
       ],
       "stateMutability": "payable",
-      "type": "function",
-      "payable": true
+      "type": "function"
     },
     {
       "inputs": [],
@@ -524,8 +512,7 @@
         }
       ],
       "stateMutability": "pure",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -544,8 +531,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [],
@@ -558,8 +544,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [],
@@ -572,8 +557,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [],
@@ -586,8 +570,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -606,8 +589,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [],
@@ -620,8 +602,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -640,8 +621,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -660,8 +640,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -680,8 +659,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -700,8 +678,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -720,8 +697,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -740,8 +716,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -760,8 +735,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -780,8 +754,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -800,8 +773,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -850,8 +822,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [],
@@ -864,8 +835,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -884,8 +854,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [],
@@ -898,8 +867,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -1112,8 +1080,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -1132,8 +1099,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -1152,8 +1118,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -1172,8 +1137,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -1192,8 +1156,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -1212,8 +1175,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -1232,8 +1194,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -1306,8 +1267,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -84037,7 +83997,7 @@
     "version": "0.6.12+commit.27d51765.Emscripten.clang"
   },
   "networks": {
-    "137": {
+    "5": {
       "links": {},
       "events": {
         "0x0c954b79cf3caaaad0936916502caf69a5b4c93edeb4cc2ef2642fafc4f96877": {
@@ -84323,13 +84283,301 @@
           "type": "event"
         }
       },
-      "address": "0x69895ba53B4CB7afaea2Ab519409F3d3C613a562",
-      "updated_at": 1604943116217
+      "address": "0xF26F8B2c178a0DeBB176c6b18e3F6d243fEEf828",
+      "updated_at": 1604917136507
+    },
+    "80001": {
+      "links": {},
+      "events": {
+        "0x0c954b79cf3caaaad0936916502caf69a5b4c93edeb4cc2ef2642fafc4f96877": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "patronageNumerator",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "unixTimestampOfTokenAuctionStart",
+              "type": "uint256"
+            }
+          ],
+          "name": "AddTokenV3",
+          "type": "event"
+        },
+        "0x5586506d614c14a823aceec5aaf06a022867e69afb3fe6e2f5e2d7a5bde61572": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "artist",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "artistCommission",
+              "type": "uint256"
+            }
+          ],
+          "name": "ArtistCommission",
+          "type": "event"
+        },
+        "0x3b599f6217e39be59216b60e543ce0d4c7d534fe64dd9d962334924e7819894e": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            }
+          ],
+          "name": "Buy",
+          "type": "event"
+        },
+        "0x302fedae2d242dcf051d44de5478e1e00f5a0e972d3cb61423043fecae47152d": {
+          "anonymous": false,
+          "inputs": [],
+          "name": "ChangeAuctionParameters",
+          "type": "event"
+        },
+        "0x865c2de2ed42d00fd42f3dad539a5ac070456a196db3dac47457b058a8e59489": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "patron",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amountRecieved",
+              "type": "uint256"
+            }
+          ],
+          "name": "CollectLoyalty",
+          "type": "event"
+        },
+        "0x939ba75588ef4ead6e17d8cd3cffe6231558a84a74907c6746780c20ccef5158": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "patron",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "remainingDeposit",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amountReceived",
+              "type": "uint256"
+            }
+          ],
+          "name": "CollectPatronage",
+          "type": "event"
+        },
+        "0x5c96da7ec020805f8c8976230ffa5316fff9373db995b9a5c11deb511e530c6d": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "prevOwner",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "foreclosureTime",
+              "type": "uint256"
+            }
+          ],
+          "name": "Foreclosure",
+          "type": "event"
+        },
+        "0x5845892132946850460bff5a0083f71031bc5bf9aadcd40f1de79423eac9b10b": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "userAddress",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "address payable",
+              "name": "relayerAddress",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "bytes",
+              "name": "functionSignature",
+              "type": "bytes"
+            }
+          ],
+          "name": "MetaTransactionExecuted",
+          "type": "event"
+        },
+        "0xfe6b606ca0477592b5740a0eb00c8e91570a5d0eb736abfa1a6309bd081b4a4d": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "newPrice",
+              "type": "uint256"
+            }
+          ],
+          "name": "PriceChange",
+          "type": "event"
+        },
+        "0xbece12534c1381f016e2ce4d456a6eb916094df84a7dd97faa7159f3a44a0d3c": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "tokenPatron",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "remainingDeposit",
+              "type": "uint256"
+            }
+          ],
+          "name": "RemainingDepositUpdate",
+          "type": "event"
+        },
+        "0xc41bd8c0c472aea2185f2569b0205b98f7a74642810b8f980cabb73a2e297bf3": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "sender",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "paymentTokenAdr",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "randomArg",
+              "type": "address"
+            }
+          ],
+          "name": "TestEvent",
+          "type": "event"
+        },
+        "0x9e7c5523d188a1a804de886fe0de6a44b045c186462df5909b2475cff971baf4": {
+          "anonymous": false,
+          "inputs": [],
+          "name": "UpgradeToV3",
+          "type": "event"
+        },
+        "0x9d56808b7d9e1c7950f9b178297ba2c7703524d88ee1df387d174c136011c584": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "benefactor",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "withdrawAmount",
+              "type": "uint256"
+            }
+          ],
+          "name": "WithdrawBenefactorFunds",
+          "type": "event"
+        },
+        "0x57ecdc53fdf69e9738d68dbb94b76b67d62dfa01122f1f2ac5a66a41dd4c76fa": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "benefactor",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "withdrawAmount",
+              "type": "uint256"
+            }
+          ],
+          "name": "WithdrawBenefactorFundsWithSafetyDelay",
+          "type": "event"
+        }
+      },
+      "address": "0xE44056eff470b1e505c3776601685c97A6966887",
+      "updated_at": 1604918104563
     }
   },
   "schemaVersion": "3.2.3",
-  "updatedAt": "2020-11-09T17:33:27.370Z",
-  "networkType": "ethereum",
+  "updatedAt": "2020-11-09T17:25:51.695Z",
   "devdoc": {
     "kind": "dev",
     "methods": {
