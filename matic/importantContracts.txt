@@ -1,0 +1,23 @@
+TestNet:
+Migrations: https://goerli.etherscan.io/address/0xf9ef5090550e55d3408411d6d23361a1363f13b1
+Proxy Admin: https://goerli.etherscan.io/address/0xb8baa0b4bd356b3f643047df729f62f401f4db2d
+Steward (proxy): https://goerli.etherscan.io/address/0x0c00cfe8ebb34fe7c31d4915a43cde211e9f0f3b
+Token (proxy): https://goerli.etherscan.io/address/0x6da7dd22a9c1b6bc7b2ba9a540a37ec786e30ea7
+v0 steward: https://goerli.etherscan.io/address/0x844849a90479a12ffc549c8da98e362575ff78d7
+v0 token: https://goerli.etherscan.io/address/0x2167016491369c0820f054fc92a301b97c4c0413
+Token URI fixer: https://goerli.etherscan.io/address/0xca4384952494877f67ee373cf68c4cd864c0bc6b
+v1 steward: https://goerli.etherscan.io/address/0x1a69129b3d25fad7c12c0d5827a1471577e9943a
+v1 token: https://goerli.etherscan.io/address/0x41870482f23d5a6020f4e59fcad3f5e11a4e66ae
+
+
+Mainnet:
+Migrations: https://etherscan.io/address/0x43e13f5a4559f4e72d771c7edcdc7f9faca8ec0b
+Proxy Admin: https://etherscan.io/address/0x2D66278CF4d3537A7fD5842785570507996812b7
+Steward (proxy): https://etherscan.io/address/0x6D47CF86F6A490c6410fC082Fd1Ad29CF61492d0
+Token (proxy): https://etherscan.io/address/0x6aD0f855c97eb80665F2D0C7d8204895e052C373
+v0 steward: https://etherscan.io/address/0x929bbCcdAA014585666d1497aFb2D8D7c9dA38E5
+v0 token: https://etherscan.io/address/0x045fBb0c3A9c24B607fA0821757A3bb343181AA4
+Token URI fixer: https://goerli.etherscan.io/address/0x14e17Faa2541Db1C03b2A4F610778f2e9810d57E
+v1 steward: https://goerli.etherscan.io/address/0x935AC70f8F1013A97F0aEEf9ABD1421002989D18
+v1 token: https://goerli.etherscan.io/address/0xc69Ca939481A266fB42e383ae091212e37d56Af2
+
