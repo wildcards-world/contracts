@@ -1,0 +1,13 @@
+version: "2"
+services:
+  ganache:
+    image: trufflesuite/ganache-cli:v6.7.0
+    container_name: ganache
+
+  wildcards:
+    build: .
+    volumes:
+      - ./build:/app/build
+    container_name: wildcards
+    environment:
+      - BLOCKCHAIN_NODE_HOST=ganache
