@@ -114,6 +114,7 @@ contract("WildcardSteward owed", (accounts) => {
 
     const patronDepositBeforeSale = await steward.deposit.call(accounts[2]);
     const balancePatronBeforeSale = await paymentToken.balanceOf(accounts[2]);
+    const balanceArtistBeforeSale = await paymentToken.balanceOf(accounts[9]);
     // When first token is bought, deposit should remain.
     await steward.buy(
       tokenDetails[0].token,
@@ -137,6 +138,9 @@ contract("WildcardSteward owed", (accounts) => {
     const patronDepositAfterFirstSale = await steward.deposit.call(accounts[2]);
     const balancePatronAfterFirstSale = await paymentToken.balanceOf(
       accounts[2]
+    );
+    const balanceArtistAfterFirstSale = await paymentToken.balanceOf(
+      accounts[9]
     );
 
     const patronageDueFromHoldingTokensSale1 = patronageDue([
@@ -163,8 +167,9 @@ contract("WildcardSteward owed", (accounts) => {
     );
 
     const artistDepositAfterFirstSale = await steward.deposit.call(accounts[9]);
+    assert.equal(artistDepositAfterFirstSale.toString(), ether("0").toString());
     assert.equal(
-      artistDepositAfterFirstSale.toString(),
+      balanceArtistAfterFirstSale.sub(balanceArtistBeforeSale).toString(),
       ether("0.01").toString()
     );
 
@@ -234,27 +239,12 @@ contract("WildcardSteward owed", (accounts) => {
       accounts[9]
     );
 
-    const artistDepositAfterSecondSale = await steward.deposit.call(
+    const balanceArtistAfterSecondSale = await paymentToken.balanceOf(
       accounts[9]
     );
     assert.equal(
-      artistDepositAfterSecondSale.toString(),
+      balanceArtistAfterSecondSale.sub(balanceArtistBeforeSale).toString(),
       ether("0.03").toString()
-    );
-
-    await steward.withdrawDeposit(ether("0.03"), {
-      from: accounts[9],
-      gasPrice: 0,
-    });
-
-    const balanceArtistAfterWithdraw = await paymentToken.balanceOf(
-      accounts[9]
-    );
-
-    assert.equal(
-      balanceArtistBeforeWithdraw.toString(),
-      balanceArtistAfterWithdraw.sub(ether("0.03")).toString(),
-      "Artist should have received their 1% of the sales and be able to withdraw it."
     );
 
     const wildcardsDepositAfterSecondSale = await steward.deposit.call(
@@ -265,6 +255,56 @@ contract("WildcardSteward owed", (accounts) => {
       wildcardsDepositAfterSecondSale.toString(),
       ether("0.25").toString(),
       "Deposit for wildcards is incorrect after the first sale."
+    );
+  });
+
+  it("steward: artistCommission on initial sale. On token auction check artist recieves the correct amount", async () => {
+    const token1Price = ether("1");
+    const twentyPercentForArtist = new BN(200000);
+
+    await steward.setArtistCommissionOnNextSale(
+      tokenDetails[0].token,
+      twentyPercentForArtist
+    );
+    await steward.changeAuctionParameters(token1Price, token1Price, 100000);
+    const balanceArtistBeforeAction = await paymentToken.balanceOf(
+      artistAddress
+    );
+
+    const initialBuyToken1Timestamp = await txTimestamp(
+      steward.buyAuction(
+        tokenDetails[0].token,
+        token1Price,
+        defaultPercentageForWildcards,
+        ether("2"),
+        {
+          from: accounts[2],
+          gasPrice: 0,
+        }
+      )
+    );
+
+    const balanceArtistAfterAuction = await paymentToken.balanceOf(
+      artistAddress
+    );
+    assert.equal(
+      balanceArtistAfterAuction.sub(balanceArtistBeforeAction).toString(),
+      token1Price
+        .mul(new BN(20))
+        .div(new BN(100))
+        .toString()
+    );
+  });
+  it("steward: artistCommission on initial sale. Cannot set if you are not the admin", async () => {
+    const twentyPercentForArtist = new BN(200000);
+
+    await expectRevert(
+      steward.setArtistCommissionOnNextSale(
+        tokenDetails[0].token,
+        twentyPercentForArtist,
+        { from: accounts[2] }
+      ),
+      "Not admin"
     );
   });
 });

@@ -95,6 +95,8 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
 
     IDai public paymentToken; // ERC20 token used as payment.
 
+    mapping(uint256 => uint256) artistPercentageForNextSale;
+
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
     event PriceChange(uint256 indexed tokenId, uint256 newPrice);
     event Foreclosure(address indexed prevOwner, uint256 foreclosureTime);
@@ -120,6 +122,11 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
     event CollectLoyalty(address indexed patron, uint256 amountRecieved);
 
     event ArtistCommission(
+        uint256 indexed tokenId,
+        address artist,
+        uint256 artistCommission
+    );
+    event ArtistCommissionNextSale(
         uint256 indexed tokenId,
         address artist,
         uint256 artistCommission
@@ -193,12 +200,21 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
         uint256 serviceProviderPercentage,
         uint256 tokenID
     ) {
-        require(
-            serviceProviderPercentage >= 50000 &&
-                serviceProviderPercentage <=
-                (1000000 - artistPercentages[tokenID]), // not sub safemath. Is this okay?
-            "commision not between 5% and 100%"
-        );
+        if (artistPercentageForNextSale[tokenID] == 0) {
+            require(
+                serviceProviderPercentage >= 50000 &&
+                    serviceProviderPercentage <=
+                    (1000000 - artistPercentages[tokenID]), // not sub safemath. Is this okay?
+                "commision not between 5% and 100% - artist commision"
+            );
+        } else {
+            require(
+                serviceProviderPercentage >= 50000 &&
+                    serviceProviderPercentage <=
+                    (1000000 - artistPercentageForNextSale[tokenID]), // not sub safemath. Is this okay?
+                "commision not between 5% and 100% - artist commision"
+            );
+        }
         _;
     }
 
@@ -289,11 +305,13 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
             );
             // Adding this after the add token emit, so graph can first capture the token before processing the change artist things
             if (_artists.length > i) {
-                changeArtistAddressAndCommission(
-                    tokens[i],
-                    _artists[i],
-                    _artistCommission[i]
-                );
+                if (_artists[i] != address(0)) {
+                    changeArtistAddressAndCommission(
+                        tokens[i],
+                        _artists[i],
+                        _artistCommission[i]
+                    );
+                }
             }
         }
     }
@@ -365,9 +383,27 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
         uint256 percentage
     ) public onlyAdmin {
         require(percentage <= 200000, "not more than 20%");
+        require(artistAddress != address(0), "cannot be the zero address");
         artistPercentages[tokenId] = percentage;
         artistAddresses[tokenId] = artistAddress;
         emit ArtistCommission(tokenId, artistAddress, percentage);
+    }
+
+    function setArtistCommissionOnNextSale(uint256 tokenId, uint256 percentage)
+        public
+        onlyAdmin
+    {
+        require(
+            artistAddresses[tokenId] != address(0),
+            "Token doesn't have an artist"
+        );
+        require(percentage <= 600000, "not more than 60%");
+        artistPercentageForNextSale[tokenId] = percentage;
+        emit ArtistCommissionNextSale(
+            tokenId,
+            artistAddresses[tokenId],
+            percentage
+        );
     }
 
     function _changeAuctionParameters(
@@ -984,12 +1020,13 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
             "value sent must be strictly greater than the token price"
         );
 
-        _distributeAuctionProceeds(tokenId);
-
         state[tokenId] = StewardState.Owned;
 
         serviceProviderPercentages[tokenId] = serviceProviderPercentage;
         receiveErc20(value, msgSender());
+
+        _distributeAuctionProceeds(auctionTokenPrice, tokenId);
+
         deposit[msgSender()] = deposit[msgSender()].add(value).sub(
             auctionTokenPrice
         );
@@ -1002,18 +1039,33 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
         emit Buy(tokenId, msgSender(), _newPrice);
     }
 
-    function _distributeAuctionProceeds(uint256 tokenId) internal {
-        uint256 totalAmount = price[tokenId];
-        uint256 artistAmount;
-        if (artistPercentages[tokenId] == 0) {
+    function _distributeArtistFunds(uint256 totalAmount, uint256 tokenId)
+        internal
+        returns (uint256 artistAmount)
+    {
+        if (
+            artistPercentages[tokenId] == 0 &&
+            artistPercentageForNextSale[tokenId] == 0
+        ) {
             artistAmount = 0;
+        } else if (artistPercentageForNextSale[tokenId] != 0) {
+            artistAmount = totalAmount
+                .mul(artistPercentageForNextSale[tokenId])
+                .div(1000000);
+            sendErc20(artistAmount, artistAddresses[tokenId]);
+            artistPercentageForNextSale[tokenId] = 0;
         } else {
             artistAmount = totalAmount.mul(artistPercentages[tokenId]).div(
                 1000000
             );
-            deposit[artistAddresses[tokenId]] = deposit[artistAddresses[tokenId]]
-                .add(artistAmount);
+            sendErc20(artistAmount, artistAddresses[tokenId]);
         }
+    }
+
+    function _distributeAuctionProceeds(uint256 totalAmount, uint256 tokenId)
+        internal
+    {
+        uint256 artistAmount = _distributeArtistFunds(totalAmount, tokenId);
         uint256 wildcardsAmount = totalAmount.sub(artistAmount);
         deposit[admin] = deposit[admin].add(wildcardsAmount);
     }
@@ -1030,16 +1082,7 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
             .div(1000000);
 
         // Artist percentage calc
-        uint256 artistAmount;
-        if (artistPercentages[tokenId] == 0) {
-            artistAmount = 0;
-        } else {
-            artistAmount = totalAmount.mul(artistPercentages[tokenId]).div(
-                1000000
-            );
-            deposit[artistAddresses[tokenId]] = deposit[artistAddresses[tokenId]]
-                .add(artistAmount);
-        }
+        uint256 artistAmount = _distributeArtistFunds(totalAmount, tokenId);
 
         uint256 previousOwnerProceedsFromSale = totalAmount
             .sub(wildcardsAmount)

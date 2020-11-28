@@ -1,0 +1,24 @@
+{
+  "name": "@openzeppelin/fuzzy-solidity-import-parser",
+  "version": "0.1.2",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "test": "tsc && ava",
+    "test:watch": "concurrently -krs first -n ava,tsc 'ava --watch' 'tsc --watch --preserveWatchOutput'",
+    "prepare": "npm run build"
+  },
+  "files": [
+    "dist/**/*.js",
+    "!dist/**/*.test.js"
+  ],
+  "author": "OpenZeppelin",
+  "license": "MIT",
+  "devDependencies": {
+    "ava": "^2.4.0",
+    "code-style": "github:OpenZeppelin/code-style",
+    "concurrently": "^5.0.0",
+    "typescript": "^3.7.2"
+  }
+}
