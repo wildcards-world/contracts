@@ -111,14 +111,6 @@ contract WildcardSteward_v3_matic is Initializable, BasicMetaTransaction {
         uint256 unixTimestampOfTokenAuctionStart
     );
 
-    // QUESTION: in future versions, should these two events (CollectPatronage and CollectLoyalty) be combined into one? - they only ever happen at the same time.
-    // NOTE: this event is deprecated - it is only here for the upgrade function.
-    event CollectPatronage(
-        uint256 indexed tokenId,
-        address indexed patron,
-        uint256 remainingDeposit,
-        uint256 amountReceived
-    );
     event CollectLoyalty(address indexed patron, uint256 amountRecieved);
 
     event ArtistCommission(
