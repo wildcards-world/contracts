@@ -753,11 +753,11 @@
       }
     },
     "WildcardSteward": {
-      "address": "0x1B41814664BF8488b17c08E02532E19A031F96ce",
-      "constructorCode": "608060405234801561001057600080fd5b506157b680620000216000396000f3fe",
-      "bodyBytecodeHash": "17bb1bf96b94d7b726cdb975db21f64063391df37e1409cf328039e0b266e1b8",
-      "localBytecodeHash": "6288a772a7bf2fae1163d762c2bb4491833633e169b97fe587af3d03b3ca81b3",
-      "deployedBytecodeHash": "6288a772a7bf2fae1163d762c2bb4491833633e169b97fe587af3d03b3ca81b3",
+      "address": "0xF059398500270914f30f2B915043B760825f19d9",
+      "constructorCode": "608060405234801561001057600080fd5b50615acd80620000216000396000f3fe",
+      "bodyBytecodeHash": "4308c26a346135b12dbf5c5003c17c24360a7cc6e64ba49844dbf1c879300075",
+      "localBytecodeHash": "027a6199c0536e9bfdf3d2db47f6d702725d34926b8c2800596074c854a91367",
+      "deployedBytecodeHash": "027a6199c0536e9bfdf3d2db47f6d702725d34926b8c2800596074c854a91367",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -806,19 +806,19 @@
           "label": "mapping(key => bool)",
           "kind": "mapping"
         },
-        "t_enum<WildcardSteward_v3_matic.StewardState>": {
-          "id": "t_enum<WildcardSteward_v3_matic.StewardState>",
+        "t_enum<WildcardSteward_matic_v1.StewardState>": {
+          "id": "t_enum<WildcardSteward_matic_v1.StewardState>",
           "kind": "enum",
-          "label": "WildcardSteward_v3_matic.StewardState",
+          "label": "WildcardSteward_matic_v1.StewardState",
           "members": [
             "Foreclosed",
             "Owned"
           ]
         },
-        "t_mapping<t_enum<WildcardSteward_v3_matic.StewardState>>": {
-          "id": "t_mapping<t_enum<WildcardSteward_v3_matic.StewardState>>",
-          "valueType": "t_enum<WildcardSteward_v3_matic.StewardState>",
-          "label": "mapping(key => WildcardSteward_v3_matic.StewardState)",
+        "t_mapping<t_enum<WildcardSteward_matic_v1.StewardState>>": {
+          "id": "t_mapping<t_enum<WildcardSteward_matic_v1.StewardState>>",
+          "valueType": "t_enum<WildcardSteward_matic_v1.StewardState>",
+          "label": "mapping(key => WildcardSteward_matic_v1.StewardState)",
           "kind": "mapping"
         }
       },
@@ -827,25 +827,25 @@
           "contract": "Initializable",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 11289,
+          "astId": 14589,
           "type": "t_bool",
-          "src": "757:24:21"
+          "src": "757:24:23"
         },
         {
           "contract": "Initializable",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 11292,
+          "astId": 14592,
           "type": "t_bool",
-          "src": "876:25:21"
+          "src": "876:25:23"
         },
         {
           "contract": "Initializable",
           "path": "vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 11357,
+          "astId": 14657,
           "type": "t_array:50<t_uint256>",
-          "src": "1982:29:21"
+          "src": "1982:29:23"
         },
         {
           "contract": "BasicMetaTransaction",
@@ -864,276 +864,284 @@
           "src": "551:30:1"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "price",
           "astId": 6123,
           "type": "t_mapping<t_uint256>",
           "src": "1195:40:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "assetToken",
           "astId": 6125,
           "type": "t_address",
           "src": "1250:34:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "deprecated_totalCollected",
           "astId": 6129,
           "type": "t_mapping<t_uint256>",
           "src": "1306:53:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "deprecated_currentCollected",
           "astId": 6133,
           "type": "t_mapping<t_uint256>",
           "src": "1393:55:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "deprecated_timeLastCollected",
           "astId": 6137,
           "type": "t_mapping<t_uint256>",
           "src": "1482:56:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "timeLastCollectedPatron",
           "astId": 6141,
           "type": "t_mapping<t_uint256>",
           "src": "1573:58:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "deposit",
           "astId": 6145,
           "type": "t_mapping<t_uint256>",
           "src": "1637:42:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "totalPatronOwnedTokenCost",
           "astId": 6149,
           "type": "t_mapping<t_uint256>",
           "src": "1685:60:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "benefactors",
           "astId": 6153,
           "type": "t_mapping<t_address>",
           "src": "1752:46:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "benefactorFunds",
           "astId": 6157,
           "type": "t_mapping<t_uint256>",
           "src": "1829:50:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "deprecated_currentPatron",
           "astId": 6161,
           "type": "t_mapping<t_address>",
           "src": "1886:52:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "deprecated_patrons",
           "astId": 6167,
           "type": "t_mapping<t_bool>",
           "src": "2003:63:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "deprecated_timeHeld",
           "astId": 6173,
           "type": "t_mapping<t_uint256>",
           "src": "2085:67:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "deprecated_timeAcquired",
           "astId": 6177,
           "type": "t_mapping<t_uint256>",
           "src": "2172:51:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "patronageNumerator",
           "astId": 6181,
           "type": "t_mapping<t_uint256>",
           "src": "2266:53:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "patronageDenominator",
           "astId": 6183,
           "type": "t_uint256",
           "src": "2325:35:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "state",
           "astId": 6190,
-          "type": "t_mapping<t_enum<WildcardSteward_v3_matic.StewardState>>",
+          "type": "t_mapping<t_enum<WildcardSteward_matic_v1.StewardState>>",
           "src": "2409:45:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "admin",
           "astId": 6192,
           "type": "t_address",
           "src": "2461:20:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "deprecated_tokenGenerationRate",
           "astId": 6196,
           "type": "t_mapping<t_uint256>",
           "src": "2548:58:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "mintManager",
           "astId": 6198,
           "type": "t_address",
           "src": "2655:31:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "auctionStartPrice",
           "astId": 6200,
           "type": "t_uint256",
           "src": "2753:32:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "auctionEndPrice",
           "astId": 6202,
           "type": "t_uint256",
           "src": "2791:30:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "auctionLength",
           "astId": 6204,
           "type": "t_uint256",
           "src": "2827:28:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "artistAddresses",
           "astId": 6208,
           "type": "t_mapping<t_address>",
           "src": "2862:50:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "serviceProviderPercentages",
           "astId": 6212,
           "type": "t_mapping<t_uint256>",
           "src": "2964:61:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "artistPercentages",
           "astId": 6216,
           "type": "t_mapping<t_uint256>",
           "src": "3110:52:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "tokenAuctionBeginTimestamp",
           "astId": 6220,
           "type": "t_mapping<t_uint256>",
           "src": "3240:61:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "totalPatronTokenGenerationRate",
           "astId": 6224,
           "type": "t_mapping<t_uint256>",
           "src": "3308:65:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "totalBenefactorTokenNumerator",
           "astId": 6228,
           "type": "t_mapping<t_uint256>",
           "src": "3455:64:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "timeLastCollectedBenefactor",
           "astId": 6232,
           "type": "t_mapping<t_uint256>",
           "src": "3525:62:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "benefactorCredit",
           "astId": 6236,
           "type": "t_mapping<t_uint256>",
           "src": "3627:51:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "withdrawCheckerAdmin",
           "astId": 6238,
           "type": "t_address",
           "src": "3684:35:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "withdrawalNonceUsed",
           "astId": 6242,
           "type": "t_mapping<t_bool>",
           "src": "3726:51:9"
         },
         {
-          "contract": "WildcardSteward_v3_matic",
-          "path": "contracts/WildcardSteward_v3_matic.sol",
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
           "label": "paymentToken",
           "astId": 6250,
           "type": "t_address",
           "src": "4364:24:9"
+        },
+        {
+          "contract": "WildcardSteward_matic_v1",
+          "path": "contracts/WildcardSteward_matic_v1.sol",
+          "label": "artistPercentageForNextSale",
+          "astId": 6254,
+          "type": "t_mapping<t_uint256>",
+          "src": "4427:55:9"
         }
       ],
       "warnings": {
@@ -1141,7 +1149,52 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
+        "uninitializedBaseContracts": [],
+        "storageUncheckedVars": [
+          {
+            "contract": "WildcardSteward_matic_v1",
+            "path": "contracts/WildcardSteward_matic_v1.sol",
+            "label": "state",
+            "astId": 6190,
+            "type": "t_mapping<t_enum<WildcardSteward_matic_v1.StewardState>>",
+            "src": "2409:45:9"
+          }
+        ],
+        "storageDiff": [
+          {
+            "action": "typechange",
+            "updated": {
+              "index": 21,
+              "contract": "WildcardSteward_matic_v1",
+              "path": "contracts/WildcardSteward_matic_v1.sol",
+              "label": "state",
+              "astId": 6190,
+              "type": "t_mapping<t_enum<WildcardSteward_matic_v1.StewardState>>",
+              "src": "2409:45:9"
+            },
+            "original": {
+              "index": 21,
+              "contract": "WildcardSteward_v3_matic",
+              "path": "contracts/WildcardSteward_v3_matic.sol",
+              "label": "state",
+              "astId": 6190,
+              "type": "t_mapping<t_enum<WildcardSteward_v3_matic.StewardState>>",
+              "src": "2409:45:9"
+            }
+          },
+          {
+            "action": "append",
+            "updated": {
+              "index": 39,
+              "contract": "WildcardSteward_matic_v1",
+              "path": "contracts/WildcardSteward_matic_v1.sol",
+              "label": "artistPercentageForNextSale",
+              "astId": 6254,
+              "type": "t_mapping<t_uint256>",
+              "src": "4427:55:9"
+            }
+          }
+        ]
       }
     }
   },
@@ -1160,7 +1213,7 @@
       {
         "address": "0x69895ba53B4CB7afaea2Ab519409F3d3C613a562",
         "version": "2.5.3",
-        "implementation": "0x1B41814664BF8488b17c08E02532E19A031F96ce",
+        "implementation": "0xF059398500270914f30f2B915043B760825f19d9",
         "admin": "0x13D1f4821a8d0cc31619B3724d928d75a5d1cA3B",
         "kind": "Upgradeable"
       }

@@ -6,6 +6,8 @@ artifacts
 cache
 coverage
 .openzeppelin/dev-*.json
+!.openzeppelin/dev-137.json
+!.openzeppelin/dev-80001.json
 .openzeppelin/.session
 secretsManager.js
 coverage.json
