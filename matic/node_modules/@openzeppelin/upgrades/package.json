@@ -1,0 +1,103 @@
+{
+  "name": "@openzeppelin/upgrades",
+  "version": "2.8.0",
+  "description": "JavaScript library for the OpenZeppelin smart contract platform",
+  "main": "./lib/index.js",
+  "private": false,
+  "license": "MIT",
+  "scripts": {
+    "compile:contracts": "rm -rf build/contracts && ../../bootstrap/node_modules/.bin/oz compile --solc-version 0.5.3 --evm-version constantinople",
+    "compile:ts": "rm -rf lib && tsc",
+    "lint": "tsc --noEmit && eslint '*/**/*.{js,ts}' --quiet --fix",
+    "lint:check": "eslint '*/**/*.{js,ts}' --quiet",
+    "prepare": "npm run compile:contracts && npm run compile:ts",
+    "prepare-docs": "bash scripts/prepare-docs.sh",
+    "prepublishOnly": "echo 'Removing mock contracts...' && grep -hoP '^\\s*contract \\K(\\w+)' contracts/mocks/*.sol | sort | uniq | xargs -t -I% rm build/contracts/%.json",
+    "test": "TS_NODE_PROJECT='tsconfig.test.json' mocha --require ts-node/register --recursive test",
+    "watch": "tsc -w"
+  },
+  "lint-staged": {
+    "gitDir": "../../",
+    "linters": {
+      "packages/lib/*/**/*.{js,ts}": [
+        "npm run lint --",
+        "git add"
+      ]
+    }
+  },
+  "files": [
+    "lib",
+    "build",
+    "contracts"
+  ],
+  "keywords": [
+    "openzeppelin",
+    "openzeppelin-sdk",
+    "zeppelinos",
+    "zeppelin",
+    "ethereum",
+    "smart-contracts",
+    "solidity",
+    "upgradeability",
+    "security",
+    "proxy",
+    "evm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OpenZeppelin/openzeppelin-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/OpenZeppelin/openzeppelin-sdk/issues"
+  },
+  "homepage": "https://github.com/OpenZeppelin/openzeppelin-sdk/tree/master/packages/lib#readme",
+  "dependencies": {
+    "@types/cbor": "^2.0.0",
+    "axios": "^0.18.0",
+    "bignumber.js": "^7.2.0",
+    "cbor": "^4.1.5",
+    "chalk": "^2.4.1",
+    "ethers": "^4.0.20",
+    "glob": "^7.1.3",
+    "lodash": "^4.17.15",
+    "semver": "^5.5.1",
+    "spinnies": "^0.4.2",
+    "truffle-flattener": "^1.4.0",
+    "web3": "1.2.2",
+    "web3-eth": "1.2.2",
+    "web3-eth-contract": "1.2.2",
+    "web3-utils": "1.2.2"
+  },
+  "devDependencies": {
+    "@openzeppelin/test-environment": "^0.1.2",
+    "@openzeppelin/test-helpers": "^0.5.4",
+    "@types/lodash": "^4.14.149",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^10.12.12",
+    "@typescript-eslint/eslint-plugin": "^2.12.0",
+    "@typescript-eslint/parser": "^2.12.0",
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "chai-bignumber": "^2.0.2",
+    "chai-string": "^1.5.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.3.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "ganache-core": "^2.5.1",
+    "mocha": "^6.2.2",
+    "mock-dependency": "2.8.0",
+    "mock-solc-0.6": "2.8.0",
+    "openzeppelin-docs-utils": "github:OpenZeppelin/docs-utils",
+    "prettier": "^1.19.1",
+    "sinon": "^6.1.4",
+    "sinon-chai": "^3.3.0",
+    "solidity-docgen": "^0.3.5",
+    "tmp": "^0.0.33",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.3"
+  },
+  "gitHead": "c2403ffc65bf9ca46e9fdaf95e742cc50af3e956"
+}
