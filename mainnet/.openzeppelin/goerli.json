@@ -1,31 +1,462 @@
 {
   "contracts": {
     "WildcardSteward": {
-      "address": "0xeb37A6dF956F1997085498aDd98b25a2f633d83F",
-      "constructorCode": "608060405234801561001057600080fd5b50614b60806100206000396000f3fe",
-      "bodyBytecodeHash": "13554e1b2ae7a91a822422e36dabe8241650aa26a1638c9d18a66cb9d7a5da4c",
-      "localBytecodeHash": "95472fa9f66f298cdde938ef06149f9f198f9ebfc2bdfe761b55fa179d63c97e",
-      "deployedBytecodeHash": "95472fa9f66f298cdde938ef06149f9f198f9ebfc2bdfe761b55fa179d63c97e",
-      "types": null,
-      "storage": null
+      "address": "0xA1b023B43C25Ba0c85a23833e27667c73c93b4Ee",
+      "constructorCode": "608060405234801561001057600080fd5b50614cd8806100206000396000f3fe",
+      "bodyBytecodeHash": "ed7f11f23eceaeb667a1fcfbb20e6acf98e7c1c0e27be3afda9869a2bae39dfc",
+      "localBytecodeHash": "400ae41e1431ceb7c5fcfe84b82053b1354b7cc6dc83b0d73c8051b056f6e08e",
+      "deployedBytecodeHash": "400ae41e1431ceb7c5fcfe84b82053b1354b7cc6dc83b0d73c8051b056f6e08e",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_mapping<t_uint256>": {
+          "id": "t_mapping<t_uint256>",
+          "valueType": "t_uint256",
+          "label": "mapping(key => uint256)",
+          "kind": "mapping"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_mapping<t_address>": {
+          "id": "t_mapping<t_address>",
+          "valueType": "t_address",
+          "label": "mapping(key => address)",
+          "kind": "mapping"
+        },
+        "t_mapping<t_bool>": {
+          "id": "t_mapping<t_bool>",
+          "valueType": "t_bool",
+          "label": "mapping(key => bool)",
+          "kind": "mapping"
+        },
+        "t_enum<WildcardSteward_v3.StewardState>": {
+          "id": "t_enum<WildcardSteward_v3.StewardState>",
+          "kind": "enum",
+          "label": "WildcardSteward_v3.StewardState",
+          "members": [
+            "Foreclosed",
+            "Owned"
+          ]
+        },
+        "t_mapping<t_enum<WildcardSteward_v3.StewardState>>": {
+          "id": "t_mapping<t_enum<WildcardSteward_v3.StewardState>>",
+          "valueType": "t_enum<WildcardSteward_v3.StewardState>",
+          "label": "mapping(key => WildcardSteward_v3.StewardState)",
+          "kind": "mapping"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 11431,
+          "type": "t_bool",
+          "src": "757:24:38"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 11433,
+          "type": "t_bool",
+          "src": "876:25:38"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 11495,
+          "type": "t_array:50<t_uint256>",
+          "src": "1982:29:38"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "price",
+          "astId": 439,
+          "type": "t_mapping<t_uint256>",
+          "src": "595:40:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "assetToken",
+          "astId": 441,
+          "type": "t_address",
+          "src": "650:36:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "deprecated_totalCollected",
+          "astId": 445,
+          "type": "t_mapping<t_uint256>",
+          "src": "708:53:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "deprecated_currentCollected",
+          "astId": 449,
+          "type": "t_mapping<t_uint256>",
+          "src": "795:55:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "deprecated_timeLastCollected",
+          "astId": 453,
+          "type": "t_mapping<t_uint256>",
+          "src": "884:56:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "timeLastCollectedPatron",
+          "astId": 457,
+          "type": "t_mapping<t_uint256>",
+          "src": "975:58:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "deposit",
+          "astId": 461,
+          "type": "t_mapping<t_uint256>",
+          "src": "1039:42:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "totalPatronOwnedTokenCost",
+          "astId": 465,
+          "type": "t_mapping<t_uint256>",
+          "src": "1087:60:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "benefactors",
+          "astId": 469,
+          "type": "t_mapping<t_address>",
+          "src": "1154:46:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "benefactorFunds",
+          "astId": 473,
+          "type": "t_mapping<t_uint256>",
+          "src": "1231:50:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "deprecated_currentPatron",
+          "astId": 477,
+          "type": "t_mapping<t_address>",
+          "src": "1288:52:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "deprecated_patrons",
+          "astId": 483,
+          "type": "t_mapping<t_bool>",
+          "src": "1405:63:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "deprecated_timeHeld",
+          "astId": 489,
+          "type": "t_mapping<t_uint256>",
+          "src": "1487:67:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "deprecated_timeAcquired",
+          "astId": 493,
+          "type": "t_mapping<t_uint256>",
+          "src": "1574:51:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "patronageNumerator",
+          "astId": 497,
+          "type": "t_mapping<t_uint256>",
+          "src": "1668:53:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "patronageDenominator",
+          "astId": 499,
+          "type": "t_uint256",
+          "src": "1727:35:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "state",
+          "astId": 506,
+          "type": "t_mapping<t_enum<WildcardSteward_v3.StewardState>>",
+          "src": "1811:45:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "admin",
+          "astId": 508,
+          "type": "t_address",
+          "src": "1863:20:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "deprecated_tokenGenerationRate",
+          "astId": 512,
+          "type": "t_mapping<t_uint256>",
+          "src": "1950:58:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "mintManager",
+          "astId": 514,
+          "type": "t_address",
+          "src": "2057:33:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "auctionStartPrice",
+          "astId": 516,
+          "type": "t_uint256",
+          "src": "2157:32:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "auctionEndPrice",
+          "astId": 518,
+          "type": "t_uint256",
+          "src": "2195:30:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "auctionLength",
+          "astId": 520,
+          "type": "t_uint256",
+          "src": "2231:28:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "artistAddresses",
+          "astId": 524,
+          "type": "t_mapping<t_address>",
+          "src": "2266:50:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "wildcardsPercentages",
+          "astId": 528,
+          "type": "t_mapping<t_uint256>",
+          "src": "2368:55:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "artistPercentages",
+          "astId": 532,
+          "type": "t_mapping<t_uint256>",
+          "src": "2508:52:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "tokenAuctionBeginTimestamp",
+          "astId": 536,
+          "type": "t_mapping<t_uint256>",
+          "src": "2638:61:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "totalPatronTokenGenerationRate",
+          "astId": 540,
+          "type": "t_mapping<t_uint256>",
+          "src": "2706:65:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "totalBenefactorTokenNumerator",
+          "astId": 544,
+          "type": "t_mapping<t_uint256>",
+          "src": "2853:64:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "timeLastCollectedBenefactor",
+          "astId": 548,
+          "type": "t_mapping<t_uint256>",
+          "src": "2923:62:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "benefactorCredit",
+          "astId": 552,
+          "type": "t_mapping<t_uint256>",
+          "src": "3025:51:5"
+        },
+        {
+          "contract": "WildcardSteward_v3",
+          "path": "contracts/WildcardSteward_v3.sol",
+          "label": "withdrawCheckerAdmin",
+          "astId": 554,
+          "type": "t_address",
+          "src": "3082:35:5"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
     },
     "ERC721Patronage": {
-      "address": "0x229Cb219F056A9097b2744594Bc37597380854E8",
-      "constructorCode": "608060405261266f806100136000396000f3fe",
-      "bodyBytecodeHash": "5d8614b4f5332ee21c99fdea74c52f044e4d29330454f0caaf8d2f8161e8d766",
-      "localBytecodeHash": "3cdf5f9939960124f3b8052816896206b528734bcd2a60f4afcebdec0a7932a0",
-      "deployedBytecodeHash": "3cdf5f9939960124f3b8052816896206b528734bcd2a60f4afcebdec0a7932a0",
+      "address": "0x4C35Ec911517fB36475ccF0171C93f8E3a714B07",
+      "constructorCode": "60806040526126b5806100136000396000f3fe",
+      "bodyBytecodeHash": "52bf7541c20c9f0953d469a603b5804f2085506265c61f47287a9a17554044bd",
+      "localBytecodeHash": "fcd92741ae8e5816b695811b5194c52961cc77c329f002935f0409b861e7364d",
+      "deployedBytecodeHash": "fcd92741ae8e5816b695811b5194c52961cc77c329f002935f0409b861e7364d",
       "types": null,
       "storage": null
     },
     "MintManager": {
-      "address": "0x0a81e39a27644BEAd19737A8Ec34b18DF472C576",
-      "constructorCode": "608060405234801561001057600080fd5b50610570806100206000396000f3fe",
-      "bodyBytecodeHash": "b292e443b37d661ba0e7e6d5a35d5141a1d4b5f2a369cb0f2f434d94972a5390",
-      "localBytecodeHash": "e88c08c783812adc6607d8e4c90ccf7ecae97c4e5d156d4130812d44e1328061",
-      "deployedBytecodeHash": "e88c08c783812adc6607d8e4c90ccf7ecae97c4e5d156d4130812d44e1328061",
-      "types": null,
-      "storage": null
+      "address": "0x8d6f8bab265F384a7F495F963da5f4ffB4Ce81D5",
+      "constructorCode": "608060405234801561001057600080fd5b50610749806100206000396000f3fe",
+      "bodyBytecodeHash": "95c23aeb0fada8dd458a43f951c5f749e6bdf6ce2862e7266151781339f5725e",
+      "localBytecodeHash": "349f78a8d6f1f1c907d26f87d3707311daebfe5ac1a1c33eac49ceb9a4f94a64",
+      "deployedBytecodeHash": "349f78a8d6f1f1c907d26f87d3707311daebfe5ac1a1c33eac49ceb9a4f94a64",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 11431,
+          "type": "t_bool",
+          "src": "757:24:38"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 11433,
+          "type": "t_bool",
+          "src": "876:25:38"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 11495,
+          "type": "t_array:50<t_uint256>",
+          "src": "1982:29:38"
+        },
+        {
+          "contract": "MintManager_v4",
+          "path": "contracts/MintManager_v4.sol",
+          "label": "admin",
+          "astId": 281,
+          "type": "t_address",
+          "src": "233:20:4"
+        },
+        {
+          "contract": "MintManager_v4",
+          "path": "contracts/MintManager_v4.sol",
+          "label": "steward",
+          "astId": 283,
+          "type": "t_address",
+          "src": "259:22:4"
+        },
+        {
+          "contract": "MintManager_v4",
+          "path": "contracts/MintManager_v4.sol",
+          "label": "token",
+          "astId": 285,
+          "type": "t_address",
+          "src": "287:27:4"
+        },
+        {
+          "contract": "MintManager_v4",
+          "path": "contracts/MintManager_v4.sol",
+          "label": "maticErc20PredicateProxy",
+          "astId": 287,
+          "type": "t_address",
+          "src": "320:39:4"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
     }
   },
   "solidityLibs": {},
@@ -52,7 +483,7 @@
       {
         "address": "0x05928E60cade5f5f48693360e005aF51f65ac354",
         "version": "0.1.0",
-        "implementation": "0x0a81e39a27644BEAd19737A8Ec34b18DF472C576",
+        "implementation": "0x8d6f8bab265F384a7F495F963da5f4ffB4Ce81D5",
         "admin": "0xB8bAa0b4bd356b3f643047DF729F62F401F4DB2d",
         "kind": "Upgradeable"
       }

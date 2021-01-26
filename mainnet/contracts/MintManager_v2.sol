@@ -1,8 +1,7 @@
-pragma solidity 0.6.12;
+pragma solidity ^0.5.0;
 
-import "./mod/ERC721.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC721/ERC721.sol";
 import "./interfaces/IERC20Mintable.sol";
-import "@nomiclabs/buidler/console.sol";
 
 contract MintManager_v2 is Initializable {
     using SafeMath for uint256;
@@ -10,9 +9,6 @@ contract MintManager_v2 is Initializable {
     address public admin;
     address public steward;
     IERC20Mintable public token;
-
-    event Init();
-
 
     modifier onlySteward() {
         require(msg.sender == steward, "Not steward");
@@ -27,8 +23,6 @@ contract MintManager_v2 is Initializable {
         admin = _admin;
         steward = _steward;
         token = IERC20Mintable(_token);
-
-        emit Init();
     }
 
     function tokenMint(

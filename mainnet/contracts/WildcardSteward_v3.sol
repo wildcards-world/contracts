@@ -1,29 +1,16 @@
-pragma solidity 0.6.12;
-
-import "../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/math/SafeMath.sol";
-import "../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Initializable.sol";
+pragma solidity 0.5.17;
 
 import "./ERC721Patronage_v1.sol";
-import "./interfaces/IMintManager.sol";
-import "./interfaces/IERC721Patronage.sol";
-import "./interfaces/IERC20Mintable.sol";
-// import "./GSNRecipientBase.sol";
-
-import "../vendered/gsn-2.0.0-beta.1.3/contracts/BaseRelayRecipient.sol";
-import "../vendered/gsn-2.0.0-beta.1.3/contracts/interfaces/IKnowForwarderAddressGsn.sol";
+import "./MintManager_v2.sol";
 
 // import "@nomiclabs/buidler/console.sol";
 
-contract AFSSteward_v3_matic is
-    Initializable,
-    BaseRelayRecipient,
-    IKnowForwarderAddressGsn
-{
+contract WildcardSteward_v3 is Initializable {
     /*
     This smart contract collects patronage from current owner through a Harberger tax model and 
     takes stewardship of the asset token if the patron can't pay anymore.
 
-    Harberger Tax (COST):
+    Harberger Tax (COST): 
     - Asset is always on sale.
     - You have to have a price set.
     - Tax (Patronage) is paid to maintain ownership.
@@ -31,7 +18,7 @@ contract AFSSteward_v3_matic is
     */
     using SafeMath for uint256;
     mapping(uint256 => uint256) public price; //in wei
-    IERC721Patronage public assetToken; // ERC721 NFT.
+    ERC721Patronage_v1 public assetToken; // ERC721 NFT.
 
     mapping(uint256 => uint256) deprecated_totalCollected; // THIS VALUE IS DEPRECATED
     mapping(uint256 => uint256) deprecated_currentCollected; // THIS VALUE IS DEPRECATED
@@ -61,14 +48,14 @@ contract AFSSteward_v3_matic is
     //////////////// NEW variables in v2///////////////////
     mapping(uint256 => uint256) deprecated_tokenGenerationRate; // we can reuse the patronage denominator
 
-    IMintManager public mintManager;
+    MintManager_v2 public mintManager;
     //////////////// NEW variables in v3 ///////////////////
     uint256 public auctionStartPrice;
     uint256 public auctionEndPrice;
     uint256 public auctionLength;
 
     mapping(uint256 => address) public artistAddresses; //mapping from tokenID to the artists address
-    mapping(uint256 => uint256) public serviceProviderPercentages; // mapping from tokenID to the percentage sale cut of wildcards for each token
+    mapping(uint256 => uint256) public wildcardsPercentages; // mapping from tokenID to the percentage sale cut of wildcards for each token
     mapping(uint256 => uint256) public artistPercentages; // tokenId to artist percetages. To make it configurable. 10 000 = 100%
     mapping(uint256 => uint256) public tokenAuctionBeginTimestamp;
 
@@ -77,8 +64,6 @@ contract AFSSteward_v3_matic is
     mapping(address => uint256) public timeLastCollectedBenefactor; // make my name consistent please
     mapping(address => uint256) public benefactorCredit;
     address public withdrawCheckerAdmin;
-
-    mapping(uint256 => bool) public withdrawalNonceUsed; // if true, the nonce (part of a withdrawal signature) has already been used for a withdrawal.
 
     /*
     31536000 seconds = 365 days
@@ -91,8 +76,6 @@ contract AFSSteward_v3_matic is
     //       - this can be done since all tokens have the exact same tokenGenerationRate - and hardcoding saves gas.
     uint256 public constant globalTokenGenerationRate = 11574074074074;
     uint256 public constant yearTimePatronagDenominator = 31536000000000000000;
-
-    IERC20Mintable public paymentToken; // ERC20 token used as payment.
 
     event Buy(uint256 indexed tokenId, address indexed owner, uint256 price);
     event PriceChange(uint256 indexed tokenId, uint256 newPrice);
@@ -134,25 +117,19 @@ contract AFSSteward_v3_matic is
     event UpgradeToV3();
     event ChangeAuctionParameters();
 
-    event SetArt(
-        uint256 indexed tokenId,
-        address indexed tokenContract,
-        uint256 indexed artTokenId
-    );
-
     modifier onlyPatron(uint256 tokenId) {
-        require(_msgSender() == assetToken.ownerOf(tokenId), "Not patron");
+        require(msg.sender == assetToken.ownerOf(tokenId), "Not patron");
         _;
     }
 
     modifier onlyAdmin() {
-        require(_msgSender() == admin, "Not admin");
+        require(msg.sender == admin, "Not admin");
         _;
     }
 
     modifier onlyReceivingBenefactorOrAdmin(uint256 tokenId) {
         require(
-            _msgSender() == benefactors[tokenId] || _msgSender() == admin,
+            msg.sender == benefactors[tokenId] || msg.sender == admin,
             "Not benefactor or admin"
         );
         _;
@@ -195,14 +172,13 @@ contract AFSSteward_v3_matic is
         _;
     }
     modifier validWildcardsPercentage(
-        uint256 serviceProviderPercentage,
+        uint256 wildcardsPercentage,
         uint256 tokenID
     ) {
         require(
-            serviceProviderPercentage >= 50000 &&
-                serviceProviderPercentage <=
-                (1000000 - artistPercentages[tokenID]), // not sub safemath. Is this okay?
-            "commision not between 5% and 100%"
+            wildcardsPercentage >= 50000 &&
+                wildcardsPercentage <= (1000000 - artistPercentages[tokenID]), // not sub safemath. Is this okay?
+            "wildcards commision not between 5% and 100%"
         );
         _;
     }
@@ -214,31 +190,17 @@ contract AFSSteward_v3_matic is
         address _withdrawCheckerAdmin,
         uint256 _auctionStartPrice,
         uint256 _auctionEndPrice,
-        uint256 _auctionLength,
-        address _paymentToken,
-        address _trustedForwarder
+        uint256 _auctionLength
     ) public initializer {
-        emit UpgradeToV3();
-        assetToken = IERC721Patronage(_assetToken);
+        assetToken = ERC721Patronage_v1(_assetToken);
         admin = _admin;
         withdrawCheckerAdmin = _withdrawCheckerAdmin;
-        mintManager = IMintManager(_mintManager);
-        paymentToken = IERC20Mintable(_paymentToken);
+        mintManager = MintManager_v2(_mintManager);
         _changeAuctionParameters(
             _auctionStartPrice,
             _auctionEndPrice,
             _auctionLength
         );
-
-        setTrustedForwarder(_trustedForwarder);
-    }
-
-    function getTrustedForwarder() public override view returns (address) {
-        return trustedForwarder;
-    }
-
-    function setTrustedForwarder(address forwarder) public onlyAdmin {
-        trustedForwarder = forwarder;
     }
 
     function uintToStr(uint256 _i)
@@ -267,7 +229,7 @@ contract AFSSteward_v3_matic is
 
     function listNewTokens(
         uint256[] memory tokens,
-        address[] memory _benefactors,
+        address payable[] memory _benefactors,
         uint256[] memory _patronageNumerator,
         address[] memory _artists,
         uint256[] memory _artistCommission,
@@ -283,9 +245,8 @@ contract AFSSteward_v3_matic is
             require(_benefactors[i] != address(0), "null address");
             string memory idString = uintToStr(tokens[i]);
             string memory tokenUriBase = "https://wildcards.xyz/token/";
-            string memory tokenUri = string(
-                abi.encodePacked(tokenUriBase, idString)
-            );
+            string memory tokenUri =
+                string(abi.encodePacked(tokenUriBase, idString));
             assetToken.mintWithTokenURI(address(this), tokens[i], tokenUri);
             benefactors[tokens[i]] = _benefactors[i];
             state[tokens[i]] = StewardState.Foreclosed;
@@ -314,10 +275,97 @@ contract AFSSteward_v3_matic is
         }
     }
 
-    // TODO: you need an event in here!
+    function upgradeToV3(
+        uint256[] memory tokens,
+        address _withdrawCheckerAdmin,
+        uint256 _auctionStartPrice,
+        uint256 _auctionEndPrice,
+        uint256 _auctionLength
+    ) public notNullAddress(_withdrawCheckerAdmin) {
+        emit UpgradeToV3();
+        // This function effectively needs to call both _collectPatronage and _collectPatronagePatron from the v2 contract.
+        require(withdrawCheckerAdmin == address(0));
+        withdrawCheckerAdmin = _withdrawCheckerAdmin;
+        // For each token
+        for (uint8 i = 0; i < tokens.length; ++i) {
+            uint256 tokenId = tokens[i];
+            address currentOwner = assetToken.ownerOf(tokenId);
+
+            uint256 timeSinceTokenLastCollection =
+                now.sub(deprecated_timeLastCollected[tokenId]);
+
+            // NOTE: for this upgrade we make sure no tokens are foreclosed, or close to foreclosing
+            uint256 collection =
+                price[tokenId]
+                    .mul(timeSinceTokenLastCollection)
+                    .mul(patronageNumerator[tokenId])
+                    .div(yearTimePatronagDenominator);
+
+            // set the timeLastCollectedPatron for that tokens owner to 'now'.
+            // timeLastCollected[tokenId] = now; // This variable is depricated, no need to update it.
+            if (timeLastCollectedPatron[currentOwner] < now) {
+                // set subtract patronage owed for the Patron from their deposit.
+                deposit[currentOwner] = deposit[currentOwner].sub(
+                    patronageOwedPatron(currentOwner)
+                );
+
+                timeLastCollectedPatron[currentOwner] = now;
+            }
+
+            // Add the amount collected for current token to the benefactorFunds.
+            benefactorFunds[benefactors[tokenId]] = benefactorFunds[
+                benefactors[tokenId]
+            ]
+                .add(collection);
+
+            // Emit an event for the graph to pickup this action (the last time this event will ever be emited)
+            emit CollectPatronage(
+                tokenId,
+                currentOwner,
+                deposit[currentOwner],
+                collection
+            );
+
+            // mint required loyalty tokens
+            mintManager.tokenMint(
+                currentOwner,
+                timeSinceTokenLastCollection, // this should always be > 0
+                globalTokenGenerationRate // instead of this -> tokenGenerationRate[tokenId] hard code to save gas
+            );
+            emit CollectLoyalty(
+                currentOwner,
+                timeSinceTokenLastCollection.mul(globalTokenGenerationRate)
+            ); // OPTIMIZE ME
+
+            // Add the tokens generation rate to the totalPatronTokenGenerationRate of the current owner
+            totalPatronTokenGenerationRate[
+                currentOwner
+            ] = totalPatronTokenGenerationRate[currentOwner].add(
+                globalTokenGenerationRate
+            );
+
+            address tokenBenefactor = benefactors[tokenId];
+            // add the scaled tokens price to the `totalBenefactorTokenNumerator`
+            totalBenefactorTokenNumerator[
+                tokenBenefactor
+            ] = totalBenefactorTokenNumerator[tokenBenefactor].add(
+                price[tokenId].mul(patronageNumerator[tokenId])
+            );
+
+            if (timeLastCollectedBenefactor[tokenBenefactor] == 0) {
+                timeLastCollectedBenefactor[tokenBenefactor] = now;
+            }
+        }
+        _changeAuctionParameters(
+            _auctionStartPrice,
+            _auctionEndPrice,
+            _auctionLength
+        );
+    }
+
     function changeReceivingBenefactor(
         uint256 tokenId,
-        address _newReceivingBenefactor
+        address payable _newReceivingBenefactor
     )
         public
         onlyReceivingBenefactorOrAdmin(tokenId)
@@ -334,22 +382,25 @@ contract AFSSteward_v3_matic is
 
         // Collect patronage from old and new benefactor before changing totalBenefactorTokenNumerator on both
         uint256 scaledPrice = price[tokenId].mul(patronageNumerator[tokenId]);
-        totalBenefactorTokenNumerator[oldBenfactor] = totalBenefactorTokenNumerator[oldBenfactor]
-            .sub(scaledPrice);
-        totalBenefactorTokenNumerator[_newReceivingBenefactor] = totalBenefactorTokenNumerator[_newReceivingBenefactor]
-            .add(scaledPrice);
+        totalBenefactorTokenNumerator[
+            oldBenfactor
+        ] = totalBenefactorTokenNumerator[oldBenfactor].sub(scaledPrice);
+        totalBenefactorTokenNumerator[
+            _newReceivingBenefactor
+        ] = totalBenefactorTokenNumerator[_newReceivingBenefactor].add(
+            scaledPrice
+        );
 
         benefactors[tokenId] = _newReceivingBenefactor;
         // NB No fund exchanging here please!
     }
 
-    // TODO: you need an event in here!
     // NB This function is if an organisation loses their keys etc..
     // It will transfer their deposit to their new benefactor address
     // It should only be called once all their tokens also changeReceivingBenefactor
     function changeReceivingBenefactorDeposit(
         address oldBenfactor,
-        address _newReceivingBenefactor
+        address payable _newReceivingBenefactor
     )
         public
         onlyAdmin
@@ -358,7 +409,9 @@ contract AFSSteward_v3_matic is
     {
         require(benefactorFunds[oldBenfactor] > 0, "no funds");
 
-        benefactorFunds[_newReceivingBenefactor] = benefactorFunds[_newReceivingBenefactor]
+        benefactorFunds[_newReceivingBenefactor] = benefactorFunds[
+            _newReceivingBenefactor
+        ]
             .add(benefactorFunds[oldBenfactor]);
         benefactorFunds[oldBenfactor] = 0;
     }
@@ -472,9 +525,10 @@ contract AFSSteward_v3_matic is
         view
         returns (uint256)
     {
-        uint256 pps = totalPatronOwnedTokenCost[tokenPatron].div(
-            yearTimePatronagDenominator
-        );
+        uint256 pps =
+            totalPatronOwnedTokenCost[tokenPatron].div(
+                yearTimePatronagDenominator
+            );
         return now.add(depositAbleToWithdraw(tokenPatron).div(pps));
     }
 
@@ -504,11 +558,11 @@ contract AFSSteward_v3_matic is
     }
 
     // TODO: create a version of this function that only collects patronage (and only settles the benefactor if the token forecloses) - is this needed?
+
     function _collectPatronageAndSettleBenefactor(uint256 tokenId) public {
         address tokenPatron = assetToken.ownerOf(tokenId);
-        uint256 newTimeLastCollectedOnForeclosure = _collectPatronagePatron(
-            tokenPatron
-        );
+        uint256 newTimeLastCollectedOnForeclosure =
+            _collectPatronagePatron(tokenPatron);
 
         address benefactor = benefactors[tokenId];
         // bool tokenForeclosed = newTimeLastCollectedOnForeclosure > 0;
@@ -519,16 +573,16 @@ contract AFSSteward_v3_matic is
                 newTimeLastCollectedOnForeclosure +
                 1;
 
-
-                uint256 patronageDueBenefactorBeforeForeclosure
-             = patronageDueBenefactor(benefactor);
+            uint256 patronageDueBenefactorBeforeForeclosure =
+                patronageDueBenefactor(benefactor);
 
             _foreclose(tokenId);
 
-            uint256 amountOverCredited = price[tokenId]
-                .mul(now.sub(newTimeLastCollectedOnForeclosure))
-                .mul(patronageNumerator[tokenId])
-                .div(yearTimePatronagDenominator);
+            uint256 amountOverCredited =
+                price[tokenId]
+                    .mul(now.sub(newTimeLastCollectedOnForeclosure))
+                    .mul(patronageNumerator[tokenId])
+                    .div(yearTimePatronagDenominator);
 
             if (amountOverCredited < patronageDueBenefactorBeforeForeclosure) {
                 _increaseBenefactorBalance(
@@ -548,30 +602,11 @@ contract AFSSteward_v3_matic is
         }
     }
 
-    // function safeSend(uint256 _wei, address payable recipient)
-    //     internal
-    //     returns (bool transferSuccess)
-    // {
-    //     (transferSuccess, ) = recipient.call.gas(2300).value(_wei)("");
-    // }
-
-    function sendErc20(uint256 _wei, address recipient)
+    function safeSend(uint256 _wei, address payable recipient)
         internal
         returns (bool transferSuccess)
     {
-        // try adaiContract.redeem(amount)  {
-        return paymentToken.transfer(recipient, _wei);
-        // } catch {
-        //   emit ADaiRedeemFailed();
-        //   adaiContract.transfer(_msgSender(), amount);
-        // }
-    }
-
-    function receiveErc20(uint256 amount, address from)
-        internal
-        returns (bool transferSuccess)
-    {
-        return paymentToken.transferFrom(_msgSender(), address(this), amount);
+        (transferSuccess, ) = recipient.call.gas(2300).value(_wei)("");
     }
 
     // if credit balance exists,
@@ -580,12 +615,12 @@ contract AFSSteward_v3_matic is
     // else reduce credit by certain amount.
     // else if credit balance doesn't exist
     // add amount to balance
-    // TODO: this function should have an event
-    function _updateBenefactorBalance(address benefactor) public {
-        uint256 patronageDueForBenefactor = patronageDueBenefactor(benefactor);
 
-        if (patronageDueForBenefactor > 0) {
-            _increaseBenefactorBalance(benefactor, patronageDueForBenefactor);
+    function _updateBenefactorBalance(address benefactor) public {
+        uint256 patronageDueBenefactor = patronageDueBenefactor(benefactor);
+
+        if (patronageDueBenefactor > 0) {
+            _increaseBenefactorBalance(benefactor, patronageDueBenefactor);
         }
 
         timeLastCollectedBenefactor[benefactor] = now;
@@ -646,14 +681,13 @@ contract AFSSteward_v3_matic is
             ); // 365 days * 1000000000000
     }
 
-    function withdrawBenefactorFundsTo(address benefactor) public {
+    function withdrawBenefactorFundsTo(address payable benefactor) public {
         _updateBenefactorBalance(benefactor);
 
         uint256 availableToWithdraw = benefactorFunds[benefactor];
 
-
-            uint256 benefactorWithdrawalSafetyDiscount
-         = fundsDueForAuctionPeriodAtCurrentRate(benefactor);
+        uint256 benefactorWithdrawalSafetyDiscount =
+            fundsDueForAuctionPeriodAtCurrentRate(benefactor);
 
         require(
             availableToWithdraw > benefactorWithdrawalSafetyDiscount,
@@ -661,17 +695,16 @@ contract AFSSteward_v3_matic is
         );
 
         // NOTE: no need for safe-maths, above require prevents issues.
-        uint256 amountToWithdraw = availableToWithdraw -
-            benefactorWithdrawalSafetyDiscount;
+        uint256 amountToWithdraw =
+            availableToWithdraw - benefactorWithdrawalSafetyDiscount;
 
         benefactorFunds[benefactor] = benefactorWithdrawalSafetyDiscount;
-        if (sendErc20(amountToWithdraw, benefactor)) {
+        if (safeSend(amountToWithdraw, benefactor)) {
             emit WithdrawBenefactorFundsWithSafetyDelay(
                 benefactor,
                 amountToWithdraw
             );
         } else {
-            // TODO: add an error in unsuccessful withdrawal.
             benefactorFunds[benefactor] = benefactorFunds[benefactor].add(
                 amountToWithdraw
             );
@@ -681,26 +714,22 @@ contract AFSSteward_v3_matic is
     function hasher(
         address benefactor,
         uint256 maxAmount,
-        uint256 expiry,
-        uint256 nonce
+        uint256 expiry
     ) public view returns (bytes32) {
         // In ethereum you have to prepend all signature hashes with this message (supposedly to prevent people from)
         return
             keccak256(
                 abi.encodePacked(
                     "\x19Ethereum Signed Message:\n32",
-                    keccak256(
-                        abi.encodePacked(benefactor, maxAmount, expiry, nonce)
-                    )
+                    keccak256(abi.encodePacked(benefactor, maxAmount, expiry))
                 )
             );
     }
 
     function withdrawBenefactorFundsToValidated(
-        address benefactor,
+        address payable benefactor,
         uint256 maxAmount,
         uint256 expiry,
-        uint256 nonce,
         bytes32 hash,
         uint8 v,
         bytes32 r,
@@ -710,13 +739,11 @@ contract AFSSteward_v3_matic is
             ecrecover(hash, v, r, s) == withdrawCheckerAdmin,
             "no permission to withdraw"
         );
-        require(!withdrawalNonceUsed[nonce], "nonce already used");
         require(
-            hash == hasher(benefactor, maxAmount, expiry, nonce),
+            hash == hasher(benefactor, maxAmount, expiry),
             "incorrect hash"
         );
         require(now < expiry, "coupon expired");
-        withdrawalNonceUsed[nonce] = true;
 
         _updateBenefactorBalance(benefactor);
 
@@ -724,7 +751,7 @@ contract AFSSteward_v3_matic is
 
         if (availableToWithdraw > 0) {
             if (availableToWithdraw > maxAmount) {
-                if (sendErc20(maxAmount, benefactor)) {
+                if (safeSend(maxAmount, benefactor)) {
                     benefactorFunds[benefactor] = availableToWithdraw.sub(
                         maxAmount
                     );
@@ -734,10 +761,7 @@ contract AFSSteward_v3_matic is
                     );
                 }
             } else {
-                uint256 contractBalance = paymentToken.balanceOf(address(this));
-
-                if (sendErc20(availableToWithdraw, benefactor)) {
-                    // TODO: re-entrancy
+                if (safeSend(availableToWithdraw, benefactor)) {
                     benefactorFunds[benefactor] = 0;
                     emit WithdrawBenefactorFunds(
                         benefactor,
@@ -760,9 +784,8 @@ contract AFSSteward_v3_matic is
             patronageOwedByTokenPatron > 0 &&
             patronageOwedByTokenPatron > deposit[tokenPatron]
         ) {
-
-                uint256 previousCollectionTime
-             = timeLastCollectedPatron[tokenPatron];
+            uint256 previousCollectionTime =
+                timeLastCollectedPatron[tokenPatron];
             newTimeLastCollectedOnForeclosure = previousCollectionTime.add(
                 (
                     (now.sub(previousCollectionTime))
@@ -770,7 +793,9 @@ contract AFSSteward_v3_matic is
                         .div(patronageOwedByTokenPatron)
                 )
             );
-            timeLastCollectedPatron[tokenPatron] = newTimeLastCollectedOnForeclosure;
+            timeLastCollectedPatron[
+                tokenPatron
+            ] = newTimeLastCollectedOnForeclosure;
             deposit[tokenPatron] = 0;
             timeSinceLastMint = (
                 newTimeLastCollectedOnForeclosure.sub(previousCollectionTime)
@@ -787,22 +812,19 @@ contract AFSSteward_v3_matic is
         emit RemainingDepositUpdate(tokenPatron, deposit[tokenPatron]);
     }
 
-    function depositWei(uint256 amount) public {
-        depositWeiPatron(_msgSender(), amount);
+    function depositWei() public payable {
+        depositWeiPatron(msg.sender);
     }
 
-    // Which the 'approve' function in erc20 this function is unsafe to be public.
-    function depositWeiPatron(address patron, uint256 amount) internal {
+    function depositWeiPatron(address patron) public payable {
         require(totalPatronOwnedTokenCost[patron] > 0, "no tokens");
-        deposit[patron] = deposit[patron].add(amount);
-        receiveErc20(amount, patron);
+        deposit[patron] = deposit[patron].add(msg.value);
         emit RemainingDepositUpdate(patron, deposit[patron]);
     }
 
     function _auctionPrice(uint256 tokenId) internal view returns (uint256) {
-        uint256 auctionEnd = tokenAuctionBeginTimestamp[tokenId].add(
-            auctionLength
-        );
+        uint256 auctionEnd =
+            tokenAuctionBeginTimestamp[tokenId].add(auctionLength);
 
         // If it is not brand new and foreclosed, use the foreclosre auction price.
         uint256 _auctionStartPrice;
@@ -830,68 +852,48 @@ contract AFSSteward_v3_matic is
         uint256 tokenId,
         uint256 _newPrice,
         uint256 previousPrice,
-        uint256 serviceProviderPercentage,
-        uint256 depositAmount
+        uint256 wildcardsPercentage
     )
         public
+        payable
         collectPatronageAndSettleBenefactor(tokenId)
-        collectPatronagePatron(_msgSender())
+        collectPatronagePatron(msg.sender)
         priceGreaterThanZero(_newPrice)
-        youCurrentlyAreNotInDefault(_msgSender())
-        validWildcardsPercentage(serviceProviderPercentage, tokenId)
+        youCurrentlyAreNotInDefault(msg.sender)
+        validWildcardsPercentage(wildcardsPercentage, tokenId)
     {
         require(state[tokenId] == StewardState.Owned, "token on auction");
         require(
             price[tokenId] == previousPrice,
             "must specify current price accurately"
         );
-        receiveErc20(depositAmount.add(price[tokenId]), _msgSender());
-        address owner = assetToken.ownerOf(tokenId);
 
         _distributePurchaseProceeds(tokenId);
 
-        serviceProviderPercentages[tokenId] = serviceProviderPercentage;
-        deposit[_msgSender()] = deposit[_msgSender()].add(depositAmount);
+        wildcardsPercentages[tokenId] = wildcardsPercentage;
+        uint256 remainingValueForDeposit = msg.value.sub(price[tokenId]);
+        deposit[msg.sender] = deposit[msg.sender].add(remainingValueForDeposit);
         transferAssetTokenTo(
             tokenId,
             assetToken.ownerOf(tokenId),
-            _msgSender(),
+            msg.sender,
             _newPrice
         );
-        emit Buy(tokenId, _msgSender(), _newPrice);
-    }
-
-    function buyAndSetArt(
-        uint256 tokenId,
-        uint256 _newPrice,
-        uint256 previousPrice,
-        uint256 serviceProviderPercentage,
-        uint256 depositAmount,
-        address artTokenAddress,
-        uint256 artTokenId
-    ) public payable {
-        buy(
-            tokenId,
-            _newPrice,
-            previousPrice,
-            serviceProviderPercentage,
-            depositAmount
-        );
-        emit SetArt(tokenId, artTokenAddress, artTokenId);
+        emit Buy(tokenId, msg.sender, _newPrice);
     }
 
     function buyAuction(
         uint256 tokenId,
         uint256 _newPrice,
-        uint256 serviceProviderPercentage,
-        uint256 depositAmount
+        uint256 wildcardsPercentage
     )
         public
+        payable
         collectPatronageAndSettleBenefactor(tokenId)
-        collectPatronagePatron(_msgSender())
+        collectPatronagePatron(msg.sender)
         priceGreaterThanZero(_newPrice)
-        youCurrentlyAreNotInDefault(_msgSender())
-        validWildcardsPercentage(serviceProviderPercentage, tokenId)
+        youCurrentlyAreNotInDefault(msg.sender)
+        validWildcardsPercentage(wildcardsPercentage, tokenId)
     {
         require(
             state[tokenId] == StewardState.Foreclosed,
@@ -899,40 +901,21 @@ contract AFSSteward_v3_matic is
         );
         require(now >= tokenAuctionBeginTimestamp[tokenId], "not on auction");
         uint256 auctionTokenPrice = _auctionPrice(tokenId);
-
-        // uint256 remainingValueForDeposit = msg.value.sub(auctionTokenPrice);
+        uint256 remainingValueForDeposit = msg.value.sub(auctionTokenPrice);
 
         _distributeAuctionProceeds(tokenId);
 
         state[tokenId] = StewardState.Owned;
 
-        serviceProviderPercentages[tokenId] = serviceProviderPercentage;
-        receiveErc20(depositAmount.add(auctionTokenPrice), _msgSender());
-        deposit[_msgSender()] = deposit[_msgSender()].add(depositAmount);
+        wildcardsPercentages[tokenId] = wildcardsPercentage;
+        deposit[msg.sender] = deposit[msg.sender].add(remainingValueForDeposit);
         transferAssetTokenTo(
             tokenId,
             assetToken.ownerOf(tokenId),
-            _msgSender(),
+            msg.sender,
             _newPrice
         );
-        emit Buy(tokenId, _msgSender(), _newPrice);
-    }
-
-    function buyAuctionAndSetArt(
-        uint256 tokenId,
-        uint256 _newPrice,
-        uint256 serviceProviderPercentage,
-        uint256 depositAmount,
-        address artTokenAddress,
-        uint256 artTokenId
-    ) public payable {
-        buyAuction(
-            tokenId,
-            _newPrice,
-            serviceProviderPercentage,
-            depositAmount
-        );
-        emit SetArt(tokenId, artTokenAddress, artTokenId);
+        emit Buy(tokenId, msg.sender, _newPrice);
     }
 
     function _distributeAuctionProceeds(uint256 tokenId) internal {
@@ -944,7 +927,9 @@ contract AFSSteward_v3_matic is
             artistAmount = totalAmount.mul(artistPercentages[tokenId]).div(
                 1000000
             );
-            deposit[artistAddresses[tokenId]] = deposit[artistAddresses[tokenId]]
+            deposit[artistAddresses[tokenId]] = deposit[
+                artistAddresses[tokenId]
+            ]
                 .add(artistAmount);
         }
         uint256 wildcardsAmount = totalAmount.sub(artistAmount);
@@ -955,12 +940,11 @@ contract AFSSteward_v3_matic is
         uint256 totalAmount = price[tokenId];
         address tokenPatron = assetToken.ownerOf(tokenId);
         // Wildcards percentage calc
-        if (serviceProviderPercentages[tokenId] == 0) {
-            serviceProviderPercentages[tokenId] = 50000;
+        if (wildcardsPercentages[tokenId] == 0) {
+            wildcardsPercentages[tokenId] = 50000;
         }
-        uint256 wildcardsAmount = totalAmount
-            .mul(serviceProviderPercentages[tokenId])
-            .div(1000000);
+        uint256 wildcardsAmount =
+            totalAmount.mul(wildcardsPercentages[tokenId]).div(1000000);
 
         // Artist percentage calc
         uint256 artistAmount;
@@ -970,13 +954,14 @@ contract AFSSteward_v3_matic is
             artistAmount = totalAmount.mul(artistPercentages[tokenId]).div(
                 1000000
             );
-            deposit[artistAddresses[tokenId]] = deposit[artistAddresses[tokenId]]
+            deposit[artistAddresses[tokenId]] = deposit[
+                artistAddresses[tokenId]
+            ]
                 .add(artistAmount);
         }
 
-        uint256 previousOwnerProceedsFromSale = totalAmount
-            .sub(wildcardsAmount)
-            .sub(artistAmount);
+        uint256 previousOwnerProceedsFromSale =
+            totalAmount.sub(wildcardsAmount).sub(artistAmount);
         if (
             totalPatronOwnedTokenCost[tokenPatron] ==
             price[tokenId].mul(patronageNumerator[tokenId])
@@ -985,18 +970,17 @@ contract AFSSteward_v3_matic is
                 deposit[tokenPatron]
             );
             deposit[tokenPatron] = 0;
-            // address payableCurrentPatron = address(uint160(tokenPatron));
-            // (bool transferSuccess, ) = payableCurrentPatron
-            //     .call
-            //     .gas(2300)
-            //     .value(previousOwnerProceedsFromSale)("");
-            // if (!transferSuccess) {
-            //     deposit[tokenPatron] = deposit[tokenPatron].add(
-            //         previousOwnerProceedsFromSale
-            //     );
-            // }
-
-            sendErc20(previousOwnerProceedsFromSale, tokenPatron);
+            address payable payableCurrentPatron =
+                address(uint160(tokenPatron));
+            (bool transferSuccess, ) =
+                payableCurrentPatron.call.gas(2300).value(
+                    previousOwnerProceedsFromSale
+                )("");
+            if (!transferSuccess) {
+                deposit[tokenPatron] = deposit[tokenPatron].add(
+                    previousOwnerProceedsFromSale
+                );
+            }
         } else {
             deposit[tokenPatron] = deposit[tokenPatron].add(
                 previousOwnerProceedsFromSale
@@ -1015,18 +999,20 @@ contract AFSSteward_v3_matic is
         require(_newPrice != 0, "incorrect price");
         require(_newPrice < 10000 ether, "exceeds max price");
 
-        uint256 oldPriceScaled = price[tokenId].mul(
-            patronageNumerator[tokenId]
-        );
+        uint256 oldPriceScaled =
+            price[tokenId].mul(patronageNumerator[tokenId]);
         uint256 newPriceScaled = _newPrice.mul(patronageNumerator[tokenId]);
         address tokenBenefactor = benefactors[tokenId];
 
-        totalPatronOwnedTokenCost[_msgSender()] = totalPatronOwnedTokenCost[msg
-            .sender]
+        totalPatronOwnedTokenCost[msg.sender] = totalPatronOwnedTokenCost[
+            msg.sender
+        ]
             .sub(oldPriceScaled)
             .add(newPriceScaled);
 
-        totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
+        totalBenefactorTokenNumerator[
+            tokenBenefactor
+        ] = totalBenefactorTokenNumerator[tokenBenefactor]
             .sub(oldPriceScaled)
             .add(newPriceScaled);
 
@@ -1036,26 +1022,27 @@ contract AFSSteward_v3_matic is
 
     function withdrawDeposit(uint256 _wei)
         public
-        collectPatronagePatron(_msgSender())
+        collectPatronagePatron(msg.sender)
         returns (uint256)
     {
         _withdrawDeposit(_wei);
     }
 
     function withdrawBenefactorFunds() public {
-        withdrawBenefactorFundsTo(_msgSender());
+        withdrawBenefactorFundsTo(msg.sender);
     }
 
-    function exit() public collectPatronagePatron(_msgSender()) {
-        _withdrawDeposit(deposit[_msgSender()]);
+    function exit() public collectPatronagePatron(msg.sender) {
+        _withdrawDeposit(deposit[msg.sender]);
     }
 
     function _withdrawDeposit(uint256 _wei) internal {
-        require(deposit[_msgSender()] >= _wei, "withdrawing too much");
+        require(deposit[msg.sender] >= _wei, "withdrawing too much");
 
-        deposit[_msgSender()] = deposit[_msgSender()].sub(_wei);
+        deposit[msg.sender] = deposit[msg.sender].sub(_wei);
 
-        if (!sendErc20(_wei, _msgSender())) {
+        (bool transferSuccess, ) = msg.sender.call.gas(2300).value(_wei)("");
+        if (!transferSuccess) {
             revert("withdrawal failed");
         }
     }
@@ -1076,29 +1063,41 @@ contract AFSSteward_v3_matic is
     ) internal {
         require(_newPrice < 10000 ether, "exceeds max price");
 
-        uint256 scaledOldPrice = price[tokenId].mul(
-            patronageNumerator[tokenId]
-        );
+        uint256 scaledOldPrice =
+            price[tokenId].mul(patronageNumerator[tokenId]);
         uint256 scaledNewPrice = _newPrice.mul(patronageNumerator[tokenId]);
 
-        totalPatronOwnedTokenCost[_newOwner] = totalPatronOwnedTokenCost[_newOwner]
+        totalPatronOwnedTokenCost[_newOwner] = totalPatronOwnedTokenCost[
+            _newOwner
+        ]
             .add(scaledNewPrice);
-        totalPatronTokenGenerationRate[_newOwner] = totalPatronTokenGenerationRate[_newOwner]
-            .add(globalTokenGenerationRate);
+        totalPatronTokenGenerationRate[
+            _newOwner
+        ] = totalPatronTokenGenerationRate[_newOwner].add(
+            globalTokenGenerationRate
+        );
 
         address tokenBenefactor = benefactors[tokenId];
-        totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
-            .add(scaledNewPrice);
+        totalBenefactorTokenNumerator[
+            tokenBenefactor
+        ] = totalBenefactorTokenNumerator[tokenBenefactor].add(scaledNewPrice);
 
         if (_currentOwner != address(this) && _currentOwner != address(0)) {
-            totalPatronOwnedTokenCost[_currentOwner] = totalPatronOwnedTokenCost[_currentOwner]
-                .sub(scaledOldPrice);
+            totalPatronOwnedTokenCost[
+                _currentOwner
+            ] = totalPatronOwnedTokenCost[_currentOwner].sub(scaledOldPrice);
 
-            totalPatronTokenGenerationRate[_currentOwner] = totalPatronTokenGenerationRate[_currentOwner]
-                .sub(globalTokenGenerationRate);
+            totalPatronTokenGenerationRate[
+                _currentOwner
+            ] = totalPatronTokenGenerationRate[_currentOwner].sub(
+                globalTokenGenerationRate
+            );
 
-            totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
-                .sub(scaledOldPrice);
+            totalBenefactorTokenNumerator[
+                tokenBenefactor
+            ] = totalBenefactorTokenNumerator[tokenBenefactor].sub(
+                scaledOldPrice
+            );
         }
 
         assetToken.transferFrom(_currentOwner, _newOwner, tokenId);
@@ -1111,26 +1110,22 @@ contract AFSSteward_v3_matic is
     {
         uint256 scaledPrice = price[tokenId].mul(patronageNumerator[tokenId]);
 
-        totalPatronOwnedTokenCost[_currentOwner] = totalPatronOwnedTokenCost[_currentOwner]
+        totalPatronOwnedTokenCost[_currentOwner] = totalPatronOwnedTokenCost[
+            _currentOwner
+        ]
             .sub(scaledPrice);
 
-        totalPatronTokenGenerationRate[_currentOwner] = totalPatronTokenGenerationRate[_currentOwner]
-            .sub((globalTokenGenerationRate));
+        totalPatronTokenGenerationRate[
+            _currentOwner
+        ] = totalPatronTokenGenerationRate[_currentOwner].sub(
+            (globalTokenGenerationRate)
+        );
 
         address tokenBenefactor = benefactors[tokenId];
-        totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
-            .sub(scaledPrice);
+        totalBenefactorTokenNumerator[
+            tokenBenefactor
+        ] = totalBenefactorTokenNumerator[tokenBenefactor].sub(scaledPrice);
 
         assetToken.transferFrom(_currentOwner, address(this), tokenId);
-    }
-
-    function versionRecipient()
-        external
-        virtual
-        override
-        view
-        returns (string memory)
-    {
-        return "1.0";
     }
 }
