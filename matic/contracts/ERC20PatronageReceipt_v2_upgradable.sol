@@ -16,6 +16,12 @@ contract ERC20PatronageReceipt_v2_upgradable is
 {
     bytes32 public constant MINTER_ROLE = keccak256("minter");
     bytes32 public constant ADMIN_ROLE = keccak256("admin");
+    bytes32 public constant DEPOSITOR_ROLE = keccak256("DEPOSITOR_ROLE");
+
+    modifier onlyDepositorRole() {
+        require(hasRole(DEPOSITOR_ROLE, _msgSender()), "Only Depositor");
+        _;
+    }
 
     event Init();
     event MinterAdded(address indexed account);
@@ -23,8 +29,8 @@ contract ERC20PatronageReceipt_v2_upgradable is
 
     function _msgSender()
         internal
-        override(ContextUpgradeSafe, GSNRecipientBase)
         view
+        override(ContextUpgradeSafe, GSNRecipientBase)
         returns (address payable)
     {
         return GSNRecipientBase._msgSender();
@@ -32,8 +38,8 @@ contract ERC20PatronageReceipt_v2_upgradable is
 
     function _msgData()
         internal
-        override(ContextUpgradeSafe, GSNRecipientBase)
         view
+        override(ContextUpgradeSafe, GSNRecipientBase)
         returns (bytes memory)
     {
         return GSNRecipientBase._msgData();
@@ -43,13 +49,15 @@ contract ERC20PatronageReceipt_v2_upgradable is
         string memory name,
         string memory symbol,
         address minter,
-        address admin
+        address admin,
+        address childChainManager
     ) public initializer {
         ERC20UpgradeSafe.__ERC20_init_unchained(name, symbol);
         AccessControlUpgradeSafe.__AccessControl_init_unchained();
         _setupRole(MINTER_ROLE, minter);
         _setupRole(ADMIN_ROLE, admin);
         _setRoleAdmin(MINTER_ROLE, ADMIN_ROLE);
+        _setupRole(DEPOSITOR_ROLE, childChainManager);
 
         GSNRecipientBase.initialize();
 
@@ -82,7 +90,7 @@ contract ERC20PatronageReceipt_v2_upgradable is
         _burn(from, amount);
     }
 
-    function getTrustedForwarder() public override view returns (address) {
+    function getTrustedForwarder() public view override returns (address) {
         return trustedForwarder;
     }
 
@@ -90,5 +98,30 @@ contract ERC20PatronageReceipt_v2_upgradable is
         require(hasRole(ADMIN_ROLE, _msgSender()), "Caller is not a admin");
 
         trustedForwarder = forwarder;
+    }
+
+    /**
+     * @notice called when token is deposited on root chain
+     * @dev Should be callable only by ChildChainManager
+     * Should handle deposit by minting the required amount for user
+     * Make sure minting is done only by this function
+     * @param user user address for whom deposit is being done
+     * @param depositData abi encoded amount
+     */
+    function deposit(address user, bytes calldata depositData)
+        external
+        onlyDepositorRole
+    {
+        uint256 amount = abi.decode(depositData, (uint256));
+        _mint(user, amount);
+    }
+
+    /**
+     * @notice called when user wants to withdraw tokens back to root chain
+     * @dev Should burn user's tokens. This transaction will be verified when exiting on root chain
+     * @param amount amount of tokens to withdraw
+     */
+    function withdraw(uint256 amount) external {
+        _burn(_msgSender(), amount);
     }
 }

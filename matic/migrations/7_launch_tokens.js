@@ -40,6 +40,7 @@ const oculardelusion = "0xbc2c67a59ec004d7127a63f0f99275e31b4883cf";
 const coyotlcompany = "0x65D472172E4933aa4Ddb995CF4Ca8bef72a46576";
 const connorg_art = "0x7078f4Ac06393093BCBf6920A8BD3d202fdfd08B";
 const cryptocromo = "0x981276d81272f7CD8808701645741db1abaCad56";
+const adaPainter = "0xdcdfdCfE8044a8D373260dA3fe45e71a0Af5ef77";
 
 const monday18Jan2020 = 1610996400;
 const twoDaysInSeconds = 172800;
@@ -169,8 +170,8 @@ module.exports = function(deployer, networkName, accounts) {
       ],
       [
         oculardelusion,
+        adaPainter,
         coyotlcompany,
-        cryptocromo,
         ktwentymanjones,
         ktwentymanjones,
         ktwentymanjones,

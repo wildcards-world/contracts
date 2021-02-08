@@ -1,9 +1,8 @@
-
 // import "@openzeppelin/contracts/GSN/Context.sol";
 contract OZContext {
     // Empty internal constructor, to prevent people from mistakenly deploying
     // an instance of this contract, which should be used via inheritance.
-    constructor () internal { }
+    constructor() internal {}
 
     function _msgSender() internal view virtual returns (address payable) {
         return msg.sender;
@@ -34,7 +33,9 @@ interface OZIERC20 {
      *
      * Emits a {Transfer} event.
      */
-    function transfer(address recipient, uint256 amount) external returns (bool);
+    function transfer(address recipient, uint256 amount)
+        external
+        returns (bool);
 
     /**
      * @dev Returns the remaining number of tokens that `spender` will be
@@ -43,7 +44,10 @@ interface OZIERC20 {
      *
      * This value changes when {approve} or {transferFrom} are called.
      */
-    function allowance(address owner, address spender) external view returns (uint256);
+    function allowance(address owner, address spender)
+        external
+        view
+        returns (uint256);
 
     /**
      * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
@@ -70,7 +74,11 @@ interface OZIERC20 {
      *
      * Emits a {Transfer} event.
      */
-    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+    function transferFrom(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) external returns (bool);
 
     /**
      * @dev Emitted when `value` tokens are moved from one account (`from`) to
@@ -84,7 +92,11 @@ interface OZIERC20 {
      * @dev Emitted when the allowance of a `spender` for an `owner` is set by
      * a call to {approve}. `value` is the new allowance.
      */
-    event Approval(address indexed owner, address indexed spender, uint256 value);
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 value
+    );
 }
 
 // import "@openzeppelin/contracts/math/SafeMath.sol";
@@ -92,6 +104,7 @@ import "../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/mat
 
 import "../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/utils/Address.sol";
 import "../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/utils/EnumerableSet.sol";
+
 // import "@openzeppelin/contracts/access/AccessControl.sol";
 abstract contract OZAccessControl is OZContext {
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -102,7 +115,7 @@ abstract contract OZAccessControl is OZContext {
         bytes32 adminRole;
     }
 
-    mapping (bytes32 => RoleData) private _roles;
+    mapping(bytes32 => RoleData) private _roles;
 
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
 
@@ -112,7 +125,11 @@ abstract contract OZAccessControl is OZContext {
      * `sender` is the account that originated the contract call, an admin role
      * bearer except when using {_setupRole}.
      */
-    event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender);
+    event RoleGranted(
+        bytes32 indexed role,
+        address indexed account,
+        address indexed sender
+    );
 
     /**
      * @dev Emitted when `account` is revoked `role`.
@@ -121,7 +138,11 @@ abstract contract OZAccessControl is OZContext {
      *   - if using `revokeRole`, it is the admin role bearer
      *   - if using `renounceRole`, it is the role bearer (i.e. `account`)
      */
-    event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender);
+    event RoleRevoked(
+        bytes32 indexed role,
+        address indexed account,
+        address indexed sender
+    );
 
     /**
      * @dev Returns `true` if `account` has been granted `role`.
@@ -150,7 +171,11 @@ abstract contract OZAccessControl is OZContext {
      * https://forum.openzeppelin.com/t/iterating-over-elements-on-enumerableset-in-openzeppelin-contracts/2296[forum post]
      * for more information.
      */
-    function getRoleMember(bytes32 role, uint256 index) public view returns (address) {
+    function getRoleMember(bytes32 role, uint256 index)
+        public
+        view
+        returns (address)
+    {
         return _roles[role].members.at(index);
     }
 
@@ -175,7 +200,10 @@ abstract contract OZAccessControl is OZContext {
      * - the caller must have ``role``'s admin role.
      */
     function grantRole(bytes32 role, address account) public virtual {
-        require(hasRole(_roles[role].adminRole, _msgSender()), "AccessControl: sender must be an admin to grant");
+        require(
+            hasRole(_roles[role].adminRole, _msgSender()),
+            "AccessControl: sender must be an admin to grant"
+        );
 
         _grantRole(role, account);
     }
@@ -190,7 +218,10 @@ abstract contract OZAccessControl is OZContext {
      * - the caller must have ``role``'s admin role.
      */
     function revokeRole(bytes32 role, address account) public virtual {
-        require(hasRole(_roles[role].adminRole, _msgSender()), "AccessControl: sender must be an admin to revoke");
+        require(
+            hasRole(_roles[role].adminRole, _msgSender()),
+            "AccessControl: sender must be an admin to revoke"
+        );
 
         _revokeRole(role, account);
     }
@@ -210,7 +241,10 @@ abstract contract OZAccessControl is OZContext {
      * - the caller must be `account`.
      */
     function renounceRole(bytes32 role, address account) public virtual {
-        require(account == _msgSender(), "AccessControl: can only renounce roles for self");
+        require(
+            account == _msgSender(),
+            "AccessControl: can only renounce roles for self"
+        );
 
         _revokeRole(role, account);
     }
@@ -255,17 +289,11 @@ abstract contract OZAccessControl is OZContext {
     }
 }
 
-
-
 // File: contracts/child/ChildToken/UpgradeableChildERC20/ERC20.sol
 
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.6.0;
-
-
-
-
 
 /**
  * Modified openzeppelin implemtation to add setters for name, symbol and decimals.
@@ -303,9 +331,9 @@ contract ERC20 is OZContext, OZIERC20 {
     using SafeMath for uint256;
     using Address for address;
 
-    mapping (address => uint256) private _balances;
+    mapping(address => uint256) private _balances;
 
-    mapping (address => mapping (address => uint256)) private _allowances;
+    mapping(address => mapping(address => uint256)) private _allowances;
 
     uint256 private _totalSupply;
 
@@ -322,7 +350,7 @@ contract ERC20 is OZContext, OZIERC20 {
      * All three of these values are immutable: they can only be set once during
      * construction.
      */
-    constructor (string memory name, string memory symbol) public {
+    constructor(string memory name, string memory symbol) public {
         _name = name;
         _symbol = symbol;
         _decimals = 18;
@@ -336,7 +364,7 @@ contract ERC20 is OZContext, OZIERC20 {
     }
 
     function setName(string memory newName) internal {
-      _name = newName;
+        _name = newName;
     }
 
     /**
@@ -348,7 +376,7 @@ contract ERC20 is OZContext, OZIERC20 {
     }
 
     function setSymbol(string memory newSymbol) internal {
-      _symbol = newSymbol;
+        _symbol = newSymbol;
     }
 
     /**
@@ -369,7 +397,7 @@ contract ERC20 is OZContext, OZIERC20 {
     }
 
     function setDecimals(uint8 newDecimals) internal {
-      _decimals = newDecimals;
+        _decimals = newDecimals;
     }
 
     /**
@@ -394,7 +422,12 @@ contract ERC20 is OZContext, OZIERC20 {
      * - `recipient` cannot be the zero address.
      * - the caller must have a balance of at least `amount`.
      */
-    function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
+    function transfer(address recipient, uint256 amount)
+        public
+        virtual
+        override
+        returns (bool)
+    {
         _transfer(_msgSender(), recipient, amount);
         return true;
     }
@@ -402,7 +435,13 @@ contract ERC20 is OZContext, OZIERC20 {
     /**
      * @dev See {IERC20-allowance}.
      */
-    function allowance(address owner, address spender) public view virtual override returns (uint256) {
+    function allowance(address owner, address spender)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
         return _allowances[owner][spender];
     }
 
@@ -413,7 +452,12 @@ contract ERC20 is OZContext, OZIERC20 {
      *
      * - `spender` cannot be the zero address.
      */
-    function approve(address spender, uint256 amount) public virtual override returns (bool) {
+    function approve(address spender, uint256 amount)
+        public
+        virtual
+        override
+        returns (bool)
+    {
         _approve(_msgSender(), spender, amount);
         return true;
     }
@@ -430,9 +474,20 @@ contract ERC20 is OZContext, OZIERC20 {
      * - the caller must have allowance for ``sender``'s tokens of at least
      * `amount`.
      */
-    function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
+    function transferFrom(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) public virtual override returns (bool) {
         _transfer(sender, recipient, amount);
-        _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance"));
+        _approve(
+            sender,
+            _msgSender(),
+            _allowances[sender][_msgSender()].sub(
+                amount,
+                "ERC20: transfer amount exceeds allowance"
+            )
+        );
         return true;
     }
 
@@ -448,8 +503,16 @@ contract ERC20 is OZContext, OZIERC20 {
      *
      * - `spender` cannot be the zero address.
      */
-    function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
-        _approve(_msgSender(), spender, _allowances[_msgSender()][spender].add(addedValue));
+    function increaseAllowance(address spender, uint256 addedValue)
+        public
+        virtual
+        returns (bool)
+    {
+        _approve(
+            _msgSender(),
+            spender,
+            _allowances[_msgSender()][spender].add(addedValue)
+        );
         return true;
     }
 
@@ -467,8 +530,19 @@ contract ERC20 is OZContext, OZIERC20 {
      * - `spender` must have allowance for the caller of at least
      * `subtractedValue`.
      */
-    function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
-        _approve(_msgSender(), spender, _allowances[_msgSender()][spender].sub(subtractedValue, "ERC20: decreased allowance below zero"));
+    function decreaseAllowance(address spender, uint256 subtractedValue)
+        public
+        virtual
+        returns (bool)
+    {
+        _approve(
+            _msgSender(),
+            spender,
+            _allowances[_msgSender()][spender].sub(
+                subtractedValue,
+                "ERC20: decreased allowance below zero"
+            )
+        );
         return true;
     }
 
@@ -486,13 +560,20 @@ contract ERC20 is OZContext, OZIERC20 {
      * - `recipient` cannot be the zero address.
      * - `sender` must have a balance of at least `amount`.
      */
-    function _transfer(address sender, address recipient, uint256 amount) internal virtual {
+    function _transfer(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) internal virtual {
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
 
         _beforeTokenTransfer(sender, recipient, amount);
 
-        _balances[sender] = _balances[sender].sub(amount, "ERC20: transfer amount exceeds balance");
+        _balances[sender] = _balances[sender].sub(
+            amount,
+            "ERC20: transfer amount exceeds balance"
+        );
         _balances[recipient] = _balances[recipient].add(amount);
         emit Transfer(sender, recipient, amount);
     }
@@ -532,7 +613,10 @@ contract ERC20 is OZContext, OZIERC20 {
 
         _beforeTokenTransfer(account, address(0), amount);
 
-        _balances[account] = _balances[account].sub(amount, "ERC20: burn amount exceeds balance");
+        _balances[account] = _balances[account].sub(
+            amount,
+            "ERC20: burn amount exceeds balance"
+        );
         _totalSupply = _totalSupply.sub(amount);
         emit Transfer(account, address(0), amount);
     }
@@ -550,7 +634,11 @@ contract ERC20 is OZContext, OZIERC20 {
      * - `owner` cannot be the zero address.
      * - `spender` cannot be the zero address.
      */
-    function _approve(address owner, address spender, uint256 amount) internal virtual {
+    function _approve(
+        address owner,
+        address spender,
+        uint256 amount
+    ) internal virtual {
         require(owner != address(0), "ERC20: approve from the zero address");
         require(spender != address(0), "ERC20: approve to the zero address");
 
@@ -583,26 +671,28 @@ contract ERC20 is OZContext, OZIERC20 {
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
-    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { }
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual {}
 }
-
 
 // File: contracts/common/AccessControlMixin.sol
 
 pragma solidity ^0.6.6;
 
-
 contract AccessControlMixin is OZAccessControl {
     string private _revertMsg;
+
     function _setupContractId(string memory contractId) internal {
-        _revertMsg = string(abi.encodePacked(contractId, ": INSUFFICIENT_PERMISSIONS"));
+        _revertMsg = string(
+            abi.encodePacked(contractId, ": INSUFFICIENT_PERMISSIONS")
+        );
     }
 
     modifier only(bytes32 role) {
-        require(
-            hasRole(role, _msgSender()),
-            _revertMsg
-        );
+        require(hasRole(role, _msgSender()), _revertMsg);
         _;
     }
 }
@@ -633,7 +723,6 @@ contract Initializable {
 
 pragma solidity ^0.6.6;
 
-
 contract EIP712Base is Initializable {
     struct EIP712Domain {
         string name;
@@ -642,24 +731,20 @@ contract EIP712Base is Initializable {
         bytes32 salt;
     }
 
-    string constant public ERC712_VERSION = "1";
+    string public constant ERC712_VERSION = "1";
 
-    bytes32 internal constant EIP712_DOMAIN_TYPEHASH = keccak256(
-        bytes(
-            "EIP712Domain(string name,string version,address verifyingContract,bytes32 salt)"
-        )
-    );
+    bytes32 internal constant EIP712_DOMAIN_TYPEHASH =
+        keccak256(
+            bytes(
+                "EIP712Domain(string name,string version,address verifyingContract,bytes32 salt)"
+            )
+        );
     bytes32 internal domainSeperator;
 
     // supposed to be called once while initializing.
     // one of the contractsa that inherits this contract follows proxy pattern
     // so it is not possible to do this in a constructor
-    function _initializeEIP712(
-        string memory name
-    )
-        internal
-        initializer
-    {
+    function _initializeEIP712(string memory name) internal initializer {
         _setDomainSeperator(name);
     }
 
@@ -710,15 +795,14 @@ contract EIP712Base is Initializable {
 
 pragma solidity ^0.6.6;
 
-
-
 contract NativeMetaTransaction is EIP712Base {
     using SafeMath for uint256;
-    bytes32 private constant META_TRANSACTION_TYPEHASH = keccak256(
-        bytes(
-            "MetaTransaction(uint256 nonce,address from,bytes functionSignature)"
-        )
-    );
+    bytes32 private constant META_TRANSACTION_TYPEHASH =
+        keccak256(
+            bytes(
+                "MetaTransaction(uint256 nonce,address from,bytes functionSignature)"
+            )
+        );
     event MetaTransactionExecuted(
         address userAddress,
         address payable relayerAddress,
@@ -744,11 +828,12 @@ contract NativeMetaTransaction is EIP712Base {
         bytes32 sigS,
         uint8 sigV
     ) public payable returns (bytes memory) {
-        MetaTransaction memory metaTx = MetaTransaction({
-            nonce: nonces[userAddress],
-            from: userAddress,
-            functionSignature: functionSignature
-        });
+        MetaTransaction memory metaTx =
+            MetaTransaction({
+                nonce: nonces[userAddress],
+                from: userAddress,
+                functionSignature: functionSignature
+            });
 
         require(
             verify(userAddress, metaTx, sigR, sigS, sigV),
@@ -765,9 +850,10 @@ contract NativeMetaTransaction is EIP712Base {
         );
 
         // Append userAddress and relayer address at the end to extract it from calling context
-        (bool success, bytes memory returnData) = address(this).call(
-            abi.encodePacked(functionSignature, userAddress)
-        );
+        (bool success, bytes memory returnData) =
+            address(this).call(
+                abi.encodePacked(functionSignature, userAddress)
+            );
         require(success, "Function call not successful");
 
         return returnData;
@@ -817,11 +903,7 @@ contract NativeMetaTransaction is EIP712Base {
 pragma solidity ^0.6.6;
 
 abstract contract ContextMixin {
-    function msgSender()
-        internal
-        view
-        returns (address payable sender)
-    {
+    function msgSender() internal view returns (address payable sender) {
         if (msg.sender == address(this)) {
             bytes memory array = msg.data;
             uint256 index = msg.data.length;
@@ -843,12 +925,6 @@ abstract contract ContextMixin {
 
 pragma solidity ^0.6.6;
 
-
-
-
-
-
-
 contract UChildERC20 is
     ERC20,
     IChildToken,
@@ -869,10 +945,7 @@ contract UChildERC20 is
         string calldata symbol_,
         uint8 decimals_,
         address childChainManager
-    )
-        external
-        initializer
-    {
+    ) external initializer {
         setName(name_);
         setSymbol(symbol_);
         setDecimals(decimals_);
@@ -886,14 +959,17 @@ contract UChildERC20 is
     // never use msg.sender directly, use _msgSender() instead
     function _msgSender()
         internal
-        override
         view
+        override
         returns (address payable sender)
     {
         return ContextMixin.msgSender();
     }
 
-    function changeName(string calldata name_) external only(DEFAULT_ADMIN_ROLE) {
+    function changeName(string calldata name_)
+        external
+        only(DEFAULT_ADMIN_ROLE)
+    {
         setName(name_);
         _setDomainSeperator(name_);
     }
@@ -933,16 +1009,23 @@ pragma solidity ^0.6.6;
 
 contract DaiMatic is UChildERC20 {
     // bytes32 public constant PERMIT_TYPEHASH = keccak256("Permit(address holder,address spender,uint256 nonce,uint256 expiry,bool allowed)");
-    bytes32 public constant PERMIT_TYPEHASH = 0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb;
+    bytes32 public constant PERMIT_TYPEHASH =
+        0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb;
 
     // --- Alias ---
-    function push(address usr, uint wad) external {
+    function push(address usr, uint256 wad) external {
         transferFrom(msg.sender, usr, wad);
     }
-    function pull(address usr, uint wad) external {
+
+    function pull(address usr, uint256 wad) external {
         transferFrom(usr, msg.sender, wad);
     }
-    function move(address src, address dst, uint wad) external {
+
+    function move(
+        address src,
+        address dst,
+        uint256 wad
+    ) external {
         transferFrom(src, dst, wad);
     }
 
@@ -962,27 +1045,35 @@ contract DaiMatic is UChildERC20 {
         bytes32 r,
         bytes32 s
     ) external {
-        bytes32 digest = keccak256(
-            abi.encodePacked(
-                "\x19\x01",
-                getDomainSeperator(),
-                keccak256(
-                    abi.encode(
-                        PERMIT_TYPEHASH,
-                        holder,
-                        spender,
-                        nonce,
-                        expiry,
-                        allowed
+        bytes32 digest =
+            keccak256(
+                abi.encodePacked(
+                    "\x19\x01",
+                    getDomainSeperator(),
+                    keccak256(
+                        abi.encode(
+                            PERMIT_TYPEHASH,
+                            holder,
+                            spender,
+                            nonce,
+                            expiry,
+                            allowed
+                        )
                     )
                 )
-        ));
+            );
 
-        require(holder == ecrecover(digest, v, r, s), "UChildDAI: INVALID-PERMIT");
+        require(
+            holder == ecrecover(digest, v, r, s),
+            "UChildDAI: INVALID-PERMIT"
+        );
         require(expiry == 0 || now <= expiry, "UChildDAI: PERMIT-EXPIRED");
         require(nonce == nonces[holder]++, "UChildDAI: INVALID-NONCE");
-        require(msg.sender != address(this), "UChildDAI: PERMIT_META_TX_DISABLED");
-        uint wad = allowed ? uint(-1) : 0;
+        require(
+            msg.sender != address(this),
+            "UChildDAI: PERMIT_META_TX_DISABLED"
+        );
+        uint256 wad = allowed ? uint256(-1) : 0;
         _approve(holder, spender, wad);
     }
 }

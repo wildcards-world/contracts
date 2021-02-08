@@ -3,7 +3,7 @@
   "contracts": {
     "ERC20PatronageReceipt_upgradable": "ERC20PatronageReceipt_v2_upgradable",
     "ERC721Patronage": "ERC721Patronage_v1",
-    "WildcardSteward": "WildcardSteward_v3_matic",
+    "WildcardSteward": "WildcardSteward_matic_v1",
     "MintManager": "MintManager_v2"
   },
   "dependencies": {},

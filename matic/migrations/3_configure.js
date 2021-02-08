@@ -21,9 +21,11 @@ async function deploy(options, accounts, deployer) {
       "(PoS) Dai Stablecoin",
       "DAI",
       18,
-      accounts[0]
+      "0xb5505a6d998549090530911180f38ac5130101c6"
     );
     paymentTokenAddress = paymentToken.address;
+
+    console.log("Payment token address", paymentTokenAddress);
   }
   console.log({ paymentTokenAddress });
 
@@ -46,7 +48,8 @@ async function deploy(options, accounts, deployer) {
     "Wildcards Loyalty Token",
     "WLT",
     mintManager.address,
-    accounts[0]
+    accounts[0],
+    "0xb5505a6d998549090530911180f38ac5130101c6" // HARDCODED FOR NOW. Not suitable for mainnet!
   );
 
   // GSN TESTING!
@@ -99,6 +102,6 @@ module.exports = function(deployer, networkName, accounts) {
       from: accounts[0],
     });
 
-    await deploy({ network, txParams }, accounts, deployer);
+    await deploy({ network, txParams }, accounts, deployer, networkName);
   });
 };
