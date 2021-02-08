@@ -275,9 +275,8 @@ contract WildcardSteward_matic_v1 is Initializable, BasicMetaTransaction {
             require(_benefactors[i] != address(0), "null address");
             string memory idString = uintToStr(tokens[i]);
             string memory tokenUriBase = "https://wildcards.xyz/token/";
-            string memory tokenUri = string(
-                abi.encodePacked(tokenUriBase, idString)
-            );
+            string memory tokenUri =
+                string(abi.encodePacked(tokenUriBase, idString));
             assetToken.mintWithTokenURI(address(this), tokens[i], tokenUri);
             benefactors[tokens[i]] = _benefactors[i];
             state[tokens[i]] = StewardState.Foreclosed;
@@ -328,10 +327,14 @@ contract WildcardSteward_matic_v1 is Initializable, BasicMetaTransaction {
 
         // Collect patronage from old and new benefactor before changing totalBenefactorTokenNumerator on both
         uint256 scaledPrice = price[tokenId].mul(patronageNumerator[tokenId]);
-        totalBenefactorTokenNumerator[oldBenfactor] = totalBenefactorTokenNumerator[oldBenfactor]
-            .sub(scaledPrice);
-        totalBenefactorTokenNumerator[_newReceivingBenefactor] = totalBenefactorTokenNumerator[_newReceivingBenefactor]
-            .add(scaledPrice);
+        totalBenefactorTokenNumerator[
+            oldBenfactor
+        ] = totalBenefactorTokenNumerator[oldBenfactor].sub(scaledPrice);
+        totalBenefactorTokenNumerator[
+            _newReceivingBenefactor
+        ] = totalBenefactorTokenNumerator[_newReceivingBenefactor].add(
+            scaledPrice
+        );
 
         benefactors[tokenId] = _newReceivingBenefactor;
         // NB No fund exchanging here please!
@@ -352,7 +355,9 @@ contract WildcardSteward_matic_v1 is Initializable, BasicMetaTransaction {
     {
         require(benefactorFunds[oldBenfactor] > 0, "no funds");
 
-        benefactorFunds[_newReceivingBenefactor] = benefactorFunds[_newReceivingBenefactor]
+        benefactorFunds[_newReceivingBenefactor] = benefactorFunds[
+            _newReceivingBenefactor
+        ]
             .add(benefactorFunds[oldBenfactor]);
         benefactorFunds[oldBenfactor] = 0;
     }
@@ -494,9 +499,8 @@ contract WildcardSteward_matic_v1 is Initializable, BasicMetaTransaction {
         view
         returns (uint256)
     {
-
-            uint256 totalPatronYearlyPatronage
-         = totalPatronOwnedTokenCost[tokenPatron];
+        uint256 totalPatronYearlyPatronage =
+            totalPatronOwnedTokenCost[tokenPatron];
         // timeLeftOfDeposit = deposit / (totalPatronYearlyPatronage / yearTimePatronagDenominator)
         if (totalPatronYearlyPatronage > 0) {
             return
@@ -545,9 +549,8 @@ contract WildcardSteward_matic_v1 is Initializable, BasicMetaTransaction {
     // TODO: create a version of this function that only collects patronage (and only settles the benefactor if the token forecloses) - is this needed?
     function _collectPatronageAndSettleBenefactor(uint256 tokenId) public {
         address tokenPatron = assetToken.ownerOf(tokenId);
-        uint256 newTimeLastCollectedOnForeclosure = _collectPatronagePatron(
-            tokenPatron
-        );
+        uint256 newTimeLastCollectedOnForeclosure =
+            _collectPatronagePatron(tokenPatron);
 
         address benefactor = benefactors[tokenId];
         // bool tokenForeclosed = newTimeLastCollectedOnForeclosure > 0;
@@ -558,16 +561,16 @@ contract WildcardSteward_matic_v1 is Initializable, BasicMetaTransaction {
                 newTimeLastCollectedOnForeclosure +
                 1;
 
-
-                uint256 patronageDueBenefactorBeforeForeclosure
-             = patronageDueBenefactor(benefactor);
+            uint256 patronageDueBenefactorBeforeForeclosure =
+                patronageDueBenefactor(benefactor);
 
             _foreclose(tokenId);
 
-            uint256 amountOverCredited = price[tokenId]
-                .mul(now.sub(newTimeLastCollectedOnForeclosure))
-                .mul(patronageNumerator[tokenId])
-                .div(yearTimePatronagDenominator);
+            uint256 amountOverCredited =
+                price[tokenId]
+                    .mul(now.sub(newTimeLastCollectedOnForeclosure))
+                    .mul(patronageNumerator[tokenId])
+                    .div(yearTimePatronagDenominator);
 
             if (amountOverCredited < patronageDueBenefactorBeforeForeclosure) {
                 _increaseBenefactorBalance(
@@ -690,9 +693,8 @@ contract WildcardSteward_matic_v1 is Initializable, BasicMetaTransaction {
 
         uint256 availableToWithdraw = benefactorFunds[benefactor];
 
-
-            uint256 benefactorWithdrawalSafetyDiscount
-         = fundsDueForAuctionPeriodAtCurrentRate(benefactor);
+        uint256 benefactorWithdrawalSafetyDiscount =
+            fundsDueForAuctionPeriodAtCurrentRate(benefactor);
 
         require(
             availableToWithdraw > benefactorWithdrawalSafetyDiscount,
@@ -700,8 +702,8 @@ contract WildcardSteward_matic_v1 is Initializable, BasicMetaTransaction {
         );
 
         // NOTE: no need for safe-maths, above require prevents issues.
-        uint256 amountToWithdraw = availableToWithdraw -
-            benefactorWithdrawalSafetyDiscount;
+        uint256 amountToWithdraw =
+            availableToWithdraw - benefactorWithdrawalSafetyDiscount;
 
         benefactorFunds[benefactor] = benefactorWithdrawalSafetyDiscount;
         if (sendErc20(amountToWithdraw, benefactor)) {
@@ -800,9 +802,8 @@ contract WildcardSteward_matic_v1 is Initializable, BasicMetaTransaction {
             patronageOwedByTokenPatron > 0 &&
             patronageOwedByTokenPatron > deposit[tokenPatron]
         ) {
-
-                uint256 previousCollectionTime
-             = timeLastCollectedPatron[tokenPatron];
+            uint256 previousCollectionTime =
+                timeLastCollectedPatron[tokenPatron];
             newTimeLastCollectedOnForeclosure = previousCollectionTime.add(
                 (
                     (now.sub(previousCollectionTime))
@@ -810,7 +811,9 @@ contract WildcardSteward_matic_v1 is Initializable, BasicMetaTransaction {
                         .div(patronageOwedByTokenPatron)
                 )
             );
-            timeLastCollectedPatron[tokenPatron] = newTimeLastCollectedOnForeclosure;
+            timeLastCollectedPatron[
+                tokenPatron
+            ] = newTimeLastCollectedOnForeclosure;
             deposit[tokenPatron] = 0;
             timeSinceLastMint = (
                 newTimeLastCollectedOnForeclosure.sub(previousCollectionTime)
@@ -863,9 +866,8 @@ contract WildcardSteward_matic_v1 is Initializable, BasicMetaTransaction {
     }
 
     function _auctionPrice(uint256 tokenId) internal view returns (uint256) {
-        uint256 auctionEnd = tokenAuctionBeginTimestamp[tokenId].add(
-            auctionLength
-        );
+        uint256 auctionEnd =
+            tokenAuctionBeginTimestamp[tokenId].add(auctionLength);
 
         // If it is not brand new and foreclosed, use the foreclosre auction price.
         uint256 _auctionStartPrice;
@@ -1069,16 +1071,14 @@ contract WildcardSteward_matic_v1 is Initializable, BasicMetaTransaction {
         if (serviceProviderPercentages[tokenId] == 0) {
             serviceProviderPercentages[tokenId] = 50000;
         }
-        uint256 wildcardsAmount = totalAmount
-            .mul(serviceProviderPercentages[tokenId])
-            .div(1000000);
+        uint256 wildcardsAmount =
+            totalAmount.mul(serviceProviderPercentages[tokenId]).div(1000000);
 
         // Artist percentage calc
         uint256 artistAmount = _distributeArtistFunds(totalAmount, tokenId);
 
-        uint256 previousOwnerProceedsFromSale = totalAmount
-            .sub(wildcardsAmount)
-            .sub(artistAmount);
+        uint256 previousOwnerProceedsFromSale =
+            totalAmount.sub(wildcardsAmount).sub(artistAmount);
         if (
             totalPatronOwnedTokenCost[tokenPatron] ==
             price[tokenId].mul(patronageNumerator[tokenId])
@@ -1117,18 +1117,20 @@ contract WildcardSteward_matic_v1 is Initializable, BasicMetaTransaction {
         require(_newPrice != 0, "incorrect price");
         require(_newPrice < 10000 ether, "exceeds max price");
 
-        uint256 oldPriceScaled = price[tokenId].mul(
-            patronageNumerator[tokenId]
-        );
+        uint256 oldPriceScaled =
+            price[tokenId].mul(patronageNumerator[tokenId]);
         uint256 newPriceScaled = _newPrice.mul(patronageNumerator[tokenId]);
         address tokenBenefactor = benefactors[tokenId];
 
-        totalPatronOwnedTokenCost[msgSender()] = totalPatronOwnedTokenCost[msg
-            .sender]
+        totalPatronOwnedTokenCost[msgSender()] = totalPatronOwnedTokenCost[
+            msg.sender
+        ]
             .sub(oldPriceScaled)
             .add(newPriceScaled);
 
-        totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
+        totalBenefactorTokenNumerator[
+            tokenBenefactor
+        ] = totalBenefactorTokenNumerator[tokenBenefactor]
             .sub(oldPriceScaled)
             .add(newPriceScaled);
 
@@ -1177,29 +1179,41 @@ contract WildcardSteward_matic_v1 is Initializable, BasicMetaTransaction {
     ) internal {
         require(_newPrice < 10000 ether, "exceeds max price");
 
-        uint256 scaledOldPrice = price[tokenId].mul(
-            patronageNumerator[tokenId]
-        );
+        uint256 scaledOldPrice =
+            price[tokenId].mul(patronageNumerator[tokenId]);
         uint256 scaledNewPrice = _newPrice.mul(patronageNumerator[tokenId]);
 
-        totalPatronOwnedTokenCost[_newOwner] = totalPatronOwnedTokenCost[_newOwner]
+        totalPatronOwnedTokenCost[_newOwner] = totalPatronOwnedTokenCost[
+            _newOwner
+        ]
             .add(scaledNewPrice);
-        totalPatronTokenGenerationRate[_newOwner] = totalPatronTokenGenerationRate[_newOwner]
-            .add(globalTokenGenerationRate);
+        totalPatronTokenGenerationRate[
+            _newOwner
+        ] = totalPatronTokenGenerationRate[_newOwner].add(
+            globalTokenGenerationRate
+        );
 
         address tokenBenefactor = benefactors[tokenId];
-        totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
-            .add(scaledNewPrice);
+        totalBenefactorTokenNumerator[
+            tokenBenefactor
+        ] = totalBenefactorTokenNumerator[tokenBenefactor].add(scaledNewPrice);
 
         if (_currentOwner != address(this) && _currentOwner != address(0)) {
-            totalPatronOwnedTokenCost[_currentOwner] = totalPatronOwnedTokenCost[_currentOwner]
-                .sub(scaledOldPrice);
+            totalPatronOwnedTokenCost[
+                _currentOwner
+            ] = totalPatronOwnedTokenCost[_currentOwner].sub(scaledOldPrice);
 
-            totalPatronTokenGenerationRate[_currentOwner] = totalPatronTokenGenerationRate[_currentOwner]
-                .sub(globalTokenGenerationRate);
+            totalPatronTokenGenerationRate[
+                _currentOwner
+            ] = totalPatronTokenGenerationRate[_currentOwner].sub(
+                globalTokenGenerationRate
+            );
 
-            totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
-                .sub(scaledOldPrice);
+            totalBenefactorTokenNumerator[
+                tokenBenefactor
+            ] = totalBenefactorTokenNumerator[tokenBenefactor].sub(
+                scaledOldPrice
+            );
         }
 
         assetToken.transferFrom(_currentOwner, _newOwner, tokenId);
@@ -1212,23 +1226,22 @@ contract WildcardSteward_matic_v1 is Initializable, BasicMetaTransaction {
     {
         uint256 scaledPrice = price[tokenId].mul(patronageNumerator[tokenId]);
 
-        totalPatronOwnedTokenCost[_currentOwner] = totalPatronOwnedTokenCost[_currentOwner]
+        totalPatronOwnedTokenCost[_currentOwner] = totalPatronOwnedTokenCost[
+            _currentOwner
+        ]
             .sub(scaledPrice);
 
-        totalPatronTokenGenerationRate[_currentOwner] = totalPatronTokenGenerationRate[_currentOwner]
-            .sub((globalTokenGenerationRate));
+        totalPatronTokenGenerationRate[
+            _currentOwner
+        ] = totalPatronTokenGenerationRate[_currentOwner].sub(
+            (globalTokenGenerationRate)
+        );
 
         address tokenBenefactor = benefactors[tokenId];
-        totalBenefactorTokenNumerator[tokenBenefactor] = totalBenefactorTokenNumerator[tokenBenefactor]
-            .sub(scaledPrice);
+        totalBenefactorTokenNumerator[
+            tokenBenefactor
+        ] = totalBenefactorTokenNumerator[tokenBenefactor].sub(scaledPrice);
 
         assetToken.transferFrom(_currentOwner, address(this), tokenId);
-    }
-
-    // THIS CODE IS PURELY FOR TESTING GSN - IT DOES NOTHING!
-    event TestEvent(address sender, address paymentTokenAdr, address randomArg);
-
-    function testFunctionThatDoesNothing(address randomArg) public {
-        emit TestEvent(msgSender(), address(paymentToken), randomArg);
     }
 }
