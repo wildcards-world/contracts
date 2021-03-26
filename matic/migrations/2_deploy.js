@@ -11,7 +11,7 @@ async function deploy(options, accounts) {
         alias: "ERC20PatronageReceipt_upgradable",
       },
       { name: "ERC721Patronage_v1", alias: "ERC721Patronage" },
-      { name: "WildcardSteward_v3_matic", alias: "WildcardSteward" },
+      { name: "WildcardSteward_matic_v0", alias: "WildcardSteward" },
       { name: "MintManager_v2", alias: "MintManager" },
     ],
   });
