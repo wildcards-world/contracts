@@ -22,12 +22,13 @@ let endangeredwildlife = "0xA7Cb48CB98fE1a8CFF4A6e4C6EEF8b4bcAe0C1cC";
 let oana = "0x6dB803540E20E16b7355bC4d4dA33c46b76DC2FA";
 let bios = "0x05b71fE3f642d18A7034818C6085e15A5Ed26699";
 const bdiAddress = "0xADad0D21ba0E4b356e2b2769e08CfeF206f83891";
+const noArtist = "0x0000000000000000000000000000000000000000";
 
 const fishcatAddress = "0xbc2c67a59ec004d7127a63f0f99275e31b4883cf";
-const mountKenyaTrust = "";
+const mountKenyaTrust = "0xB1cf64514B89F0fAbBB7C7bEe95d72b175a63a8B";
 const tsavoTrust = "0xb13Ad3f90722Dae0f9C1c7b4deF7bbAa6b68e4Be";
-
 const fynbosLife = "0xcaFA650A4e133228f6CcE8f0674A81057EdADFEe";
+const wildTrust = "0x47256AebE55084289297c58dEfF791016F545261";
 
 let civit = "0x8846e72803d0CeCaeeaC329ec0d566Fbefa056f3";
 let creatifa = "0x9894d59d59e90eb82f74eec4dca2d7bd2754e5cb";
@@ -41,8 +42,11 @@ const coyotlcompany = "0x65D472172E4933aa4Ddb995CF4Ca8bef72a46576";
 const connorg_art = "0x7078f4Ac06393093BCBf6920A8BD3d202fdfd08B";
 const cryptocromo = "0x981276d81272f7CD8808701645741db1abaCad56";
 const adaPainter = "0xdcdfdCfE8044a8D373260dA3fe45e71a0Af5ef77";
+const camoleite = "0x203140E492789c8A3130E4554E65820D6d918F9E";
+const higherDesignCo = "0x2E5E62C8cD9ede2874b6a9c87F843389BFD7cB3B";
 
 const monday18Jan2020 = 1610996400;
+const friday5March2020 = 1614924000;
 const twoDaysInSeconds = 172800;
 
 const buyAuctionPermit = async (
@@ -109,49 +113,22 @@ module.exports = function(deployer, networkName, accounts) {
 
     await steward.listNewTokens(
       [
-        "40",
-        //     80,
-        "41",
-        //     53,
-        "43",
-        //     78,
-        "44",
-        //     69,
-        "45",
-        //     46,
-        "46",
-        //     42,
-        "47",
-        //     74,
-        "48",
-        //     50,
-        "49",
-        //     79,
-        "50",
-        //     75,
-        "51",
-        //     67,
-        "52",
-        //     38,
-        "53",
-        //     54,
-        //     63,
-        //     65,
+        "54" /*63*/,
+        "55" /*86*/,
+        "56" /*68*/,
+        "57" /*85*/,
+        "58" /*55*/,
+        "59" /*83*/,
+        "60" /*84*/,
       ],
       [
-        fishcatAddress,
-        southrupuniconservation,
-        easternghatsws,
-        sasharkconservancy,
-        sharkspotters,
-        lionLandscapes,
-        sasharkconservancy,
-        oceansResearchAddres,
-        easternghatsws,
-        sasharkconservancy,
+        mountKenyaTrust,
+        fynbosLife,
         tsavoTrust,
-        sasharkconservancy,
-        southrupuniconservation,
+        fynbosLife,
+        zavoraLabAddress,
+        fynbosLife,
+        fynbosLife,
       ],
       [
         twentyPercentMonthlyHarbergerTax,
@@ -161,64 +138,47 @@ module.exports = function(deployer, networkName, accounts) {
         twentyPercentMonthlyHarbergerTax,
         twentyPercentMonthlyHarbergerTax,
         twentyPercentMonthlyHarbergerTax,
-        twentyPercentMonthlyHarbergerTax,
-        twentyPercentMonthlyHarbergerTax,
-        twentyPercentMonthlyHarbergerTax,
-        twentyPercentMonthlyHarbergerTax,
-        twentyPercentMonthlyHarbergerTax,
-        twentyPercentMonthlyHarbergerTax,
       ],
       [
-        oculardelusion,
-        adaPainter,
-        coyotlcompany,
-        ktwentymanjones,
-        ktwentymanjones,
-        ktwentymanjones,
-        ktwentymanjones,
-        ktwentymanjones,
-        ktwentymanjones,
-        ktwentymanjones,
-        ktwentymanjones,
-        ktwentymanjones,
-        ktwentymanjones,
+        connorg_art,
+        camoleite,
+        cryptocromo,
+        noArtist,
+        camoleite,
+        noArtist,
+        noArtist,
       ],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0],
       [
-        monday18Jan2020,
-        monday18Jan2020 + twoDaysInSeconds,
-        monday18Jan2020 + twoDaysInSeconds * 2,
-        monday18Jan2020 + twoDaysInSeconds * 3,
-        monday18Jan2020 + twoDaysInSeconds * 4,
-        monday18Jan2020 + twoDaysInSeconds * 5,
-        monday18Jan2020 + twoDaysInSeconds * 6,
-        monday18Jan2020 + twoDaysInSeconds * 7,
-        monday18Jan2020 + twoDaysInSeconds * 8,
-        monday18Jan2020 + twoDaysInSeconds * 9,
-        monday18Jan2020 + twoDaysInSeconds * 11,
-        monday18Jan2020 + twoDaysInSeconds * 13,
-        monday18Jan2020 + twoDaysInSeconds * 15,
+        friday5March2020,
+        friday5March2020 + twoDaysInSeconds * 4,
+        friday5March2020 + twoDaysInSeconds * 8,
+        friday5March2020 + twoDaysInSeconds * 12,
+        friday5March2020 + twoDaysInSeconds * 16,
+        friday5March2020 + twoDaysInSeconds * 20,
+        friday5March2020 + twoDaysInSeconds * 24,
       ],
       { from: accounts[0] }
     );
-    console.log("After minting");
+    // console.log("After minting");
 
-    await Promise.all([
-      steward.setArtistCommissionOnNextSale("40", 500000),
-      steward.setArtistCommissionOnNextSale("41", 500000),
-      steward.setArtistCommissionOnNextSale("43", 500000),
-      steward.setArtistCommissionOnNextSale("44", 500000),
-      steward.setArtistCommissionOnNextSale("45", 500000),
-      steward.setArtistCommissionOnNextSale("46", 500000),
-      steward.setArtistCommissionOnNextSale("47", 500000),
-      steward.setArtistCommissionOnNextSale("48", 500000),
-      steward.setArtistCommissionOnNextSale("49", 500000),
-      steward.setArtistCommissionOnNextSale("50", 500000),
-      steward.setArtistCommissionOnNextSale("51", 500000),
-      steward.setArtistCommissionOnNextSale("52", 500000),
-      steward.setArtistCommissionOnNextSale("53", 500000),
-    ]);
+    // await Promise.all([
+    //   steward.setArtistCommissionOnNextSale("40", 500000),
+    //   steward.setArtistCommissionOnNextSale("41", 500000),
+    //   steward.setArtistCommissionOnNextSale("43", 500000),
+    //   steward.setArtistCommissionOnNextSale("44", 500000),
+    //   steward.setArtistCommissionOnNextSale("45", 500000),
+    //   steward.setArtistCommissionOnNextSale("46", 500000),
+    //   steward.setArtistCommissionOnNextSale("47", 500000),
+    //   steward.setArtistCommissionOnNextSale("48", 500000),
+    //   steward.setArtistCommissionOnNextSale("49", 500000),
+    //   steward.setArtistCommissionOnNextSale("50", 500000),
+    //   steward.setArtistCommissionOnNextSale("51", 500000),
+    //   steward.setArtistCommissionOnNextSale("52", 500000),
+    //   steward.setArtistCommissionOnNextSale("53", 500000),
+    // ]);
 
     console.log("artist amounts");
+    throw "don't continue";
   });
 };
