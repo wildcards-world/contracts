@@ -1248,8 +1248,8 @@ contract WildcardSteward_matic_v2 is Initializable, BasicMetaTransaction {
     function transferWithDeposit(
         address to,
         uint256 tokenId,
-        uint256 tokensDeposit,
-        uint256 newPrice
+        uint256 newPrice,
+        uint256 tokensDeposit
     )
         public
         collectPatronageAndSettleBenefactor(tokenId)
@@ -1262,8 +1262,14 @@ contract WildcardSteward_matic_v2 is Initializable, BasicMetaTransaction {
         //                   = deposit / (tokensYearlyPatronage / yearTimePatronagDenominator)
         //                   = deposit / ((newPrice * tokenPatronageNumerator) / yearTimePatronagDenominator)
         //                   = (deposit * yearTimePatronagDenominator) / (newPrice * tokenPatronageNumerator)
-        uint256 timeLeftOfDeposit = deposit.mul(yearTimePatronagDenominator).div(newPrice.mul(patronageNumerator[tokenId]))
-        require(timeLeftOfDeposit > 604800 /* seconds in a week */, "Deposit less than 1 week");
+        uint256 timeLeftOfDeposit =
+            tokensDeposit.mul(yearTimePatronagDenominator).div(
+                newPrice.mul(patronageNumerator[tokenId])
+            );
+        require(
+            timeLeftOfDeposit > 604800, /* seconds in a week */
+            "Deposit less than 1 week"
+        );
 
         receiveErc20(tokensDeposit, msgSender());
         address owner = assetToken.ownerOf(tokenId);
@@ -1279,9 +1285,9 @@ contract WildcardSteward_matic_v2 is Initializable, BasicMetaTransaction {
         transferAssetTokenTo(
             tokenId,
             assetToken.ownerOf(tokenId),
-            msgSender(),
+            to,
             newPrice
         );
-        emit Transfer(tokenId, msgSender(), to, newPrice, tokenDeposit);
+        emit Transfer(tokenId, msgSender(), to, newPrice, tokensDeposit);
     }
 }
