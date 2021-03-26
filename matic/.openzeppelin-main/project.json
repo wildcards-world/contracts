@@ -3,7 +3,7 @@
   "name": "wildcards-contracts",
   "version": "0.1.0",
   "contracts": {
-    "WildcardSteward": "WildcardSteward_v3_matic",
+    "WildcardSteward": "WildcardSteward_matic_v0",
     "MintManager": "MintManager_v2",
     "ERC721Patronage": "ERC721Patronage_v1",
     "ERC20PatronageReceipt": "ERC20PatronageReceipt_v2_upgradable"

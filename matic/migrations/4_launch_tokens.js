@@ -1,4 +1,4 @@
-const WildcardSteward_v3 = artifacts.require("WildcardSteward_v3_matic");
+const WildcardSteward_v3 = artifacts.require("WildcardSteward_matic_v0");
 const ERC721Patronage_v1 = artifacts.require("ERC721Patronage_v1");
 const Dai = artifacts.require("./DaiMatic.sol");
 
