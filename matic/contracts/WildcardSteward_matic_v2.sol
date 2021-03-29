@@ -1256,8 +1256,14 @@ contract WildcardSteward_matic_v2 is Initializable, BasicMetaTransaction {
         collectPatronagePatron(to)
         priceGreaterThanZero(newPrice)
         youCurrentlyAreNotInDefault(msgSender())
+        youCurrentlyAreNotInDefault(to) // Maybe this condition is too strict? Maybe it should check foreclosure time after recieving the token rather?
     {
-        require(state[tokenId] == StewardState.Owned, "token on auction");
+        address owner = assetToken.ownerOf(tokenId);
+        require(owner == msgSender(), "not owner");
+
+        // should be logically impossible for this to ever not be true.
+        assert(state[tokenId] == StewardState.Owned);
+
         // timeLeftOfDeposit = deposit / rateOfDepositUse
         //                   = deposit / (tokensYearlyPatronage / yearTimePatronagDenominator)
         //                   = deposit / ((newPrice * tokenPatronageNumerator) / yearTimePatronagDenominator)
@@ -1272,7 +1278,6 @@ contract WildcardSteward_matic_v2 is Initializable, BasicMetaTransaction {
         );
 
         receiveErc20(tokensDeposit, msgSender());
-        address owner = assetToken.ownerOf(tokenId);
 
         // We won't charge users to use this function:
         // _distributePurchaseProceeds(tokenId);
@@ -1282,12 +1287,7 @@ contract WildcardSteward_matic_v2 is Initializable, BasicMetaTransaction {
 
         deposit[to] = deposit[to].add(tokensDeposit);
 
-        transferAssetTokenTo(
-            tokenId,
-            assetToken.ownerOf(tokenId),
-            to,
-            newPrice
-        );
+        transferAssetTokenTo(tokenId, owner, to, newPrice);
         emit Transfer(tokenId, msgSender(), to, newPrice, tokensDeposit);
     }
 }
