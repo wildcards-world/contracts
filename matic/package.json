@@ -10,9 +10,14 @@
     "truffle-test": "IS_COVERAGE='true' truffle test --network test",
     "buidler-node": "buidler node",
     "gas-report": "IS_GAS_REPORT='true' buidler test",
+    "clean": "rm -rf build/contracts/* artifacts cache",
     "coverage": "IS_COVERAGE='true' buidler coverage",
     "check": "truffle exec index.js --network local",
-    "deploy": "npx truffle exec scripts/deploy.js"
+    "deploy": "npx truffle exec scripts/deploy.js",
+    "save-deployment": "/bin/bash -c 'mkdir -p ./deployed_builds_matic; \\cp ./build/contracts/{ERC20PatronageReceipt_v2_upgradable,ERC721Patronage_v1,Migrations,MintManager_v2,WildcardSteward_matic_v0}.json ./deployed_builds_matic/'",
+    "prepair-upgrade": "npm run clean; mkdir -p ./build/contracts; cp -r ./deployed_builds_matic/* ./build/contracts/; truffle compile --all",
+    "save-deployment-testnet": "/bin/bash -c 'mkdir -p ./deployed_builds_matic_testnet; \\cp ./build/contracts/{ERC20PatronageReceipt_v2_upgradable,ERC721Patronage_v1,Migrations,MintManager_v2,WildcardSteward_matic_v0}.json ./deployed_builds_matic_testnet/'",
+    "prepair-upgrade-testnet": "npm run clean; mkdir -p ./build/contracts; cp -r ./deployed_builds_matic_testnet/* ./build/contracts/; truffle compile --all"
   },
   "author": "jason@wildcards.world",
   "license": "MIT",

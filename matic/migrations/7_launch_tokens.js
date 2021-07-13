@@ -94,7 +94,8 @@ const buyAuctionPermit = async (
   );
   console.log("after the buy auction");
 };
-module.exports = function(deployer, networkName, accounts) {
+module.exports = function (deployer, networkName, accounts) {
+  throw "throw"
   deployer.then(async () => {
     // Don't try to deploy/migrate the contracts for tests
     if (networkName === "test") {
