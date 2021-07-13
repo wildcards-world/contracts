@@ -7,6 +7,8 @@ const {
   rinkebyProviderUrl,
   kovanProviderUrl,
   goerliProviderUrl,
+  maticProviderUrl,
+  mumbaiProviderUrl
 } = require("./secretsManager.js");
 // let HDWalletProvider = function(mnemonic, providerUrl, index) {};
 // let mnemonic, mainnetProviderUrl, rinkebyProviderUrl, goerliProviderUrl;
@@ -30,7 +32,8 @@ module.exports = {
       network_id: 80001,
       provider: new HDWalletProvider(
         mnemonic,
-        "https://rpc-mumbai.matic.today",
+        mumbaiProviderUrl,
+        // "https://rpc-mumbai.matic.today",
         0
       ),
       // gas: 4700000,
@@ -41,7 +44,10 @@ module.exports = {
       network_id: 137,
       provider: new HDWalletProvider(
         mnemonic,
-        "https://rpc-mainnet.matic.network",
+        // "https://matic-mainnet-full-rpc.bwarelabs.com/",
+        // "https://rpc-mainnet.matic.network",
+        // "https://matic-mainnet.chainstacklabs.com",
+        maticProviderUrl,
         0
       ),
       // gas: 4700000,

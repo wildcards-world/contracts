@@ -7,7 +7,7 @@ const sigUtils = require("eth-sig-util");
 const ethUtils = require("ethereumjs-util");
 
 const NUM_SECONDS_IN_YEAR = "31536000";
-const STEWARD_CONTRACT_NAME = "./WildcardSteward_matic_v1.sol";
+const STEWARD_CONTRACT_NAME = "./WildcardSteward_matic_v2.sol";
 const ERC721_CONTRACT_NAME = "./ERC721Patronage_v1.sol";
 const ERC20_CONTRACT_NAME = "./ERC20PatronageReceipt_v2_upgradable.sol";
 const MINT_MANAGER_CONTRACT_NAME = "./MintManager_v2.sol";
