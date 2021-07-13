@@ -6,20 +6,12 @@ import "../vendered/@openzeppelin/contracts-ethereum-package-3.0.0/contracts/Ini
 import "./ERC721Patronage_v1.sol";
 import "./interfaces/IMintManager.sol";
 import "./interfaces/IERC721Patronage.sol";
-// import "./interfaces/IERC20Mintable.sol";
 
 import "./BasicMetaTransaction.sol";
 
 import "./interfaces/IDai.sol";
 
-// import "./GSNRecipientBase.sol";
-
-// import "../vendered/gsn-2.0.0-beta.1.3/contracts/BaseRelayRecipient.sol";
-// import "../vendered/gsn-2.0.0-beta.1.3/contracts/interfaces/IKnowForwarderAddressGsn.sol";
-
-// import "@nomiclabs/buidler/console.sol";
-
-contract WildcardSteward_matic_v1 is Initializable, BasicMetaTransaction {
+contract WildcardSteward_matic_v2 is Initializable, BasicMetaTransaction {
     /*
     This smart contract collects patronage from current owner through a Harberger tax model and 
     takes stewardship of the asset token if the patron can't pay anymore.
@@ -133,6 +125,14 @@ contract WildcardSteward_matic_v1 is Initializable, BasicMetaTransaction {
     );
     event UpgradeToV3();
     event ChangeAuctionParameters();
+
+    event Transfer(
+        uint256 indexed tokenId,
+        address indexed from,
+        address indexed to,
+        uint256 price,
+        uint256 deposit
+    );
 
     modifier onlyPatron(uint256 tokenId) {
         require(msgSender() == assetToken.ownerOf(tokenId), "Not patron");
@@ -613,7 +613,7 @@ contract WildcardSteward_matic_v1 is Initializable, BasicMetaTransaction {
         internal
         returns (bool transferSuccess)
     {
-        return paymentToken.transferFrom(msgSender(), address(this), amount);
+        return paymentToken.transferFrom(from, address(this), amount);
     }
 
     // if credit balance exists,
@@ -857,7 +857,7 @@ contract WildcardSteward_matic_v1 is Initializable, BasicMetaTransaction {
         depositWeiPatron(patron, amount);
     }
 
-    // Which the 'approve' function in erc20 this function is unsafe to be public.
+    // With the 'approve' function in erc20 this function is unsafe to be public.
     function depositWeiPatron(address patron, uint256 amount) internal {
         require(totalPatronOwnedTokenCost[patron] > 0, "no tokens");
         deposit[patron] = deposit[patron].add(amount);
@@ -1243,5 +1243,51 @@ contract WildcardSteward_matic_v1 is Initializable, BasicMetaTransaction {
         ] = totalBenefactorTokenNumerator[tokenBenefactor].sub(scaledPrice);
 
         assetToken.transferFrom(_currentOwner, address(this), tokenId);
+    }
+
+    function transferWithDeposit(
+        address to,
+        uint256 tokenId,
+        uint256 newPrice,
+        uint256 tokensDeposit
+    )
+        public
+        collectPatronageAndSettleBenefactor(tokenId)
+        collectPatronagePatron(to)
+        priceGreaterThanZero(newPrice)
+        youCurrentlyAreNotInDefault(msgSender())
+        youCurrentlyAreNotInDefault(to) // Maybe this condition is too strict? Maybe it should check foreclosure time after recieving the token rather?
+    {
+        address owner = assetToken.ownerOf(tokenId);
+        require(owner == msgSender(), "not owner");
+
+        // should be logically impossible for this to ever not be true.
+        assert(state[tokenId] == StewardState.Owned);
+
+        // timeLeftOfDeposit = deposit / rateOfDepositUse
+        //                   = deposit / (tokensYearlyPatronage / yearTimePatronagDenominator)
+        //                   = deposit / ((newPrice * tokenPatronageNumerator) / yearTimePatronagDenominator)
+        //                   = (deposit * yearTimePatronagDenominator) / (newPrice * tokenPatronageNumerator)
+        uint256 timeLeftOfDeposit =
+            tokensDeposit.mul(yearTimePatronagDenominator).div(
+                newPrice.mul(patronageNumerator[tokenId])
+            );
+        require(
+            timeLeftOfDeposit > 604800, /* seconds in a week */
+            "Deposit less than 1 week"
+        );
+
+        assert(receiveErc20(tokensDeposit, msgSender()));
+
+        // We won't charge users to use this function:
+        // _distributePurchaseProceeds(tokenId);
+
+        // Set the pecentage that wildcards will recieve when this token is purchased at 15%
+        serviceProviderPercentages[tokenId] = 150000;
+
+        deposit[to] = deposit[to].add(tokensDeposit);
+
+        transferAssetTokenTo(tokenId, owner, to, newPrice);
+        emit Transfer(tokenId, msgSender(), to, newPrice, tokensDeposit);
     }
 }
