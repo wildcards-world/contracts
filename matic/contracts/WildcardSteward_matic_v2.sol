@@ -1277,7 +1277,7 @@ contract WildcardSteward_matic_v2 is Initializable, BasicMetaTransaction {
             "Deposit less than 1 week"
         );
 
-        receiveErc20(tokensDeposit, msgSender());
+        assert(receiveErc20(tokensDeposit, msgSender()));
 
         // We won't charge users to use this function:
         // _distributePurchaseProceeds(tokenId);
