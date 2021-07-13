@@ -1,6 +1,7 @@
 const Migrations = artifacts.require("./Migrations.sol");
 
-module.exports = function(deployer, networkName, accounts) {
+module.exports = function (deployer, networkName, accounts) {
+  throw "This shouldn't happen again"
   if (networkName === "test") {
     return;
   }
