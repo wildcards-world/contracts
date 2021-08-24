@@ -51,7 +51,8 @@ const chairleMartinsin = "0xbE98Fc043Cb2D0CBc5368adB5fB85bbd202E2823";
 const monday18Jan2020 = 1610996400;
 const friday5March2020 = 1614924000;
 const friday9July2021 = 1625839200;
-const tuesday8July2021 = 1626163200;
+const tuesday13July2021 = 1626163200;
+const wed14July2021 = 1626217200;
 const twoDaysInSeconds = 172800;
 
 const buyAuctionPermit = async (
@@ -236,35 +237,59 @@ module.exports = function (deployer, networkName, accounts) {
     //   steward.setArtistCommissionOnNextSale("62", 500000),
     //   steward.setArtistCommissionOnNextSale("63", 500000),
     // ]);
+    // await steward.listNewTokens(
+    //   [
+    //     "64",
+    //     "65",
+    //   ],
+    //   [
+    //     oceansResearchAddres,
+    //     wildTrust,
+    //   ],
+    //   [
+    //     twentyPercentMonthlyHarbergerTax,
+    //     twentyPercentMonthlyHarbergerTax,
+    //   ],
+    //   [
+    //     adaPainter,
+    //     adaPainter
+    //   ],
+    //   [50000, 50000],
+    //   [
+    //     tuesday13July2021,
+    //     tuesday13July2021 + twoDaysInSeconds * 1,
+    //   ],
+    //   { from: accounts[0] }
+    // );
+    // console.log("After minting");
+
+    // await Promise.all([
+    //   steward.setArtistCommissionOnNextSale("64", 500000),
+    //   steward.setArtistCommissionOnNextSale("65", 500000),
+    // ]);
     await steward.listNewTokens(
       [
-        "64",
-        "65",
+        "66",
       ],
       [
-        oceansResearchAddres,
-        wildTrust,
+        sasharkconservancy,
       ],
       [
-        twentyPercentMonthlyHarbergerTax,
         twentyPercentMonthlyHarbergerTax,
       ],
       [
         adaPainter,
-        adaPainter
       ],
-      [50000, 50000],
+      [50000],
       [
-        tuesday8July2021,
-        tuesday8July2021 + twoDaysInSeconds * 1,
+        wed14July2021
       ],
       { from: accounts[0] }
     );
     console.log("After minting");
 
     await Promise.all([
-      steward.setArtistCommissionOnNextSale("64", 500000),
-      steward.setArtistCommissionOnNextSale("65", 500000),
+      steward.setArtistCommissionOnNextSale("66", 500000),
     ]);
 
     console.log("artist amounts");
