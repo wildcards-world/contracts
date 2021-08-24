@@ -12,7 +12,7 @@ async function deploy(options, accounts) {
         alias: "ERC20PatronageReceipt_upgradable",
       },
       { name: "ERC721Patronage_v1", alias: "ERC721Patronage" },
-      { name: "WildcardSteward_matic_v0", alias: "WildcardSteward" },
+      { name: "WildcardSteward_matic_v2", alias: "WildcardSteward" },
       { name: "MintManager_v2", alias: "MintManager" },
     ],
   });
@@ -46,7 +46,6 @@ async function deploy(options, accounts) {
 }
 
 module.exports = function (deployer, networkName, accounts) {
-  if (networkName != "development") throw "This shouldn't happen again"
   deployer.then(async () => {
     // Don't try to deploy/migrate the contracts for tests
     if (networkName === "test") {
