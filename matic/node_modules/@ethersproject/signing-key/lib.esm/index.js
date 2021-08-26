@@ -1,5 +1,5 @@
 "use strict";
-import { ec as EC } from "elliptic";
+import { EC } from "./elliptic";
 import { arrayify, hexlify, hexZeroPad, splitSignature } from "@ethersproject/bytes";
 import { defineReadOnly } from "@ethersproject/properties";
 import { Logger } from "@ethersproject/logger";
@@ -28,7 +28,11 @@ export class SigningKey {
     }
     signDigest(digest) {
         const keyPair = getCurve().keyFromPrivate(arrayify(this.privateKey));
-        const signature = keyPair.sign(arrayify(digest), { canonical: true });
+        const digestBytes = arrayify(digest);
+        if (digestBytes.length !== 32) {
+            logger.throwArgumentError("bad digest length", "digest", digest);
+        }
+        const signature = keyPair.sign(digestBytes, { canonical: true });
         return splitSignature({
             recoveryParam: signature.recoveryParam,
             r: hexZeroPad("0x" + signature.r.toString(16), 32),

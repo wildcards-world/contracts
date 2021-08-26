@@ -1,6 +1,6 @@
 const assert = require("assert");
-const CommandRunner = require("../commandrunner");
-const MemoryLogger = require("../memorylogger");
+const CommandRunner = require("../commandRunner");
+const MemoryLogger = require("../MemoryLogger");
 const sandbox = require("../sandbox");
 const path = require("path");
 
@@ -9,8 +9,7 @@ describe("truffle build [ @standalone ]", () => {
   let config, project;
 
   describe("when there is no build script in config", () => {
-    beforeEach("set up sandbox", function() {
-      this.timeout(10000);
+    beforeEach("set up sandbox", function () {
       project = path.join(
         __dirname,
         "../../sources/build/projectWithoutBuildScript"
@@ -33,12 +32,11 @@ describe("truffle build [ @standalone ]", () => {
       await CommandRunner.run("build", config);
       const output = logger.contents();
       assert(output.includes("No build configuration found."));
-    }).timeout(20000);
+    }).timeout(30000);
   });
 
   describe("when there is a proper build config", () => {
-    beforeEach("set up sandbox", function() {
-      this.timeout(10000);
+    beforeEach("set up sandbox", function () {
       project = path.join(
         __dirname,
         "../../sources/build/projectWithBuildScript"
@@ -48,16 +46,15 @@ describe("truffle build [ @standalone ]", () => {
         config.logger = logger;
       });
     });
-    it("runs the build script", async () => {
+    it("runs the build script", async function () {
       await CommandRunner.run("build", config);
       const output = logger.contents();
       assert(output.includes("'this is the build script'"));
-    });
+    }).timeout(30000);
   });
 
   describe("when there is an object in the build config", () => {
-    beforeEach("set up sandbox", function() {
-      this.timeout(10000);
+    beforeEach("set up sandbox", function () {
       project = path.join(
         __dirname,
         "../../sources/build/projectWithObjectInBuildScript"
@@ -67,10 +64,9 @@ describe("truffle build [ @standalone ]", () => {
         config.logger = logger;
       });
     });
-    it("tells the user it shouldn't use an object", async () => {
+    it("tells the user it shouldn't use an object", async function () {
       try {
         await CommandRunner.run("build", config);
-        assert(false, "The process should have exited with code 1");
       } catch (error) {
         const output = logger.contents();
         assert(
@@ -79,6 +75,6 @@ describe("truffle build [ @standalone ]", () => {
           )
         );
       }
-    });
+    }).timeout(20000);
   });
 });

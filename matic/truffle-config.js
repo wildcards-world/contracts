@@ -9,7 +9,7 @@ const {
   goerliProviderUrl,
   maticProviderUrl,
   mumbaiProviderUrl
-} = require("./secretsManager.js");
+} = require("./secretsManagerCi.js");
 // let HDWalletProvider = function(mnemonic, providerUrl, index) {};
 // let mnemonic, mainnetProviderUrl, rinkebyProviderUrl, goerliProviderUrl;
 

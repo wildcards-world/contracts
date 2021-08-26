@@ -5,7 +5,7 @@ describe("Truffle Library APIs [ @standalone ]", () => {
   if (process.env.NO_BUILD) return;
 
   let truffle;
-  before(function() {
+  before(function () {
     this.timeout(10000);
     truffle = require("../../../build/library.bundled.js");
   });
@@ -23,11 +23,6 @@ describe("Truffle Library APIs [ @standalone ]", () => {
     assert(truffle.create.migration, "create.migration undefined");
   });
 
-  it("truffle.console API definition", () => {
-    // This one returns a constructor.
-    assert(truffle.console, "console undefined");
-  });
-
   it("truffle.contracts API definition", () => {
     assert(truffle.contracts.compile, "contracts.compile undefined");
     assert(
@@ -37,18 +32,6 @@ describe("Truffle Library APIs [ @standalone ]", () => {
     assert(
       truffle.contracts.compileSources,
       "contracts.compileSources undefined"
-    );
-    assert(
-      truffle.contracts.reportCompilationStarted,
-      "contracts.reportCompilationStarted undefined"
-    );
-    assert(
-      truffle.contracts.reportCompilationFinished,
-      "contracts.reportCompilationFinished undefined"
-    );
-    assert(
-      truffle.contracts.reportNothingToCompile,
-      "contracts.reportNothingToCompile undefined"
     );
     assert(
       truffle.contracts.writeContracts,

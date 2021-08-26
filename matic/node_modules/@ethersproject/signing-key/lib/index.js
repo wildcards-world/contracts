@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var elliptic_1 = require("elliptic");
+exports.computePublicKey = exports.recoverPublicKey = exports.SigningKey = void 0;
+var elliptic_1 = require("./elliptic");
 var bytes_1 = require("@ethersproject/bytes");
 var properties_1 = require("@ethersproject/properties");
 var logger_1 = require("@ethersproject/logger");
@@ -9,7 +10,7 @@ var logger = new logger_1.Logger(_version_1.version);
 var _curve = null;
 function getCurve() {
     if (!_curve) {
-        _curve = new elliptic_1.ec("secp256k1");
+        _curve = new elliptic_1.EC("secp256k1");
     }
     return _curve;
 }
@@ -29,7 +30,11 @@ var SigningKey = /** @class */ (function () {
     };
     SigningKey.prototype.signDigest = function (digest) {
         var keyPair = getCurve().keyFromPrivate(bytes_1.arrayify(this.privateKey));
-        var signature = keyPair.sign(bytes_1.arrayify(digest), { canonical: true });
+        var digestBytes = bytes_1.arrayify(digest);
+        if (digestBytes.length !== 32) {
+            logger.throwArgumentError("bad digest length", "digest", digest);
+        }
+        var signature = keyPair.sign(digestBytes, { canonical: true });
         return bytes_1.splitSignature({
             recoveryParam: signature.recoveryParam,
             r: bytes_1.hexZeroPad("0x" + signature.r.toString(16), 32),

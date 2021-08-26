@@ -43,6 +43,6 @@
     "eth-gas-reporter": "^0.2.17",
     "ethereumjs-abi": "^0.6.8",
     "ethereumjs-util": "^7.0.4",
-    "truffle": "^5.1.42"
+    "truffle": "^5.4.7"
   }
 }

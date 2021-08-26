@@ -296,8 +296,13 @@ const cropPadAndNumber = (text, opts) => {
 		const tabAdjust = (tabCount * opts.consoleTabWidth)
 
 		const plain = stripAnsi(line).replace(/\t/g, '')
-		const linePad = String().padEnd((longestLineLen - plain.length) - tabAdjust, ' ')
-		const runLengthLine = line + opts.colors.trailingSpace(linePad)
+		let runLengthLine
+		if (opts.lineEndPad === true) {
+			const linePad = String().padEnd((longestLineLen - plain.length) - tabAdjust, ' ')
+			runLengthLine = line + opts.colors.trailingSpace(linePad)
+		} else {
+			runLengthLine = line
+		}
 
 		let lineOutput
 
@@ -346,7 +351,8 @@ const procOpts = (opts = {}) => {
 		colors: darkPalette,
 		tabsToSpaces: 4,
 		consoleTabWidth: 8,
-		arrowKeyword: 'const'
+		arrowKeyword: 'const',
+		lineEndPad: true
 	}
 
 	options = merge(options, opts)

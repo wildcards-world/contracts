@@ -1,5 +1,5 @@
 "use strict";
-import { arrayify, concat, hexlify } from "@ethersproject/bytes";
+import { arrayify, concat, hexConcat, hexlify } from "@ethersproject/bytes";
 import { BigNumber } from "@ethersproject/bignumber";
 import { defineReadOnly } from "@ethersproject/properties";
 import { Logger } from "@ethersproject/logger";
@@ -41,20 +41,28 @@ export class Coder {
 export class Writer {
     constructor(wordSize) {
         defineReadOnly(this, "wordSize", wordSize || 32);
-        this._data = arrayify([]);
+        this._data = [];
+        this._dataLength = 0;
         this._padding = new Uint8Array(wordSize);
     }
-    get data() { return hexlify(this._data); }
-    get length() { return this._data.length; }
+    get data() {
+        return hexConcat(this._data);
+    }
+    get length() { return this._dataLength; }
     _writeData(data) {
-        this._data = concat([this._data, data]);
+        this._data.push(data);
+        this._dataLength += data.length;
         return data.length;
+    }
+    appendWriter(writer) {
+        return this._writeData(concat(writer._data));
     }
     // Arrayish items; padded on the right to wordSize
     writeBytes(value) {
         let bytes = arrayify(value);
-        if (bytes.length % this.wordSize) {
-            bytes = concat([bytes, this._padding.slice(bytes.length % this.wordSize)]);
+        const paddingOffset = bytes.length % this.wordSize;
+        if (paddingOffset) {
+            bytes = concat([bytes, this._padding.slice(paddingOffset)]);
         }
         return this._writeData(bytes);
     }
@@ -76,18 +84,20 @@ export class Writer {
         return this._writeData(this._getValue(value));
     }
     writeUpdatableValue() {
-        let offset = this.length;
-        this.writeValue(0);
+        const offset = this._data.length;
+        this._data.push(this._padding);
+        this._dataLength += this.wordSize;
         return (value) => {
-            this._data.set(this._getValue(value), offset);
+            this._data[offset] = this._getValue(value);
         };
     }
 }
 export class Reader {
-    constructor(data, wordSize, coerceFunc) {
+    constructor(data, wordSize, coerceFunc, allowLoose) {
         defineReadOnly(this, "_data", arrayify(data));
         defineReadOnly(this, "wordSize", wordSize || 32);
         defineReadOnly(this, "_coerceFunc", coerceFunc);
+        defineReadOnly(this, "allowLoose", allowLoose);
         this._offset = 0;
     }
     get data() { return hexlify(this._data); }
@@ -106,21 +116,26 @@ export class Reader {
         }
         return Reader.coerce(name, value);
     }
-    _peekBytes(offset, length) {
+    _peekBytes(offset, length, loose) {
         let alignedLength = Math.ceil(length / this.wordSize) * this.wordSize;
         if (this._offset + alignedLength > this._data.length) {
-            logger.throwError("data out-of-bounds", Logger.errors.BUFFER_OVERRUN, {
-                length: this._data.length,
-                offset: this._offset + alignedLength
-            });
+            if (this.allowLoose && loose && this._offset + length <= this._data.length) {
+                alignedLength = length;
+            }
+            else {
+                logger.throwError("data out-of-bounds", Logger.errors.BUFFER_OVERRUN, {
+                    length: this._data.length,
+                    offset: this._offset + alignedLength
+                });
+            }
         }
         return this._data.slice(this._offset, this._offset + alignedLength);
     }
     subReader(offset) {
-        return new Reader(this._data.slice(this._offset + offset), this.wordSize, this._coerceFunc);
+        return new Reader(this._data.slice(this._offset + offset), this.wordSize, this._coerceFunc, this.allowLoose);
     }
-    readBytes(length) {
-        let bytes = this._peekBytes(0, length);
+    readBytes(length, loose) {
+        let bytes = this._peekBytes(0, length, !!loose);
         this._offset += bytes.length;
         // @TODO: Make sure the length..end bytes are all 0?
         return bytes.slice(0, length);
