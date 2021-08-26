@@ -14,12 +14,14 @@ const {
 // let mnemonic, mainnetProviderUrl, rinkebyProviderUrl, goerliProviderUrl;
 
 const blockchainNodeHost = process.env.BLOCKCHAIN_NODE_HOST || "localhost";
+const migrations_directory = process.env.MIGRATIONS_DIRECTORY || "./migrations";
 
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
   // to customize your Truffle configuration!
   plugins: ["solidity-coverage"],
   // contracts_build_directory: path.join(__dirname, "artifacts/contracts"),
+  migrations_directory,
   networks: {
     mainnet: {
       network_id: 1,
