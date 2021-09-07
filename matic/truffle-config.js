@@ -23,72 +23,72 @@ module.exports = {
   // contracts_build_directory: path.join(__dirname, "artifacts/contracts"),
   migrations_directory,
   networks: {
-    mainnet: {
-      network_id: 1,
-      provider: new HDWalletProvider(mnemonic, mainnetProviderUrl, 0),
-      // gas: 4700000,
-      gasPrice: 45000000000, // 10 gwei
-      skipDryRun: true,
-    },
-    mumbai: {
-      network_id: 80001,
-      provider: new HDWalletProvider(
-        mnemonic,
-        mumbaiProviderUrl,
-        // "https://rpc-mumbai.matic.today",
-        0
-      ),
-      // gas: 4700000,
-      gasPrice: 2000000000, // 2 gwei
-      skipDryRun: true,
-    },
-    matic: {
-      network_id: 137,
-      provider: new HDWalletProvider(
-        mnemonic,
-        // "https://matic-mainnet-full-rpc.bwarelabs.com/",
-        // "https://rpc-mainnet.matic.network",
-        // "https://matic-mainnet.chainstacklabs.com",
-        maticProviderUrl,
-        0
-      ),
-      // gas: 4700000,
-      gasPrice: 2000000000, // 2 gwei
-      skipDryRun: true,
-    },
-    rinkeby: {
-      network_id: 4,
-      provider: new HDWalletProvider(mnemonic, rinkebyProviderUrl, 0),
-      gas: 4700000,
-      gasPrice: 10000000000, // 10 gwe
-      skipDryRun: true,
-    },
-    kovan: {
-      network_id: 42,
-      provider: new HDWalletProvider(mnemonic, kovanProviderUrl, 0),
-      // gas: 47000000,
-      gasPrice: 10000000000, // 10 gwei
-      skipDryRun: true,
-    },
-    goerli: {
-      network_id: 5,
-      provider: new HDWalletProvider(mnemonic, goerliProviderUrl, 0),
-      gas: 8000000,
-      gasPrice: 10000000000, // 10 gwei
-      skipDryRun: true,
-    },
+    // mainnet: {
+    //   network_id: 1,
+    //   provider: new HDWalletProvider(mnemonic, mainnetProviderUrl, 0),
+    //   // gas: 4700000,
+    //   gasPrice: 45000000000, // 10 gwei
+    //   skipDryRun: true,
+    // },
+    // mumbai: {
+    //   network_id: 80001,
+    //   provider: new HDWalletProvider(
+    //     mnemonic,
+    //     mumbaiProviderUrl,
+    //     // "https://rpc-mumbai.matic.today",
+    //     0
+    //   ),
+    //   // gas: 4700000,
+    //   gasPrice: 2000000000, // 2 gwei
+    //   skipDryRun: true,
+    // },
+    // matic: {
+    //   network_id: 137,
+    //   provider: new HDWalletProvider(
+    //     mnemonic,
+    //     // "https://matic-mainnet-full-rpc.bwarelabs.com/",
+    //     // "https://rpc-mainnet.matic.network",
+    //     // "https://matic-mainnet.chainstacklabs.com",
+    //     maticProviderUrl,
+    //     0
+    //   ),
+    //   // gas: 4700000,
+    //   gasPrice: 2000000000, // 2 gwei
+    //   skipDryRun: true,
+    // },
+    // rinkeby: {
+    //   network_id: 4,
+    //   provider: new HDWalletProvider(mnemonic, rinkebyProviderUrl, 0),
+    //   gas: 4700000,
+    //   gasPrice: 10000000000, // 10 gwe
+    //   skipDryRun: true,
+    // },
+    // kovan: {
+    //   network_id: 42,
+    //   provider: new HDWalletProvider(mnemonic, kovanProviderUrl, 0),
+    //   // gas: 47000000,
+    //   gasPrice: 10000000000, // 10 gwei
+    //   skipDryRun: true,
+    // },
+    // goerli: {
+    //   network_id: 5,
+    //   provider: new HDWalletProvider(mnemonic, goerliProviderUrl, 0),
+    //   gas: 8000000,
+    //   gasPrice: 10000000000, // 10 gwei
+    //   skipDryRun: true,
+    // },
     development: {
       host: blockchainNodeHost, // Localhost (default: none)
       port: 8545, // Standard Ethereum port (default: none)
       network_id: "*", // Any network (default: none)
       gasPrice: 1000000000, // 0.1 gwei
     },
-    test: {
-      host: blockchainNodeHost, // Localhost (default: none)
-      port: 8545, // Standard Ethereum port (default: none)
-      network_id: "*", // Any network (default: none)
-      gasPrice: 100000000, // 0.1 gwei
-    },
+    // test: {
+    //   host: blockchainNodeHost, // Localhost (default: none)
+    //   port: 8545, // Standard Ethereum port (default: none)
+    //   network_id: "*", // Any network (default: none)
+    //   gasPrice: 100000000, // 0.1 gwei
+    // },
   },
   mocha: {
     reporter: "eth-gas-reporter",
