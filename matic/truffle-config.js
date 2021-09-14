@@ -1,6 +1,15 @@
 const path = require("path");
 // This gives very strange errors in development, so keep these values null unless you require infura etc.
 const HDWalletProvider = require("@truffle/hdwallet-provider");
+let config;
+try {
+  config = require("./secretsManager.js");
+} catch (e) {
+  console.error(
+    "You are using the example secrets manager, please copy this file if you want to use it"
+  );
+  config = require("./secretsManagerCi.js");
+}
 const {
   mnemonic,
   mainnetProviderUrl,
@@ -9,7 +18,7 @@ const {
   goerliProviderUrl,
   maticProviderUrl,
   mumbaiProviderUrl
-} = require("./secretsManager.js");
+} = config;
 // let HDWalletProvider = function(mnemonic, providerUrl, index) {};
 // let mnemonic, mainnetProviderUrl, rinkebyProviderUrl, goerliProviderUrl;
 
