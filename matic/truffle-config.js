@@ -39,32 +39,35 @@ module.exports = {
     //   gasPrice: 45000000000, // 10 gwei
     //   skipDryRun: true,
     // },
-    // mumbai: {
-    //   network_id: 80001,
-    //   provider: new HDWalletProvider(
-    //     mnemonic,
-    //     mumbaiProviderUrl,
-    //     // "https://rpc-mumbai.matic.today",
-    //     0
-    //   ),
-    //   // gas: 4700000,
-    //   gasPrice: 2000000000, // 2 gwei
-    //   skipDryRun: true,
-    // },
-    // matic: {
-    //   network_id: 137,
-    //   provider: new HDWalletProvider(
-    //     mnemonic,
-    //     // "https://matic-mainnet-full-rpc.bwarelabs.com/",
-    //     // "https://rpc-mainnet.matic.network",
-    //     // "https://matic-mainnet.chainstacklabs.com",
-    //     maticProviderUrl,
-    //     0
-    //   ),
-    //   // gas: 4700000,
-    //   gasPrice: 2000000000, // 2 gwei
-    //   skipDryRun: true,
-    // },
+    mumbai: {
+      network_id: 80001,
+      provider: new HDWalletProvider(
+        mnemonic,
+        mumbaiProviderUrl,
+        // "https://rpc-mumbai.matic.today",
+        0
+      ),
+      // gas: 4700000,
+      gasPrice: 2000000000, // 2 gwei
+      skipDryRun: true,
+    },
+    matic: {
+      network_id: 137,
+      chainId: 137,
+      provider: new HDWalletProvider(
+        mnemonic,
+        // "https://matic-mainnet-full-rpc.bwarelabs.com/",
+        // "https://rpc-mainnet.matic.network",
+        // "https://matic-mainnet.chainstacklabs.com",
+        // maticProviderUrl,
+        // "https://polygon-rpc.com/",
+        "https://polygon-mainnet.g.alchemy.com/v2/VzFC8zPoM4mv4iXB7v0JpBfehIppOsDe",
+        0
+      ),
+      // gas: 4700000,
+      gasPrice: 50000000000, // 2 gwei
+      skipDryRun: true,
+    },
     // rinkeby: {
     //   network_id: 4,
     //   provider: new HDWalletProvider(mnemonic, rinkebyProviderUrl, 0),

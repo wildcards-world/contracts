@@ -9,8 +9,10 @@ const { daiPermitGeneration } = require("../test/helpers");
 const testAccountAddress = "0x8c7A88756EbbF46Ede65E4D678359cAC5f08f7b2";
 
 const twentyPercentMonthlyHarbergerTax = "240" + "0000000000"; // Harberger tax rate of 240% per year
+const thirtyPercentPerYearHarbergerTax = "30" + "0000000000"; // Harberger tax rate of 30% per year
 
 const mareCetAddress = "0x707c0041f6e87411812f9e98fd99c9eddfd0b2a0";
+const mereCetAddress2 = "0x01e925BFAaA2CF2f661DCB965d20eDc2CF5b0893"
 const lionLandscapes = "0x2b48B87B7d168D0a8b7e1526ff90e10876E46067";
 const zavoraLabAddress = "0x16Aa1E035AAffF67ED35bf7BC00070d8a88ee3C1";
 const oceansResearchAddres = "0x0633de7c301f6e350db531c5f95a4500d9373c51";
@@ -23,6 +25,8 @@ const oana = "0x6dB803540E20E16b7355bC4d4dA33c46b76DC2FA";
 const bios = "0x05b71fE3f642d18A7034818C6085e15A5Ed26699";
 const bdiAddress = "0xADad0D21ba0E4b356e2b2769e08CfeF206f83891";
 const sharklife = "0x069cBb4916aD021CF04CbBdf1a7ADB2Bcc669813";
+const sosSaveOurSeahourses = "0xB447CE443bdd593DC6bdecA1bB3709BaaD0F5Dfd";
+const capeleopard = "0xD3a178d44588B7d43891AA560f4611b1B91392BB";
 
 const fishcatAddress = "0xbc2c67a59ec004d7127a63f0f99275e31b4883cf";
 const mountKenyaTrust = "0xB1cf64514B89F0fAbBB7C7bEe95d72b175a63a8B";
@@ -47,12 +51,17 @@ const camoleite = "0x203140E492789c8A3130E4554E65820D6d918F9E";
 const higherDesignCo = "0x2E5E62C8cD9ede2874b6a9c87F843389BFD7cB3B";
 const canBaris = "0x5BC3FE260ea58C8516dbc11ac7DcdC0eC06E0359";
 const chairleMartinsin = "0xbE98Fc043Cb2D0CBc5368adB5fB85bbd202E2823";
+const chantelleHopewell = "0x0Db5296164443Ef7C664eAA26b5BCfEe6534436D";
 
 const monday18Jan2020 = 1610996400;
 const friday5March2020 = 1614924000;
 const friday9July2021 = 1625839200;
 const tuesday13July2021 = 1626163200;
 const wed14July2021 = 1626217200;
+const wed24Nov2021 = 1637766000;
+const wed1Doc2021 = 1638370800;
+const wed12Jan2022 = 1641999600;
+const wed19Jan2022 = 1642604400;
 const twoDaysInSeconds = 172800;
 
 const buyAuctionPermit = async (
@@ -115,7 +124,7 @@ module.exports = function (deployer, networkName, accounts) {
     console.log("steward address After", steward.address);
 
     console.log("IS MINTER?", isMinter);
-    console.log("before minting");
+    console.log("before minting", accounts[0]);
 
     // "54", "55", "56", "57", "58", "59", "60"
 
@@ -267,6 +276,7 @@ module.exports = function (deployer, networkName, accounts) {
     //   steward.setArtistCommissionOnNextSale("64", 500000),
     //   steward.setArtistCommissionOnNextSale("65", 500000),
     // ]);
+    /*
     await steward.listNewTokens(
       [
         "66",
@@ -290,6 +300,141 @@ module.exports = function (deployer, networkName, accounts) {
 
     await Promise.all([
       steward.setArtistCommissionOnNextSale("66", 500000),
+    ]); 
+    */
+
+
+    /*
+        const chainId = await web3.eth.getChainId();
+    console.log("chainid", chainId)
+    console.log(
+      [
+        "67",
+        "68",
+      ],
+      [
+        mereCetAddress2,
+        sosSaveOurSeahourses
+      ],
+      [
+        thirtyPercentPerYearHarbergerTax,
+        thirtyPercentPerYearHarbergerTax
+      ],
+      [
+        chantelleHopewell, noArtist
+      ],
+      [50000, 0],
+      [
+        wed24Nov2021,
+        wed1Doc2021
+      ],
+      // {
+      //   from: accounts[0],
+      //   gas: 1000000,
+      //   'chainId': 137,
+      // }
+    );
+    console.log("After minting");
+    // Getting: "only replay-protected (EIP-155) transactions allowed over RPC". Don't know how to fix. Manual deploy...
+    await steward.listNewTokens(
+      [
+        "67",
+        "68",
+      ],
+      [
+        mereCetAddress2,
+        sosSaveOurSeahourses
+      ],
+      [
+        thirtyPercentPerYearHarbergerTax,
+        thirtyPercentPerYearHarbergerTax
+      ],
+      [
+        chantelleHopewell, noArtist
+      ],
+      [50000, 0],
+      [
+        wed24Nov2021,
+        wed1Doc2021
+      ],
+      // {
+      //   from: accounts[0],
+      //   gas: 1000000,
+      //   'chainId': 137,
+      // }
+    );
+    console.log("After minting");
+
+    await Promise.all([
+      steward.setArtistCommissionOnNextSale("68", 500000),
+    ]);
+    */
+
+    // Getting: "only replay-protected (EIP-155) transactions allowed over RPC". Don't know how to fix. Manual deploy...
+    await steward.listNewTokens(
+      [
+        "69",
+        "70",
+      ],
+      [
+        capeleopard,
+        wildTrust
+      ],
+      [
+        thirtyPercentPerYearHarbergerTax,
+        thirtyPercentPerYearHarbergerTax
+      ],
+      [
+        higherDesignCo, adaPainter
+      ],
+      [50000, 0],
+      [
+        wed12Jan2022,
+        wed19Jan2022
+      ],
+      // {
+      //   from: accounts[0],
+      //   gas: 1000000,
+      //   'chainId': 137,
+      // }
+    );
+    console.log("After minting");
+
+    const chainId = await web3.eth.getChainId();
+    console.log("chainid", chainId)
+    console.log(
+      [
+        "69",
+        "70",
+      ],
+      [
+        capeleopard,
+        wildTrust
+      ],
+      [
+        thirtyPercentPerYearHarbergerTax,
+        thirtyPercentPerYearHarbergerTax
+      ],
+      [
+        higherDesignCo, adaPainter
+      ],
+      [50000, 50000],
+      [
+        wed12Jan2022,
+        wed19Jan2022
+      ],
+      { from: accounts[0] }
+      // {
+      //   from: accounts[0],
+      //   gas: 1000000,
+      //   'chainId': 137,
+      // }
+    );
+    console.log("After minting");
+
+    await Promise.all([
+      steward.setArtistCommissionOnNextSale("69", 500000),
+      steward.setArtistCommissionOnNextSale("70", 500000),
     ]);
 
     console.log("artist amounts");
